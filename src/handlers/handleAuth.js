@@ -12,7 +12,7 @@ export default () =>
     console.log("route", route);
     switch (route) {
       case "login":
-        return login(req, res);
+        login(req, res);
       default:
         res.status(404).end();
     }
