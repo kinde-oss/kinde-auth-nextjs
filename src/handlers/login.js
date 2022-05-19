@@ -6,5 +6,5 @@ export const login = (req, res) => {
   console.log("req", req);
   console.log("res", res);
 
-  res.end("hello");
+  res.status(200).json({ name: "John Doe" });
 };
