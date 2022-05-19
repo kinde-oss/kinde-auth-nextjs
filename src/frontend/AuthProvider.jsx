@@ -63,10 +63,14 @@ export default ({ children, initialUser }) => {
   }, [profileUrl]);
 
   // if you get the user set loading false
-  useEffect(async () => {
-    if (state.user) return;
-    await checkSession();
-    setState((previous) => ({ ...previous, isLoading: false }));
+  useEffect(() => {
+    const checkLoading = async () => {
+      await checkSession();
+      setState((previous) => ({ ...previous, isLoading: false }));
+    };
+    if (!state.user) {
+      checkLoading();
+    }
   }, [state.user]);
 
   // provide this stuff to the rest of your app
