@@ -5,4 +5,6 @@ export const login = (req, res) => {
   console.log("log in");
   console.log("req", req);
   console.log("res", res);
+
+  res.end("hello");
 };
