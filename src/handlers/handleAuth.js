@@ -9,7 +9,7 @@ export default () =>
       query: { kindeAuth: route },
     } = req;
 
-    console.log("query", query);
+    console.log("route", route);
     switch (route) {
       case "login":
         return login(req, res);
