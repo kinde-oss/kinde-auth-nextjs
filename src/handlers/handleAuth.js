@@ -2,6 +2,8 @@ import { login } from "./login";
 
 export default () =>
   function handler(req, res) {
+    console.log(req);
+
     let {
       query: { kindeAuth: route },
     } = req;
