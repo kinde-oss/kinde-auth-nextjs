@@ -28,7 +28,6 @@ export const callback = async (req, res) => {
       const data = await response.json();
 
       // check token claims
-      console.log(data);
       // save token
       res.setHeader(
         "Set-Cookie",
