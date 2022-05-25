@@ -2,9 +2,10 @@ import { login } from "./login";
 import { logout } from "./logout";
 import { me } from "./me";
 import { register } from "./register";
+import { callback } from "./callback";
 
 export default () =>
-  function handler(req, res) {
+  async function handler(req, res) {
     let {
       query: { kindeAuth: route },
     } = req;
@@ -13,14 +14,16 @@ export default () =>
 
     switch (route) {
       case "login":
-        login(req, res);
+        return await login(req, res);
       case "register":
-        register(req, res);
+        return await register(req, res);
       case "me":
-        me(req, res);
+        return await me(req, res);
       case "logout":
-        logout(req, res);
+        return await logout(req, res);
+      case "kinde_callback":
+        return await callback(req, res);
       default:
-        res.status(404).end();
+        return res.status(404).end();
     }
   };

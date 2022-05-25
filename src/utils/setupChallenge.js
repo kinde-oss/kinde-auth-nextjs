@@ -1,19 +1,19 @@
-import { randomString } from "./randomString";
 import { SESSION_PREFIX } from "../config/sessionPrefix";
-import { pkceChallengeFromVerifier } from "./pkceChallengeFromVerifier";
+import pkceChallenge from "./pkceChallenge";
+import { randomString } from "./randomString";
 
 var cookie = require("cookie");
 
-export const setupChallenge = async () => {
+export const setupChallenge = (req, res) => {
   const state = randomString();
-  const code_verifier = randomString(); // the secret
-  // Hash and base64-urlencode the secret to use as the challenge
-  const code_challenge = await pkceChallengeFromVerifier(code_verifier);
+  const { code_challenge, code_verifier } = pkceChallenge();
 
-  cookie.parse(`${SESSION_PREFIX}-${state}`, code_verifier);
-
-  // Build and encode the authorisation request url
-  const url = new URL("https://developer.mozilla.org/oauth2/auth");
-  console.log(url);
-  return { state, code_challenge, url };
+  res.setHeader(
+    "Set-Cookie",
+    cookie.serialize(`${SESSION_PREFIX}-${state}`, code_verifier, {
+      httpOnly: true,
+      maxAge: 5,
+    })
+  );
+  return { state, code_challenge };
 };
