@@ -1,6 +1,6 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "1.0.1-beta.0",
+  "version": "1.0.1-beta.1",
   "description": "Kinde Auth SDK for NextJS",
   "main": "bundle.js",
   "scripts": {
