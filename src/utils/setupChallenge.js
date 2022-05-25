@@ -4,7 +4,7 @@ import { randomString } from "./randomString";
 
 var cookie = require("cookie");
 
-export const setupChallenge = (req, res) => {
+export const setupChallenge = (req, res, maxAge) => {
   const state = randomString();
   const { code_challenge, code_verifier } = pkceChallenge();
 
@@ -12,7 +12,7 @@ export const setupChallenge = (req, res) => {
     "Set-Cookie",
     cookie.serialize(`${SESSION_PREFIX}-${state}`, code_verifier, {
       httpOnly: true,
-      maxAge: 5,
+      maxAge,
     })
   );
   return { state, code_challenge };

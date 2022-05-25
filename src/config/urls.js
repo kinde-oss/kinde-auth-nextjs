@@ -1,6 +1,10 @@
 export const callbackUrl = new URL(
   `https://${process.env.KINDE_REDIRECT_URL}/api/auth/kinde_callback`
 );
+export const logoutUrl = new URL(`https://${process.env.KINDE_DOMAIN}/logout`);
+export const tokenUrl = new URL(
+  `https://${process.env.KINDE_DOMAIN}/oauth2/token`
+);
 
 const buildUrl = (isRegister) => {
   const url = new URL(`https://${process.env.KINDE_DOMAIN}/oauth2/auth`);
@@ -19,7 +23,3 @@ const buildUrl = (isRegister) => {
 
 export const loginUrl = buildUrl();
 export const registerUrl = buildUrl(true);
-export const logoutUrl = new URL(`https://${process.env.KINDE_DOMAIN}/logout`);
-export const tokenUrl = new URL(
-  `https://${process.env.KINDE_DOMAIN}/oauth2/token`
-);

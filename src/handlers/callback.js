@@ -5,7 +5,7 @@ var cookie = require("cookie");
 
 export const callback = async (req, res) => {
   const { code, state } = req.query;
-  const code_verifier = cookie.parse(req.headers.cookie)[
+  const code_verifier = cookie.parse(req.headers.cookie || "")[
     `${SESSION_PREFIX}-${state}`
   ];
 
@@ -27,10 +27,12 @@ export const callback = async (req, res) => {
       });
       const data = await response.json();
 
-      // clear cookies
+      // check token claims
+      console.log(data);
+      // save token
       res.setHeader(
         "Set-Cookie",
-        cookie.serialize(`kinde_token`, data.access_token, {
+        cookie.serialize(`kinde_token`, JSON.stringify(data), {
           httpOnly: true,
           maxAge: Number(data.expires_in),
         })
