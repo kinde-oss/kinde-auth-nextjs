@@ -1,4 +1,4 @@
-import { SESSION_PREFIX } from "../config/sessionPrefix";
+import { config } from "../config/index";
 import pkceChallenge from "./pkceChallenge";
 import { randomString } from "./randomString";
 
@@ -10,7 +10,7 @@ export const setupChallenge = (req, res, maxAge) => {
 
   res.setHeader(
     "Set-Cookie",
-    cookie.serialize(`${SESSION_PREFIX}-${state}`, code_verifier, {
+    cookie.serialize(`${config.SESSION_PREFIX}-${state}`, code_verifier, {
       httpOnly: true,
       maxAge,
     })

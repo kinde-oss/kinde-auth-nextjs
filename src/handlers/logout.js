@@ -1,20 +1,22 @@
-import { logoutUrl } from "../config/urls";
+import { config } from "../config/index";
 
 var cookie = require("cookie");
 
 export const logout = async (req, res) => {
   res.setHeader(
     "Set-Cookie",
-    cookie.serialize(`kinde_token`, null, {
+    cookie.serialize("kinde_token", null, {
       httpOnly: true,
       maxAge: 0,
     })
   );
-  logoutUrl.searchParams.set(
+
+  const logoutURL = new URL(config.issuerURL + config.issuerRoutes.logout);
+
+  logoutURL.searchParams.set(
     "redirect",
-    process.env.KINDE_LOGOUT_URL
-      ? `https://${process.env.KINDE_LOGOUT_URL}`
-      : `https://${process.env.KINDE_REDIRECT_URL}`
+    config.redirectURL + config.redirectRoutes.postLogoutRedirect
   );
-  res.redirect(logoutUrl.href);
+
+  res.redirect(logoutURL.href);
 };

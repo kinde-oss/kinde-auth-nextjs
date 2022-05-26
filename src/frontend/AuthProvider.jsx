@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
-import { initialState } from "../config/initialState";
+import { config } from "../config/index";
 
 const handleError = () => {
   throw new Error(
@@ -14,7 +14,7 @@ const handleError = () => {
 };
 
 export const AuthContext = createContext({
-  ...initialState,
+  ...config.initialState,
   user: handleError,
   isLoading: handleError,
   isAuthenticated: handleError,
@@ -40,7 +40,7 @@ const userFetcher = async (url) => {
 
 export default ({ children, initialUser }) => {
   const [state, setState] = useState({
-    ...initialState,
+    ...config.initialState,
     user: initialUser,
     isLoading: !initialUser,
     isAuthenticated: !!initialUser,

@@ -1,34 +1,33 @@
-import { SESSION_PREFIX } from "../config/sessionPrefix";
-import { callbackUrl, tokenUrl } from "../config/urls";
-
+import { config } from "../config/index";
 var cookie = require("cookie");
 
 export const callback = async (req, res) => {
   const { code, state } = req.query;
   const code_verifier = cookie.parse(req.headers.cookie || "")[
-    `${SESSION_PREFIX}-${state}`
+    `${config.SESSION_PREFIX}-${state}`
   ];
 
   if (code_verifier) {
     try {
-      const response = await fetch(tokenUrl, {
-        method: "POST",
-        headers: new Headers({
-          "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-        }),
-        body: new URLSearchParams({
-          client_id: process.env.CLIENT_ID,
-          client_secret: process.env.CLIENT_SECRET,
-          code,
-          code_verifier,
-          grant_type: "authorization_code",
-          redirect_uri: callbackUrl,
-        }),
-      });
+      const response = await fetch(
+        config.issuerURL + config.issuerRoutes.token,
+        {
+          method: "POST",
+          headers: new Headers({
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+          }),
+          body: new URLSearchParams({
+            client_id: config.clientID,
+            client_secret: config.clientSecret,
+            code,
+            code_verifier,
+            grant_type: "authorization_code",
+            redirect_uri: config.redirectURL + config.redirectRoutes.callback,
+          }),
+        }
+      );
       const data = await response.json();
 
-      // check token claims
-      // save token
       res.setHeader(
         "Set-Cookie",
         cookie.serialize(`kinde_token`, JSON.stringify(data), {
@@ -39,8 +38,8 @@ export const callback = async (req, res) => {
     } catch (err) {
       console.log(err);
     }
-    res.redirect(`https://${process.env.KINDE_REDIRECT_URL}`);
+    res.redirect(config.redirectURL);
   } else {
-    res.redirect(`https://${process.env.KINDE_REDIRECT_URL}`);
+    res.redirect(config.redirectURL);
   }
 };

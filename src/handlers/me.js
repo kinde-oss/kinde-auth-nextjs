@@ -1,3 +1,5 @@
+import { config } from "../config/index";
+
 var cookie = require("cookie");
 
 export const me = async (req, res) => {
@@ -7,7 +9,7 @@ export const me = async (req, res) => {
     const token = JSON.parse(kinde_token);
     try {
       const response = await fetch(
-        `https://${process.env.KINDE_DOMAIN}/oauth2/user_profile`,
+        config.issuerURL + config.issuerRoutes.profile,
         {
           headers: new Headers({
             Authorization: "Bearer " + token.access_token,

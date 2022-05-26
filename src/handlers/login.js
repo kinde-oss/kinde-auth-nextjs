@@ -1,11 +1,24 @@
-import { loginUrl } from "../config/urls";
+import { config } from "../config/index";
 import { setupChallenge } from "../utils/setupChallenge";
 
 export const login = async (req, res) => {
   const { state, code_challenge } = setupChallenge(req, res, 60);
-  loginUrl.searchParams.set("state", state);
-  loginUrl.searchParams.set("code_challenge", code_challenge);
-  loginUrl.searchParams.set("code_challenge_method", "S256");
+  const loginURL = new URL(config.issuerURL + config.issuerRoutes.login);
 
-  res.redirect(loginUrl.href);
+  loginURL.searchParams.append("response_type", config.responseType);
+  loginURL.searchParams.append("client_id", config.clientID);
+  loginURL.searchParams.append(
+    "redirect_uri",
+    config.redirectURL + config.redirectRoutes.callback
+  );
+  loginURL.searchParams.append("scope", config.scope);
+
+  loginURL.searchParams.set("state", state);
+  loginURL.searchParams.set("code_challenge", code_challenge);
+  loginURL.searchParams.set(
+    "code_challenge_method",
+    config.codeChallengeMethod
+  );
+
+  res.redirect(loginURL.href);
 };
