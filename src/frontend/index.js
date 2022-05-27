@@ -1,5 +1,5 @@
 export {
   default as KindeProvider,
-  useAuth,
+  useKindeAuth,
   AuthContext,
 } from "./AuthProvider.jsx";

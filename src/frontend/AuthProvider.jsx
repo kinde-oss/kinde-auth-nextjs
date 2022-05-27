@@ -21,7 +21,7 @@ export const AuthContext = createContext({
   checkSession: handleError,
 });
 
-export const useAuth = () => useContext(AuthContext);
+export const useKindeAuth = () => useContext(AuthContext);
 
 const userFetcher = async (url) => {
   let response;

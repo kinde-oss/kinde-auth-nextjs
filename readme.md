@@ -58,14 +58,14 @@ export default handleAuth();
 
 ### Getting user information
 
-To access the user information, use the `useAuth` hook from any part of your app, wrapped by your `KindeProvider`.
+To access the user information, use the `useKindeAuth` hook from any part of your app, wrapped by your `KindeProvider`.
 
 ```js
 import styles from "../styles/Home.module.css";
-import { useAuth } from "@kinde-oss/kinde-auth-nextjs";
+import { useKindeAuth } from "@kinde-oss/kinde-auth-nextjs";
 
 export default function Home() {
-  const auth = useAuth();
+  const auth = useKindeAuth();
   console.log(auth);
 
   return (
