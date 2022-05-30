@@ -69,15 +69,11 @@ export default ({ children, initialUser }) => {
       setState((previous) => ({
         ...previous,
         isLoading: false,
-        isAuthenticated: true,
+        isAuthenticated: !!state.user,
       }));
     };
     if (!state.user) {
       checkLoading();
-      setState((previous) => ({
-        ...previous,
-        isAuthenticated: false,
-      }));
     }
   }, [state.user]);
 
