@@ -17,7 +17,6 @@ export const AuthContext = createContext({
   ...config.initialState,
   user: handleError,
   isLoading: handleError,
-  isAuthenticated: handleError,
   checkSession: handleError,
 });
 
@@ -43,7 +42,6 @@ export default ({ children, initialUser }) => {
     ...config.initialState,
     user: initialUser,
     isLoading: !initialUser,
-    isAuthenticated: !!initialUser,
   });
 
   const profileUrl = "/api/auth/me";
@@ -55,7 +53,6 @@ export default ({ children, initialUser }) => {
       setState((previous) => ({
         ...previous,
         user,
-        isAuthenticated: !!state.user,
         error: undefined,
       }));
     } catch (error) {
@@ -70,7 +67,6 @@ export default ({ children, initialUser }) => {
       setState((previous) => ({
         ...previous,
         isLoading: false,
-        isAuthenticated: !!state.user,
       }));
     };
     if (!state.user) {
@@ -79,9 +75,11 @@ export default ({ children, initialUser }) => {
   }, [state.user]);
 
   // provide this stuff to the rest of your app
-  const { user, error, isLoading, isAuthenticated } = state;
+  const { user, error, isLoading } = state;
   return (
-    <AuthContext.Provider value={{ user, error, isLoading, isAuthenticated }}>
+    <AuthContext.Provider
+      value={{ user, error, isLoading, isAuthenticated: !!user }}
+    >
       {children}
     </AuthContext.Provider>
   );
