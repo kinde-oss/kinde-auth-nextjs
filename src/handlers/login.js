@@ -20,7 +20,5 @@ export const login = async (req, res) => {
     config.codeChallengeMethod
   );
 
-  console.log(loginURL);
-
   res.redirect(loginURL.href);
 };

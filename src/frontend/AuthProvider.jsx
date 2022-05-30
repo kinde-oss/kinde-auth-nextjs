@@ -66,10 +66,18 @@ export default ({ children, initialUser }) => {
   useEffect(() => {
     const checkLoading = async () => {
       await checkSession();
-      setState((previous) => ({ ...previous, isLoading: false }));
+      setState((previous) => ({
+        ...previous,
+        isLoading: false,
+        isAuthenticated: true,
+      }));
     };
     if (!state.user) {
       checkLoading();
+      setState((previous) => ({
+        ...previous,
+        isAuthenticated: false,
+      }));
     }
   }, [state.user]);
 
