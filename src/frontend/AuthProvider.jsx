@@ -55,6 +55,7 @@ export default ({ children, initialUser }) => {
       setState((previous) => ({
         ...previous,
         user,
+        isAuthenticated: !!state.user,
         error: undefined,
       }));
     } catch (error) {
