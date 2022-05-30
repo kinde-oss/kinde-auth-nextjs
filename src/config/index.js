@@ -25,7 +25,7 @@ export const config = {
   codeChallengeMethod: "S256",
   redirectRoutes: {
     callback: "/api/auth/kinde_callback",
-    postLogoutRedirect: KINDE_POST_LOGOUT_REDIRECT_ROUTE || "/",
+    postLogoutRedirect: KINDE_POST_LOGOUT_REDIRECT_ROUTE || "",
   },
   issuerRoutes: {
     logout: "/logout",
