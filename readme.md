@@ -1,22 +1,47 @@
-# Kinde Auth NextJS
+# NextJS SDK
 
-Kinde Auth for NextJS. Server-side with PKCE (OAuth2.1).
+Kinde allows you to add authentication to your NextJS application quickly and to gain access to user profile information.
 
-## Usage
+This guide demonstrates how to integrate Kinde with any new or existing NextJS application using the Kinde NextJS SDK.
 
-Get started in 5 minutes.
+## Installation
 
-### Install
-
-Install `@kinde-oss/kinde-auth-nextjs` as a dependency to your NextJS project.
+Using npm:
 
 ```bash
 npm i @kinde-oss/kinde-auth-nextjs
 ```
 
-### Setup environment variables
+Using yarn:
+
+```bash
+yarn add @kinde-oss/kinde-auth-nextjs
+```
+
+## Getting started
+
+### Kinde configuration
+
+On the Kinde web app navigate to `Settings` -> `App keys` and find the `Callbacks` input field.
+
+Here you want to put in the callback URLs for your NextJS app, which should look something like this:
+
+- **Allowed callback URLs** - `http://localhost:3000/api/auth/kinde_callback`
+- **Allowed logout redirect URLs** - `http://localhost:3000`
+
+> Make sure you press the `Save` button at the bottom of the page!
+
+### Configuring your app
+
+#### Environment variables
 
 Put these variables in your `.env` file. You can find these variables on your Kinde `Settings` -> `App keys` page.
+
+> - `KINDE_REDIRECT_URL` - where your app is running
+> - `KINDE_ISSUER_URL` - your kinde domain
+> - `KINDE_POST_LOGOUT_REDIRECT_ROUTE` - where you want users to be redirected to after logging out. Make sure this URL is under your allowed logout redirect URLs.
+> - `KINDE_CLIENT_ID` - you can find this on the `App Keys` page
+> - `KINDE_CLIENT_SECRET` - you can find this on the `App Keys` page
 
 ```bash
 KINDE_REDIRECT_URL=[http://localhost:3000]
@@ -26,12 +51,32 @@ KINDE_CLIENT_ID=[your_kinde_client_id]
 KINDE_CLIENT_SECRET=[your_kinde_client_secret]
 ```
 
-### Wrap your app in a KindeProvider
+#### API endpoints
 
-Import the provider and wrap the parts of your app that need access to your users.
+Create a file `myapp/pages/api/auth/[...kindeAuth].js` inside your NextJS project. Inside the file `[...kindeAuth].js` put this code:
 
 ```js
-import "../styles/globals.css";
+import { handleAuth } from "@kinde-oss/kinde-auth-nextjs";
+
+export default handleAuth();
+```
+
+This will handle Kinde Auth endpoints in your NextJS app.
+
+- `/api/auth/me` - this endpoint will get user information
+- `/api/auth/login` - will redirect you to login at the KindeAuth server
+- `/api/auth/logout` - will log you out of the app
+- `/api/auth/register` - will redirect you to register at the KindeAuth server.
+
+### Integrate with your app
+
+#### KindeProvider
+
+Kinde uses a React Context Provider to maintain its internal state in your application.
+
+Import the Kinde Provider component and wrap your application in it.
+
+```js
 import { KindeProvider } from "@kinde-oss/kinde-auth-nextjs";
 
 function MyApp({ Component, pageProps }) {
@@ -45,41 +90,40 @@ function MyApp({ Component, pageProps }) {
 export default MyApp;
 ```
 
-### Put in your API endpoints
-
-Create a file `myapp/pages/api/auth/[...kindeAuth].js` inside your NextJS project.
-Inside the file `[...kindeAuth].js` put this code:
-
-```js
-import { handleAuth } from "@kinde-oss/kinde-auth-nextjs/bundle";
-
-export default handleAuth();
-```
-
 ### Getting user information
 
 To access the user information, use the `useKindeAuth` hook from any part of your app, wrapped by your `KindeProvider`.
 
 ```js
-import styles from "../styles/Home.module.css";
 import { useKindeAuth } from "@kinde-oss/kinde-auth-nextjs";
+import Link from "next/link";
 
 export default function Home() {
   const auth = useKindeAuth();
-  console.log(auth);
 
   return (
-    <div className={styles["link-list"]}>
-      <a href="/api/auth/me">get me</a>
-      <a href="/api/auth/login">Login</a>
-      <a href="/api/auth/logout">logout</a>
-      <a href="/api/auth/register">register</a>
-    </div>
+    <ul>
+      <li>
+        <Link href="/api/auth/me">
+          <a>Get user</a>
+        </Link>
+      </li>
+      <li>
+        <Link href="/api/auth/login">
+          <a>Sign in</a>
+        </Link>
+      </li>
+      <li>
+        <Link href="/api/auth/logout">
+          <a>Sign out</a>
+        </Link>
+      </li>
+      <li>
+        <Link href="/api/auth/register">
+          <a>Sign up</a>
+        </Link>
+      </li>
+    </ul>
   );
 }
 ```
-
-- `/api/auth/me` - this endpoint will get user information
-- `/api/auth/login` - will redirect you to login at the KindeAuth server
-- `/api/auth/logout` - will log you out of the app
-- `/api/auth/register` - will redirect you to register at the KindeAuth server.
