@@ -13,10 +13,7 @@ export const logout = async (req, res) => {
 
   const logoutURL = new URL(config.issuerURL + config.issuerRoutes.logout);
 
-  logoutURL.searchParams.set(
-    "redirect",
-    config.redirectURL + config.redirectRoutes.postLogoutRedirect
-  );
+  logoutURL.searchParams.set("redirect", config.postLogoutRedirectURL);
 
   res.redirect(logoutURL.href);
 };
