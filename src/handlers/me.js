@@ -4,7 +4,6 @@ var cookie = require("cookie");
 
 export const me = async (req, res) => {
   const kinde_token = cookie.parse(req.headers.cookie || "")["kinde_token"];
-
   if (kinde_token) {
     const token = JSON.parse(kinde_token);
     try {
