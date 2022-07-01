@@ -1,13 +1,13 @@
 import { config } from "../config/index";
 import { setupChallenge } from "../utils/setupChallenge";
 
-export const login = async (req, res) => {
+export const createOrg = async (req, res) => {
   const options = req.query;
-  const { org_code, is_create_org, org_name = "" } = options;
+  const { org_name = "", start_page = "registration" } = options;
 
   const { state, code_challenge } = setupChallenge(req, res, 60);
 
-  const loginURL = new URL(config.issuerURL + config.issuerRoutes.login);
+  const createOrgURL = new URL(config.issuerURL + config.issuerRoutes.login);
 
   let searchParams = {
     redirect_uri: config.redirectURL + config.redirectRoutes.callback,
@@ -17,19 +17,12 @@ export const login = async (req, res) => {
     code_challenge,
     code_challenge_method: config.codeChallengeMethod,
     state,
-    start_page: "login",
+    start_page: start_page,
+    is_create_org: true,
+    org_name,
   };
 
-  if (org_code) {
-    searchParams.org_code = org_code;
-  }
+  createOrgURL.search = new URLSearchParams(searchParams);
 
-  if (is_create_org) {
-    searchParams.is_create_org = is_create_org;
-    searchParams.org_name = org_name;
-  }
-
-  loginURL.search = new URLSearchParams(searchParams);
-
-  res.redirect(loginURL.href);
+  res.redirect(createOrgURL.href);
 };

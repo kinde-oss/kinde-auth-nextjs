@@ -12,7 +12,6 @@ const KINDE_POST_LOGOUT_REDIRECT_URL =
   process.env.KINDE_POST_LOGOUT_REDIRECT_URL;
 const KINDE_CLIENT_ID = process.env.KINDE_CLIENT_ID;
 const KINDE_CLIENT_SECRET = process.env.KINDE_CLIENT_SECRET;
-const KINDE_ORG_ID = process.env.KINDE_ORG_ID;
 
 export const config = {
   initialState,
@@ -21,7 +20,6 @@ export const config = {
   issuerURL: KINDE_ISSUER_URL,
   clientID: KINDE_CLIENT_ID,
   clientSecret: KINDE_CLIENT_SECRET,
-  orgID: KINDE_ORG_ID,
   postLogoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL,
   responseType: "code",
   scope: "openid offline",

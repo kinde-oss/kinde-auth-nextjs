@@ -3,6 +3,7 @@ import { logout } from "./logout";
 import { me } from "./me";
 import { register } from "./register";
 import { callback } from "./callback";
+import { createOrg } from "./createOrg";
 
 export default () =>
   async function handler(req, res) {
@@ -23,6 +24,8 @@ export default () =>
         return await logout(req, res);
       case "kinde_callback":
         return await callback(req, res);
+      case "create_org":
+        return await createOrg(req, res);
       default:
         return res.status(404).end();
     }
