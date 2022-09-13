@@ -7,7 +7,9 @@ export const logout = async (req, res) => {
     "Set-Cookie",
     cookie.serialize("kinde_token", null, {
       httpOnly: true,
-      maxAge: 0,
+      expires: new Date(0),
+      sameSite: "lax",
+      path: "/",
     })
   );
 
