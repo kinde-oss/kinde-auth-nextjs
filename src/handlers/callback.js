@@ -32,7 +32,9 @@ export const callback = async (req, res) => {
         "Set-Cookie",
         cookie.serialize(`kinde_token`, JSON.stringify(data), {
           httpOnly: true,
-          maxAge: Number(data.expires_in),
+          maxAge: 3600,
+          sameSite: "lax",
+          path: "/",
         })
       );
     } catch (err) {

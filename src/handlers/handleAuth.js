@@ -4,6 +4,7 @@ import { me } from "./me";
 import { register } from "./register";
 import { callback } from "./callback";
 import { createOrg } from "./createOrg";
+import { getToken } from "./getToken";
 
 export default () =>
   async function handler(req, res) {
@@ -26,6 +27,8 @@ export default () =>
         return await callback(req, res);
       case "create_org":
         return await createOrg(req, res);
+      case "get_token":
+        return await getToken(req, res);
       default:
         return res.status(404).end();
     }
