@@ -1,2 +1,2 @@
-export { KindeProvider, AuthContext, useKindeAuth } from "./frontend/index";
+export { KindeProvider, useKindeAuth } from "./frontend/index";
 export { handleAuth } from "./handlers/index";
