@@ -16,10 +16,10 @@ const handleError = () => {
 /**
  * @typedef {Object} User
  * @property {string} id
- * @property {string} last_name
- * @property {string} first_name
+ * @property {string | null} last_name
+ * @property {string | null} first_name
  * @property {string | null} provided_id
- * @property {string} preferred_email
+ * @property {string | null} preferred_email
  */
 
 /**
