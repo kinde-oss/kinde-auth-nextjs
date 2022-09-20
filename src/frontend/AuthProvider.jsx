@@ -13,13 +13,36 @@ const handleError = () => {
   );
 };
 
-export const AuthContext = createContext({
+/**
+ * @typedef {Object} User
+ * @property {string} id
+ * @property {string} last_name
+ * @property {string} first_name
+ * @property {string | null} provided_id
+ * @property {string} preferred_email
+ */
+
+/**
+ * @typedef {Object} State
+ * @property {User} user
+ * @property {boolean} isLoading
+ * @property {boolean} isAuthenticated
+ * @property {string=} error
+ */
+
+/**
+ * @returns {React.Context<State>}
+ */
+const AuthContext = createContext({
   ...config.initialState,
   user: handleError,
   isLoading: handleError,
-  checkSession: handleError,
 });
 
+/**
+ * Use auth context.
+ * @returns {State}
+ */
 export const useKindeAuth = () => useContext(AuthContext);
 
 const userFetcher = async (url) => {
@@ -37,11 +60,9 @@ const userFetcher = async (url) => {
   }
 };
 
-export default ({ children, initialUser }) => {
+export const KindeProvider = ({ children }) => {
   const [state, setState] = useState({
     ...config.initialState,
-    user: initialUser,
-    isLoading: !initialUser,
   });
 
   const profileUrl = "/api/auth/me";

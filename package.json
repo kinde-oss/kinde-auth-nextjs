@@ -3,6 +3,7 @@
   "version": "1.0.3-beta.2",
   "description": "Kinde Auth SDK for NextJS",
   "main": "bundle.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "jest",
     "build": "rollup -c"
