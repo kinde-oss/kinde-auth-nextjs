@@ -40,7 +40,8 @@ export const callback = async (req, res) => {
           cookie.serialize(`kinde_token`, JSON.stringify(data), {
             httpOnly: true,
             maxAge: 3600,
-            sameSite: "lax",
+            sameSite: "strict",
+            secure: true,
             path: "/",
           })
         );
