@@ -1,3 +1,4 @@
+import jwt_decode from "jwt-decode";
 import { config } from "../config/index";
 var cookie = require("cookie");
 
@@ -27,16 +28,23 @@ export const callback = async (req, res) => {
         }
       );
       const data = await response.json();
+      const accessTokenHeader = jwt_decode(data.access_token, { header: true });
+      const accessTokenPayload = jwt_decode(data.access_token);
 
-      res.setHeader(
-        "Set-Cookie",
-        cookie.serialize(`kinde_token`, JSON.stringify(data), {
-          httpOnly: true,
-          maxAge: 3600,
-          sameSite: "lax",
-          path: "/",
-        })
-      );
+      if (
+        accessTokenPayload.iss == config.issuerURL &&
+        accessTokenHeader.alg == "RS256"
+      ) {
+        res.setHeader(
+          "Set-Cookie",
+          cookie.serialize(`kinde_token`, JSON.stringify(data), {
+            httpOnly: true,
+            maxAge: 3600,
+            sameSite: "lax",
+            path: "/",
+          })
+        );
+      }
     } catch (err) {
       console.log(err);
     }
