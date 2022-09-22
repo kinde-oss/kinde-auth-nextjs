@@ -9,10 +9,10 @@ export function KindeProvider({
 export function handleAuth(): any;
 export type User = {
   id: string;
-  last_name: string;
-  first_name: string;
+  last_name: string | null;
+  first_name: string | null;
   provided_id: string | null;
-  preferred_email: string;
+  preferred_email: string | null;
 };
 export type State = {
   user: User;
