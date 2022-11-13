@@ -22,7 +22,7 @@ export const config = {
   clientSecret: KINDE_CLIENT_SECRET,
   postLogoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL,
   responseType: "code",
-  scope: "openid offline",
+  scope: "openid profile email",
   codeChallengeMethod: "S256",
   redirectRoutes: {
     callback: "/api/auth/kinde_callback",
@@ -32,6 +32,6 @@ export const config = {
     login: "/oauth2/auth",
     register: "/oauth2/auth",
     token: "/oauth2/token",
-    profile: "/oauth2/user_profile",
+    profile: "/oauth2/v2/user_profile",
   },
 };
