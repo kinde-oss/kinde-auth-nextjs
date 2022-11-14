@@ -18,6 +18,7 @@ export const register = async (req, res) => {
     code_challenge_method: config.codeChallengeMethod,
     state,
     start_page: "registration",
+    audience: config.audience,
   };
 
   if (org_code) {
