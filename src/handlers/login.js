@@ -18,6 +18,7 @@ export const login = async (req, res) => {
     code_challenge_method: config.codeChallengeMethod,
     state,
     start_page: "login",
+    audience: config.audience,
   };
 
   if (org_code) {
