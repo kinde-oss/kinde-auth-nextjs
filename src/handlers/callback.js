@@ -31,9 +31,17 @@ export const callback = async (req, res) => {
       const accessTokenHeader = jwt_decode(data.access_token, { header: true });
       const accessTokenPayload = jwt_decode(data.access_token);
 
+      let isAudienceValid = true;
+
+      if (config.audience != undefined) {
+        isAudienceValid = accessTokenPayload.aud == config.audience;
+      }
+
       if (
         accessTokenPayload.iss == config.issuerURL &&
-        accessTokenHeader.alg == "RS256"
+        accessTokenHeader.alg == "RS256" &&
+        accessTokenPayload.exp > Math.floor(Date.now() / 1000) &&
+        isAudienceValid
       ) {
         res.setHeader(
           "Set-Cookie",
@@ -45,12 +53,21 @@ export const callback = async (req, res) => {
             path: "/",
           })
         );
+      } else {
+        console.error("One or more of the claims were not verified.");
+        const logoutURL = new URL(
+          config.issuerURL + config.issuerRoutes.logout
+        );
+        logoutURL.searchParams.set("redirect", config.postLogoutRedirectURL);
+        res.redirect(logoutURL.href);
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
     res.redirect(config.redirectURL);
   } else {
-    res.redirect(config.redirectURL);
+    const logoutURL = new URL(config.issuerURL + config.issuerRoutes.logout);
+    logoutURL.searchParams.set("redirect", config.postLogoutRedirectURL);
+    res.redirect(logoutURL.href);
   }
 };

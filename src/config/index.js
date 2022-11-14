@@ -12,6 +12,7 @@ const KINDE_POST_LOGOUT_REDIRECT_URL =
   process.env.KINDE_POST_LOGOUT_REDIRECT_URL;
 const KINDE_CLIENT_ID = process.env.KINDE_CLIENT_ID;
 const KINDE_CLIENT_SECRET = process.env.KINDE_CLIENT_SECRET;
+const KINDE_AUDIENCE = process.env.KINDE_AUDIENCE;
 
 export const config = {
   initialState,
@@ -21,6 +22,7 @@ export const config = {
   clientID: KINDE_CLIENT_ID,
   clientSecret: KINDE_CLIENT_SECRET,
   postLogoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL,
+  audience: KINDE_AUDIENCE,
   responseType: "code",
   scope: "openid profile email",
   codeChallengeMethod: "S256",
