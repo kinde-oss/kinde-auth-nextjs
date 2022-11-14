@@ -20,6 +20,7 @@ export const createOrg = async (req, res) => {
     start_page: start_page,
     is_create_org: true,
     org_name,
+    audience: config.audience,
   };
 
   createOrgURL.search = new URLSearchParams(searchParams);

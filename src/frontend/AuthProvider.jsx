@@ -12,14 +12,14 @@ const handleError = () => {
     "Oops! Seems like you forgot to wrap your app in <KindeProvider>."
   );
 };
-
 /**
  * @typedef {Object} User
  * @property {string} id
- * @property {string | null} last_name
- * @property {string | null} first_name
- * @property {string | null} provided_id
- * @property {string | null} preferred_email
+ * @property {string | null} name
+ * @property {string | null} email
+ * @property {string | null} given_name
+ * @property {string | null} family_name
+ * @property {string | null} updated_at
  */
 
 /**
@@ -56,7 +56,7 @@ const userFetcher = async (url) => {
   if (response.ok) {
     return response.json();
   } else if (response.status === 401) {
-    return undefined;
+    return;
   }
 };
 
@@ -77,7 +77,7 @@ export const KindeProvider = ({ children }) => {
         error: undefined,
       }));
     } catch (error) {
-      setState((previous) => ({ ...previous, error }));
+      setState((previous) => ({ ...previous, isLoading: false, error }));
     }
   }, [profileUrl]);
 
