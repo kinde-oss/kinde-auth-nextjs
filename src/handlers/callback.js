@@ -54,13 +54,20 @@ export const callback = async (req, res) => {
           })
         );
       } else {
-        throw new Error("One or more of the claims were not verified.");
+        console.error("One or more of the claims were not verified.");
+        const logoutURL = new URL(
+          config.issuerURL + config.issuerRoutes.logout
+        );
+        logoutURL.searchParams.set("redirect", config.postLogoutRedirectURL);
+        res.redirect(logoutURL.href);
       }
     } catch (err) {
       console.error(err);
     }
     res.redirect(config.redirectURL);
   } else {
-    res.redirect(config.postLogoutRedirectURL);
+    const logoutURL = new URL(config.issuerURL + config.issuerRoutes.logout);
+    logoutURL.searchParams.set("redirect", config.postLogoutRedirectURL);
+    res.redirect(logoutURL.href);
   }
 };
