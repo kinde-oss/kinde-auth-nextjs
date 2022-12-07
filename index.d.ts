@@ -1,12 +1,12 @@
 import React from "react";
 
-export function useKindeAuth(): State;
-export function KindeProvider({
+export declare function useKindeAuth(): State;
+export declare function KindeProvider({
   children,
 }: {
   children: any;
 }): React.Provider<State>;
-export function handleAuth(): any;
+export declare function handleAuth(): any;
 export type User = {
   id: string;
   name: string | null;
