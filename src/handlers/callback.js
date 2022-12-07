@@ -31,7 +31,10 @@ export const callback = async (req, res) => {
       const accessTokenHeader = jwt_decode(data.access_token, { header: true });
       const accessTokenPayload = jwt_decode(data.access_token);
 
-      let isAudienceValid = accessTokenPayload.aud == config.audience;
+      let isAudienceValid = true;
+      if (config.audience)
+        isAudienceValid = accessTokenPayload.aud == config.audience;
+
       if (
         accessTokenPayload.iss == config.issuerURL &&
         accessTokenHeader.alg == "RS256" &&
