@@ -18,7 +18,6 @@ export const login = async (req, res) => {
     code_challenge_method: config.codeChallengeMethod,
     state,
     start_page: "login",
-    audience: config.audience,
   };
 
   if (org_code) {
@@ -28,6 +27,10 @@ export const login = async (req, res) => {
   if (is_create_org) {
     searchParams.is_create_org = is_create_org;
     searchParams.org_name = org_name;
+  }
+
+  if (config.audience) {
+    searchParams.audience = config.audience;
   }
 
   loginURL.search = new URLSearchParams(searchParams);
