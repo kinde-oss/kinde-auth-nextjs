@@ -31,12 +31,7 @@ export const callback = async (req, res) => {
       const accessTokenHeader = jwt_decode(data.access_token, { header: true });
       const accessTokenPayload = jwt_decode(data.access_token);
 
-      let isAudienceValid = true;
-
-      if (config.audience != undefined) {
-        isAudienceValid = accessTokenPayload.aud == config.audience;
-      }
-
+      let isAudienceValid = accessTokenPayload.aud == config.audience;
       if (
         accessTokenPayload.iss == config.issuerURL &&
         accessTokenHeader.alg == "RS256" &&
@@ -55,11 +50,6 @@ export const callback = async (req, res) => {
         );
       } else {
         console.error("One or more of the claims were not verified.");
-        const logoutURL = new URL(
-          config.issuerURL + config.issuerRoutes.logout
-        );
-        logoutURL.searchParams.set("redirect", config.postLogoutRedirectURL);
-        res.redirect(logoutURL.href);
       }
     } catch (err) {
       console.error(err);
