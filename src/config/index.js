@@ -24,7 +24,7 @@ export const config = {
   postLogoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL,
   audience: KINDE_AUDIENCE,
   responseType: "code",
-  scope: "openid profile email",
+  scope: "openid profile email offline",
   codeChallengeMethod: "S256",
   redirectRoutes: {
     callback: "/api/auth/kinde_callback",
