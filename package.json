@@ -13,7 +13,7 @@
     "url": "https://github.com/kinde-oss"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.17.12",
     "@babel/preset-react": "^7.17.12",
