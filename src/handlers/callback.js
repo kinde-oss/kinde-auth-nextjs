@@ -45,7 +45,7 @@ export const callback = async (req, res) => {
           "Set-Cookie",
           cookie.serialize(`kinde_token`, JSON.stringify(data), {
             httpOnly: true,
-            maxAge: 3600,
+            expires: new Date(accessTokenPayload.exp * 1000),
             sameSite: "strict",
             secure: true,
             path: "/",
