@@ -5,7 +5,7 @@ export const register = async (req, res) => {
   const options = req.query;
   const { org_code, is_create_org, org_name = "" } = options;
 
-  const { state, code_challenge } = setupChallenge(req, res, 180);
+  const { state, code_challenge } = setupChallenge(req, res, 60 * 15);
 
   const registerURL = new URL(config.issuerURL + config.issuerRoutes.register);
 
