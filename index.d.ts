@@ -1,11 +1,11 @@
-import React from "react";
+import { ReactElement } from "react";
 
 export declare function useKindeAuth(): State;
 export declare function KindeProvider({
   children,
 }: {
   children: any;
-}): React.Provider<State>;
+}): ReactElement<State>;
 export declare function handleAuth(): any;
 export type User = {
   id: string;
