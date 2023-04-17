@@ -1,21 +1,26 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Kinde Auth SDK for NextJS",
   "main": "dist/kinde-auth-nextjs.common.js",
   "module": "dist/kinde-auth-nextjs.esm.js",
-  "types": "index.d.ts",
+  "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
     "build": "genversion --es6 src/utils/version.js && rollup -c",
     "test": "jest"
   },
+  "author": {
+    "name": "Kinde",
+    "email": "engineering@kinde.com",
+    "url": "https://kinde.com"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kinde-oss"
+    "url": "https://github.com/kinde-oss/kinde-auth-nextjs"
   },
-  "author": "",
-  "license": "MIT",
+  "bugs": "https://github.com/kinde-oss/kinde-auth-nextjs",
+  "homepage": "https://kinde.com",
   "devDependencies": {
     "@babel/core": "^7.17.12",
     "@babel/preset-react": "^7.17.12",
