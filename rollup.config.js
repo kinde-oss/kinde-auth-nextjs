@@ -6,12 +6,8 @@ export default {
   input: "src/index.js",
   output: [
     {
-      file: "dist/kinde-auth-nextjs.common.js",
+      file: "dist/index.js",
       format: "cjs",
-    },
-    {
-      file: "dist/kinde-auth-nextjs.esm.js",
-      format: "es",
     },
   ],
 };
