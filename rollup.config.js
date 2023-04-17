@@ -5,7 +5,7 @@ export default {
   plugins: [babel({ babelHelpers: "bundled" }), terser()],
   input: "src/index.js",
   output: {
-    file: "bundle.js",
+    file: "dist/bundle.js",
     format: "cjs",
   },
 };
