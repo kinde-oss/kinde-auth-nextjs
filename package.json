@@ -2,8 +2,10 @@
   "name": "@kinde-oss/kinde-auth-nextjs",
   "version": "1.1.0",
   "description": "Kinde Auth SDK for NextJS",
-  "main": "dist/bundle.js",
+  "main": "dist/kinde-auth-nextjs.common.js",
+  "module": "dist/kinde-auth-nextjs.esm.js",
   "types": "index.d.ts",
+  "type": "module",
   "scripts": {
     "test": "jest",
     "build": "rollup -c"
