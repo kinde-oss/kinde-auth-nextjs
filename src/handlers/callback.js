@@ -1,5 +1,7 @@
 import jwt_decode from "jwt-decode";
 import { config } from "../config/index";
+import { version } from "../utils/version";
+
 var cookie = require("cookie");
 
 export const callback = async (req, res) => {
@@ -16,6 +18,7 @@ export const callback = async (req, res) => {
           method: "POST",
           headers: new Headers({
             "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Kinde-SDK": `"NextJS"/${version}`,
           }),
           body: new URLSearchParams({
             client_id: config.clientID,
