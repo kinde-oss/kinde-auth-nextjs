@@ -7,6 +7,12 @@ import React, {
 } from "react";
 import { config } from "../config/index";
 
+const flagDataTypeMap = {
+  s: "string",
+  i: "integer",
+  b: "boolean",
+};
+
 const handleError = () => {
   throw new Error(
     "Oops! Seems like you forgot to wrap your app in <KindeProvider>."
@@ -20,6 +26,7 @@ const handleError = () => {
  * @property {string | null} given_name
  * @property {string | null} family_name
  * @property {string | null} updated_at
+ * @property {string | null} picture
  */
 
 /**
@@ -45,7 +52,7 @@ const AuthContext = createContext({
  */
 export const useKindeAuth = () => useContext(AuthContext);
 
-const userFetcher = async (url) => {
+const tokenFetcher = async (url) => {
   let response;
   try {
     response = await fetch(url);
@@ -54,7 +61,8 @@ const userFetcher = async (url) => {
   }
 
   if (response.ok) {
-    return response.json();
+    const json = await response.json();
+    return json;
   } else if (response.status === 401) {
     return;
   }
@@ -65,21 +73,141 @@ export const KindeProvider = ({ children }) => {
     ...config.initialState,
   });
 
-  const profileUrl = "/api/auth/me";
+  const setupUrl = "/api/auth/setup";
 
-  // try and get the user (by fetching /api/auth/me) -> this needs to do the OAuth stuff
+  // try and get the user (by fetching /api/auth/setup) -> this needs to do the OAuth stuff
   const checkSession = useCallback(async () => {
     try {
-      const user = await userFetcher(profileUrl);
+      const tokens = await tokenFetcher(setupUrl);
+
+      const user = {
+        id: tokens.id_token.sub,
+        name: tokens.id_token.name,
+        given_name: tokens.id_token.given_name,
+        family_name: tokens.id_token.family_name,
+        updated_at: tokens.id_token.updated_at,
+        email: tokens.id_token.email,
+        picture: tokens.id_token.picture,
+      };
+
+      const getClaim = (claim, tokenKey = "access_token") => {
+        const token =
+          tokenKey === "access_token" ? tokens.access_token : tokens.id_token;
+        return token ? { name: claim, value: token[claim] } : null;
+      };
+
+      const getClaimValue = (claim, tokenKey = "access_token") => {
+        const obj = getClaim(claim, tokenKey);
+        return obj && obj.value;
+      };
+
+      const getFlag = (code, defaultValue, flagType) => {
+        const flags = getClaimValue("feature_flags");
+        const flag = flags && flags[code] ? flags[code] : {};
+
+        if (!flag.v && !defaultValue) {
+          throw Error(
+            `Flag ${code} was not found, and no default value has been provided`
+          );
+        }
+
+        if (flagType && flag.t && flagType !== flag.t) {
+          throw Error(
+            `Flag ${code} is of type ${
+              flagDataTypeMap[flag.t]
+            } - requested type ${flagDataTypeMap[flagType]}`
+          );
+        }
+        return {
+          code,
+          type: flagDataTypeMap[flag.t || flagType],
+          value: flag.v == null ? defaultValue : flag.v,
+          is_default: flag.v == null,
+        };
+      };
+
+      const getBooleanFlag = (code, defaultValue) => {
+        try {
+          const flag = getFlag(code, defaultValue, "b");
+          return flag.value;
+        } catch (err) {
+          console.error(err);
+        }
+      };
+
+      const getStringFlag = (code, defaultValue) => {
+        try {
+          const flag = getFlag(code, defaultValue, "s");
+          return flag.value;
+        } catch (err) {
+          console.error(err);
+        }
+      };
+
+      const getIntegerFlag = (code, defaultValue) => {
+        try {
+          const flag = getFlag(code, defaultValue, "i");
+          return flag.value;
+        } catch (err) {
+          console.error(err);
+        }
+      };
+
+      const getPermissions = () => {
+        const orgCode = getClaimValue("org_code");
+        const permissions = getClaimValue("permissions");
+        return {
+          permissions,
+          orgCode,
+        };
+      };
+
+      const getPermission = (key) => {
+        const orgCode = getClaimValue("org_code");
+        const permissions = getClaimValue("permissions") || [];
+        return {
+          isGranted: permissions.some((p) => p === key),
+          orgCode,
+        };
+      };
+
+      const getOrganization = () => {
+        const orgCode = getClaimValue("org_code");
+        return {
+          orgCode,
+        };
+      };
+
+      const getUserOrganizations = () => {
+        const orgCodes = getClaimValue("org_codes", "id_token");
+        return {
+          orgCodes,
+        };
+      };
+
+      const getToken = () => {
+        return tokens.access_token;
+      };
+
       setState((previous) => ({
         ...previous,
         user,
+        getToken,
+        getClaim,
+        getFlag,
+        getBooleanFlag,
+        getStringFlag,
+        getIntegerFlag,
+        getPermissions,
+        getPermission,
+        getOrganization,
+        getUserOrganizations,
         error: undefined,
       }));
     } catch (error) {
       setState((previous) => ({ ...previous, isLoading: false, error }));
     }
-  }, [profileUrl]);
+  }, [setupUrl]);
 
   // if you get the user set loading false
   useEffect(() => {
@@ -96,10 +224,39 @@ export const KindeProvider = ({ children }) => {
   }, [state.user]);
 
   // provide this stuff to the rest of your app
-  const { user, error, isLoading } = state;
+  const {
+    user,
+    getToken,
+    getClaim,
+    getFlag,
+    getBooleanFlag,
+    getStringFlag,
+    getIntegerFlag,
+    getPermissions,
+    getPermission,
+    getOrganization,
+    getUserOrganizations,
+    error,
+    isLoading,
+  } = state;
   return (
     <AuthContext.Provider
-      value={{ user, error, isLoading, isAuthenticated: !!user }}
+      value={{
+        user,
+        error,
+        getToken,
+        getClaim,
+        getFlag,
+        getBooleanFlag,
+        getStringFlag,
+        getIntegerFlag,
+        getPermissions,
+        getPermission,
+        getOrganization,
+        getUserOrganizations,
+        isLoading,
+        isAuthenticated: !!user,
+      }}
     >
       {children}
     </AuthContext.Provider>
