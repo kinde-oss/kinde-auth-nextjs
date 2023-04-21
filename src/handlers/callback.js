@@ -1,32 +1,37 @@
 import jwt_decode from "jwt-decode";
 import { config } from "../config/index";
+import { version } from "../utils/version";
+
 var cookie = require("cookie");
 
 export const callback = async (req, res) => {
 	const { code, state } = req.query;
 	const code_verifier = cookie.parse(req.headers.cookie || "")[`${config.SESSION_PREFIX}-${state}`];
 
-	if (code_verifier) {
-		try {
-			const response = await fetch(config.issuerURL + config.issuerRoutes.token, {
-				method: "POST",
-				headers: new Headers({
-					"Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-					"Kinde-SDK": `"NextJS"/${version}`,
-				}),
-				body: new URLSearchParams({
-					client_id: config.clientID,
-					client_secret: config.clientSecret,
-					code,
-					code_verifier,
-					grant_type: "authorization_code",
-					redirect_uri: config.redirectURL + config.redirectRoutes.callback,
-				}),
-			});
-			const data = await response.json();
-			const accessTokenHeader = jwt_decode(data.access_token, { header: true });
-			const accessTokenPayload = jwt_decode(data.access_token);
 
+  if (code_verifier) {
+    try {
+      const response = await fetch(
+        config.issuerURL + config.issuerRoutes.token,
+        {
+          method: "POST",
+          headers: new Headers({
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Kinde-SDK": `"NextJS"/${version}`,
+          }),
+          body: new URLSearchParams({
+            client_id: config.clientID,
+            client_secret: config.clientSecret,
+            code,
+            code_verifier,
+            grant_type: "authorization_code",
+            redirect_uri: config.redirectURL + config.redirectRoutes.callback,
+          }),
+        }
+      );
+      const data = await response.json();
+      const accessTokenHeader = jwt_decode(data.access_token, { header: true });
+      const accessTokenPayload = jwt_decode(data.access_token);
 			let isAudienceValid = true;
 			if (config.audience) isAudienceValid = accessTokenPayload.aud == config.audience;
 
