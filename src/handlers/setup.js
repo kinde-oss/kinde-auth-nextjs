@@ -10,6 +10,7 @@ export const setup = async (req, res) => {
     const accessTokenPayload = jwt_decode(token.access_token);
     const idTokenPayload = jwt_decode(token.id_token);
     res.send({
+      access_token_encoded: token.access_token,
       id_token: idTokenPayload,
       access_token: accessTokenPayload,
     });
