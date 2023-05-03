@@ -19,13 +19,6 @@ export type User = {
   picture: string | null;
 };
 
-export type State = {
-  user: User;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  error?: string | undefined;
-};
-
 export type KindePermissions = {
   permissions: string[];
   orgCode: string;
@@ -54,4 +47,25 @@ export type KindeOrganization = {
 
 export type KindeOrganizations = {
   orgCodes: string[];
+};
+
+export type State = {
+  user: User;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  error?: string | undefined;
+  getToken: () => string | undefined;
+  getClaim: (claim: string, tokenKey?: string) => any;
+  getFlag: (
+    code: string,
+    defaultValue?: string | boolean | number,
+    flagType?: KindeFlagTypeCode
+  ) => KindeFlag;
+  getBooleanFlag: (code: string, defaultValue?: boolean) => boolean;
+  getStringFlag: (code, defaultValue) => string;
+  getIntegerFlag: (code, defaultValue) => integer;
+  getPermissions: () => KindePermissions;
+  getPermission: (key: string) => KindePermission;
+  getOrganization: () => KindeOrganization;
+  getUserOrganizations: () => KindeOrganizations;
 };
