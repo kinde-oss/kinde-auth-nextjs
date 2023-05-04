@@ -1,8 +1,8 @@
-import { getClaim } from "./getClaim";
+import {getClaim} from './getClaim';
 
 export const getOrganization = (req, res) => {
-  const orgCode = getClaim(req, res, "org_code");
+  const orgCode = getClaim(req, res, 'org_code');
   return {
-    orgCode,
+    orgCode
   };
 };
