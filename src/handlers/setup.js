@@ -1,9 +1,9 @@
-import { config } from "../config/index";
-const cookie = require("cookie");
-import jwt_decode from "jwt-decode";
+import {config} from '../config/index';
+const cookie = require('cookie');
+import jwt_decode from 'jwt-decode';
 
 export const setup = async (req, res) => {
-  const kinde_token = cookie.parse(req.headers.cookie || "")["kinde_token"];
+  const kinde_token = cookie.parse(req.headers.cookie || '')['kinde_token'];
 
   if (kinde_token) {
     const token = JSON.parse(kinde_token);
@@ -12,11 +12,11 @@ export const setup = async (req, res) => {
     res.send({
       access_token_encoded: token.access_token,
       id_token: idTokenPayload,
-      access_token: accessTokenPayload,
+      access_token: accessTokenPayload
     });
   } else {
     res.status(401).send({
-      message: "Unauthorized",
+      message: 'Unauthorized'
     });
   }
 };

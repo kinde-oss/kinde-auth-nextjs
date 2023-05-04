@@ -1,11 +1,11 @@
-import { login } from "./login";
-import { logout } from "./logout";
-import { me } from "./me";
-import { register } from "./register";
-import { callback } from "./callback";
-import { createOrg } from "./createOrg";
-import { getToken } from "./getToken";
-import { setup } from "./setup";
+import {login} from './login';
+import {logout} from './logout';
+import {me} from './me';
+import {register} from './register';
+import {callback} from './callback';
+import {createOrg} from './createOrg';
+import {getToken} from './getToken';
+import {setup} from './setup';
 
 const getRoute = (endpoint) => {
   const routeMap = {
@@ -16,7 +16,7 @@ const getRoute = (endpoint) => {
     logout,
     me,
     register,
-    setup,
+    setup
   };
   return routeMap[endpoint];
 };
@@ -24,7 +24,7 @@ const getRoute = (endpoint) => {
 export default () =>
   async function handler(req, res) {
     let {
-      query: { kindeAuth: endpoint },
+      query: {kindeAuth: endpoint}
     } = req;
 
     endpoint = Array.isArray(endpoint) ? endpoint[0] : endpoint;

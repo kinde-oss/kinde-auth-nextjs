@@ -1,10 +1,10 @@
-import { getClaim } from "./getClaim";
+import {getClaim} from './getClaim';
 
 export const getPermission = (req, res, key) => {
-  const orgCode = getClaim(req, res, "org_code");
-  const permissions = getClaim(req, res, "permissions") || [];
+  const orgCode = getClaim(req, res, 'org_code');
+  const permissions = getClaim(req, res, 'permissions') || [];
   return {
     isGranted: permissions.some((p) => p === key),
-    orgCode,
+    orgCode
   };
 };

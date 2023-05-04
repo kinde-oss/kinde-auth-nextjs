@@ -2,6 +2,11 @@
 
 Kinde allows you to add authentication to your NextJS application quickly and to gain access to user profile information.
 
+[![NPM](https://img.shields.io/npm/v/@kinde-oss/kinde-auth-nextjs.svg)](https://www.npmjs.com/package/@kinde-oss/kinde-auth-nextjs)
+[![Documentation](https://img.shields.io/badge/Kinde-Docs-green.svg)](https://kinde.com/docs)
+[![Slack](https://img.shields.io/badge/Chat-Slack-pink.svg)](https://join.slack.com/t/thekindecommunity/shared_invite/zt-1pwhkx0gg-se1H8nY9Y8CwAY6Ppzi~Nw)
+[![Twitter](https://img.shields.io/twitter/follow/HeyKinde?style=social)](https://twitter.com/intent/follow?screen_name=HeyKinde)
+
 This guide demonstrates how to integrate Kinde with any new or existing NextJS application using the Kinde NextJS SDK.
 
 ## Installation
@@ -56,7 +61,7 @@ KINDE_CLIENT_SECRET=[your_kinde_client_secret]
 Create a file `myapp/pages/api/auth/[...kindeAuth].js` inside your NextJS project. Inside the file `[...kindeAuth].js` put this code:
 
 ```js
-import { handleAuth } from "@kinde-oss/kinde-auth-nextjs";
+import {handleAuth} from '@kinde-oss/kinde-auth-nextjs';
 
 export default handleAuth();
 ```
@@ -77,9 +82,9 @@ Kinde uses a React Context Provider to maintain its internal state in your appli
 Import the Kinde Provider component and wrap your application in it.
 
 ```js
-import { KindeProvider } from "@kinde-oss/kinde-auth-nextjs";
+import {KindeProvider} from '@kinde-oss/kinde-auth-nextjs';
 
-function MyApp({ Component, pageProps }) {
+function MyApp({Component, pageProps}) {
   return (
     <KindeProvider>
       <Component {...pageProps} />
@@ -95,8 +100,8 @@ export default MyApp;
 To access the user information, use the `useKindeAuth` hook from any part of your app, wrapped by your `KindeProvider`.
 
 ```js
-import { useKindeAuth } from "@kinde-oss/kinde-auth-nextjs";
-import Link from "next/link";
+import {useKindeAuth} from '@kinde-oss/kinde-auth-nextjs';
+import Link from 'next/link';
 
 export default function Home() {
   const auth = useKindeAuth();
