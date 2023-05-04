@@ -186,7 +186,9 @@ export const KindeProvider = ({children}) => {
       };
 
       const getToken = () => {
-        return tokens.access_token_encoded;
+        return tokens && tokens.access_token_encoded
+          ? tokens.access_token_encoded
+          : undefined;
       };
 
       setState((previous) => ({
