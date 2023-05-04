@@ -1,4 +1,4 @@
-import jwt_decode from "jwt-decode";
+import jwt_decode from 'jwt-decode';
 
 export const getIdToken = (req, res) => {
   if (req.cookies.kinde_token) {
@@ -9,7 +9,7 @@ export const getIdToken = (req, res) => {
   } else {
     return {
       message:
-        "There is no kinde_token, you are not authenticated. Try logging in.",
+        'There is no kinde_token, you are not authenticated. Try logging in.'
     };
   }
 };
