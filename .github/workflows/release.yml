@@ -1,0 +1,25 @@
+name: Release and Publish to NPM
+on: workflow_dispatch
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+      - name: Install dependencies and build 🔧
+        run: npm ci
+      - name: Initialize Git user
+        run: |
+          git config --global user.email "engineering@kinde.com"
+          git config --global user.name "Kinde Engineering"
+      - name: Initialize NPM config
+        run: npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+        env:
+          NPM_TOKEN: ${{secrets.npm_token}}
+      - name: Run release
+        run: npm run release --ci
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NPM_TOKEN: ${{secrets.npm_token}}
+      - name: End message
+        run: echo 'Job done'
