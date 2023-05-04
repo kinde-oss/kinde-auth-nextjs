@@ -3,19 +3,19 @@ import React, {
   useState,
   createContext,
   useCallback,
-  useEffect,
-} from "react";
-import { config } from "../config/index";
+  useEffect
+} from 'react';
+import {config} from '../config/index';
 
 const flagDataTypeMap = {
-  s: "string",
-  i: "integer",
-  b: "boolean",
+  s: 'string',
+  i: 'integer',
+  b: 'boolean'
 };
 
 const handleError = () => {
   throw new Error(
-    "Oops! Seems like you forgot to wrap your app in <KindeProvider>."
+    'Oops! Seems like you forgot to wrap your app in <KindeProvider>.'
   );
 };
 /**
@@ -43,7 +43,7 @@ const handleError = () => {
 const AuthContext = createContext({
   ...config.initialState,
   user: handleError,
-  isLoading: handleError,
+  isLoading: handleError
 });
 
 /**
@@ -68,12 +68,12 @@ const tokenFetcher = async (url) => {
   }
 };
 
-export const KindeProvider = ({ children }) => {
+export const KindeProvider = ({children}) => {
   const [state, setState] = useState({
-    ...config.initialState,
+    ...config.initialState
   });
 
-  const setupUrl = "/api/auth/setup";
+  const setupUrl = '/api/auth/setup';
 
   // try and get the user (by fetching /api/auth/setup) -> this needs to do the OAuth stuff
   const checkSession = useCallback(async () => {
@@ -87,22 +87,22 @@ export const KindeProvider = ({ children }) => {
         family_name: tokens.id_token.family_name,
         updated_at: tokens.id_token.updated_at,
         email: tokens.id_token.email,
-        picture: tokens.id_token.picture,
+        picture: tokens.id_token.picture
       };
 
-      const getClaim = (claim, tokenKey = "access_token") => {
+      const getClaim = (claim, tokenKey = 'access_token') => {
         const token =
-          tokenKey === "access_token" ? tokens.access_token : tokens.id_token;
-        return token ? { name: claim, value: token[claim] } : null;
+          tokenKey === 'access_token' ? tokens.access_token : tokens.id_token;
+        return token ? {name: claim, value: token[claim]} : null;
       };
 
-      const getClaimValue = (claim, tokenKey = "access_token") => {
+      const getClaimValue = (claim, tokenKey = 'access_token') => {
         const obj = getClaim(claim, tokenKey);
         return obj && obj.value;
       };
 
       const getFlag = (code, defaultValue, flagType) => {
-        const flags = getClaimValue("feature_flags");
+        const flags = getClaimValue('feature_flags');
         const flag = flags && flags[code] ? flags[code] : {};
 
         if (!flag.v && !defaultValue) {
@@ -122,13 +122,13 @@ export const KindeProvider = ({ children }) => {
           code,
           type: flagDataTypeMap[flag.t || flagType],
           value: flag.v == null ? defaultValue : flag.v,
-          is_default: flag.v == null,
+          is_default: flag.v == null
         };
       };
 
       const getBooleanFlag = (code, defaultValue) => {
         try {
-          const flag = getFlag(code, defaultValue, "b");
+          const flag = getFlag(code, defaultValue, 'b');
           return flag.value;
         } catch (err) {
           console.error(err);
@@ -137,7 +137,7 @@ export const KindeProvider = ({ children }) => {
 
       const getStringFlag = (code, defaultValue) => {
         try {
-          const flag = getFlag(code, defaultValue, "s");
+          const flag = getFlag(code, defaultValue, 's');
           return flag.value;
         } catch (err) {
           console.error(err);
@@ -146,7 +146,7 @@ export const KindeProvider = ({ children }) => {
 
       const getIntegerFlag = (code, defaultValue) => {
         try {
-          const flag = getFlag(code, defaultValue, "i");
+          const flag = getFlag(code, defaultValue, 'i');
           return flag.value;
         } catch (err) {
           console.error(err);
@@ -154,34 +154,34 @@ export const KindeProvider = ({ children }) => {
       };
 
       const getPermissions = () => {
-        const orgCode = getClaimValue("org_code");
-        const permissions = getClaimValue("permissions");
+        const orgCode = getClaimValue('org_code');
+        const permissions = getClaimValue('permissions');
         return {
           permissions,
-          orgCode,
+          orgCode
         };
       };
 
       const getPermission = (key) => {
-        const orgCode = getClaimValue("org_code");
-        const permissions = getClaimValue("permissions") || [];
+        const orgCode = getClaimValue('org_code');
+        const permissions = getClaimValue('permissions') || [];
         return {
           isGranted: permissions.some((p) => p === key),
-          orgCode,
+          orgCode
         };
       };
 
       const getOrganization = () => {
-        const orgCode = getClaimValue("org_code");
+        const orgCode = getClaimValue('org_code');
         return {
-          orgCode,
+          orgCode
         };
       };
 
       const getUserOrganizations = () => {
-        const orgCodes = getClaimValue("org_codes", "id_token");
+        const orgCodes = getClaimValue('org_codes', 'id_token');
         return {
-          orgCodes,
+          orgCodes
         };
       };
 
@@ -202,10 +202,10 @@ export const KindeProvider = ({ children }) => {
         getPermission,
         getOrganization,
         getUserOrganizations,
-        error: undefined,
+        error: undefined
       }));
     } catch (error) {
-      setState((previous) => ({ ...previous, isLoading: false, error }));
+      setState((previous) => ({...previous, isLoading: false, error}));
     }
   }, [setupUrl]);
 
@@ -215,7 +215,7 @@ export const KindeProvider = ({ children }) => {
       await checkSession();
       setState((previous) => ({
         ...previous,
-        isLoading: false,
+        isLoading: false
       }));
     };
     if (!state.user) {
@@ -237,7 +237,7 @@ export const KindeProvider = ({ children }) => {
     getOrganization,
     getUserOrganizations,
     error,
-    isLoading,
+    isLoading
   } = state;
   return (
     <AuthContext.Provider
@@ -255,7 +255,7 @@ export const KindeProvider = ({ children }) => {
         getOrganization,
         getUserOrganizations,
         isLoading,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user
       }}
     >
       {children}
