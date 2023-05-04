@@ -36,6 +36,7 @@
     "crypto": "^1.0.1",
     "crypto-js": "^4.1.1",
     "jwt-decode": "^3.1.2",
+    "prettier": "^2.8.8",
     "simple-oauth2": "^4.3.0"
   },
   "files": [
