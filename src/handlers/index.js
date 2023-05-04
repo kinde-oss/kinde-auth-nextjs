@@ -1,1 +1,1 @@
-export { default as handleAuth } from "./handleAuth";
+export {default as handleAuth} from './handleAuth';

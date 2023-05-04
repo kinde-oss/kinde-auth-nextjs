@@ -1,11 +1,11 @@
-import { config } from "../config/index";
-import { setupChallenge } from "../utils/setupChallenge";
+import {config} from '../config/index';
+import {setupChallenge} from '../utils/setupChallenge';
 
 export const register = async (req, res) => {
   const options = req.query;
-  const { org_code, is_create_org, org_name = "" } = options;
+  const {org_code, is_create_org, org_name = ''} = options;
 
-  const { state, code_challenge } = setupChallenge(req, res, 60 * 15);
+  const {state, code_challenge} = setupChallenge(req, res, 60 * 15);
 
   const registerURL = new URL(config.issuerURL + config.issuerRoutes.register);
 
@@ -17,7 +17,7 @@ export const register = async (req, res) => {
     code_challenge,
     code_challenge_method: config.codeChallengeMethod,
     state,
-    start_page: "registration",
+    start_page: 'registration'
   };
 
   if (org_code) {
