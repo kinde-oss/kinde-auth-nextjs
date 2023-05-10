@@ -19,9 +19,12 @@ export const createOrg = async (req, res) => {
     state,
     start_page: start_page,
     is_create_org: true,
-    org_name,
-    audience: config.audience
+    org_name
   };
+
+  if (config.audience) {
+    searchParams.audience = config.audience;
+  }
 
   createOrgURL.search = new URLSearchParams(searchParams);
 
