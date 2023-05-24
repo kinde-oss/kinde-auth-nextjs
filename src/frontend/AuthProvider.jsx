@@ -43,7 +43,8 @@ const handleError = () => {
 const AuthContext = createContext({
   ...config.initialState,
   user: handleError,
-  isLoading: handleError
+  isLoading: handleError,
+  getToken: handleError 
 });
 
 /**
