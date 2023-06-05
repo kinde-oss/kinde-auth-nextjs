@@ -1,5 +1,5 @@
-import { getAccessToken } from "./getAccessToken";
-import { getIdToken } from "./getIdToken";
+import {getAccessToken} from './getAccessToken';
+import {getIdToken} from './getIdToken';
 
 export const getClaim = (req, res, claim) => {
   const accessToken = getAccessToken(req, res);
