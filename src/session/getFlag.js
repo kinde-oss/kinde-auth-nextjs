@@ -1,18 +1,18 @@
-import { getClaim } from "./getClaim";
+import {getClaim} from './getClaim';
 
 const flagDataTypeMap = {
-  s: "string",
-  i: "integer",
-  b: "boolean",
+  s: 'string',
+  i: 'integer',
+  b: 'boolean'
 };
 
-const getClaimValue = (claim, tokenKey = "access_token") => {
+const getClaimValue = (claim, tokenKey = 'access_token') => {
   const obj = getClaim(claim, tokenKey);
   return obj && obj.value;
 };
 
 export const getFlag = (code, defaultValue, flagType) => {
-  const flags = getClaimValue("feature_flags");
+  const flags = getClaimValue('feature_flags');
   const flag = flags && flags[code] ? flags[code] : {};
 
   if (!flag.v && !defaultValue) {
@@ -32,6 +32,6 @@ export const getFlag = (code, defaultValue, flagType) => {
     code,
     type: flagDataTypeMap[flag.t || flagType],
     value: flag.v == null ? defaultValue : flag.v,
-    is_default: flag.v == null,
+    is_default: flag.v == null
   };
 };

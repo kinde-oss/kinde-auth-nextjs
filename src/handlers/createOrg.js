@@ -1,11 +1,11 @@
-import { config } from "../config/index";
-import { setupChallenge } from "../utils/setupChallenge";
+import {config} from '../config/index';
+import {setupChallenge} from '../utils/setupChallenge';
 
 export const createOrg = async (req, res) => {
   const options = req.query;
-  const { org_name = "", start_page = "registration" } = options;
+  const {org_name = '', start_page = 'registration'} = options;
 
-  const { state, code_challenge } = setupChallenge(req, res, 60 * 15);
+  const {state, code_challenge} = setupChallenge(req, res, 60 * 15);
 
   const createOrgURL = new URL(config.issuerURL + config.issuerRoutes.login);
 
@@ -19,9 +19,12 @@ export const createOrg = async (req, res) => {
     state,
     start_page: start_page,
     is_create_org: true,
-    org_name,
-    audience: config.audience,
+    org_name
   };
+
+  if (config.audience) {
+    searchParams.audience = config.audience;
+  }
 
   createOrgURL.search = new URLSearchParams(searchParams);
 

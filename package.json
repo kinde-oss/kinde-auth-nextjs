@@ -1,12 +1,14 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "1.8.0",
+  "version": "1.8.2",
   "description": "Kinde Auth SDK for NextJS",
   "main": "dist/index.js",
   "types": "index.d.ts",
   "scripts": {
     "build": "genversion --es6 src/utils/version.js && rollup -c",
-    "test": "jest"
+    "test": "jest",
+    "release": "release-it",
+    "lint": "eslint --ignore-path .eslintignore --ext .js"
   },
   "author": {
     "name": "Kinde",
@@ -23,6 +25,8 @@
     "@babel/core": "^7.17.12",
     "@babel/preset-react": "^7.17.12",
     "@rollup/plugin-babel": "^5.3.1",
+    "eslint": "^8.39.0",
+    "eslint-config-prettier": "^8.8.0",
     "genversion": "^3.1.1",
     "rollup": "^2.73.0",
     "rollup-plugin-terser": "^7.0.2"
@@ -36,6 +40,8 @@
     "crypto": "^1.0.1",
     "crypto-js": "^4.1.1",
     "jwt-decode": "^3.1.2",
+    "prettier": "^2.8.8",
+    "release-it": "^15.10.3",
     "simple-oauth2": "^4.3.0"
   },
   "files": [
