@@ -44,7 +44,7 @@ const AuthContext = createContext({
   ...config.initialState,
   user: handleError,
   isLoading: handleError,
-  getToken: handleError 
+  getToken: handleError
 });
 
 /**
@@ -71,7 +71,8 @@ const tokenFetcher = async (url) => {
 
 export const KindeProvider = ({children}) => {
   const [state, setState] = useState({
-    ...config.initialState
+    ...config.initialState,
+    getToken: () => null
   });
 
   const setupUrl = '/api/auth/setup';
