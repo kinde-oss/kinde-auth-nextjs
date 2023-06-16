@@ -2,8 +2,9 @@
   "name": "@kinde-oss/kinde-auth-nextjs",
   "version": "1.8.2",
   "description": "Kinde Auth SDK for NextJS",
-  "main": "dist/index.js",
-  "types": "index.d.ts",
+  "module": "dist/kinde-auth-nextjs.esm.js",
+  "main": "dist/kinde-auth-nextjs.cjs.min.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "genversion --es6 src/utils/version.js && rollup -c",
     "test": "jest",
@@ -51,6 +52,7 @@
     "package-lock.json",
     "readme.md",
     "src",
+    "server",
     "dist"
   ]
 }
