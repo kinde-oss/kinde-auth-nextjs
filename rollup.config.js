@@ -1,13 +1,4 @@
-import babel from "@rollup/plugin-babel";
-import { terser } from "rollup-plugin-terser";
+import clientConfig from './client/rollup.config.js';
+import serverConfig from './server/rollup.config.js';
 
-export default {
-  plugins: [babel({ babelHelpers: "bundled" }), terser()],
-  input: "src/index.js",
-  output: [
-    {
-      file: "dist/index.js",
-      format: "cjs",
-    },
-  ],
-};
+export default [clientConfig, serverConfig];

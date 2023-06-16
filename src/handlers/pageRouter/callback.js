@@ -1,6 +1,6 @@
 import jwt_decode from 'jwt-decode';
-import {config} from '../config/index';
-import {version} from '../utils/version';
+import {config} from '../../config/index';
+import {version} from '../../utils/version';
 
 var cookie = require('cookie');
 

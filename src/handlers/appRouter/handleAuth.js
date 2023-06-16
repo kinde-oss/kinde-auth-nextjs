@@ -1,0 +1,22 @@
+import {redirect} from 'next/navigation';
+import {login} from './login';
+import {logout} from './logout';
+import {register} from './register';
+import {callback} from './callback';
+
+const routeMap = {
+  register,
+  login,
+  logout,
+  kinde_callback: callback
+};
+
+const getRoute = (endpoint) => {
+  return routeMap[endpoint];
+};
+
+export async function handleAuth(request, endpoint) {
+  const route = getRoute(endpoint);
+
+  return route ? await route(request) : 'nope';
+}
