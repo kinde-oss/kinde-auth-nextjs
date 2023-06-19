@@ -1,8 +1,8 @@
 export {handleAuth} from '../handlers/appRouter/index';
-import * as yep from '../session/appRouter/index';
+import * as serverSession from '../session/appRouter/index';
 
 export const getKindeServerSession = () => {
-  return yep;
+  return serverSession;
 };
 
 export {authMiddleware} from '../authMiddleware/authMiddleware';
