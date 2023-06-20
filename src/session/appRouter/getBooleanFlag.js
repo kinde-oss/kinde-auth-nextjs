@@ -1,8 +1,8 @@
 import {getFlag} from './getFlag';
 
-export const getBooleanFlag = (request, code, defaultValue) => {
+export const getBooleanFlag = (code, defaultValue) => {
   try {
-    const flag = getFlag(request, code, defaultValue, 'b');
+    const flag = getFlag(code, defaultValue, 'b');
     return flag.value;
   } catch (err) {
     console.error(err);
