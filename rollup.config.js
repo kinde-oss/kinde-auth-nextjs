@@ -1,4 +1,4 @@
-import clientConfig from './client/rollup.config.js';
-import serverConfig from './server/rollup.config.js';
+import clientConfig from './clientConfig/rollup.config.js';
+import serverConfig from './serverConfig/rollup.config.js';
 
 export default [clientConfig, serverConfig];

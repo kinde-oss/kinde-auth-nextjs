@@ -6,13 +6,16 @@ export default {
   input: 'src/server/index.js',
   output: [
     {
-      file: 'dist/server/kinde-auth-nextjs.cjs.js',
-      format: 'cjs'
+      file: 'dist/server/cjs/index.js',
+      format: 'cjs',
+      sourcemap: true,
+      exports: 'named'
     },
     {
-      file: 'dist/server/kinde-auth-nextjs.esm.js',
-      format: 'es',
-      sourcemap: true
+      file: `dist/server/index.js`,
+      sourcemap: true,
+      exports: 'named',
+      format: 'esm'
     }
   ]
 };
