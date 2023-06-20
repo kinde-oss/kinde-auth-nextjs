@@ -1,4 +1,4 @@
-import {config} from '../config/index';
+import {config} from '../../config/index';
 const cookie = require('cookie');
 import jwt_decode from 'jwt-decode';
 
