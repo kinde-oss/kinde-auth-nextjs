@@ -1,4 +1,4 @@
-import {config} from '../config/index';
+import {config} from '../../config/index';
 
 var cookie = require('cookie');
 
