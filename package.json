@@ -2,9 +2,9 @@
   "name": "@kinde-oss/kinde-auth-nextjs",
   "version": "1.8.2",
   "description": "Kinde Auth SDK for NextJS",
-  "module": "dist/kinde-auth-nextjs.esm.js",
-  "main": "dist/kinde-auth-nextjs.cjs.min.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/index.js",
+  "typings": "index.d.ts",
   "scripts": {
     "build": "genversion --es6 src/utils/version.js && rollup -c",
     "test": "jest",
@@ -30,7 +30,8 @@
     "eslint-config-prettier": "^8.8.0",
     "genversion": "^3.1.1",
     "rollup": "^2.73.0",
-    "rollup-plugin-terser": "^7.0.2"
+    "rollup-plugin-terser": "^7.0.2",
+    "typescript": "^5.1.3"
   },
   "peerDependencies": {
     "react": "^18.1.0",
@@ -46,13 +47,12 @@
     "simple-oauth2": "^4.3.0"
   },
   "files": [
-    "index.d.ts",
     "LICENSE.md",
     "package.json",
     "package-lock.json",
     "readme.md",
-    "src",
+    "dist",
     "server",
-    "dist"
+    "index.d.ts"
   ]
 }
