@@ -3,8 +3,10 @@ import {login} from './login';
 import {logout} from './logout';
 import {register} from './register';
 import {callback} from './callback';
+import {createOrg} from './createOrg';
 
 const routeMap = {
+  create_org: createOrg,
   register,
   login,
   logout,
@@ -18,5 +20,7 @@ const getRoute = (endpoint) => {
 export async function handleAuth(request, endpoint) {
   const route = getRoute(endpoint);
 
-  return route ? await route(request) : 'nope';
+  return route
+    ? await route(request)
+    : new Response('This page could not be found.', {status: 404});
 }
