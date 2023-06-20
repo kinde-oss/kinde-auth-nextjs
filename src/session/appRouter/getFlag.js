@@ -6,13 +6,13 @@ const flagDataTypeMap = {
   b: 'boolean'
 };
 
-const getClaimValue = (request, claim) => {
-  const obj = getClaim(request, claim);
+const getClaimValue = (claim) => {
+  const obj = getClaim(claim);
   return obj && obj.value;
 };
 
-export const getFlag = (request, code, defaultValue, flagType) => {
-  const flags = getClaimValue(request, 'feature_flags');
+export const getFlag = (code, defaultValue, flagType) => {
+  const flags = getClaimValue('feature_flags');
   const flag = flags && flags[code] ? flags[code] : {};
 
   if (!flag.v && !defaultValue) {

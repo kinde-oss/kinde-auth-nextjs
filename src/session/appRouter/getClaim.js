@@ -1,12 +1,12 @@
 import {getAccessToken} from './getAccessToken';
 import {getIdToken} from './getIdToken';
 
-export const getClaim = (request, claim) => {
-  const accessToken = getAccessToken(request);
+export const getClaim = (claim) => {
+  const accessToken = getAccessToken();
   return accessToken ? accessToken[claim] : null;
 };
 
-export const getClaimFromIdToken = (request, claim) => {
-  const idToken = getIdToken(request);
+export const getClaimFromIdToken = (claim) => {
+  const idToken = getIdToken();
   return idToken ? idToken[claim] : null;
 };
