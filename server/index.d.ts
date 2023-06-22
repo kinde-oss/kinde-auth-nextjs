@@ -1,4 +1,13 @@
+import {ReactElement, LinkHTMLAttributes} from 'react';
 import {NextRequest} from 'next/server';
+
+export declare function RegisterLink(props): ReactElement<LinkHTMLAttributes>;
+
+export declare function LoginLink(props): ReactElement<LinkHTMLAttributes>;
+
+export declare function CreateOrgLink(props): ReactElement<LinkHTMLAttributes>;
+
+export declare function LogoutLink(props): ReactElement<LinkHTMLAttributes>;
 
 export type KindeUser = {
   given_name: string | null;
