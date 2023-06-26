@@ -6,11 +6,12 @@ const initialState = {
 
 const SESSION_PREFIX = 'pkce-verifier';
 
-const KINDE_SITE_URL = process.env.KINDE_SITE_URL || process.env.VERCEL_URL;
-const KINDE_POST_LOGIN_URL_REDIRECT_URL =
-  process.env.KINDE_POST_LOGIN_URL_REDIRECT_URL || process.env.VERCEL_URL;
+const KINDE_SITE_URL = process.env.KINDE_SITE_URL;
+const KINDE_POST_LOGIN_REDIRECT_URL =
+  process.env.KINDE_POST_LOGIN_REDIRECT_URL ||
+  process.env.KINDE_POST_LOGIN_URL_REDIRECT_URL;
 const KINDE_POST_LOGOUT_REDIRECT_URL =
-  process.env.KINDE_POST_LOGOUT_REDIRECT_URL || process.env.VERCEL_URL;
+  process.env.KINDE_POST_LOGOUT_REDIRECT_URL;
 
 const KINDE_ISSUER_URL = process.env.KINDE_ISSUER_URL;
 const KINDE_CLIENT_ID = process.env.KINDE_CLIENT_ID;
@@ -21,7 +22,7 @@ export const config = {
   initialState,
   SESSION_PREFIX,
   redirectURL: KINDE_SITE_URL,
-  postLoginURL: KINDE_POST_LOGIN_URL_REDIRECT_URL,
+  postLoginURL: KINDE_POST_LOGIN_REDIRECT_URL,
   issuerURL: KINDE_ISSUER_URL,
   clientID: KINDE_CLIENT_ID,
   clientSecret: KINDE_CLIENT_SECRET,
