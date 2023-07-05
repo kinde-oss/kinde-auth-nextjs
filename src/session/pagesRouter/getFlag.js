@@ -6,16 +6,11 @@ const flagDataTypeMap = {
   b: 'boolean'
 };
 
-const getClaimValue = (claim, tokenKey = 'access_token') => {
-  const obj = getClaim(claim, tokenKey);
-  return obj && obj.value;
-};
-
 export const getFlag = (code, defaultValue, flagType) => {
-  const flags = getClaimValue('feature_flags');
+  const flags = getClaim('feature_flags');
   const flag = flags && flags[code] ? flags[code] : {};
 
-  if (!flag.v && !defaultValue) {
+  if (!flag.v && defaultValue == undefined) {
     throw Error(
       `Flag ${code} was not found, and no default value has been provided`
     );
