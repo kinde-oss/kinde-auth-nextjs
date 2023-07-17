@@ -107,7 +107,7 @@ export const KindeProvider = ({children}) => {
         const flags = getClaimValue('feature_flags');
         const flag = flags && flags[code] ? flags[code] : {};
 
-        if (!flag.v && !defaultValue) {
+        if (!flag.v && defaultValue == undefined) {
           throw Error(
             `Flag ${code} was not found, and no default value has been provided`
           );
