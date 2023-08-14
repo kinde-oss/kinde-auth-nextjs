@@ -1,8 +1,8 @@
-import { getClaimFromIdToken } from "./getClaim";
+import {getClaimFromIdToken} from './getClaim';
 
 export const getUserOrganizations = (req) => {
-  const orgCodes = getClaimFromIdToken(req, "org_codes");
+  const orgCodes = getClaimFromIdToken('org_codes');
   return {
-    orgCodes,
+    orgCodes
   };
 };
