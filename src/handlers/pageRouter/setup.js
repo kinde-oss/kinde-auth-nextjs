@@ -1,8 +1,8 @@
-import {config} from '../../config/index';
 const cookie = require('cookie');
 import jwt_decode from 'jwt-decode';
 
 export const setup = async (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache');
   const kinde_token = cookie.parse(req.headers.cookie || '')['kinde_token'];
 
   if (kinde_token) {
