@@ -1,12 +1,13 @@
-import { ReactElement } from "react";
+import {ReactElement} from 'react';
 
 export declare function useKindeAuth(): State;
 
 export declare function KindeProvider({
-  children,
+  children
 }: {
   children: any;
 }): ReactElement<State>;
+
 export declare function handleAuth(): any;
 
 export type User = {
@@ -29,9 +30,9 @@ export type KindePermission = {
   orgCode: string;
 };
 
-export type KindeFlagTypeCode = "b" | "i" | "s";
+export type KindeFlagTypeCode = 'b' | 'i' | 's';
 
-export type KindeFlagTypeValue = "boolean" | "integer" | "string";
+export type KindeFlagTypeValue = 'boolean' | 'integer' | 'string';
 
 export type KindeFlag = {
   code: string;
@@ -63,7 +64,7 @@ export type State = {
   ) => KindeFlag;
   getBooleanFlag: (code: string, defaultValue?: boolean) => boolean;
   getStringFlag: (code, defaultValue) => string;
-  getIntegerFlag: (code, defaultValue) => integer;
+  getIntegerFlag: (code, defaultValue) => number;
   getPermissions: () => KindePermissions;
   getPermission: (key: string) => KindePermission;
   getOrganization: () => KindeOrganization;

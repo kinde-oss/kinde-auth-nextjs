@@ -1,1 +1,1 @@
-export { KindeProvider, useKindeAuth } from "./AuthProvider.jsx";
+export {KindeProvider, useKindeAuth} from './AuthProvider.jsx';
