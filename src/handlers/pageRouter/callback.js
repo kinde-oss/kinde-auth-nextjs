@@ -49,7 +49,7 @@ export const callback = async (req, res) => {
             httpOnly: true,
             expires: new Date(accessTokenPayload.exp * 1000),
             sameSite: 'lax',
-            secure: true,
+            secure: config.redirectURL.substring(0, 6) == 'https:',
             path: '/'
           })
         );
