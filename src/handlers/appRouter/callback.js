@@ -48,7 +48,7 @@ export const callback = async (request) => {
           httpOnly: true,
           expires: new Date(payload.exp * 1000),
           sameSite: 'lax',
-          secure: true,
+          secure: config.redirectURL.substring(0, 6) == 'https:',
           path: '/'
         });
       } else {
