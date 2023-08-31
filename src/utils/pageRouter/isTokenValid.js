@@ -1,5 +1,6 @@
 import jwt_decode from 'jwt-decode';
 import {config} from '../../config/index';
+import jwt_decode from 'jwt-decode';
 
 const isTokenValid = (token) => {
   const accessToken = (token && token.access_token) || token;

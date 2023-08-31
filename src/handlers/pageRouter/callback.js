@@ -32,12 +32,13 @@ export const callback = async (req, res) => {
       );
       const data = await response.json();
 
+      const accessToken = jwt_decode(data.access_token);
       if (isTokenValid(data)) {
         res.setHeader(
           'Set-Cookie',
           cookie.serialize(`kinde_token`, JSON.stringify(data), {
             httpOnly: true,
-            expires: new Date(accessTokenPayload.exp * 1000),
+            expires: new Date(accessToken.exp * 1000),
             sameSite: 'lax',
             secure: config.redirectURL.substring(0, 6) == 'https:',
             path: '/'
