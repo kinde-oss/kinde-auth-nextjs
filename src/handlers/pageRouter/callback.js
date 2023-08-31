@@ -1,6 +1,7 @@
 import {config} from '../../config/index';
 import {isTokenValid} from '../../utils/pageRouter/isTokenValid';
 import {version} from '../../utils/version';
+import jwt_decode from 'jwt-decode';
 
 var cookie = require('cookie');
 
