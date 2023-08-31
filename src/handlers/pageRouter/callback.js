@@ -1,5 +1,5 @@
-import jwt_decode from 'jwt-decode';
 import {config} from '../../config/index';
+import {isTokenValid} from '../../utils/pageRouter/isTokenValid';
 import {version} from '../../utils/version';
 
 var cookie = require('cookie');
@@ -31,18 +31,8 @@ export const callback = async (req, res) => {
         }
       );
       const data = await response.json();
-      const accessTokenHeader = jwt_decode(data.access_token, {header: true});
-      const accessTokenPayload = jwt_decode(data.access_token);
-      let isAudienceValid = true;
-      if (config.audience)
-        isAudienceValid = accessTokenPayload.aud == config.audience;
 
-      if (
-        accessTokenPayload.iss == config.issuerURL &&
-        accessTokenHeader.alg == 'RS256' &&
-        accessTokenPayload.exp > Math.floor(Date.now() / 1000) &&
-        isAudienceValid
-      ) {
+      if (isTokenValid(data)) {
         res.setHeader(
           'Set-Cookie',
           cookie.serialize(`kinde_token`, JSON.stringify(data), {
