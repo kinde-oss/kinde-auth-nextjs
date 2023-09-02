@@ -7,12 +7,23 @@ var cookie = require('cookie');
 
 export const callback = async (req, res) => {
   const {code, state} = req.query;
-  const code_verifier = cookie.parse(req.headers.cookie || '')[
+  const jsonCookieValue = cookie.parse(req.headers.cookie || '')[
     `${config.SESSION_PREFIX}-${state}`
   ];
 
-  if (code_verifier) {
+  let redirectUrl = config.postLoginURL || config.redirectURL;
+
+  if (jsonCookieValue) {
     try {
+      const {
+        code_verifier,
+        options,
+      } = JSON.parse(jsonCookieValue);
+
+      if (options?.callback_url) {
+        redirectUrl = options.callback_url;
+      }
+
       const response = await fetch(
         config.issuerURL + config.issuerRoutes.token,
         {
@@ -51,9 +62,7 @@ export const callback = async (req, res) => {
     } catch (err) {
       console.error(err);
     }
-    const redirectUrl = config.postLoginURL
-      ? config.postLoginURL
-      : config.redirectURL;
+
     res.redirect(redirectUrl);
   } else {
     const logoutURL = new URL(config.issuerURL + config.issuerRoutes.logout);
