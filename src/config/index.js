@@ -7,6 +7,7 @@ const initialState = {
 const SESSION_PREFIX = 'pkce-verifier';
 
 const KINDE_SITE_URL = process.env.KINDE_SITE_URL;
+const KINDE_API_PATH = process.env.KINDE_API_PATH || '/api/auth';
 const KINDE_POST_LOGIN_REDIRECT_URL =
   process.env.KINDE_POST_LOGIN_REDIRECT_URL ||
   process.env.KINDE_POST_LOGIN_URL_REDIRECT_URL;
@@ -19,6 +20,7 @@ const KINDE_CLIENT_SECRET = process.env.KINDE_CLIENT_SECRET;
 const KINDE_AUDIENCE = process.env.KINDE_AUDIENCE;
 
 export const config = {
+  apiPath: KINDE_API_PATH,
   initialState,
   SESSION_PREFIX,
   redirectURL: KINDE_SITE_URL,
@@ -32,7 +34,7 @@ export const config = {
   scope: 'openid profile email offline',
   codeChallengeMethod: 'S256',
   redirectRoutes: {
-    callback: '/api/auth/kinde_callback'
+    callback: `${KINDE_API_PATH}/kinde_callback`
   },
   issuerRoutes: {
     logout: '/logout',
