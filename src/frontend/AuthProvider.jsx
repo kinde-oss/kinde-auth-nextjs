@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useEffect
 } from 'react';
+
 import {config} from '../config/index';
 
 const flagDataTypeMap = {
@@ -75,7 +76,7 @@ export const KindeProvider = ({children}) => {
     getToken: () => null
   });
 
-  const setupUrl = '/api/auth/setup';
+  const setupUrl = `${config.apiPath}/setup`;
 
   // try and get the user (by fetching /api/auth/setup) -> this needs to do the OAuth stuff
   const checkSession = useCallback(async () => {

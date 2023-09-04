@@ -1,8 +1,10 @@
 import React from 'react';
 
+import {config} from '../config/index';
+
 export function LogoutLink({children, ...props}) {
   return (
-    <a href="/api/auth/logout" {...props}>
+    <a href={`${config.apiPath}/logout`} {...props}>
       {children}
     </a>
   );
