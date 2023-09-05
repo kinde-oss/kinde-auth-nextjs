@@ -24,7 +24,7 @@ export function authMiddleware(request) {
   }
 
   if (isAuthenticated && isLogoutUrl) {
-    return NextResponse.redirect(new URL(config.postLoginURL));
+    return NextResponse.redirect(new URL(config.postLoginRedirectURL));
   }
 
   return NextResponse.next();

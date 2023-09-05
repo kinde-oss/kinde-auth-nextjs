@@ -29,7 +29,7 @@ export const config = {
   initialState,
   SESSION_PREFIX,
   redirectURL: KINDE_SITE_URL,
-  postLoginURL: KINDE_POST_LOGIN_REDIRECT_URL,
+  postLoginRedirectURL: KINDE_POST_LOGIN_REDIRECT_URL,
   issuerURL: KINDE_ISSUER_URL,
   clientID: KINDE_CLIENT_ID,
   clientSecret: KINDE_CLIENT_SECRET,
