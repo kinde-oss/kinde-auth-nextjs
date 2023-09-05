@@ -1,7 +1,9 @@
+import jwt_decode from 'jwt-decode';
+
 import {config} from '../../config/index';
 import {isTokenValid} from '../../utils/pageRouter/isTokenValid';
 import {version} from '../../utils/version';
-import jwt_decode from 'jwt-decode';
+import {sanitizeRedirect} from '../../utils/sanitizeRedirect';
 
 var cookie = require('cookie');
 
@@ -21,7 +23,10 @@ export const callback = async (req, res) => {
       } = JSON.parse(jsonCookieValue);
 
       if (options?.callback_url) {
-        redirectUrl = options.callback_url;
+        redirectUrl = sanitizeRedirect({
+          baseUrl: new URL(config.redirectURL).origin,
+          url: options.callback_url
+        });
       }
 
       const response = await fetch(
