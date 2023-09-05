@@ -244,6 +244,7 @@ export const KindeProvider = ({children}) => {
     error,
     isLoading
   } = state;
+
   return (
     <AuthContext.Provider
       value={{

@@ -57,8 +57,8 @@ export const callback = async (request) => {
     } catch (err) {
       console.error({err});
     }
-    const redirectUrl = config.postLoginURL
-      ? config.postLoginURL
+    const redirectUrl = config.postLoginRedirectURL
+      ? config.postLoginRedirectURL
       : config.redirectURL;
     redirect(redirectUrl);
   } else {

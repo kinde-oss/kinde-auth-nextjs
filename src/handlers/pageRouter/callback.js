@@ -1,18 +1,34 @@
+import jwt_decode from 'jwt-decode';
+
 import {config} from '../../config/index';
 import {isTokenValid} from '../../utils/pageRouter/isTokenValid';
 import {version} from '../../utils/version';
-import jwt_decode from 'jwt-decode';
+import {sanitizeRedirect} from '../../utils/sanitizeRedirect';
 
 var cookie = require('cookie');
 
 export const callback = async (req, res) => {
   const {code, state} = req.query;
-  const code_verifier = cookie.parse(req.headers.cookie || '')[
+  const jsonCookieValue = cookie.parse(req.headers.cookie || '')[
     `${config.SESSION_PREFIX}-${state}`
   ];
 
-  if (code_verifier) {
+  let redirectUrl = config.postLoginRedirectURL || config.redirectURL;
+
+  if (jsonCookieValue) {
     try {
+      const {
+        code_verifier,
+        options,
+      } = JSON.parse(jsonCookieValue);
+
+      if (options?.post_login_redirect_url) {
+        redirectUrl = sanitizeRedirect({
+          baseUrl: new URL(config.redirectURL).origin,
+          url: options.post_login_redirect_url
+        });
+      }
+
       const response = await fetch(
         config.issuerURL + config.issuerRoutes.token,
         {
@@ -51,9 +67,7 @@ export const callback = async (req, res) => {
     } catch (err) {
       console.error(err);
     }
-    const redirectUrl = config.postLoginURL
-      ? config.postLoginURL
-      : config.redirectURL;
+
     res.redirect(redirectUrl);
   } else {
     const logoutURL = new URL(config.issuerURL + config.issuerRoutes.logout);

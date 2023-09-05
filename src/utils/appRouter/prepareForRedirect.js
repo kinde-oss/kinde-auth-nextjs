@@ -1,4 +1,3 @@
-import {config} from '../../config/index';
 import {setupChallenge} from '../setupChallenge';
 import {setVerifierCookie} from './setVerifierCookie';
 import {generateAuthUrl} from '../generateAuthUrl';
