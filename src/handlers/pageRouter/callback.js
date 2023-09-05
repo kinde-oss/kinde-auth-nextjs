@@ -13,7 +13,7 @@ export const callback = async (req, res) => {
     `${config.SESSION_PREFIX}-${state}`
   ];
 
-  let redirectUrl = config.postLoginURL || config.redirectURL;
+  let redirectUrl = config.postLoginRedirectURL || config.redirectURL;
 
   if (jsonCookieValue) {
     try {
@@ -22,10 +22,10 @@ export const callback = async (req, res) => {
         options,
       } = JSON.parse(jsonCookieValue);
 
-      if (options?.callback_url) {
+      if (options?.post_login_redirect_url) {
         redirectUrl = sanitizeRedirect({
           baseUrl: new URL(config.redirectURL).origin,
-          url: options.callback_url
+          url: options.post_login_redirect_url
         });
       }
 
