@@ -1,5 +1,4 @@
 import {config} from '../config/index';
-import {setupChallenge} from './setupChallenge';
 
 export function generateAuthUrl(options, type = 'login') {
   const {org_code, is_create_org, org_name = ''} = options;
