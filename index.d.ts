@@ -62,7 +62,7 @@ export type State = {
     defaultValue?: string | boolean | number,
     flagType?: KindeFlagTypeCode
   ) => KindeFlag;
-  getBooleanFlag: (code: string, defaultValue?: boolean) => boolean;
+  getBooleanFlag: (code: string, defaultValue: boolean) => boolean;
   getStringFlag: (code, defaultValue) => string;
   getIntegerFlag: (code, defaultValue) => number;
   getPermissions: () => KindePermissions;

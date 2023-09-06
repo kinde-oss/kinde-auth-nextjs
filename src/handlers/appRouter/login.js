@@ -1,11 +1,16 @@
-import {generateAuthUrl} from '../../utils/generateAuthUrl';
+import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
+import {cookies} from 'next/headers';
 import {redirect} from 'next/navigation';
-import {prepareForRedirect} from '../../utils/appRouter/prepareForRedirect';
+import {config} from '../../config/index';
+import {sessionManager} from '../../session/sessionManager';
 
 export const login = async (request) => {
-  const org_code = request.nextUrl.searchParams.get('org_code');
-  const options = {org_code};
-  const authUrl = prepareForRedirect(options);
+  const kindeClient = createKindeServerClient(
+    config.grantType,
+    config.clientOptions
+  );
+
+  const authUrl = await kindeClient.login(sessionManager(cookies()));
 
   redirect(authUrl);
 };

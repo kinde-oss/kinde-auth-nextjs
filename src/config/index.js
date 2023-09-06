@@ -1,3 +1,5 @@
+import {GrantType} from '@kinde-oss/kinde-typescript-sdk';
+
 const initialState = {
   user: null,
   isLoading: true,
@@ -40,5 +42,13 @@ export const config = {
     register: '/oauth2/auth',
     token: '/oauth2/token',
     profile: '/oauth2/v2/user_profile'
-  }
+  },
+  clientOptions: {
+    authDomain: KINDE_ISSUER_URL,
+    clientId: KINDE_CLIENT_ID,
+    clientSecret: KINDE_CLIENT_SECRET,
+    logoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL,
+    redirectURL: `${KINDE_SITE_URL}/api/auth/kinde_callback`
+  },
+  grantType: GrantType.AUTHORIZATION_CODE
 };

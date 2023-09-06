@@ -1,20 +1,16 @@
-import {redirect} from 'next/navigation';
+import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
 import {cookies} from 'next/headers';
+import {redirect} from 'next/navigation';
 import {config} from '../../config/index';
+import {sessionManager} from '../../session/sessionManager';
 
-export const logout = async (request) => {
-  const cookieStore = cookies();
-  cookies().set({
-    name: 'kinde_token',
-    value: '',
-    httpOnly: true,
-    expires: new Date(0),
-    sameSite: 'lax',
-    secure: true,
-    path: '/'
-  });
+export const logout = () => {
+  const kindeClient = createKindeServerClient(
+    config.grantType,
+    config.clientOptions
+  );
 
-  const logoutURL = new URL(config.issuerURL + config.issuerRoutes.logout);
-  logoutURL.searchParams.set('redirect', config.postLogoutRedirectURL || '');
-  redirect(logoutURL.href);
+  const authUrl = kindeClient.logout(sessionManager(cookies()));
+
+  redirect(authUrl);
 };

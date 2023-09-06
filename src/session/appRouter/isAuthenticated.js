@@ -1,5 +1,5 @@
-import { getUser } from "./getUser";
+import {getUser} from './getUser';
 
-const isAuthenticated = (req) => Boolean(getUser(req));
+const isAuthenticated = () => Boolean(getUser());
 
-export { isAuthenticated };
+export {isAuthenticated};

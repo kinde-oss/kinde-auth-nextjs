@@ -1,32 +1,27 @@
-import {getClaim} from './getClaim';
-
-const flagDataTypeMap = {
-  s: 'string',
-  i: 'integer',
-  b: 'boolean'
-};
+import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
+import {cookies} from 'next/headers';
+import {config} from '../../config/index';
+import {sessionManager} from '../sessionManager';
 
 export const getFlag = (code, defaultValue, flagType) => {
-  const flags = getClaim('feature_flags');
-  const flag = flags && flags[code] ? flags[code] : {};
+  const kindeClient = createKindeServerClient(
+    config.grantType,
+    config.clientOptions
+  );
 
-  if (flag == {} && defaultValue == undefined) {
-    throw Error(
-      `Flag ${code} was not found, and no default value has been provided`
+  try {
+    const flag = kindeClient.getFlag(
+      sessionManager(cookies()),
+      code,
+      defaultValue,
+      flagType
     );
-  }
 
-  if (flagType && flag.t && flagType !== flag.t) {
-    throw Error(
-      `Flag ${code} is of type ${flagDataTypeMap[flag.t]} - requested type ${
-        flagDataTypeMap[flagType]
-      }`
-    );
+    return flag;
+  } catch (error) {
+    if (error.message.includes('no default value has been provided')) {
+      throw error;
+    }
+    return defaultValue;
   }
-  return {
-    code,
-    type: flagDataTypeMap[flag.t || flagType],
-    value: flag.v == null ? defaultValue : flag.v,
-    is_default: flag.v == null
-  };
 };
