@@ -18,11 +18,13 @@ export const sessionManager = (cookieStore) => ({
     ),
   removeSessionItem: (itemKey) => cookieStore.delete(itemKey),
   destroySession: () => {
-    cookieStore.delete('id_token_payload');
-    cookieStore.delete('id_token');
-    cookieStore.delete('access_token_payload');
-    cookieStore.delete('access_token');
-    cookieStore.delete('user');
-    cookieStore.delete('refresh_token');
+    [
+      'id_token_payload',
+      'id_token',
+      'access_token_payload',
+      'access_token',
+      'user',
+      'refresh_token'
+    ].forEach((name) => cookieStore.delete(name));
   }
 });

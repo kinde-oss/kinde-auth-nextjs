@@ -1,4 +1,5 @@
 import {GrantType} from '@kinde-oss/kinde-typescript-sdk';
+import {version} from '../utils/version';
 
 const initialState = {
   user: null,
@@ -11,9 +12,10 @@ const SESSION_PREFIX = 'pkce-verifier';
 const KINDE_SITE_URL = process.env.KINDE_SITE_URL;
 
 // We need to use NEXT_PUBLIC for frontend vars
-const KINDE_AUTH_API_PATH = process.env.NEXT_PUBLIC_KINDE_AUTH_API_PATH
-  || process.env.KINDE_AUTH_API_PATH
-  || '/api/auth';
+const KINDE_AUTH_API_PATH =
+  process.env.NEXT_PUBLIC_KINDE_AUTH_API_PATH ||
+  process.env.KINDE_AUTH_API_PATH ||
+  '/api/auth';
 
 const KINDE_POST_LOGIN_REDIRECT_URL =
   process.env.KINDE_POST_LOGIN_REDIRECT_URL ||
@@ -55,7 +57,9 @@ export const config = {
     clientId: KINDE_CLIENT_ID,
     clientSecret: KINDE_CLIENT_SECRET,
     logoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL,
-    redirectURL: `${KINDE_SITE_URL}/api/auth/kinde_callback`
+    redirectURL: `${KINDE_SITE_URL}/api/auth/kinde_callback`,
+    frameworkVersion: version,
+    framework: 'Next.js'
   },
   grantType: GrantType.AUTHORIZATION_CODE
 };
