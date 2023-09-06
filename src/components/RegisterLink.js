@@ -1,9 +1,11 @@
 import React from 'react';
 
+import {config} from '../config/index';
+
 export function RegisterLink({children, orgCode, ...props}) {
   return (
     <a
-      href={`/api/auth/register${orgCode ? `?org_code=${orgCode}` : ''}`}
+      href={`${config.apiPath}/register${orgCode ? `?org_code=${orgCode}` : ''}`}
       {...props}
     >
       {children}

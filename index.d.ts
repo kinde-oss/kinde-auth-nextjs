@@ -10,6 +10,8 @@ export declare function KindeProvider({
 
 export declare function handleAuth(): any;
 
+export declare function isTokenValid(): boolean;
+
 export type User = {
   id: string;
   name: string | null;

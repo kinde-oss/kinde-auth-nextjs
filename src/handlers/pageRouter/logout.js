@@ -9,6 +9,7 @@ export const logout = async (req, res) => {
       httpOnly: true,
       expires: new Date(0),
       sameSite: 'lax',
+      secure: config.redirectURL.substring(0, 6) == 'https:',
       path: '/'
     })
   );

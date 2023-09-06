@@ -1,12 +1,13 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "1.8.12",
+  "version": "1.8.18",
   "description": "Kinde Auth SDK for NextJS",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
   "typings": "index.d.ts",
   "scripts": {
     "build": "genversion --es6 src/utils/version.js && rollup -c",
+    "build:watch": "genversion --es6 src/utils/version.js && rollup -c -w",
     "test": "jest",
     "release": "release-it",
     "lint": "eslint --ignore-path .eslintignore --ext .js"
