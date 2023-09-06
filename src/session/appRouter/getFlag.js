@@ -1,14 +1,8 @@
-import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
 import {cookies} from 'next/headers';
-import {config} from '../../config/index';
 import {sessionManager} from '../sessionManager';
+import {kindeClient} from './kindeServerClient';
 
 export const getFlag = (code, defaultValue, flagType) => {
-  const kindeClient = createKindeServerClient(
-    config.grantType,
-    config.clientOptions
-  );
-
   try {
     const flag = kindeClient.getFlag(
       sessionManager(cookies()),
