@@ -2,6 +2,22 @@ import {ReactElement} from 'react';
 
 export declare function useKindeAuth(): State;
 
+export declare function RegisterLink(
+  props: React.HTMLProps<HTMLAnchorElement>
+): ReactElement<LinkHTMLAttributes<HTMLAnchorElement>>;
+
+export declare function LoginLink(
+  props: React.HTMLProps<HTMLAnchorElement>
+): ReactElement<LinkHTMLAttributes<HTMLAnchorElement>>;
+
+export declare function CreateOrgLink(
+  props: React.HTMLProps<HTMLAnchorElement>
+): ReactElement<LinkHTMLAttributes<HTMLAnchorElement>>;
+
+export declare function LogoutLink(
+  props: React.HTMLProps<HTMLAnchorElement>
+): ReactElement<LinkHTMLAttributes<HTMLAnchorElement>>;
+
 export declare function KindeProvider({
   children
 }: {
@@ -72,3 +88,16 @@ export type State = {
   getOrganization: () => KindeOrganization;
   getUserOrganizations: () => KindeOrganizations;
 };
+
+export type BrowserClient = {
+  isAuthenticated: boolean;
+  error: string | null;
+  user: KindeUser | null;
+  permissions: KindePermissions | null;
+  organization: KindeOrganization | null;
+  userOrganizations: KindeOrganizations;
+  featureFlags: KindeFeatureFlags;
+  isLoading: boolean;
+};
+
+export declare function useKindeBrowserClient(): BrowserClient;

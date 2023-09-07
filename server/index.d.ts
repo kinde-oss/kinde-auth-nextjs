@@ -1,13 +1,21 @@
 import {ReactElement, LinkHTMLAttributes} from 'react';
 import {NextRequest} from 'next/server';
 
-export declare function RegisterLink(props): ReactElement<LinkHTMLAttributes>;
+export declare function RegisterLink(
+  props: React.HTMLProps<HTMLAnchorElement>
+): ReactElement<LinkHTMLAttributes<HTMLAnchorElement>>;
 
-export declare function LoginLink(props): ReactElement<LinkHTMLAttributes>;
+export declare function LoginLink(
+  props: React.HTMLProps<HTMLAnchorElement>
+): ReactElement<LinkHTMLAttributes<HTMLAnchorElement>>;
 
-export declare function CreateOrgLink(props): ReactElement<LinkHTMLAttributes>;
+export declare function CreateOrgLink(
+  props: React.HTMLProps<HTMLAnchorElement>
+): ReactElement<LinkHTMLAttributes<HTMLAnchorElement>>;
 
-export declare function LogoutLink(props): ReactElement<LinkHTMLAttributes>;
+export declare function LogoutLink(
+  props: React.HTMLProps<HTMLAnchorElement>
+): ReactElement<LinkHTMLAttributes<HTMLAnchorElement>>;
 
 export type KindeUser = {
   given_name: string | null;
@@ -22,6 +30,16 @@ export type AuthEndpoints =
   | 'logout'
   | 'register'
   | 'kinde_callback'
+  | 'permissions'
+  | 'permission'
+  | 'user'
+  | 'boolean_flag'
+  | 'integer_flag'
+  | 'string_flag'
+  | 'flag'
+  | 'organization'
+  | 'user_organizations'
+  | 'kinde_data'
   | 'create_org';
 
 export type KindePermissions = {
@@ -54,6 +72,12 @@ export type KindeOrganizations = {
   orgCodes: string[];
 };
 
+export type KindeFeatureFlags = {
+  [flag]: {
+    t: string;
+    v: any;
+  };
+};
 export type ServerSession = {
   getBooleanFlag: (code: string, defaultValue?: boolean) => boolean;
   getFlag: (
