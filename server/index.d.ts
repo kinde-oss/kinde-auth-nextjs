@@ -73,11 +73,12 @@ export type KindeOrganizations = {
 };
 
 export type KindeFeatureFlags = {
-  [flag]: {
+  [flag: string]: {
     t: string;
     v: any;
   };
 };
+
 export type ServerSession = {
   getBooleanFlag: (code: string, defaultValue?: boolean) => boolean;
   getFlag: (

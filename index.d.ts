@@ -1,4 +1,4 @@
-import {ReactElement} from 'react';
+import {LinkHTMLAttributes, ReactElement} from 'react';
 
 export declare function useKindeAuth(): State;
 
@@ -92,12 +92,19 @@ export type State = {
 export type BrowserClient = {
   isAuthenticated: boolean;
   error: string | null;
-  user: KindeUser | null;
+  user: User | null;
   permissions: KindePermissions | null;
   organization: KindeOrganization | null;
   userOrganizations: KindeOrganizations;
   featureFlags: KindeFeatureFlags;
   isLoading: boolean;
+};
+
+export type KindeFeatureFlags = {
+  [flag: string]: {
+    t: string;
+    v: any;
+  };
 };
 
 export declare function useKindeBrowserClient(): BrowserClient;
