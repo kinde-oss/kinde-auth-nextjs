@@ -1,13 +1,14 @@
-import jwt_decode from 'jwt-decode';
 import {cookies} from 'next/headers';
 
-export const getIdToken = (request) => {
+export const getIdToken = () => {
   const cookieStore = cookies();
-  const kinde_token = cookieStore.get('kinde_token');
+  const kinde_token = cookieStore.get('id_token_value');
   if (kinde_token) {
-    const payload = jwt_decode(JSON.parse(kinde_token.value).id_token);
-    return payload;
+    return JSON.parse(kinde_token.value);
   } else {
-    return undefined;
+    return {
+      message:
+        'There is no id_token, you are not authenticated. Try logging in.'
+    };
   }
 };
