@@ -2,9 +2,9 @@ import {cookies} from 'next/headers';
 import {sessionManager} from '../sessionManager';
 import {kindeClient} from './kindeServerClient';
 
-export const getFlag = (code, defaultValue, flagType) => {
+export const getFlag = async (code, defaultValue, flagType) => {
   try {
-    const flag = kindeClient.getFlag(
+    const flag = await kindeClient.getFlag(
       sessionManager(cookies()),
       code,
       defaultValue,

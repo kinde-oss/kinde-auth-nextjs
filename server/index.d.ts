@@ -55,20 +55,20 @@ export type KindeOrganizations = {
 };
 
 export type ServerSession = {
-  getBooleanFlag: (code: string, defaultValue?: boolean) => boolean;
+  getBooleanFlag: (code: string, defaultValue?: boolean) => Promise<boolean>;
   getFlag: (
     code: string,
     defaultValue?: string | boolean | number,
     flagType?: KindeFlagTypeCode
-  ) => KindeFlag;
-  getIntegerFlag: (code, defaultValue) => number;
-  getStringFlag: (code, defaultValue) => string;
-  getPermissions: () => KindePermissions;
-  getPermission: (key: string) => KindePermission;
-  getOrganization: () => KindeOrganization;
-  getUserOrganizations: () => KindeOrganizations;
-  getUser: () => KindeUser;
-  isAuthenticated: () => boolean;
+  ) => Promise<KindeFlag>;
+  getIntegerFlag: (code, defaultValue) => Promise<number>;
+  getStringFlag: (code, defaultValue) => Promise<string>;
+  getPermissions: () => Promise<KindePermissions>;
+  getPermission: (key: string) => Promise<KindePermission>;
+  getOrganization: () => Promise<KindeOrganization>;
+  getUserOrganizations: () => Promise<KindeOrganizations>;
+  getUser: () => Promise<KindeUser>;
+  isAuthenticated: () => Promise<boolean>;
 };
 
 export declare function handleAuth(

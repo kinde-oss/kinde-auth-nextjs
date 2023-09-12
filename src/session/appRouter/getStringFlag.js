@@ -1,8 +1,8 @@
 import {getFlag} from './getFlag';
 
-export const getStringFlag = (code, defaultValue) => {
+export const getStringFlag = async (code, defaultValue) => {
   try {
-    const flag = getFlag(code, defaultValue, 's');
+    const flag = await getFlag(code, defaultValue, 's');
     return flag.value;
   } catch (err) {
     console.error(err);

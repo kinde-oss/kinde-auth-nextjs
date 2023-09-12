@@ -1,8 +1,8 @@
 import {getFlag} from './getFlag';
 
-export const getIntegerFlag = (code, defaultValue) => {
+export const getIntegerFlag = async (code, defaultValue) => {
   try {
-    const flag = getFlag(code, defaultValue, 'i');
+    const flag = await getFlag(code, defaultValue, 'i');
     return flag.value;
   } catch (err) {
     console.error(err);

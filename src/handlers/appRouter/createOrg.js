@@ -1,5 +1,7 @@
-import {prepareForRedirect} from '../../utils/appRouter/prepareForRedirect';
+import {cookies} from 'next/headers';
 import {redirect} from 'next/navigation';
+import {kindeClient} from '../../session/appRouter/kindeServerClient';
+import {sessionManager} from '../../session/sessionManager';
 
 export const createOrg = async (request) => {
   const org_name = request.nextUrl.searchParams.get('org_name');
@@ -7,7 +9,10 @@ export const createOrg = async (request) => {
     org_name,
     is_create_org: true
   };
-  const authUrl = prepareForRedirect(options, 'register');
+  const authUrl = await kindeClient.createOrg(
+    sessionManager(cookies()),
+    options
+  );
 
   redirect(authUrl);
 };

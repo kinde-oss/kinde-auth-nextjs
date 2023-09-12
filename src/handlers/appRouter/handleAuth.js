@@ -1,12 +1,11 @@
-import {redirect} from 'next/navigation';
 import {NextResponse} from 'next/server';
+import {getPermission} from '../../session/appRouter/getPermission';
+import {getPermissions} from '../../session/appRouter/getPermissions';
+import {callback} from './callback';
+import {createOrg} from './createOrg';
 import {login} from './login';
 import {logout} from './logout';
 import {register} from './register';
-import {callback} from './callback';
-import {createOrg} from './createOrg';
-import {getPermissions} from '../../session/appRouter/getPermissions';
-import {getPermission} from '../../session/appRouter/getPermission';
 
 const routeMap = {
   create_org: createOrg,
