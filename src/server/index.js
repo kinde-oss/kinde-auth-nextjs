@@ -1,4 +1,4 @@
-export {handleAuth} from '../handlers/appRouter/index';
+export {default as handleAuth} from '../handlers/auth';
 import * as serverSession from '../session/appRouter/index';
 
 export const getKindeServerSession = () => {
