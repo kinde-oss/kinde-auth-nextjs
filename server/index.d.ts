@@ -55,14 +55,14 @@ export type KindeOrganizations = {
 };
 
 export type ServerSession = {
-  getBooleanFlag: (code: string, defaultValue?: boolean) => Promise<boolean>;
+  getBooleanFlag: (code: string, defaultValue: boolean) => Promise<boolean>;
   getFlag: (
     code: string,
     defaultValue?: string | boolean | number,
     flagType?: KindeFlagTypeCode
   ) => Promise<KindeFlag>;
-  getIntegerFlag: (code, defaultValue) => Promise<number>;
-  getStringFlag: (code, defaultValue) => Promise<string>;
+  getIntegerFlag: (code: string, defaultValue: number) => Promise<number>;
+  getStringFlag: (code: string, defaultValue: string) => Promise<string>;
   getPermissions: () => Promise<KindePermissions>;
   getPermission: (key: string) => Promise<KindePermission>;
   getOrganization: () => Promise<KindeOrganization>;
@@ -74,8 +74,11 @@ export type ServerSession = {
 export declare function handleAuth(
   request: NextRequest,
   endpoint: AuthEndpoints
-);
+): void;
 
-export declare function getKindeServerSession(): ServerSession;
+export declare function getKindeServerSession(
+  req?: Request,
+  res?: Response
+): ServerSession;
 
 export declare function authMiddleware();

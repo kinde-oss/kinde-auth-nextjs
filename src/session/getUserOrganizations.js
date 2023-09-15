@@ -1,11 +1,10 @@
-import {cookies} from 'next/headers';
-import {sessionManager} from '../../session/sessionManager';
+import {sessionManager} from './sessionManager';
 import {kindeClient} from './kindeServerClient';
 
-export const getUserOrganizations = async (req) => {
+export const getUserOrganizationsFactory = (req, res) => async () => {
   try {
     const userOrgs = await kindeClient.getUserOrganizations(
-      sessionManager(cookies())
+      sessionManager(req, res)
     );
     return userOrgs;
   } catch (error) {

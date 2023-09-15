@@ -1,12 +1,11 @@
-import {cookies} from 'next/headers';
-import {sessionManager} from '../../session/sessionManager';
+import {sessionManager} from './sessionManager';
 import {kindeClient} from './kindeServerClient';
 
-export const getPermission = async (key) => {
+export const getPermissionFactory = (req, res) => async (name) => {
   try {
     const permission = await kindeClient.getPermission(
-      sessionManager(cookies()),
-      key
+      sessionManager(req, res),
+      name
     );
     return permission;
   } catch (error) {

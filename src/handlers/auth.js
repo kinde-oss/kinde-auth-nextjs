@@ -29,7 +29,6 @@ export default () =>
   };
 
 const appRouterHandler = async (req, res) => {
-  console.log('app router');
   const {params} = res;
   let endpoint = params.kindeAuth;
   endpoint = Array.isArray(endpoint) ? endpoint[0] : endpoint;
@@ -41,7 +40,6 @@ const appRouterHandler = async (req, res) => {
 };
 
 const pagesRouterHandler = async (req, res) => {
-  console.log('pages router');
   let {
     query: {kindeAuth: endpoint}
   } = req;
