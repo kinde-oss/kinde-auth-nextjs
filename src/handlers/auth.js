@@ -3,13 +3,15 @@ import {callback} from './callback';
 // import {createOrg} from './createOrg';
 import {login} from './login';
 import {logout} from './logout';
-// import {register} from './register';
+import {setup} from './setup';
+import {register} from './register';
 import AppRouterClient from './AppRouterClient';
 import PagesRouterClient from './PagesRouterClient';
 
 const routeMap = {
   // create_org: createOrg,
-  // register,
+  register,
+  setup,
   login,
   logout,
   kinde_callback: callback

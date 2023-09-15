@@ -1,4 +1,4 @@
-import {sessionManager} from '../sessionManager';
+import {sessionManager} from './sessionManager';
 import {kindeClient} from './kindeServerClient';
 
 export const getUserFactory = (req, res) => async () => {

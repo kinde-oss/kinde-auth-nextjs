@@ -5,8 +5,6 @@ export {getIdToken} from './getIdToken';
 export {getIntegerFlag} from './getIntegerFlag';
 export {getOrganization} from './getOrganization';
 export {getPermission} from './getPermission';
-export {getPermissions} from './getPermissions';
 export {getStringFlag} from './getStringFlag';
 export {getUserOrganizations} from './getUserOrganizations';
-export {getUser} from './getUser';
 export {isAuthenticated} from './isAuthenticated';

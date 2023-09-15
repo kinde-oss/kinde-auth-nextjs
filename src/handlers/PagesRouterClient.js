@@ -1,5 +1,7 @@
 import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
 import {config} from '../config/index';
+import {sessionManager} from '../session/sessionManager';
+var cookie = require('cookie');
 
 export default class PagesRouterClient {
   constructor(req, res) {
@@ -7,16 +9,20 @@ export default class PagesRouterClient {
       config.grantType,
       config.clientOptions
     );
-    this.url = 'temp';
+    this.url = new URL(config.redirectURL + req.url);
     this.res = res;
+    this.sessionManager = sessionManager(req, res);
   }
 
   redirect(url) {
-    console.log('url', url);
-    return this.res.redirect(url);
+    return this.res.redirect(url.href ? url.href : url);
   }
 
   getUrl() {
     return this.url;
+  }
+
+  json(data) {
+    return this.res.send(data);
   }
 }
