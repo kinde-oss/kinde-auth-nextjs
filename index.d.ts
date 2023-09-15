@@ -1,5 +1,13 @@
 import {ReactElement} from 'react';
 
+export declare function RegisterLink(props): ReactElement<LinkHTMLAttributes>;
+
+export declare function LoginLink(props): ReactElement<LinkHTMLAttributes>;
+
+export declare function CreateOrgLink(props): ReactElement<LinkHTMLAttributes>;
+
+export declare function LogoutLink(props): ReactElement<LinkHTMLAttributes>;
+
 export declare function useKindeAuth(): State;
 
 export declare function KindeProvider({
