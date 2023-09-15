@@ -1,7 +1,6 @@
 import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
 import {config} from '../config/index';
 import {sessionManager} from '../session/sessionManager';
-var cookie = require('cookie');
 
 export default class PagesRouterClient {
   constructor(req, res) {
@@ -11,6 +10,7 @@ export default class PagesRouterClient {
     );
     this.url = new URL(config.redirectURL + req.url);
     this.res = res;
+    this.req = req;
     this.sessionManager = sessionManager(req, res);
   }
 
@@ -24,5 +24,9 @@ export default class PagesRouterClient {
 
   json(data) {
     return this.res.send(data);
+  }
+
+  getSearchParam(key) {
+    return this.url.searchParams.get(key);
   }
 }

@@ -12,4 +12,8 @@ export default class AppRouterClient {
   json() {
     throw new Error("Method 'json()' must be implemented.");
   }
+
+  getSearchParam() {
+    throw new Error("Method 'getSearchParam()' must be implemented.");
+  }
 }

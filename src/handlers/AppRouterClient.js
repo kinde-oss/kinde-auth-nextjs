@@ -1,11 +1,9 @@
 import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
-import {config} from '../config/index';
-import {redirect} from 'next/navigation';
-import {
-  appRouterSessionManager,
-  sessionManager
-} from '../session/sessionManager';
 import {cookies} from 'next/headers';
+import {redirect} from 'next/navigation';
+import {NextResponse} from 'next/server';
+import {config} from '../config/index';
+import {appRouterSessionManager} from '../session/sessionManager';
 
 export default class AppRouterClient {
   constructor(req, res) {
@@ -15,6 +13,7 @@ export default class AppRouterClient {
     );
     this.url = new URL(req.url);
     this.sessionManager = appRouterSessionManager(cookies());
+    this.req = req;
   }
 
   redirect(url) {
@@ -23,5 +22,13 @@ export default class AppRouterClient {
 
   getUrl() {
     return this.url;
+  }
+
+  json(data) {
+    return NextResponse.json(data);
+  }
+
+  getSearchParam(key) {
+    return this.req.nextUrl.searchParams.get(key);
   }
 }

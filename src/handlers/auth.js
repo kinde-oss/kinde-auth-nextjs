@@ -1,6 +1,6 @@
 import {isAppRouter} from '../utils/isAppRouter';
 import {callback} from './callback';
-// import {createOrg} from './createOrg';
+import {createOrg} from './createOrg';
 import {login} from './login';
 import {logout} from './logout';
 import {setup} from './setup';
@@ -9,7 +9,7 @@ import AppRouterClient from './AppRouterClient';
 import PagesRouterClient from './PagesRouterClient';
 
 const routeMap = {
-  // create_org: createOrg,
+  create_org: createOrg,
   register,
   setup,
   login,
