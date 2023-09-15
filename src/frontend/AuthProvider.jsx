@@ -8,12 +8,6 @@ import React, {
 
 import {config} from '../config/index';
 
-const flagDataTypeMap = {
-  s: 'string',
-  i: 'integer',
-  b: 'boolean'
-};
-
 const handleError = () => {
   throw new Error(
     'Oops! Seems like you forgot to wrap your app in <KindeProvider>.'
@@ -44,8 +38,7 @@ const handleError = () => {
 const AuthContext = createContext({
   ...config.initialState,
   user: handleError,
-  isLoading: handleError,
-  getToken: handleError
+  isLoading: handleError
 });
 
 /**
@@ -72,8 +65,7 @@ const tokenFetcher = async (url) => {
 
 export const KindeProvider = ({children}) => {
   const [state, setState] = useState({
-    ...config.initialState,
-    getToken: () => null
+    ...config.initialState
   });
 
   const setupUrl = `${config.apiPath}/setup`;
@@ -81,132 +73,19 @@ export const KindeProvider = ({children}) => {
   // try and get the user (by fetching /api/auth/setup) -> this needs to do the OAuth stuff
   const checkSession = useCallback(async () => {
     try {
-      const tokens = await tokenFetcher(setupUrl);
+      const kindeData = await tokenFetcher(setupUrl);
 
-      const user = {
-        id: tokens.id_token.sub,
-        name: tokens.id_token.name,
-        given_name: tokens.id_token.given_name,
-        family_name: tokens.id_token.family_name,
-        updated_at: tokens.id_token.updated_at,
-        email: tokens.id_token.email,
-        picture: tokens.id_token.picture
-      };
-
-      const getClaim = (claim, tokenKey = 'access_token') => {
-        const token =
-          tokenKey === 'access_token' ? tokens.access_token : tokens.id_token;
-        return token ? {name: claim, value: token[claim]} : null;
-      };
-
-      const getClaimValue = (claim, tokenKey = 'access_token') => {
-        const obj = getClaim(claim, tokenKey);
-        return obj && obj.value;
-      };
-
-      const getFlag = (code, defaultValue, flagType) => {
-        const flags = getClaimValue('feature_flags');
-        const flag = flags && flags[code] ? flags[code] : {};
-
-        if (flag == {} && defaultValue == undefined) {
-          throw Error(
-            `Flag ${code} was not found, and no default value has been provided`
-          );
-        }
-
-        if (flagType && flag.t && flagType !== flag.t) {
-          throw Error(
-            `Flag ${code} is of type ${
-              flagDataTypeMap[flag.t]
-            } - requested type ${flagDataTypeMap[flagType]}`
-          );
-        }
-        return {
-          code,
-          type: flagDataTypeMap[flag.t || flagType],
-          value: flag.v == null ? defaultValue : flag.v,
-          is_default: flag.v == null
-        };
-      };
-
-      const getBooleanFlag = (code, defaultValue) => {
-        try {
-          const flag = getFlag(code, defaultValue, 'b');
-          return flag.value;
-        } catch (err) {
-          console.error(err);
-        }
-      };
-
-      const getStringFlag = (code, defaultValue) => {
-        try {
-          const flag = getFlag(code, defaultValue, 's');
-          return flag.value;
-        } catch (err) {
-          console.error(err);
-        }
-      };
-
-      const getIntegerFlag = (code, defaultValue) => {
-        try {
-          const flag = getFlag(code, defaultValue, 'i');
-          return flag.value;
-        } catch (err) {
-          console.error(err);
-        }
-      };
-
-      const getPermissions = () => {
-        const orgCode = getClaimValue('org_code');
-        const permissions = getClaimValue('permissions');
-        return {
-          permissions,
-          orgCode
-        };
-      };
-
-      const getPermission = (key) => {
-        const orgCode = getClaimValue('org_code');
-        const permissions = getClaimValue('permissions') || [];
-        return {
-          isGranted: permissions.some((p) => p === key),
-          orgCode
-        };
-      };
-
-      const getOrganization = () => {
-        const orgCode = getClaimValue('org_code');
-        return {
-          orgCode
-        };
-      };
-
-      const getUserOrganizations = () => {
-        const orgCodes = getClaimValue('org_codes', 'id_token');
-        return {
-          orgCodes
-        };
-      };
-
-      const getToken = () => {
-        return tokens && tokens.access_token_encoded
-          ? tokens.access_token_encoded
-          : undefined;
-      };
+      // const getClaim = (claim, tokenKey = 'access_token') => {
+      //   const token =
+      //     tokenKey === 'access_token'
+      //       ? kindeData.accessToken
+      //       : kindeData.idToken;
+      //   return token ? {name: claim, value: token[claim]} : null;
+      // };
 
       setState((previous) => ({
         ...previous,
-        user,
-        getToken,
-        getClaim,
-        getFlag,
-        getBooleanFlag,
-        getStringFlag,
-        getIntegerFlag,
-        getPermissions,
-        getPermission,
-        getOrganization,
-        getUserOrganizations,
+        ...kindeData,
         error: undefined
       }));
     } catch (error) {
@@ -231,36 +110,28 @@ export const KindeProvider = ({children}) => {
   // provide this stuff to the rest of your app
   const {
     user,
-    getToken,
-    getClaim,
-    getFlag,
-    getBooleanFlag,
-    getStringFlag,
-    getIntegerFlag,
-    getPermissions,
-    getPermission,
-    getOrganization,
-    getUserOrganizations,
     error,
-    isLoading
+    isLoading,
+    permissions,
+    featureFlags,
+    organization,
+    userOrganizations,
+    accessToken,
+    idToken
   } = state;
 
   return (
     <AuthContext.Provider
       value={{
+        accessToken,
+        idToken,
         user,
         error,
-        getToken,
-        getClaim,
-        getFlag,
-        getBooleanFlag,
-        getStringFlag,
-        getIntegerFlag,
-        getPermissions,
-        getPermission,
-        getOrganization,
-        getUserOrganizations,
         isLoading,
+        permissions,
+        featureFlags,
+        organization,
+        userOrganizations,
         isAuthenticated: !!user
       }}
     >
