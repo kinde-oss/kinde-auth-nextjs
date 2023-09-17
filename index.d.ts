@@ -1,3 +1,8 @@
+import {
+  FeatureFlags,
+  Permissions,
+  UserType
+} from '@kinde-oss/kinde-typescript-sdk';
 import {ReactElement} from 'react';
 
 export declare function RegisterLink(props): ReactElement<LinkHTMLAttributes>;
@@ -9,6 +14,7 @@ export declare function CreateOrgLink(props): ReactElement<LinkHTMLAttributes>;
 export declare function LogoutLink(props): ReactElement<LinkHTMLAttributes>;
 
 export declare function useKindeAuth(): State;
+export declare function useKindeBrowserClient(): State;
 
 export declare function KindeProvider({
   children
@@ -61,22 +67,14 @@ export type KindeOrganizations = {
 };
 
 export type State = {
-  user: User;
+  user: UserType | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  permissions: Permissions | null;
   error?: string | undefined;
-  getToken: () => string | undefined;
-  getClaim: (claim: string, tokenKey?: string) => any;
-  getFlag: (
-    code: string,
-    defaultValue?: string | boolean | number,
-    flagType?: KindeFlagTypeCode
-  ) => KindeFlag;
-  getBooleanFlag: (code: string, defaultValue: boolean) => boolean;
-  getStringFlag: (code, defaultValue) => string;
-  getIntegerFlag: (code, defaultValue) => number;
-  getPermissions: () => KindePermissions;
-  getPermission: (key: string) => KindePermission;
-  getOrganization: () => KindeOrganization;
-  getUserOrganizations: () => KindeOrganizations;
+  featureFlags: FeatureFlags | null;
+  organization: KindeOrganization | null;
+  userOrganizations: KindeOrganizations | null;
+  accessToken: string | null;
+  idToken: string | null;
 };

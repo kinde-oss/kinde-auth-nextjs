@@ -13,38 +13,13 @@ const handleError = () => {
     'Oops! Seems like you forgot to wrap your app in <KindeProvider>.'
   );
 };
-/**
- * @typedef {Object} User
- * @property {string} id
- * @property {string | null} name
- * @property {string | null} email
- * @property {string | null} given_name
- * @property {string | null} family_name
- * @property {string | null} updated_at
- * @property {string | null} picture
- */
 
-/**
- * @typedef {Object} State
- * @property {User} user
- * @property {boolean} isLoading
- * @property {boolean} isAuthenticated
- * @property {string=} error
- */
-
-/**
- * @returns {React.Context<State>}
- */
 const AuthContext = createContext({
   ...config.initialState,
   user: handleError,
   isLoading: handleError
 });
 
-/**
- * Use auth context.
- * @returns {State}
- */
 export const useKindeAuth = () => useContext(AuthContext);
 
 const tokenFetcher = async (url) => {
@@ -74,15 +49,6 @@ export const KindeProvider = ({children}) => {
   const checkSession = useCallback(async () => {
     try {
       const kindeData = await tokenFetcher(setupUrl);
-
-      // const getClaim = (claim, tokenKey = 'access_token') => {
-      //   const token =
-      //     tokenKey === 'access_token'
-      //       ? kindeData.accessToken
-      //       : kindeData.idToken;
-      //   return token ? {name: claim, value: token[claim]} : null;
-      // };
-
       setState((previous) => ({
         ...previous,
         ...kindeData,

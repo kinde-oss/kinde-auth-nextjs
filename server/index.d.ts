@@ -1,5 +1,6 @@
 import {ReactElement, LinkHTMLAttributes} from 'react';
 import {NextRequest} from 'next/server';
+import {State} from '..';
 
 export declare function RegisterLink(props): ReactElement<LinkHTMLAttributes>;
 
