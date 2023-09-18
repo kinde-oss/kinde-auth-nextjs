@@ -6,6 +6,7 @@ export const getUserFactory = (req, res) => async () => {
     const user = await kindeClient.getUser(sessionManager(req, res));
     return user;
   } catch (error) {
+    console.log(error);
     return null;
   }
 };

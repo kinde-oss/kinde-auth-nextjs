@@ -24,7 +24,7 @@ export const appRouterSessionManager = (cookieStore) => ({
         return item.value;
       }
     }
-    return null;
+    return undefined;
   },
   setSessionItem: (itemKey, itemValue) =>
     cookieStore.set(
@@ -58,7 +58,7 @@ export const pageRouterSessionManager = (req, res) => ({
         return itemValue;
       }
     }
-    return null;
+    return undefined;
   },
   setSessionItem: (itemKey, itemValue) => {
     let cookies = res.getHeader('Set-Cookie') || [];

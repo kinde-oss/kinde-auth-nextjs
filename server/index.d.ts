@@ -1,6 +1,22 @@
-import {ReactElement, LinkHTMLAttributes} from 'react';
+import {
+  APIsApi,
+  ApplicationsApi,
+  BusinessApi,
+  CallbacksApi,
+  ConnectedAppsApi,
+  EnvironmentsApi,
+  FeatureFlagsApi,
+  IndustriesApi,
+  OAuthApi,
+  OrganizationsApi,
+  PermissionsApi,
+  RolesApi,
+  SubscribersApi,
+  TimezonesApi,
+  UsersApi
+} from '@kinde-oss/kinde-typescript-sdk/dist/types/apis';
 import {NextRequest} from 'next/server';
-import {State} from '..';
+import {LinkHTMLAttributes, ReactElement} from 'react';
 
 export declare function RegisterLink(props): ReactElement<LinkHTMLAttributes>;
 
@@ -56,6 +72,7 @@ export type KindeOrganizations = {
 };
 
 export type ServerSession = {
+  getAccessToken: () => Promise<string>;
   getBooleanFlag: (code: string, defaultValue: boolean) => Promise<boolean>;
   getFlag: (
     code: string,
@@ -83,3 +100,28 @@ export declare function getKindeServerSession(
 ): ServerSession;
 
 export declare function authMiddleware();
+
+export type KindeManagementApis = {
+  usersApi: UsersApi;
+  oauthApi: OAuthApi;
+  subscribersApi: SubscribersApi;
+  organizationsApi: OrganizationsApi;
+  connectedAppsApi: ConnectedAppsApi;
+  featureFlagsApi: FeatureFlagsApi;
+  environmentsApi: EnvironmentsApi;
+  permissionsApi: PermissionsApi;
+  rolesApi: RolesApi;
+  businessApi: BusinessApi;
+  industriesApi: IndustriesApi;
+  timezonesApi: TimezonesApi;
+  applicationsApi: ApplicationsApi;
+  callbacksApi: CallbacksApi;
+  apisApi: APIsApi;
+};
+
+export declare function createKindeManagementAPIClient(
+  req?: Request,
+  res?: Response
+): Promise<
+  KindeManagementApis & {getToken: (req?: Request, res?: Response) => string}
+>;

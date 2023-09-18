@@ -53,6 +53,7 @@ export const config = {
     profile: '/oauth2/v2/user_profile'
   },
   clientOptions: {
+    audience: KINDE_AUDIENCE,
     authDomain: KINDE_ISSUER_URL,
     clientId: KINDE_CLIENT_ID,
     clientSecret: KINDE_CLIENT_SECRET,
