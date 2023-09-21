@@ -32,11 +32,7 @@ export function authMiddleware(request) {
 }
 
 const handleMiddleware = async (req, options, onSuccess) => {
-  const {pathname, search, origin, basePath} = req.nextUrl;
-
-  console.log('search', search);
-  console.log('origin', origin);
-  console.log('basePath', basePath);
+  const {pathname, search, origin, basePath, url} = req.nextUrl;
 
   const loginPage = '/api/auth/login';
   const publicPaths = ['/_next', '/favicon.ico'];
@@ -46,9 +42,11 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   const kindeToken = req.cookies.get('access_token');
   if (!kindeToken) {
-    return NextResponse.redirect(
+    const response = NextResponse.redirect(
       new URL('/api/auth/login', config.redirectURL)
     );
+    // response.cookies.set('kinde_next_page', req.nextUrl.href);
+    return response;
   }
   const accessTokenValue = JSON.parse(
     req.cookies.get('access_token_payload').value

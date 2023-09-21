@@ -17,6 +17,6 @@ export const getFlagFactory =
       if (error.message.includes('no default value has been provided')) {
         throw error;
       }
-      return defaultValue;
+      return {value: defaultValue};
     }
   };

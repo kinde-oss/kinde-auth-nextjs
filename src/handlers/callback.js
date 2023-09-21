@@ -6,5 +6,17 @@ export const callback = async (routerClient) => {
     routerClient.getUrl()
   );
 
-  routerClient.redirect(config.postLoginRedirectURL);
+  const kindeNextPage =
+    routerClient.sessionManager.getSessionItem('kinde_next_page');
+  if (kindeNextPage)
+    routerClient.sessionManager.removeSessionItem('kinde_next_page');
+
+  console.log('KINDE NEXT PAGE', kindeNextPage);
+
+  const postLoginRedirectURL = kindeNextPage
+    ? kindeNextPage
+    : config.postLoginRedirectURL;
+  // const postLoginRedirectURL = config.postLoginRedirectURL
+
+  routerClient.redirect(postLoginRedirectURL);
 };

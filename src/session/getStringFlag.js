@@ -7,5 +7,6 @@ export const getStringFlagFactory =
       return flag.value;
     } catch (err) {
       console.error(err);
+      return null;
     }
   };
