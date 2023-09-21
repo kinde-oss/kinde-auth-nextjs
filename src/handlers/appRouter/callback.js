@@ -34,7 +34,8 @@ export const callback = async (request) => {
       const tokenHeader = jwt_decode(data.access_token, {header: true});
       const payload = jwt_decode(data.access_token);
       let isAudienceValid = true;
-      if (config.audience) isAudienceValid = payload.aud == config.audience;
+      if (config.audience)
+        isAudienceValid = payload.aud && payload.aud.includes(config.audience);
 
       if (
         payload.iss === config.issuerURL &&
