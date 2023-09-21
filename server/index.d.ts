@@ -1,5 +1,23 @@
 import {ReactElement, LinkHTMLAttributes} from 'react';
 import {NextRequest} from 'next/server';
+import {NextApiResponse} from 'next';
+import {
+  APIsApi,
+  ApplicationsApi,
+  BusinessApi,
+  CallbacksApi,
+  ConnectedAppsApi,
+  EnvironmentsApi,
+  FeatureFlagsApi,
+  IndustriesApi,
+  OAuthApi,
+  OrganizationsApi,
+  PermissionsApi,
+  RolesApi,
+  SubscribersApi,
+  TimezonesApi,
+  UsersApi
+} from '@kinde-oss/kinde-typescript-sdk';
 
 export declare function RegisterLink(props): ReactElement<LinkHTMLAttributes>;
 
@@ -79,3 +97,25 @@ export declare function handleAuth(
 export declare function getKindeServerSession(): ServerSession;
 
 export declare function authMiddleware();
+
+export function createKindeManagementAPIClient(
+  req?: Request | NextApiResponse,
+  res?: Response | NextApiResponse
+): Promise<{
+  getToken: (req?: Request, res?: Response) => string;
+  usersApi: UsersApi;
+  oauthApi: OAuthApi;
+  subscribersApi: SubscribersApi;
+  organizationsApi: OrganizationsApi;
+  connectedAppsApi: ConnectedAppsApi;
+  featureFlagsApi: FeatureFlagsApi;
+  environmentsApi: EnvironmentsApi;
+  permissionsApi: PermissionsApi;
+  rolesApi: RolesApi;
+  businessApi: BusinessApi;
+  industriesApi: IndustriesApi;
+  timezonesApi: TimezonesApi;
+  applicationsApi: ApplicationsApi;
+  callbacksApi: CallbacksApi;
+  apisApi: APIsApi;
+}>;
