@@ -1,10 +1,4 @@
-// export {handleAuth} from '../handlers/appRouter/index';
-import * as serverSession from '../session/appRouter/index';
-
-export const getKindeServerSession = () => {
-  return serverSession;
-};
-
+export {getKindeServerSession} from '../session/index';
 export {authMiddleware} from '../authMiddleware/authMiddleware';
 
 export {RegisterLink} from '../components/RegisterLink';
