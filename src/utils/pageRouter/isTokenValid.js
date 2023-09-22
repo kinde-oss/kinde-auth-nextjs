@@ -9,7 +9,9 @@ const isTokenValid = (token) => {
   const accessTokenPayload = jwt_decode(accessToken);
   let isAudienceValid = true;
   if (config.audience)
-    isAudienceValid = payload.aud && payload.aud.includes(config.audience);
+    isAudienceValid =
+      accessTokenPayload.aud &&
+      accessTokenPayload.aud.includes(config.audience);
 
   if (
     accessTokenPayload.iss == config.issuerURL &&
