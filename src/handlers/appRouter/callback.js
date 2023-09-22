@@ -59,10 +59,16 @@ export const callback = async (request) => {
     } catch (err) {
       console.error({err});
     }
+
+    const kindeNextPage = cookieStore.get('kinde_next_page');
+    cookieStore.set('kinde_next_page', 'delete', {maxAge: 0});
+
+    console.log('KINDE NEXT PAGE', kindeNextPage?.value);
     const redirectUrl = config.postLoginRedirectURL
       ? config.postLoginRedirectURL
       : config.redirectURL;
-    redirect(redirectUrl);
+
+    redirect(kindeNextPage ? kindeNextPage.value : redirectUrl);
   } else {
     const logoutURL = new URL(config.issuerURL + config.issuerRoutes.logout);
     logoutURL.searchParams.set('redirect', config.postLogoutRedirectURL);

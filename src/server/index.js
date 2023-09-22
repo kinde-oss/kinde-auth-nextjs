@@ -5,7 +5,10 @@ export const getKindeServerSession = () => {
   return serverSession;
 };
 
-export {authMiddleware} from '../authMiddleware/authMiddleware';
+export {
+  authMiddleware,
+  default as withAuth
+} from '../authMiddleware/authMiddleware';
 
 export {RegisterLink} from '../components/RegisterLink';
 export {LoginLink} from '../components/LoginLink';
