@@ -3,6 +3,12 @@ import {cookies} from 'next/headers';
 
 var cookie = require('cookie');
 
+/**
+ *
+ * @param {Request} [req]
+ * @param {Response} [res]
+ * @returns
+ */
 export const sessionManager = (req, res) => {
   if (!req) return appRouterSessionManager(cookies());
   return isAppRouter(req)
@@ -11,6 +17,11 @@ export const sessionManager = (req, res) => {
 };
 
 export const appRouterSessionManager = (cookieStore) => ({
+  /**
+   *
+   * @param {string} itemKey
+   * @returns {Promise<string | undefined>}
+   */
   getSessionItem: (itemKey) => {
     const item = cookieStore.get(itemKey);
     if (item) {
@@ -26,11 +37,22 @@ export const appRouterSessionManager = (cookieStore) => ({
     }
     return undefined;
   },
+  /**
+   *
+   * @param {string} itemKey
+   * @param {string | object} itemValue
+   * @returns {Promise<void>}
+   */
   setSessionItem: (itemKey, itemValue) =>
     cookieStore.set(
       itemKey,
       typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue
     ),
+  /**
+   *
+   * @param {string} itemKey
+   * @returns {Promise<void>}
+   */
   removeSessionItem: (itemKey) => cookieStore.delete(itemKey),
   destroySession: () => {
     [
@@ -45,6 +67,11 @@ export const appRouterSessionManager = (cookieStore) => ({
 });
 
 export const pageRouterSessionManager = (req, res) => ({
+  /**
+   *
+   * @param {string} itemKey
+   * @returns {Promise<string | undefined>}
+   */
   getSessionItem: (itemKey) => {
     const itemValue = req.cookies[itemKey];
     if (itemValue) {
@@ -60,6 +87,12 @@ export const pageRouterSessionManager = (req, res) => ({
     }
     return undefined;
   },
+  /**
+   *
+   * @param {string} itemKey -
+   * @param {string | object} itemValue
+   * @returns {Promise<void>}
+   */
   setSessionItem: (itemKey, itemValue) => {
     let cookies = res.getHeader('Set-Cookie') || [];
 
@@ -76,6 +109,11 @@ export const pageRouterSessionManager = (req, res) => ({
       )
     ]);
   },
+  /**
+   *
+   * @param {string} itemKey
+   * @returns {Promise<void>}
+   */
   removeSessionItem: (itemKey) => {
     res.setHeader(
       'Set-Cookie',

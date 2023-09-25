@@ -10,6 +10,12 @@ import {getUserFactory} from './getUser';
 import {getUserOrganizationsFactory} from './getUserOrganizations';
 import {isAuthenticatedFactory} from './isAuthenticated';
 
+/**
+ *
+ * @param {Request} [req]
+ * @param {Response} [res]
+ * @returns
+ */
 export const getKindeServerSession = (req, res) => ({
   getAccessToken: getAccessTokenFactory(req, res),
   getBooleanFlag: getBooleanFlagFactory(req, res),

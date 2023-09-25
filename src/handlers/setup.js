@@ -1,12 +1,13 @@
 export const setup = async (routerClient) => {
-  const user = routerClient.sessionManager.getSessionItem('user');
+  const user = await routerClient.sessionManager.getSessionItem('user');
   if (user) {
-    const accessToken = routerClient.sessionManager.getSessionItem(
+    const accessToken = await routerClient.sessionManager.getSessionItem(
       'access_token_payload'
     );
 
-    const idToken =
-      routerClient.sessionManager.getSessionItem('id_token_payload');
+    const idToken = await routerClient.sessionManager.getSessionItem(
+      'id_token_payload'
+    );
 
     const permissions = await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,

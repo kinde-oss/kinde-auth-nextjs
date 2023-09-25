@@ -4,7 +4,17 @@ import {version} from '../utils/version';
 const initialState = {
   user: null,
   isLoading: true,
-  checkSession: null
+  checkSession: null,
+  accessToken: null,
+  getClaim: null,
+  getFlag: null,
+  getBooleanFlag: null,
+  getStringFlag: null,
+  getIntegerFlag: null,
+  getPermission: null,
+  permissions: null,
+  organization: null,
+  userOrganizations: null
 };
 
 const SESSION_PREFIX = 'pkce-verifier';
