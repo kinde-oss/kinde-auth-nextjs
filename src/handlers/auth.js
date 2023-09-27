@@ -21,11 +21,13 @@ const getRoute = (endpoint) => {
   return routeMap[endpoint];
 };
 
-/**
- * @param {Request} [req]
- * @param {Response} [res]
- */
 export default () =>
+  /**
+   *
+   * @param {Request} [req]
+   * @param {Response} [res]
+   * @returns {Response}
+   */
   async function handler(req, res) {
     return isAppRouter(req)
       ? appRouterHandler(req, res)
