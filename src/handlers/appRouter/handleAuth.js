@@ -1,9 +1,8 @@
-import {redirect} from 'next/navigation';
+import {callback} from './callback';
+import {createOrg} from './createOrg';
 import {login} from './login';
 import {logout} from './logout';
 import {register} from './register';
-import {callback} from './callback';
-import {createOrg} from './createOrg';
 
 const routeMap = {
   create_org: createOrg,
