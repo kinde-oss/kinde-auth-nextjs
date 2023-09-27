@@ -89,10 +89,7 @@ export type ServerSession = {
   isAuthenticated: () => boolean;
 };
 
-export declare function handleAuth(
-  request: NextRequest,
-  endpoint: AuthEndpoints
-);
+declare function handleAuth(): (req?: Request, res?: Response) => Response;
 
 export declare function getKindeServerSession(): ServerSession;
 
