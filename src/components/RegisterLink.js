@@ -8,15 +8,10 @@ export function RegisterLink({
   postLoginRedirectURL,
   ...props
 }) {
-  const params = new URLSearchParams(
-    JSON.parse(
-      JSON.stringify({
-        org_code: orgCode,
-        post_login_redirect_url: postLoginRedirectURL
-      })
-    )
-  );
-
+  let params = new URLSearchParams();
+  orgCode && params.append('org_code', orgCode);
+  postLoginRedirectURL &&
+    params.append('post_login_redirect_url', postLoginRedirectURL);
   return (
     <a
       href={`${config.apiPath}/register${
