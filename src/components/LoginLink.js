@@ -4,8 +4,8 @@ import {config} from '../config/index';
 
 export function LoginLink({children, postLoginRedirectURL, orgCode, ...props}) {
   let params = new URLSearchParams();
-  orgCode && params.append('org_code', orgCode);
-  postLoginRedirectURL &&
+  if (orgCode !== null) params.append('org_code', orgCode);
+  if (postLoginRedirectURL !== null)
     params.append('post_login_redirect_url', postLoginRedirectURL);
   return (
     <a
