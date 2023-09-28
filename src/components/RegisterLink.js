@@ -9,8 +9,8 @@ export function RegisterLink({
   ...props
 }) {
   let params = new URLSearchParams();
-  if (orgCode !== null) params.append('org_code', orgCode);
-  if (postLoginRedirectURL !== null)
+  if (orgCode != null) params.append('org_code', orgCode);
+  if (postLoginRedirectURL != null)
     params.append('post_login_redirect_url', postLoginRedirectURL);
   return (
     <a
