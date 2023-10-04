@@ -11,12 +11,9 @@ export const callback = async (routerClient) => {
   if (kindeNextPage)
     routerClient.sessionManager.removeSessionItem('kinde_next_page');
 
-  console.log('KINDE NEXT PAGE', kindeNextPage);
-
   const postLoginRedirectURL = kindeNextPage
     ? kindeNextPage
     : config.postLoginRedirectURL;
-  // const postLoginRedirectURL = config.postLoginRedirectURL
 
   routerClient.redirect(postLoginRedirectURL);
 };

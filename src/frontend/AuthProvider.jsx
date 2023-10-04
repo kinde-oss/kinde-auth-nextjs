@@ -1,13 +1,12 @@
 import React, {
-  useContext,
-  useState,
   createContext,
   useCallback,
+  useContext,
+  useState,
   useEffect
 } from 'react';
 
 import {config} from '../config/index';
-
 const flagDataTypeMap = {
   s: 'string',
   i: 'integer',
@@ -21,35 +20,71 @@ const handleError = () => {
 };
 /**
  * @typedef {Object} KindeUser
- * @property {string | null} family_name
- * @property {string | null} given_name
- * @property {string | null} picture
- * @property {string | null} email
- * @property {string | null} id
+ * @property {string | null} family_name - User's family name
+ * @property {string | null} given_name - User's given name
+ * @property {string | null} picture - URL to user's picture
+ * @property {string | null} email - User's email
+ * @property {string | null} id - User's Kinde ID
  */
 
 /**
- * @typdef {function(code, defaultValue)} getBooleanFlag
- * @function getBooleanFlag
+ * @callback getClaim
+ * @param {string} claim - Property in a token object
+ * @param {"access_token" | "id_token"} [tokenKey] - Determines which token to get the claim from
+ * @returns {{name: string, value: string} | null}
+ */
+
+/**
+ * @callback getFlag
+ * @param {string} code - The flag's code on Kinde
+ * @param {string | number | boolean} defaultValue - Default value if the flag cannot be found
+ * @param {"b" | "i" | "s"} flagType - The flag's type
+ * @returns {{code: string, type: string, value: string | number | boolean, is_default: boolean}}
+ */
+
+/**
+ * @callback getBooleanFlag
+ * @param {string} code - The flag's code on Kinde
+ * @param {boolean} defaultValue - Fallback boolean value if the flag cannot be found
  * @returns {boolean}
  */
 
 /**
+ * @callback getIntegerFlag
+ * @param {string} code - The flag's code on Kinde
+ * @param {number} defaultValue - Fallback integer value if the flag cannot be found
+ * @returns {number}
+ */
+
+/**
+ * @callback getStringFlag
+ * @param {string} code - The flag's code on Kinde
+ * @param {string} defaultValue - Fallback string value if the flag cannot be found
+ * @returns {string}
+ */
+
+/**
+ * @callback getPermission
+ * @param {string} key - The permission's key on Kinde
+ * @return {{isGranted: boolean, orgCode: string}}
+ */
+
+/**
  * @typedef {Object} State
- * @property {string | null} accessToken
+ * @property {string | null} accessToken - Kinde access token
  * @property {string | null} [error]
  * @property {boolean | null} isAuthenticated
  * @property {boolean | null} isLoading
- * @property {boolean | null} organizations
- * @property {boolean | null} permissions
- * @property {KindeUser | null} user
- * @property {boolean | null} userOrganizations
+ * @property {string | null} organization - The organization that the current user is logged in to
+ * @property {[string] | null} permissions - The current user's permissions
+ * @property {KindeUser | null} user - Kinde user
+ * @property {[string] | null} userOrganizations - Organizations that the current user belongs to
  * @property {getBooleanFlag} getBooleanFlag
- * @property {function} getClaim
- * @property {GetFlag} getFlag
- * @property {function} getIntegerFlag
- * @property {function} getPermission
- * @property {function} getStringFlag
+ * @property {getClaim} getClaim
+ * @property {getFlag} getFlag
+ * @property {getIntegerFlag} getIntegerFlag
+ * @property {getPermission} getPermission
+ * @property {getStringFlag} getStringFlag
  */
 
 /**
@@ -93,14 +128,9 @@ const tokenFetcher = async (url) => {
 };
 
 /**
- * @typedef {object} Props
- * @property {React.ReactNode} children
- */
-
-/**
  *
- * @param {Props} props
- * @returns {React.Provider<React.ProviderProps<Props>>}
+ * @param {{children: React.ReactNode}} props
+ * @returns {React.Provider<React.ProviderProps<children: React.ReactNode>>}
  */
 export const KindeProvider = ({children}) => {
   const [state, setState] = useState({
@@ -124,12 +154,8 @@ export const KindeProvider = ({children}) => {
         accessToken
       } = tokens;
 
-      /**
-       *
-       * @param {string} claim
-       * @param {string} tokenKey
-       * @returns {string | Object}
-       */
+      console.log(permissions);
+
       const getClaim = (claim, tokenKey = 'access_token') => {
         const token =
           tokenKey === 'access_token' ? tokens.access_token : tokens.id_token;

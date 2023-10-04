@@ -1,6 +1,4 @@
 import {ReactElement, LinkHTMLAttributes} from 'react';
-import {NextRequest} from 'next/server';
-import {NextApiResponse} from 'next';
 import {
   APIsApi,
   ApplicationsApi,

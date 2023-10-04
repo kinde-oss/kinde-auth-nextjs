@@ -1,5 +1,5 @@
 export {getKindeServerSession} from '../session/index';
-export {authMiddleware} from '../authMiddleware/authMiddleware';
+export {authMiddleware, withAuth} from '../authMiddleware/authMiddleware';
 
 export {RegisterLink} from '../components/RegisterLink';
 export {LoginLink} from '../components/LoginLink';

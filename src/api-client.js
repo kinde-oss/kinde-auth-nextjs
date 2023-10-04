@@ -23,13 +23,14 @@ import {isTokenValid} from './utils/pageRouter/isTokenValid';
 /**
  * Create the Kinde Management API client
  * @param {Request | NextApiRequest} [req] - optional request (required when used with pages router)
- * @param {Response} [res] - optional response (required when used with pages router)
+ * @param {Response | NextApiResponse} [res] - optional response (required when used with pages router)
  */
 export const createKindeManagementAPIClient = async (req, res) => {
   let apiToken = null;
 
   const store = sessionManager(req, res);
   const tokenFromCookie = store.getSessionItem('kinde_api_access_token');
+
   if (isTokenValid(tokenFromCookie)) {
     apiToken = tokenFromCookie;
   } else {
@@ -45,7 +46,8 @@ export const createKindeManagementAPIClient = async (req, res) => {
         audience: config.audience
       })
     });
-    let apiToken = (await response.json()).access_token;
+
+    apiToken = (await response.json()).access_token;
     store.setSessionItem('kinde_api_access_token', apiToken);
   }
 
@@ -54,6 +56,7 @@ export const createKindeManagementAPIClient = async (req, res) => {
     accessToken: apiToken,
     headers: {Accept: 'application/json'}
   });
+
   const usersApi = new UsersApi(cfg);
   const oauthApi = new OAuthApi(cfg);
   const subscribersApi = new SubscribersApi(cfg);
