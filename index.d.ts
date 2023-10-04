@@ -1,7 +1,5 @@
 import {ReactElement} from 'react';
 
-export declare function useKindeAuth(): State;
-
 export declare function KindeProvider({
   children
 }: {
