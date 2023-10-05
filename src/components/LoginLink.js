@@ -1,5 +1,4 @@
 import React from 'react';
-
 import {config} from '../config/index';
 
 /**
@@ -14,10 +13,14 @@ import {config} from '../config/index';
 /**
  * @param {Props} props
  */
-export function LoginLink({children, orgCode, ...props}) {
+export function LoginLink({children, postLoginRedirectURL, orgCode, ...props}) {
+  let params = new URLSearchParams();
+  if (orgCode != null) params.append('org_code', orgCode);
+  if (postLoginRedirectURL != null)
+    params.append('post_login_redirect_url', postLoginRedirectURL);
   return (
     <a
-      href={`${config.apiPath}/login${orgCode ? `?org_code=${orgCode}` : ''}`}
+      href={`${config.apiPath}/login${params ? `?${params.toString()}` : ''}`}
       {...props}
     >
       {children}
