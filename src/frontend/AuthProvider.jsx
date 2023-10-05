@@ -154,8 +154,6 @@ export const KindeProvider = ({children}) => {
         accessToken
       } = tokens;
 
-      console.log(permissions);
-
       const getClaim = (claim, tokenKey = 'access_token') => {
         const token =
           tokenKey === 'access_token' ? tokens.access_token : tokens.id_token;
