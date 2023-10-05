@@ -45,7 +45,7 @@ export const createKindeManagementAPIClient = async (req, res) => {
         audience: config.audience
       })
     });
-    let apiToken = (await response.json()).access_token;
+    apiToken = (await response.json()).access_token;
     store.setSessionItem('kinde_api_access_token', apiToken);
   }
 
