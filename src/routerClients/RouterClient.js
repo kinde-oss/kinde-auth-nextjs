@@ -13,6 +13,10 @@ export default class AppRouterClient {
     throw new Error("Method 'json()' must be implemented.");
   }
 
+  error() {
+    throw new Error("Method 'error()' must be implemented.");
+  }
+
   getSearchParam() {
     throw new Error("Method 'getSearchParam()' must be implemented.");
   }

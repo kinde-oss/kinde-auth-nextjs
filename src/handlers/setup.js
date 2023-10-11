@@ -40,6 +40,6 @@ export const setup = async (routerClient) => {
       userOrganizations
     });
   } else {
-    return routerClient.json({error: 'Log in with Kinde'});
+    return routerClient.json({error: 'Log in with Kinde'}, {status: 401});
   }
 };
