@@ -22,8 +22,8 @@ export default class PagesRouterClient {
     return this.url;
   }
 
-  json(data) {
-    return this.res.send(data);
+  json(data, status = 200) {
+    return this.res.status(status).json(data);
   }
 
   getSearchParam(key) {

@@ -47,7 +47,11 @@ export const createKindeManagementAPIClient = async (req, res) => {
       })
     });
     apiToken = (await response.json()).access_token;
-    store.setSessionItem('kinde_api_access_token', apiToken);
+    try {
+      store.setSessionItem('kinde_api_access_token', apiToken);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   const cfg = new Configuration({

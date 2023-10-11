@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 
 import {config} from '../config/index';
-const flagDataTypeMap = {
+export const flagDataTypeMap = {
   s: 'string',
   i: 'integer',
   b: 'boolean'

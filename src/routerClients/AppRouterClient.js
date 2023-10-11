@@ -24,8 +24,12 @@ export default class AppRouterClient {
     return this.url;
   }
 
-  json(data) {
-    return NextResponse.json(data);
+  json(data, status) {
+    return NextResponse.json(data, status);
+  }
+
+  error() {
+    return NextResponse.error;
   }
 
   getSearchParam(key) {
