@@ -6,13 +6,10 @@ export const callback = async (routerClient) => {
     routerClient.getUrl()
   );
 
-  const kindeNextPage =
-    routerClient.sessionManager.getSessionItem('kinde_next_page');
-  if (kindeNextPage)
-    routerClient.sessionManager.removeSessionItem('kinde_next_page');
-
-  const postLoginRedirectURL = kindeNextPage
-    ? kindeNextPage
+  const postLoginRedirectURL = routerClient.getSearchParam(
+    'post_login_redirect_url'
+  )
+    ? routerClient.getSearchParam('post_login_redirect_url')
     : config.postLoginRedirectURL;
 
   routerClient.redirect(postLoginRedirectURL);
