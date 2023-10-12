@@ -1,6 +1,3 @@
-import {NextResponse} from 'next/server';
-import {getPermission} from '../../session/appRouter/getPermission';
-import {getPermissions} from '../../session/appRouter/getPermissions';
 import {callback} from './callback';
 import {createOrg} from './createOrg';
 import {login} from './login';
@@ -12,14 +9,6 @@ const routeMap = {
   register,
   login,
   logout,
-  get_permissions: (req) => {
-    const permissions = getPermissions(req);
-    return NextResponse.json(permissions);
-  },
-  get_permission: (req) => {
-    const data = getPermission(req.nextUrl.searchParams.get('key'));
-    return NextResponse.json(data);
-  },
   kinde_callback: callback
 };
 

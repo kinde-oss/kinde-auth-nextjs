@@ -10,5 +10,20 @@ export const callback = async (request) => {
     new URL(request.url)
   );
 
+  // const cookieStore = cookies();
+  // const jsonCookieValue = cookieStore.get(`${config.SESSION_PREFIX}-${state}`);
+
+  // let redirectUrl = config.postLoginRedirectURL || config.redirectURL;
+
+  // if (jsonCookieValue) {
+  //   const {code_verifier, options} = JSON.parse(jsonCookieValue.value);
+
+  //   if (options?.post_login_redirect_url) {
+  //     redirectUrl = sanitizeRedirect({
+  //       baseUrl: new URL(config.redirectURL).origin,
+  //       url: options.post_login_redirect_url
+  //     });
+  //   }
+
   redirect(config.postLoginRedirectURL);
 };
