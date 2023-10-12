@@ -58,6 +58,7 @@
     "readme.md",
     "dist",
     "server",
+    "components",
     "index.d.ts"
   ]
 }
