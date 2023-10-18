@@ -4,6 +4,7 @@ import {config} from '../../config/index';
 import {isTokenValid} from '../../utils/pageRouter/isTokenValid';
 import {version} from '../../utils/version';
 import {sanitizeRedirect} from '../../utils/sanitizeRedirect';
+import {generateCallbackUrl} from '../../utils/generateCallbackUrl';
 
 var cookie = require('cookie');
 
@@ -17,10 +18,7 @@ export const callback = async (req, res) => {
 
   if (jsonCookieValue) {
     try {
-      const {
-        code_verifier,
-        options,
-      } = JSON.parse(jsonCookieValue);
+      const {code_verifier, options} = JSON.parse(jsonCookieValue);
 
       if (options?.post_login_redirect_url) {
         redirectUrl = sanitizeRedirect({
@@ -43,7 +41,10 @@ export const callback = async (req, res) => {
             code,
             code_verifier,
             grant_type: 'authorization_code',
-            redirect_uri: config.redirectURL + config.redirectRoutes.callback
+            redirect_uri: generateCallbackUrl(
+              config.redirectURL,
+              config.redirectRoutes.callback
+            )
           })
         }
       );

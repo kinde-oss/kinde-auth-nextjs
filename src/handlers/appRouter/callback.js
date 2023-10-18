@@ -4,6 +4,7 @@ import {version} from '../../utils/version';
 import {cookies} from 'next/headers';
 import {redirect} from 'next/navigation';
 import {sanitizeRedirect} from '../../utils/sanitizeRedirect';
+import {generateCallbackUrl} from '../../utils/generateCallbackUrl';
 
 export const callback = async (request) => {
   const code = request.nextUrl.searchParams.get('code');
@@ -39,7 +40,10 @@ export const callback = async (request) => {
             code: code,
             code_verifier: code_verifier,
             grant_type: 'authorization_code',
-            redirect_uri: `${config.redirectURL}${config.redirectRoutes.callback}`
+            redirect_uri: generateCallbackUrl(
+              config.redirectURL,
+              config.redirectRoutes.callback
+            )
           })
         }
       );
