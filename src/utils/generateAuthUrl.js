@@ -1,11 +1,15 @@
 import {config} from '../config/index';
+import {generateCallbackUrl} from '../utils/generateCallbackUrl';
 
 export function generateAuthUrl(options, type = 'login') {
   const {org_code, is_create_org, org_name = ''} = options;
   const authUrl = new URL(config.issuerURL + config.issuerRoutes[type]);
 
   let searchParams = {
-    redirect_uri: config.redirectURL + config.redirectRoutes.callback,
+    redirect_uri: generateCallbackUrl(
+      config.redirectURL,
+      config.redirectRoutes.callback
+    ),
     client_id: config.clientID,
     response_type: config.responseType,
     scope: config.scope,

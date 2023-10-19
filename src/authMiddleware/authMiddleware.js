@@ -3,7 +3,7 @@ import {NextResponse} from 'next/server';
 import {config} from '../config/index';
 
 const trimTrailingSlash = (str) =>
-  str.charAt(str.length - 1) === '/' ? str.slice(0, -1) : str;
+  str && str.charAt(str.length - 1) === '/' ? str.slice(0, -1) : str;
 
 export function authMiddleware(request) {
   let isAuthenticated = false;
