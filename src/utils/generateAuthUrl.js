@@ -15,9 +15,12 @@ export function generateAuthUrl(options, type = 'login') {
     scope: config.scope,
     code_challenge: options.code_challenge,
     code_challenge_method: config.codeChallengeMethod,
-    state: options.state,
-    start_page: type === 'register' ? 'registration' : 'login'
+    state: options.state
   };
+
+  if (type === 'register') {
+    searchParams.start_page = 'registration';
+  }
 
   if (org_code) {
     searchParams.org_code = org_code;
