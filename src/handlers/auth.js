@@ -21,18 +21,23 @@ const getRoute = (endpoint) => {
   return routeMap[endpoint];
 };
 
-export default () =>
+export default (request, endpoint) => {
+  // For backwards compatibility in app router
+  if (typeof request == 'object' && typeof endpoint == 'string') {
+    return appRouterHandler(request, {params: {kindeAuth: endpoint}});
+  }
   /**
    *
    * @param {Request} [req]
    * @param {Response} [res]
    * @returns {Response}
    */
-  async function handler(req, res) {
+  return async function handler(req, res) {
     return isAppRouter(req)
       ? appRouterHandler(req, res)
       : pagesRouterHandler(req, res);
   };
+};
 
 const appRouterHandler = async (req, res) => {
   const {params} = res;
