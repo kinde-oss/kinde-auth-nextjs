@@ -1,14 +1,13 @@
 import React, {
-  useContext,
-  useState,
   createContext,
   useCallback,
+  useContext,
+  useState,
   useEffect
 } from 'react';
 
 import {config} from '../config/index';
-
-const flagDataTypeMap = {
+export const flagDataTypeMap = {
   s: 'string',
   i: 'integer',
   b: 'boolean'
@@ -20,22 +19,143 @@ const handleError = () => {
   );
 };
 /**
- * @typedef {Object} User
- * @property {string} id
- * @property {string | null} name
- * @property {string | null} email
- * @property {string | null} given_name
- * @property {string | null} family_name
- * @property {string | null} updated_at
- * @property {string | null} picture
+ * @typedef {Object} AccessToken
+ * @property {[string]} aud
+ * @property {number} azp
+ * @property {number} iat
+ * @property {string} iss
+ * @property {string} jti
+ * @property {string} org_code
+ * @property {[string]} permissions
+ * @property {[string]} scp
+ * @property {string} sub
+ */
+
+/**
+ * @typedef {Object} IdToken
+ * @property {string} at_hash
+ * @property {[string]} aud
+ * @property {number} auth_time
+ * @property {string} azp
+ * @property {string} email
+ * @property {number} exp
+ * @property {string} family_name
+ * @property {string} given_name
+ * @property {number} iat
+ * @property {string} iss
+ * @property {string} jti
+ * @property {string} name
+ * @property {[string]} org_codes
+ * @property {string} sub
+ * @property {number} updated_at
+ */
+
+/**
+ * @typedef {Object} KindeUser
+ * @property {string | null} family_name - User's family name
+ * @property {string | null} given_name - User's given name
+ * @property {string | null} picture - URL to user's picture
+ * @property {string | null} email - User's email
+ * @property {string | null} id - User's Kinde ID
+ */
+
+/**
+ * @callback getClaim
+ * @param {string} claim - Property in a token object
+ * @param {"access_token" | "id_token"} [tokenKey] - Determines which token to get the claim from
+ * @returns {{name: string, value: string} | null}
+ */
+
+/**
+ * @callback getFlag
+ * @param {string} code - The flag's code on Kinde
+ * @param {string | number | boolean} defaultValue - Default value if the flag cannot be found
+ * @param {"b" | "i" | "s"} flagType - The flag's type
+ * @returns {{code: string, type: string, value: string | number | boolean, is_default: boolean}}
+ */
+
+/**
+ * @callback getBooleanFlag
+ * @param {string} code - The flag's code on Kinde
+ * @param {boolean} defaultValue - Fallback boolean value if the flag cannot be found
+ * @returns {boolean}
+ */
+
+/**
+ * @callback getIntegerFlag
+ * @param {string} code - The flag's code on Kinde
+ * @param {number} defaultValue - Fallback integer value if the flag cannot be found
+ * @returns {number}
+ */
+
+/**
+ * @callback getStringFlag
+ * @param {string} code - The flag's code on Kinde
+ * @param {string} defaultValue - Fallback string value if the flag cannot be found
+ * @returns {string}
+ */
+
+/**
+ * @callback getPermission
+ * @param {string} key - The permission's key on Kinde
+ * @return {{isGranted: boolean, orgCode: string}}
+ */
+
+/**
+ * @callback getAccessToken
+ * @return {AccessToken}
+ */
+
+/**
+ * @callback getIdToken
+ * @return {IdToken}
+ */
+
+/**
+ * @callback getPermissions
+ * @return {[string] | null}
+ */
+
+/**
+ * @callback getOrganization
+ * @return {string | null}
+ */
+
+/**
+ * @callback getUserOrganzations
+ * @return {[string] | null}
  */
 
 /**
  * @typedef {Object} State
- * @property {User} user
- * @property {boolean} isLoading
- * @property {boolean} isAuthenticated
- * @property {string=} error
+ * @property {AccessToken | null} accessToken - Kinde access token
+ * @property {IdToken | null} idToken - Kinde id token
+ * @property {string | null} [error]
+ * @property {boolean | null} isAuthenticated
+ * @property {boolean | null} isLoading
+ * @property {string | null} organization - The organization that the current user is logged in to
+ * @property {[string] | null} permissions - The current user's permissions
+ * @property {KindeUser | null} user - Kinde user
+ * @property {[string] | null} userOrganizations - Organizations that the current user belongs to
+ * @property {getBooleanFlag} getBooleanFlag
+ * @property {getClaim} getClaim
+ * @property {getFlag} getFlag
+ * @property {getIntegerFlag} getIntegerFlag
+ * @property {getPermission} getPermission
+ * @property {getStringFlag} getStringFlag
+ * @property {getAccessToken} getAccessToken
+ * @property {getPermissions} getPermissions
+ * @property {getOrganization} getOrganization
+ * @property {getUserOrganzations} getUserOrganzations
+ * @property {getIdToken} getIdToken
+ */
+
+/**
+ * @typedef {Object} KindeFlag
+ * @property {string} code
+ * @property {string} type
+ * @property {string | boolean | number} value
+ * @property {boolean} is_default
  */
 
 /**
@@ -49,7 +169,7 @@ const AuthContext = createContext({
 });
 
 /**
- * Use auth context.
+ *
  * @returns {State}
  */
 export const useKindeAuth = () => useContext(AuthContext);
@@ -70,6 +190,11 @@ const tokenFetcher = async (url) => {
   }
 };
 
+/**
+ *
+ * @param {{children: React.ReactNode}} props
+ * @returns {React.Provider<React.ProviderProps<children: React.ReactNode>>}
+ */
 export const KindeProvider = ({children}) => {
   const [state, setState] = useState({
     ...config.initialState,
@@ -83,15 +208,21 @@ export const KindeProvider = ({children}) => {
     try {
       const tokens = await tokenFetcher(setupUrl);
 
-      const user = {
-        id: tokens.id_token.sub,
-        name: tokens.id_token.name,
-        given_name: tokens.id_token.given_name,
-        family_name: tokens.id_token.family_name,
-        updated_at: tokens.id_token.updated_at,
-        email: tokens.id_token.email,
-        picture: tokens.id_token.picture
-      };
+      const {
+        user,
+        permissions,
+        organization,
+        userOrganizations,
+        featureFlags,
+        accessToken,
+        idToken
+      } = tokens;
+
+      const getAccessToken = () => accessToken;
+      const getIdToken = () => idToken;
+      const getPermissions = () => permissions;
+      const getOrganization = () => organization;
+      const getUserOrganzations = () => userOrganizations;
 
       const getClaim = (claim, tokenKey = 'access_token') => {
         const token =
@@ -99,13 +230,8 @@ export const KindeProvider = ({children}) => {
         return token ? {name: claim, value: token[claim]} : null;
       };
 
-      const getClaimValue = (claim, tokenKey = 'access_token') => {
-        const obj = getClaim(claim, tokenKey);
-        return obj && obj.value;
-      };
-
       const getFlag = (code, defaultValue, flagType) => {
-        const flags = getClaimValue('feature_flags');
+        const flags = featureFlags;
         const flag = flags && flags[code] ? flags[code] : {};
 
         if (flag == {} && defaultValue == undefined) {
@@ -156,57 +282,32 @@ export const KindeProvider = ({children}) => {
         }
       };
 
-      const getPermissions = () => {
-        const orgCode = getClaimValue('org_code');
-        const permissions = getClaimValue('permissions');
-        return {
-          permissions,
-          orgCode
-        };
-      };
-
       const getPermission = (key) => {
-        const orgCode = getClaimValue('org_code');
-        const permissions = getClaimValue('permissions') || [];
         return {
           isGranted: permissions.some((p) => p === key),
-          orgCode
+          orgCode: organization
         };
-      };
-
-      const getOrganization = () => {
-        const orgCode = getClaimValue('org_code');
-        return {
-          orgCode
-        };
-      };
-
-      const getUserOrganizations = () => {
-        const orgCodes = getClaimValue('org_codes', 'id_token');
-        return {
-          orgCodes
-        };
-      };
-
-      const getToken = () => {
-        return tokens && tokens.access_token_encoded
-          ? tokens.access_token_encoded
-          : undefined;
       };
 
       setState((previous) => ({
         ...previous,
         user,
-        getToken,
+        accessToken,
+        idToken,
+        permissions,
+        organization,
+        userOrganizations,
+        getAccessToken,
         getClaim,
         getFlag,
+        getIdToken,
         getBooleanFlag,
         getStringFlag,
         getIntegerFlag,
-        getPermissions,
-        getPermission,
         getOrganization,
-        getUserOrganizations,
+        getPermission,
+        getPermissions,
+        getUserOrganzations,
         error: undefined
       }));
     } catch (error) {
@@ -231,16 +332,22 @@ export const KindeProvider = ({children}) => {
   // provide this stuff to the rest of your app
   const {
     user,
-    getToken,
+    accessToken,
+    idToken,
+    getAccessToken,
     getClaim,
     getFlag,
+    getIdToken,
     getBooleanFlag,
     getStringFlag,
     getIntegerFlag,
-    getPermissions,
-    getPermission,
     getOrganization,
-    getUserOrganizations,
+    getPermission,
+    getPermissions,
+    getUserOrganzations,
+    permissions,
+    organization,
+    userOrganizations,
     error,
     isLoading
   } = state;
@@ -250,16 +357,23 @@ export const KindeProvider = ({children}) => {
       value={{
         user,
         error,
-        getToken,
+        accessToken,
+        idToken,
+        getAccessToken,
         getClaim,
         getFlag,
+        getIdToken,
         getBooleanFlag,
         getStringFlag,
         getIntegerFlag,
-        getPermissions,
-        getPermission,
         getOrganization,
-        getUserOrganizations,
+        getPermission,
+        getPermissions,
+        getUserOrganzations,
+        getPermission,
+        permissions,
+        organization,
+        userOrganizations,
         isLoading,
         isAuthenticated: !!user
       }}

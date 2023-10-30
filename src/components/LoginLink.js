@@ -1,12 +1,36 @@
 import React from 'react';
-
 import {config} from '../config/index';
 
-export function LoginLink({children, postLoginRedirectURL, orgCode, ...props}) {
+/**
+ * @typedef {Object} PropsType
+ * @prop {React.ReactNode} children
+ * @prop {string} [orgCode]
+ * @prop {string} [postLoginRedirectURL]
+ * @prop {Object.<string, string>} [authUrlParams]
+ *
+ * @typedef {PropsType & React.AnchorHTMLAttributes<HTMLAnchorElement>} Props
+ */
+
+/**
+ * @param {Props} props
+ */
+export function LoginLink({
+  children,
+  postLoginRedirectURL,
+  orgCode,
+  authUrlParams,
+  ...props
+}) {
   let params = new URLSearchParams();
-  if (orgCode != null) params.append('org_code', orgCode);
+  let paramsObj = {};
+  if (orgCode != null) paramsObj.org_code = orgCode;
   if (postLoginRedirectURL != null)
-    params.append('post_login_redirect_url', postLoginRedirectURL);
+    paramsObj.post_login_redirect_url = postLoginRedirectURL;
+
+  paramsObj = {...authUrlParams, ...paramsObj};
+
+  for (const key in paramsObj) params.append(key, paramsObj[key]);
+
   return (
     <a
       href={`${config.apiPath}/login${params ? `?${params.toString()}` : ''}`}
