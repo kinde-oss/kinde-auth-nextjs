@@ -9,6 +9,10 @@ export const setup = async (routerClient) => {
       'id_token_payload'
     );
 
+    const accessTokenEncoded = await routerClient.sessionManager.getSessionItem(
+      'access_token'
+    );
+
     const permissions = await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
       'permissions'
@@ -32,6 +36,7 @@ export const setup = async (routerClient) => {
 
     return routerClient.json({
       accessToken,
+      accessTokenEncoded,
       idToken,
       user,
       permissions,

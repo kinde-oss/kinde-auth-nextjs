@@ -107,6 +107,11 @@ const handleError = () => {
  */
 
 /**
+ * @callback getToken
+ * @return {string | null}
+ */
+
+/**
  * @callback getIdToken
  * @return {IdToken}
  */
@@ -144,6 +149,7 @@ const handleError = () => {
  * @property {getPermission} getPermission
  * @property {getStringFlag} getStringFlag
  * @property {getAccessToken} getAccessToken
+ * @property {getToken} getToken
  * @property {getPermissions} getPermissions
  * @property {getOrganization} getOrganization
  * @property {getUserOrganzations} getUserOrganzations
@@ -197,8 +203,7 @@ const tokenFetcher = async (url) => {
  */
 export const KindeProvider = ({children}) => {
   const [state, setState] = useState({
-    ...config.initialState,
-    getToken: () => null
+    ...config.initialState
   });
 
   const setupUrl = `${config.apiPath}/setup`;
@@ -215,9 +220,11 @@ export const KindeProvider = ({children}) => {
         userOrganizations,
         featureFlags,
         accessToken,
+        accessTokenEncoded,
         idToken
       } = tokens;
 
+      const getToken = () => accessTokenEncoded;
       const getAccessToken = () => accessToken;
       const getIdToken = () => idToken;
       const getPermissions = () => permissions;
@@ -298,6 +305,7 @@ export const KindeProvider = ({children}) => {
         organization,
         userOrganizations,
         getAccessToken,
+        getToken,
         getClaim,
         getFlag,
         getIdToken,
@@ -335,6 +343,7 @@ export const KindeProvider = ({children}) => {
     accessToken,
     idToken,
     getAccessToken,
+    getToken,
     getClaim,
     getFlag,
     getIdToken,
@@ -360,6 +369,7 @@ export const KindeProvider = ({children}) => {
         accessToken,
         idToken,
         getAccessToken,
+        getToken,
         getClaim,
         getFlag,
         getIdToken,
