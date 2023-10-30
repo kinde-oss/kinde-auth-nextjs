@@ -93,6 +93,22 @@ export const useKindeBrowserClient = () => {
     return token ? {name: claim, value: token[claim]} : null;
   };
 
+  const getAccessToken = () => {
+    return state.accessToken;
+  };
+  const getIdToken = () => {
+    return state.idToken;
+  };
+  const getOrganization = () => {
+    return state.organization;
+  };
+  const getPermissions = () => {
+    return state.permissions;
+  };
+  const getUserOrganizations = () => {
+    return state.userOrganizations;
+  };
+
   return {
     ...state,
     isAuthenticated: !!state.user,
@@ -106,6 +122,11 @@ export const useKindeBrowserClient = () => {
     getIntegerFlag,
     getFlag,
     getStringFlag,
-    getClaim
+    getClaim,
+    getAccessToken,
+    getIdToken,
+    getOrganization,
+    getPermissions,
+    getUserOrganizations
   };
 };
