@@ -19,6 +19,38 @@ const handleError = () => {
   );
 };
 /**
+ * @typedef {Object} AccessToken
+ * @property {[string]} aud
+ * @property {number} azp
+ * @property {number} iat
+ * @property {string} iss
+ * @property {string} jti
+ * @property {string} org_code
+ * @property {[string]} permissions
+ * @property {[string]} scp
+ * @property {string} sub
+ */
+
+/**
+ * @typedef {Object} IdToken
+ * @property {string} at_hash
+ * @property {[string]} aud
+ * @property {number} auth_time
+ * @property {string} azp
+ * @property {string} email
+ * @property {number} exp
+ * @property {string} family_name
+ * @property {string} given_name
+ * @property {number} iat
+ * @property {string} iss
+ * @property {string} jti
+ * @property {string} name
+ * @property {[string]} org_codes
+ * @property {string} sub
+ * @property {number} updated_at
+ */
+
+/**
  * @typedef {Object} KindeUser
  * @property {string | null} family_name - User's family name
  * @property {string | null} given_name - User's given name
@@ -70,8 +102,34 @@ const handleError = () => {
  */
 
 /**
+ * @callback getAccessToken
+ * @return {AccessToken}
+ */
+
+/**
+ * @callback getIdToken
+ * @return {IdToken}
+ */
+
+/**
+ * @callback getPermissions
+ * @return {[string] | null}
+ */
+
+/**
+ * @callback getOrganization
+ * @return {string | null}
+ */
+
+/**
+ * @callback getUserOrganzations
+ * @return {[string] | null}
+ */
+
+/**
  * @typedef {Object} State
- * @property {string | null} accessToken - Kinde access token
+ * @property {AccessToken | null} accessToken - Kinde access token
+ * @property {IdToken | null} accessToken - Kinde access token
  * @property {string | null} [error]
  * @property {boolean | null} isAuthenticated
  * @property {boolean | null} isLoading
@@ -85,6 +143,10 @@ const handleError = () => {
  * @property {getIntegerFlag} getIntegerFlag
  * @property {getPermission} getPermission
  * @property {getStringFlag} getStringFlag
+ * @property {getAccessToken} getAccessToken
+ * @property {getPermissions} getPermissions
+ * @property {getOrganization} getOrganization
+ * @property {getUserOrganzations} getUserOrganzations
  */
 
 /**
@@ -151,8 +213,15 @@ export const KindeProvider = ({children}) => {
         organization,
         userOrganizations,
         featureFlags,
-        accessToken
+        accessToken,
+        idToken
       } = tokens;
+
+      const getAccessToken = () => accessToken;
+      const getIdToken = () => accessToken;
+      const getPermissions = () => permissions;
+      const getOrganization = () => organization;
+      const getUserOrganzations = () => userOrganizations;
 
       const getClaim = (claim, tokenKey = 'access_token') => {
         const token =
@@ -223,15 +292,21 @@ export const KindeProvider = ({children}) => {
         ...previous,
         user,
         accessToken,
+        idToken,
         permissions,
         organization,
         userOrganizations,
+        getAccessToken,
         getClaim,
         getFlag,
+        getIdToken,
         getBooleanFlag,
         getStringFlag,
         getIntegerFlag,
+        getOrganization,
         getPermission,
+        getPermissions,
+        getUserOrganzations,
         error: undefined
       }));
     } catch (error) {
@@ -257,12 +332,18 @@ export const KindeProvider = ({children}) => {
   const {
     user,
     accessToken,
+    idToken,
+    getAccessToken,
     getClaim,
     getFlag,
+    getIdToken,
     getBooleanFlag,
     getStringFlag,
     getIntegerFlag,
+    getOrganization,
     getPermission,
+    getPermissions,
+    getUserOrganzations,
     permissions,
     organization,
     userOrganizations,
@@ -276,11 +357,18 @@ export const KindeProvider = ({children}) => {
         user,
         error,
         accessToken,
+        idToken,
+        getAccessToken,
         getClaim,
         getFlag,
+        getIdToken,
         getBooleanFlag,
         getStringFlag,
         getIntegerFlag,
+        getOrganization,
+        getPermission,
+        getPermissions,
+        getUserOrganzations,
         getPermission,
         permissions,
         organization,

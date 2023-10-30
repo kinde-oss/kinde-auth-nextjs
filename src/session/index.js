@@ -1,6 +1,7 @@
 import {getAccessTokenFactory} from './getAccessToken';
 import {getBooleanFlagFactory} from './getBooleanFlag';
 import {getFlagFactory} from './getFlag';
+import {getIdTokenFactory} from './getIdToken';
 import {getIntegerFlagFactory} from './getIntegerFlag';
 import {getOrganizationFactory} from './getOrganization';
 import {getPermissionFactory} from './getPermission';
@@ -20,6 +21,7 @@ export const getKindeServerSession = (req, res) => ({
   getAccessToken: getAccessTokenFactory(req, res),
   getBooleanFlag: getBooleanFlagFactory(req, res),
   getFlag: getFlagFactory(req, res),
+  getIdToken: getIdTokenFactory(req, res),
   getIntegerFlag: getIntegerFlagFactory(req, res),
   getOrganization: getOrganizationFactory(req, res),
   getPermission: getPermissionFactory(req, res),
