@@ -20,7 +20,10 @@ const routeMap = {
 const getRoute = (endpoint) => {
   return routeMap[endpoint];
 };
-
+/**
+ * @param {object} [request]
+ * @param {string} [endpoint]
+ */
 export default (request, endpoint) => {
   // For backwards compatibility in app router
   if (typeof request == 'object' && typeof endpoint == 'string') {
