@@ -1,3 +1,7 @@
-const crypto = require('crypto');
+const {getRandomValues} = require("uncrypto");
 
-export const randomString = () => crypto.randomBytes(28).toString('hex');
+export const randomString = () => {
+    const buffer = new Uint8Array(28);
+    getRandomValues(buffer);
+    return Array.from(buffer).map((n) => n.toString(16).padStart(2, "0")).join("");
+}
