@@ -1,4 +1,12 @@
-export {KindeProvider, useKindeAuth} from './frontend/index';
-export {handleAuth} from './handlers/pageRouter/index';
+export {
+  KindeProvider,
+  useKindeAuth,
+  useKindeBrowserClient
+} from './frontend/index';
 export {isTokenValid} from './utils/pageRouter/isTokenValid';
-export * from './session/pagesRouter/index';
+export {
+  LoginLink,
+  CreateOrgLink,
+  LogoutLink,
+  RegisterLink
+} from './components/index';
