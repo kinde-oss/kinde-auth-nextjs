@@ -129,7 +129,7 @@ const handleError = () => {
 /**
  * @typedef {Object} State
  * @property {AccessToken | null} accessToken - Kinde access token
- * @property {IdToken | null} accessToken - Kinde access token
+ * @property {IdToken | null} idToken - Kinde id token
  * @property {string | null} [error]
  * @property {boolean | null} isAuthenticated
  * @property {boolean | null} isLoading
@@ -147,6 +147,7 @@ const handleError = () => {
  * @property {getPermissions} getPermissions
  * @property {getOrganization} getOrganization
  * @property {getUserOrganzations} getUserOrganzations
+ * @property {getIdToken} getIdToken
  */
 
 /**
