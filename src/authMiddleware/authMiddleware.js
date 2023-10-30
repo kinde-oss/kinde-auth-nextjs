@@ -32,28 +32,34 @@ export function authMiddleware(request) {
 }
 
 const handleMiddleware = async (req, options, onSuccess) => {
-  const {pathname, search, origin, basePath, url} = req.nextUrl;
+  const {pathname} = req.nextUrl;
 
-  const loginPage = '/api/auth/login';
+  const loginPage = options?.loginPage || '/api/auth/login';
   const publicPaths = ['/_next', '/favicon.ico'];
 
   if (loginPage == pathname || publicPaths.some((p) => pathname.startsWith(p)))
     return;
 
   const kindeToken = req.cookies.get('access_token');
+
   if (!kindeToken) {
     const response = NextResponse.redirect(
-      new URL('/api/auth/login', config.redirectURL)
+      new URL(
+        `${loginPage}?post_login_redirect_url=${pathname}`,
+        config.redirectURL
+      )
     );
+    response.headers.set('x-hello-from-middleware2', 'hello');
     return response;
   }
+
   const accessTokenValue = JSON.parse(
     req.cookies.get('access_token_payload').value
   );
 
   const isAuthorized =
-    isTokenValid(kindeToken.value) &&
-    options.isAuthorized({req, token: accessTokenValue});
+    options?.isAuthorized({req, token: accessTokenValue}) ??
+    isTokenValid(kindeToken.value);
 
   if (isAuthorized && onSuccess) {
     return await onSuccess({
@@ -62,7 +68,16 @@ const handleMiddleware = async (req, options, onSuccess) => {
     });
   }
 
-  return NextResponse.redirect(new URL('/api/auth/login', config.redirectURL));
+  if (isAuthorized) {
+    return;
+  }
+
+  return NextResponse.redirect(
+    new URL(
+      `${loginPage}?post_login_redirect_url=${pathname}`,
+      config.redirectURL
+    )
+  );
 };
 
 /**

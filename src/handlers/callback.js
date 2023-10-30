@@ -1,16 +1,21 @@
 import {config} from '../config/index';
 
 export const callback = async (routerClient) => {
+  const postLoginRedirectURLFromMemory =
+    routerClient.sessionManager.getSessionItem('post_login_redirect_url');
+
+  if (postLoginRedirectURLFromMemory) {
+    routerClient.sessionManager.removeSessionItem('post_login_redirect_url');
+  }
+
+  const postLoginRedirectURL = postLoginRedirectURLFromMemory
+    ? postLoginRedirectURLFromMemory
+    : config.postLoginRedirectURL;
+
   await routerClient.kindeClient.handleRedirectToApp(
     routerClient.sessionManager,
     routerClient.getUrl()
   );
-
-  const postLoginRedirectURL = routerClient.getSearchParam(
-    'post_login_redirect_url'
-  )
-    ? routerClient.getSearchParam('post_login_redirect_url')
-    : config.postLoginRedirectURL;
 
   routerClient.redirect(postLoginRedirectURL);
 };
