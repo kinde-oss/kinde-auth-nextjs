@@ -11,6 +11,7 @@ export default class PagesRouterClient {
     this.url = new URL(config.redirectURL + req.url);
     this.res = res;
     this.req = req;
+    this.searchParams = this.url.searchParams;
     this.sessionManager = sessionManager(req, res);
   }
 

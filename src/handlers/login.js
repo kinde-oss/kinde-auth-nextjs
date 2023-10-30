@@ -1,6 +1,9 @@
 export const login = async (routerClient) => {
   const authUrl = await routerClient.kindeClient.login(
-    routerClient.sessionManager
+    routerClient.sessionManager,
+    {
+      authUrlParams: Object.fromEntries(routerClient.searchParams)
+    }
   );
 
   const postLoginRedirectURL = routerClient.getSearchParam(
