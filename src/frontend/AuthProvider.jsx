@@ -219,7 +219,7 @@ export const KindeProvider = ({children}) => {
       } = tokens;
 
       const getAccessToken = () => accessToken;
-      const getIdToken = () => accessToken;
+      const getIdToken = () => idToken;
       const getPermissions = () => permissions;
       const getOrganization = () => organization;
       const getUserOrganzations = () => userOrganizations;
