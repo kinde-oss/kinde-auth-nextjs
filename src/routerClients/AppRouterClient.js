@@ -14,7 +14,6 @@ export default class AppRouterClient {
     this.url = new URL(req.url);
     this.sessionManager = appRouterSessionManager(cookies());
     this.req = req;
-    this.res = res;
     this.searchParams = req.nextUrl.searchParams;
   }
 
