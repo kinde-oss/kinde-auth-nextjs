@@ -4,7 +4,7 @@ import {config} from '../config/index';
 import {isTokenValid} from '../utils/pageRouter/isTokenValid';
 
 const trimTrailingSlash = (str) =>
-  str.charAt(str.length - 1) === '/' ? str.slice(0, -1) : str;
+  str && str.charAt(str.length - 1) === '/' ? str.slice(0, -1) : str;
 
 export function authMiddleware(request) {
   let isAuthenticated = false;
