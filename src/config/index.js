@@ -8,10 +8,12 @@ const initialState = {
   accessToken: null,
   getClaim: null,
   getFlag: null,
+  getToken: null,
   getBooleanFlag: null,
   getStringFlag: null,
   getIntegerFlag: null,
   getPermission: null,
+  getPermissions: null,
   permissions: null,
   organization: null,
   userOrganizations: null
