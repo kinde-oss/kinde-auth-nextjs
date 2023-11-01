@@ -1,5 +1,5 @@
 export const register = async (routerClient) => {
-  const authUrl = await routerClient.kindeClient.login(
+  const authUrl = await routerClient.kindeClient.register(
     routerClient.sessionManager,
     {
       authUrlParams: Object.fromEntries(routerClient.searchParams)
