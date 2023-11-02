@@ -1,33 +1,51 @@
 import {ReactElement} from 'react';
 
-export declare function KindeProvider({
-  children
-}: {
-  children: any;
-}): ReactElement<State>;
+export type KindeAccessToken = {
+  aud: string[];
+  azp: number;
+  iat: number;
+  iss: string;
+  jti: string;
+  org_code: string;
+  permissions: string[];
+  scp: string[];
+  sub: string;
+};
 
-export declare function handleAuth(): any;
+export type KindeIdToken = {
+  at_hash: string;
+  aud: string[];
+  auth_time: number;
+  azp: string;
+  email: string;
+  exp: number;
+  family_name: string;
+  given_name: string;
+  iat: number;
+  iss: string;
+  jti: string;
+  name: string;
+  org_codes: string[];
+  sub: string;
+  updated_at: number;
+};
 
-export declare function isTokenValid(): boolean;
-
-export type User = {
+export type KindeUser = {
   id: string;
-  name: string | null;
   email: string | null;
   given_name: string | null;
   family_name: string | null;
-  updated_at: string | null;
   picture: string | null;
 };
 
 export type KindePermissions = {
   permissions: string[];
-  orgCode: string;
+  orgCode: string | null;
 };
 
 export type KindePermission = {
   isGranted: boolean;
-  orgCode: string;
+  orgCode: string | null;
 };
 
 export type KindeFlagTypeCode = 'b' | 'i' | 's';
@@ -43,7 +61,7 @@ export type KindeFlag = {
 };
 
 export type KindeOrganization = {
-  orgCode: string;
+  orgCode: string | null;
 };
 
 export type KindeOrganizations = {
@@ -51,7 +69,7 @@ export type KindeOrganizations = {
 };
 
 export type State = {
-  user: User;
+  user: KindeUser;
   isLoading: boolean;
   isAuthenticated: boolean;
   error?: string | undefined;
