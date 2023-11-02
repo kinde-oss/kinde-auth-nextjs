@@ -2,7 +2,7 @@
   // Change this to match your project
   "include": ["src/**/*"],
   "compilerOptions": {
-    "jsx": "react",
+    // "jsx": "react",
     // Tells TypeScript to read JS files, as
     // normally they are ignored as source files
     "allowJs": true,
@@ -18,8 +18,8 @@
     // go to js file when using IDE functions like
     // "Go to Definition" in VSCode
     "declarationMap": true,
-    "esModuleInterop": true,
-    "checkJs": true,
-    "strict": true
+    "esModuleInterop": true
+    // "checkJs": true,
+    // "strict": true
   }
 }

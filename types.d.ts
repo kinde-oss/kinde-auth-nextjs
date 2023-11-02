@@ -8,7 +8,6 @@ import {
   SessionManager,
   UserType
 } from '@kinde-oss/kinde-typescript-sdk';
-import {ReactElement} from 'react';
 
 export type KindeAccessToken = {
   aud: string[];
@@ -17,7 +16,7 @@ export type KindeAccessToken = {
   iss: string;
   jti: string;
   org_code: string;
-  permissions: string[];
+  permissions: KindePermissions;
   scp: string[];
   sub: string;
 };
@@ -56,6 +55,11 @@ export type KindePermissions = {
 export type KindePermission = {
   isGranted: boolean;
   orgCode: string | null;
+};
+
+export type KindeFlagRaw = {
+  t: KindeFlagTypeCode;
+  v: string | number | boolean;
 };
 
 export type KindeFlagTypeCode = 'b' | 'i' | 's';
@@ -100,12 +104,12 @@ export type KindeClient = {
     sessionManager: SessionManager,
     options?: LoginURLOptions
   ) => Promise<URL>;
-  getUserOrganizations: (sessionManager: SessionManager) => Promise<{
-    orgCodes: string[];
-  }>;
-  getOrganization: (sessionManager: SessionManager) => Promise<{
-    orgCode: string | null;
-  }>;
+  getUserOrganizations: (
+    sessionManager: SessionManager
+  ) => Promise<KindeOrganizations>;
+  getOrganization: (
+    sessionManager: SessionManager
+  ) => Promise<KindeOrganization>;
   getBooleanFlag: (
     sessionManager: SessionManager,
     code: string,
@@ -151,4 +155,59 @@ export type KindeClient = {
     defaultValue?: string | number | boolean | undefined,
     type?: keyof FlagType | undefined
   ) => Promise<GetFlagType>;
+};
+
+export type KindeState = {
+  accessToken: KindeAccessToken | null;
+  error?: string | null;
+  idToken: KindeIdToken | null;
+  isAuthenticated: boolean | null;
+  isLoading: boolean | null;
+  organization: KindeOrganization;
+  permissions: KindePermissions;
+  user: KindeUser | null;
+  userOrganiaztions: string[];
+  getAccessToken: () => KindeAccessToken | null;
+  getBooleanFlag: () => boolean | null | undefined;
+  getClaim: (
+    tokenKey?: 'access_token' | 'id_token'
+  ) => {name: string; value: string} | null;
+  getFlag: (
+    code: string,
+    defaultValue: string | number | boolean,
+    flagType: KindeFlagTypeCode
+  ) => {
+    code: string;
+    type: string;
+    value: string | number | boolean;
+    is_default: boolean;
+  } | null;
+  getIdToken: () => KindeIdToken | null;
+  getIntegerFlag: (
+    code: string,
+    defaultValue: number
+  ) => number | null | undefined;
+  getOrganization: () => KindeOrganization;
+  getPermission: (
+    key: string
+  ) => {isGranted: boolean; orgCode: string | null} | null;
+  getPermissions: () => KindePermissions;
+  getStringFlag: (
+    code: string,
+    defaultValue: string
+  ) => string | null | undefined;
+  getToken: () => string | null;
+  getUser: () => KindeUser | null;
+  getUserOrganizations: () => KindeOrganizations | null;
+};
+
+export type KindeSetupResponse = {
+  accessToken: KindeAccessToken;
+  accessTokenEncoded: string;
+  idToken: KindeIdToken;
+  user: KindeUser;
+  permissions: KindePermissions;
+  organization: KindeOrganization;
+  featureFlags: Record<string, KindeFlagRaw>;
+  userOrganizations: KindeOrganizations;
 };
