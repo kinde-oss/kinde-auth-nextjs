@@ -1,5 +1,17 @@
 import {getFlagFactory} from './getFlag';
+/**
+ * @callback getStringFlag
+ * @param {string} code
+ * @param {string} defaultValue
+ * @returns {Promise<string | null>}
+ */
 
+/**
+ *
+ * @param {import('next').NextApiRequest} [req]
+ * @param {import('next').NextApiResponse} [res]
+ * @returns {getStringFlag}
+ */
 export const getStringFlagFactory =
   (req, res) => async (code, defaultValue) => {
     try {
