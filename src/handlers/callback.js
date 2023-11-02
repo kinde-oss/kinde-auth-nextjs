@@ -1,8 +1,13 @@
 import {config} from '../config/index';
+import RouterClient from '../routerClients/RouterClient';
 
+/**
+ *
+ * @param {RouterClient} routerClient
+ */
 export const callback = async (routerClient) => {
   const postLoginRedirectURLFromMemory =
-    routerClient.sessionManager.getSessionItem('post_login_redirect_url');
+    await routerClient.sessionManager.getSessionItem('post_login_redirect_url');
 
   if (postLoginRedirectURLFromMemory) {
     routerClient.sessionManager.removeSessionItem('post_login_redirect_url');
@@ -17,5 +22,6 @@ export const callback = async (routerClient) => {
     routerClient.getUrl()
   );
 
-  routerClient.redirect(postLoginRedirectURL);
+  if (typeof postLoginRedirectURL === 'string')
+    routerClient.redirect(postLoginRedirectURL);
 };
