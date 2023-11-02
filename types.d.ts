@@ -1,3 +1,13 @@
+import {
+  ClaimTokenType,
+  CreateOrgURLOptions,
+  FlagType,
+  GetFlagType,
+  LoginURLOptions,
+  RegisterURLOptions,
+  SessionManager,
+  UserType
+} from '@kinde-oss/kinde-typescript-sdk';
 import {ReactElement} from 'react';
 
 export type KindeAccessToken = {
@@ -68,23 +78,77 @@ export type KindeOrganizations = {
   orgCodes: string[];
 };
 
-export type State = {
-  user: KindeUser;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  error?: string | undefined;
-  getToken: () => string | undefined;
-  getClaim: (claim: string, tokenKey?: string) => any;
-  getFlag: (
+export type KindeClient = {
+  handleRedirectToApp: (
+    sessionManager: SessionManager,
+    callbackURL: URL
+  ) => Promise<void>;
+  isAuthenticated: (sessionManager: SessionManager) => Promise<boolean>;
+  getUserProfile: (sessionManager: SessionManager) => Promise<UserType>;
+  createOrg: (
+    sessionManager: SessionManager,
+    options?: CreateOrgURLOptions
+  ) => Promise<URL>;
+  getToken: (sessionManager: SessionManager) => Promise<string>;
+  register: (
+    sessionManager: SessionManager,
+    options?: RegisterURLOptions
+  ) => Promise<URL>;
+  getUser: (sessionManager: SessionManager) => Promise<UserType>;
+  logout: (sessionManager: SessionManager) => Promise<URL>;
+  login: (
+    sessionManager: SessionManager,
+    options?: LoginURLOptions
+  ) => Promise<URL>;
+  getUserOrganizations: (sessionManager: SessionManager) => Promise<{
+    orgCodes: string[];
+  }>;
+  getOrganization: (sessionManager: SessionManager) => Promise<{
+    orgCode: string | null;
+  }>;
+  getBooleanFlag: (
+    sessionManager: SessionManager,
     code: string,
-    defaultValue?: string | boolean | number,
-    flagType?: KindeFlagTypeCode
-  ) => KindeFlag;
-  getBooleanFlag: (code: string, defaultValue?: boolean) => boolean;
-  getStringFlag: (code, defaultValue) => string;
-  getIntegerFlag: (code, defaultValue) => number;
-  getPermissions: () => KindePermissions;
-  getPermission: (key: string) => KindePermission;
-  getOrganization: () => KindeOrganization;
-  getUserOrganizations: () => KindeOrganizations;
+    defaultValue?: boolean | undefined
+  ) => Promise<boolean>;
+  getIntegerFlag: (
+    sessionManager: SessionManager,
+    code: string,
+    defaultValue?: number | undefined
+  ) => Promise<number>;
+  getPermissions: (sessionManager: SessionManager) => Promise<{
+    permissions: string[];
+    orgCode: string | null;
+  }>;
+  getPermission: (
+    sessionManager: SessionManager,
+    name: string
+  ) => Promise<{
+    orgCode: string | null;
+    isGranted: boolean;
+  }>;
+  getClaimValue: (
+    sessionManager: SessionManager,
+    claim: string,
+    type?: ClaimTokenType
+  ) => Promise<unknown>;
+  getStringFlag: (
+    sessionManager: SessionManager,
+    code: string,
+    defaultValue?: string | undefined
+  ) => Promise<string>;
+  getClaim: (
+    sessionManager: SessionManager,
+    claim: string,
+    type?: ClaimTokenType
+  ) => Promise<{
+    name: string;
+    value: unknown;
+  }>;
+  getFlag: (
+    sessionManager: SessionManager,
+    code: string,
+    defaultValue?: string | number | boolean | undefined,
+    type?: keyof FlagType | undefined
+  ) => Promise<GetFlagType>;
 };
