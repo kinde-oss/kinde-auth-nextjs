@@ -2,10 +2,12 @@ import {config} from '../config/index';
 
 export const callback = async (routerClient) => {
   const postLoginRedirectURLFromMemory =
-    routerClient.sessionManager.getSessionItem('post_login_redirect_url');
+    await routerClient.sessionManager.getSessionItem('post_login_redirect_url');
 
   if (postLoginRedirectURLFromMemory) {
-    routerClient.sessionManager.removeSessionItem('post_login_redirect_url');
+    await routerClient.sessionManager.removeSessionItem(
+      'post_login_redirect_url'
+    );
   }
 
   const postLoginRedirectURL = postLoginRedirectURLFromMemory
