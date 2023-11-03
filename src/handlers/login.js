@@ -11,7 +11,7 @@ export const login = async (routerClient) => {
   );
 
   if (postLoginRedirectURL) {
-    routerClient.sessionManager.setSessionItem(
+    await routerClient.sessionManager.setSessionItem(
       'post_login_redirect_url',
       postLoginRedirectURL
     );

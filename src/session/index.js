@@ -13,21 +13,23 @@ import {isAuthenticatedFactory} from './isAuthenticated';
 
 /**
  *
- * @param {Request} [req]
- * @param {Response} [res]
+ * @param {import('next').NextApiRequest} [req]
+ * @param {import('next').NextApiResponse} [res]
  * @returns
  */
-export const getKindeServerSession = (req, res) => ({
-  getAccessToken: getAccessTokenFactory(req, res),
-  getBooleanFlag: getBooleanFlagFactory(req, res),
-  getFlag: getFlagFactory(req, res),
-  getIdToken: getIdTokenFactory(req, res),
-  getIntegerFlag: getIntegerFlagFactory(req, res),
-  getOrganization: getOrganizationFactory(req, res),
-  getPermission: getPermissionFactory(req, res),
-  getPermissions: getPermissionsFactory(req, res),
-  getStringFlag: getStringFlagFactory(req, res),
-  getUser: getUserFactory(req, res),
-  getUserOrganizations: getUserOrganizationsFactory(req, res),
-  isAuthenticated: isAuthenticatedFactory(req, res)
-});
+export default function (req, res) {
+  return {
+    getAccessToken: getAccessTokenFactory(req, res),
+    getBooleanFlag: getBooleanFlagFactory(req, res),
+    getFlag: getFlagFactory(req, res),
+    getIdToken: getIdTokenFactory(req, res),
+    getIntegerFlag: getIntegerFlagFactory(req, res),
+    getOrganization: getOrganizationFactory(req, res),
+    getPermission: getPermissionFactory(req, res),
+    getPermissions: getPermissionsFactory(req, res),
+    getStringFlag: getStringFlagFactory(req, res),
+    getUser: getUserFactory(req, res),
+    getUserOrganizations: getUserOrganizationsFactory(req, res),
+    isAuthenticated: isAuthenticatedFactory(req, res)
+  };
+}
