@@ -65,11 +65,11 @@ export const config = {
     profile: '/oauth2/v2/user_profile'
   },
   clientOptions: {
-    audience: KINDE_AUDIENCE,
-    authDomain: KINDE_ISSUER_URL,
-    clientId: KINDE_CLIENT_ID,
-    clientSecret: KINDE_CLIENT_SECRET,
-    logoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL,
+    audience: KINDE_AUDIENCE || '',
+    authDomain: KINDE_ISSUER_URL || '',
+    clientId: KINDE_CLIENT_ID || '',
+    clientSecret: KINDE_CLIENT_SECRET || '',
+    logoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL || '',
     redirectURL: `${KINDE_SITE_URL}/api/auth/kinde_callback`,
     frameworkVersion: version,
     framework: 'Next.js'
