@@ -39,7 +39,10 @@ export const setup = async (routerClient) => {
       accessTokenEncoded,
       idToken,
       user,
-      permissions,
+      permissions: {
+        permissions,
+        orgCode: organization
+      },
       organization,
       featureFlags,
       userOrganizations
