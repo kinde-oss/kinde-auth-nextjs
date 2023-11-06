@@ -1,4 +1,3 @@
-import jwt_decode from 'jwt-decode';
 import {NextResponse} from 'next/server';
 import {config} from '../config/index';
 import {isTokenValid} from '../utils/pageRouter/isTokenValid';
@@ -10,11 +9,10 @@ export function authMiddleware(request) {
   let isAuthenticated = false;
   const nextUrl = trimTrailingSlash(request.nextUrl.href);
   const logoutUrl = trimTrailingSlash(config.postLogoutRedirectURL);
-  const kinde_token = request.cookies.get('kinde_token');
+  const kinde_token = request.cookies.get('access_token');
   const isLogoutUrl = nextUrl === logoutUrl;
 
   if (kinde_token) {
-    const payload = jwt_decode(JSON.parse(kinde_token.value).access_token);
     isAuthenticated = true;
   }
 
@@ -49,7 +47,6 @@ const handleMiddleware = async (req, options, onSuccess) => {
         config.redirectURL
       )
     );
-    response.headers.set('x-hello-from-middleware2', 'hello');
     return response;
   }
 

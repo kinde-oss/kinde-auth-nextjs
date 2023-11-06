@@ -1,22 +1,31 @@
 import {GrantType} from '@kinde-oss/kinde-typescript-sdk';
 import {version} from '../utils/version';
 
+/**
+ * @type {import('../../types').KindeState}
+ */
 const initialState = {
-  user: null,
-  isLoading: true,
-  checkSession: null,
   accessToken: null,
-  getClaim: null,
-  getFlag: null,
-  getToken: null,
-  getBooleanFlag: null,
-  getStringFlag: null,
-  getIntegerFlag: null,
-  getPermission: null,
-  getPermissions: null,
-  permissions: null,
+  idToken: null,
+  isAuthenticated: false,
+  isLoading: true,
   organization: null,
-  userOrganizations: null
+  permissions: [],
+  user: null,
+  userOrganiaztions: [],
+  getAccessToken: () => null,
+  getBooleanFlag: () => null,
+  getClaim: () => null,
+  getFlag: () => null,
+  getIdToken: () => null,
+  getIntegerFlag: () => null,
+  getOrganization: () => null,
+  getPermission: () => null,
+  getPermissions: () => [],
+  getStringFlag: () => null,
+  getToken: () => null,
+  getUser: () => null,
+  getUserOrganizations: () => null
 };
 
 const SESSION_PREFIX = 'pkce-verifier';
