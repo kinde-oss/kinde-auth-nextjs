@@ -1,7 +1,6 @@
-const packageJson = require('./package.json');
-
+import packageJson from '../package.json' assert {type: 'json'};
 import babel from '@rollup/plugin-babel';
-import {terser} from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 
 export default {
   plugins: [babel({babelHelpers: 'bundled'}), terser()],
