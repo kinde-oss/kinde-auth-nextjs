@@ -8,8 +8,8 @@ export default [
   serverConfig,
   componentsConfig,
   {
-    input: './types.d.ts',
-    output: [{file: 'dist/types.d.ts', format: 'es'}],
+    input: './dist/types/index.d.ts',
+    output: [{file: 'dist/index.d.ts', format: 'es'}],
     plugins: [dts()]
   }
 ];
