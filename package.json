@@ -5,7 +5,7 @@
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
   "type": "module",
-  "typings": "dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "npx tsc && genversion --es6 src/utils/version.js && rollup -c",
     "prepare": "genversion --es6 src/utils/version.js && rollup -c",

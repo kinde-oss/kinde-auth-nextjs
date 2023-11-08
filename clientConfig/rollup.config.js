@@ -1,3 +1,4 @@
+import packageJson from '../package.json' assert {type: 'json'};
 import babel from '@rollup/plugin-babel';
 import terser from '@rollup/plugin-terser';
 
@@ -6,13 +7,13 @@ export default {
   input: './src/index.js',
   output: [
     {
-      file: 'dist/cjs/index.js',
+      file: packageJson.module,
       format: 'esm',
       sourcemap: true,
       exports: 'named'
     },
     {
-      file: 'dist/index.js',
+      file: packageJson.main,
       format: 'cjs',
       sourcemap: true,
       exports: 'named'
