@@ -1,20 +1,18 @@
-const packageJson = require('./package.json');
-
 import babel from '@rollup/plugin-babel';
-import {terser} from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 
 export default {
   plugins: [babel({babelHelpers: 'bundled'}), terser()],
   input: './src/index.js',
   output: [
     {
-      file: packageJson.module,
+      file: 'dist/cjs/index.js',
       format: 'esm',
       sourcemap: true,
       exports: 'named'
     },
     {
-      file: packageJson.main,
+      file: 'dist/index.js',
       format: 'cjs',
       sourcemap: true,
       exports: 'named'

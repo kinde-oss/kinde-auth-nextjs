@@ -4,6 +4,7 @@
   "description": "Kinde Auth SDK for NextJS",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
+  "type": "module",
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "npx tsc && genversion --es6 src/utils/version.js && rollup -c",
@@ -27,9 +28,9 @@
   "bugs": "https://github.com/kinde-oss/kinde-auth-nextjs",
   "homepage": "https://kinde.com",
   "devDependencies": {
-    "@babel/core": "^7.17.12",
-    "@babel/preset-react": "^7.17.12",
-    "@rollup/plugin-babel": "^5.3.1",
+    "@babel/preset-react": "^7.22.15",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-terser": "^0.4.4",
     "@types/react": "^18.2.22",
     "@types/react-dom": "^18.2.10",
     "changelogen": "^0.5.5",
@@ -38,8 +39,8 @@
     "genversion": "^3.1.1",
     "prettier": "^3.0.1",
     "release-it": "^16.1.3",
-    "rollup": "^2.73.0",
-    "rollup-plugin-terser": "^7.0.2",
+    "rollup": "^4.3.0",
+    "rollup-plugin-dts": "^6.1.0",
     "typescript": "^5.1.3"
   },
   "peerDependencies": {
