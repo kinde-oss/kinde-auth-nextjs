@@ -17,5 +17,6 @@ export default {
       exports: 'named',
       format: 'esm'
     }
-  ]
+  ],
+  external: ['react', 'react-dom']
 };
