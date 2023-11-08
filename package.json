@@ -64,6 +64,6 @@
     "dist",
     "server",
     "components",
-    "index.d.ts"
+    "types.d.ts"
   ]
 }
