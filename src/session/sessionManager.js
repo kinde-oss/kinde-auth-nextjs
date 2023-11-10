@@ -1,7 +1,6 @@
 import {isAppRouter} from '../utils/isAppRouter';
 import {cookies} from 'next/headers';
-
-var cookie = require('cookie');
+import cookie from 'cookie';
 
 /**
  *
