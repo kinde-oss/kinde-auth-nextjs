@@ -3,7 +3,7 @@ import {flagDataTypeMap} from './AuthProvider.jsx';
 
 /**
  *
- * @returns {import('./AuthProvider').State}
+ * @returns {import('../../types.js').KindeState}
  */
 export const useKindeBrowserClient = () => {
   const [state, setState] = useState({
