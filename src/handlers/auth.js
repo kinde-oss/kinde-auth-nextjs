@@ -7,7 +7,6 @@ import {setup} from './setup';
 import {register} from './register';
 import AppRouterClient from '../routerClients/AppRouterClient';
 import PagesRouterClient from '../routerClients/PagesRouterClient';
-import {NextRequest} from 'next/server';
 import RouterClient from '../routerClients/RouterClient';
 
 /**
@@ -56,7 +55,7 @@ export default (request, endpoint) => {
 
 /**
  *
- * @param {NextRequest} req
+ * @param {import("next/server").NextRequest} req
  * @param {{params: {kindeAuth: string}}} res
  * @returns
  */

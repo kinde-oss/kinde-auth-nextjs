@@ -1,6 +1,3 @@
-import {GrantType} from '@kinde-oss/kinde-typescript-sdk';
-import {NextResponse} from 'next/server';
-
 export default class RouterClient {
   constructor() {
     if (this.constructor == RouterClient) {
@@ -14,7 +11,7 @@ export default class RouterClient {
     this.sessionManager;
     /** @type {import('next').NextApiResponse | *} */
     this.res;
-    /** @type {import('next').NextApiRequest | NextResponse | *} */
+    /** @type {import('next').NextApiRequest | import('next/server').NextResponse | *} */
     this.req;
     /** @type {URLSearchParams} */
     this.searchParams;
