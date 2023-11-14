@@ -13,6 +13,7 @@
     "dist",
     "server",
     "components",
+    "middleware",
     "types.d.ts"
   ],
   "exports": {
