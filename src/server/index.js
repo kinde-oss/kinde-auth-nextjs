@@ -7,3 +7,4 @@ export {
 } from '../components/index';
 export {createKindeManagementAPIClient} from '../api-client';
 export {default as handleAuth} from '../handlers/auth';
+export {withAuth} from '../middleware/index';
