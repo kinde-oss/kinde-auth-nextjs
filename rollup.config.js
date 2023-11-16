@@ -30,7 +30,7 @@ export default [
     ]
   },
   {
-    plugins: [babel({babelHelpers: 'bundled'}), terser(), nodeResolve()],
+    plugins: [babel({babelHelpers: 'bundled'}), terser()],
     input: 'src/server/index.js',
     output: [
       {
@@ -45,15 +45,6 @@ export default [
         sourcemap: true,
         exports: 'named'
       }
-    ],
-    external: [
-      'react',
-      'jwt-decode',
-      '@kinde-oss/kinde-typescript-sdk',
-      'next/server',
-      'next/navigation',
-      'next/headers',
-      'cookie'
     ]
   },
   {
@@ -91,8 +82,7 @@ export default [
         sourcemap: true,
         exports: 'named'
       }
-    ],
-    external: ['next/server', 'jwt-decode', '@kinde-oss/kinde-typescript-sdk']
+    ]
   },
   {
     input: './types.d.ts',
