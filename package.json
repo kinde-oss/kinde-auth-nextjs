@@ -20,23 +20,23 @@
     "./package.json": "./package.json",
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js",
-      "require": "./dist/index.js"
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
     },
     "./components": {
       "types": "./dist/components/index.d.ts",
-      "default": "./dist/components/index.js",
-      "require": "./dist/components/cjs/index.js"
+      "require": "./dist/components/cjs/index.js",
+      "import": "./dist/components/index.js"
     },
     "./server": {
       "types": "./dist/server/index.d.ts",
-      "default": "./dist/server/index.js",
-      "require": "./dist/server/cjs/index.js"
+      "require": "./dist/server/cjs/index.js",
+      "import": "./dist/server/index.js"
     },
     "./middleware": {
       "types": "./dist/middleware/index.d.ts",
-      "default": "./dist/middleware/index.js",
-      "require": "./dist/middleware/cjs/index.js"
+      "require": "./dist/middleware/cjs/index.js",
+      "import": "./dist/middleware/index.js"
     }
   },
   "types": "./dist/index.d.ts",
