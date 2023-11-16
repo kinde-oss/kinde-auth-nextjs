@@ -13,8 +13,8 @@ import {isAuthenticatedFactory} from './isAuthenticated';
 
 /**
  *
- * @param {import('next').NextApiRequest} [req]
- * @param {import('next').NextApiResponse} [res]
+ * @param {import('next').NextApiRequest | Request} [req]
+ * @param {import('next').NextApiResponse | Response} [res]
  * @returns
  */
 export const getKindeServerSession = (req, res) => ({
