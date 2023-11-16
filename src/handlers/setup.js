@@ -3,6 +3,7 @@ import RouterClient from '../routerClients/RouterClient';
 /**
  *
  * @param {RouterClient} routerClient
+ * @returns
  */
 export const setup = async (routerClient) => {
   const user = await routerClient.sessionManager.getSessionItem('user');
@@ -45,7 +46,10 @@ export const setup = async (routerClient) => {
       accessTokenEncoded,
       idToken,
       user,
-      permissions,
+      permissions: {
+        permissions,
+        orgCode: organization
+      },
       organization,
       featureFlags,
       userOrganizations
