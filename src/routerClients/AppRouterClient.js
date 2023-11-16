@@ -1,7 +1,7 @@
 import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
 import {cookies} from 'next/headers';
 import {redirect} from 'next/navigation';
-import {NextRequest} from 'next/server';
+import {NextRequest, NextResponse} from 'next/server';
 import {config} from '../config/index';
 import {appRouterSessionManager} from '../session/sessionManager';
 import RouterClient from './RouterClient';
