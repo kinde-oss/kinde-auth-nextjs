@@ -1,22 +1,31 @@
 import {GrantType} from '@kinde-oss/kinde-typescript-sdk';
 import {version} from '../utils/version';
 
+/**
+ * @type {import('../../types').KindeState}
+ */
 const initialState = {
-  user: null,
-  isLoading: true,
-  checkSession: null,
   accessToken: null,
-  getClaim: null,
-  getFlag: null,
-  getToken: null,
-  getBooleanFlag: null,
-  getStringFlag: null,
-  getIntegerFlag: null,
-  getPermission: null,
-  getPermissions: null,
-  permissions: null,
+  idToken: null,
+  isAuthenticated: false,
+  isLoading: true,
   organization: null,
-  userOrganizations: null
+  permissions: [],
+  user: null,
+  userOrganiaztions: [],
+  getAccessToken: () => null,
+  getBooleanFlag: () => null,
+  getClaim: () => null,
+  getFlag: () => null,
+  getIdToken: () => null,
+  getIntegerFlag: () => null,
+  getOrganization: () => null,
+  getPermission: () => null,
+  getPermissions: () => [],
+  getStringFlag: () => null,
+  getToken: () => null,
+  getUser: () => null,
+  getUserOrganizations: () => null
 };
 
 const SESSION_PREFIX = 'pkce-verifier';
@@ -65,11 +74,11 @@ export const config = {
     profile: '/oauth2/v2/user_profile'
   },
   clientOptions: {
-    audience: KINDE_AUDIENCE,
-    authDomain: KINDE_ISSUER_URL,
-    clientId: KINDE_CLIENT_ID,
-    clientSecret: KINDE_CLIENT_SECRET,
-    logoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL,
+    audience: KINDE_AUDIENCE || '',
+    authDomain: KINDE_ISSUER_URL || '',
+    clientId: KINDE_CLIENT_ID || '',
+    clientSecret: KINDE_CLIENT_SECRET || '',
+    logoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL || '',
     redirectURL: `${KINDE_SITE_URL}/api/auth/kinde_callback`,
     frameworkVersion: version,
     framework: 'Next.js'
