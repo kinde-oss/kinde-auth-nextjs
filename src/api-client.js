@@ -22,8 +22,8 @@ import {isTokenValid} from './utils/pageRouter/isTokenValid';
 
 /**
  * Create the Kinde Management API client
- * @param {Request | NextApiRequest} [req] - optional request (required when used with pages router)
- * @param {Response | NextApiResponse} [res] - optional response (required when used with pages router)
+ * @param {Request | import('next').NextApiRequest} [req] - optional request (required when used with pages router)
+ * @param {Response | import('next').NextApiResponse} [res] - optional response (required when used with pages router)
  */
 export const createKindeManagementAPIClient = async (req, res) => {
   let apiToken = null;
