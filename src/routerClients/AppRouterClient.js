@@ -47,7 +47,7 @@ export default class AppRouterClient extends RouterClient {
    * @param {{status: number}} status
    * @returns
    */
-  json(data, status) {
+  json(data, status = {status: 200}) {
     return Response.json(data, status);
   }
 
