@@ -1,0 +1,7 @@
+{
+  "name": "@kinde-oss/kinde-auth-nextjs/middleware",
+  "private": true,
+  "main": "../dist/middleware/cjs/index.js",
+  "module": "../dist/middleware/index.js",
+  "typings": "../dist/types/middleware/index.d.ts"
+}
