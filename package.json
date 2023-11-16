@@ -5,6 +5,29 @@
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
   "typings": "dist/types/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    },
+    "./components": {
+      "types": "./dist/types/components/index.d.ts",
+      "require": "./dist/components/cjs/index.js",
+      "import": "./dist/components/index.js"
+    },
+    "./server": {
+      "types": "./dist/types/server/index.d.ts",
+      "require": "./dist/server/cjs/index.js",
+      "import": "./dist/server/index.js"
+    },
+    "./middleware": {
+      "types": "./dist/types/middleware/index.d.ts",
+      "require": "./dist/middleware/cjs/index.js",
+      "import": "./dist/middleware/index.js"
+    }
+  },
   "scripts": {
     "build": "npx tsc && cp types.d.ts dist/types.d.ts && genversion --es6 src/utils/version.js && rollup -c",
     "prepare": "genversion --es6 src/utils/version.js && rollup -c",
