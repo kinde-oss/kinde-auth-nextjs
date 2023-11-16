@@ -12,7 +12,6 @@ import {sessionManager} from './sessionManager';
  *
  * @returns {getAccessToken}
  */
-
 // @ts-ignore
 export const getAccessTokenFactory = (req, res) => async () => {
   return await sessionManager(req, res).getSessionItem('access_token_payload');

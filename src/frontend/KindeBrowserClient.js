@@ -1,6 +1,10 @@
 import {useEffect, useState} from 'react';
 import {flagDataTypeMap} from './AuthProvider.jsx';
 
+/**
+ *
+ * @returns {import('../../types.js').KindeState}
+ */
 export const useKindeBrowserClient = () => {
   const [state, setState] = useState({
     accessToken: null,
