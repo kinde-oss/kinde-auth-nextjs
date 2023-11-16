@@ -6,7 +6,7 @@
   "module": "dist/index.js",
   "typings": "dist/types/index.d.ts",
   "scripts": {
-    "build": "npx tsc && genversion --es6 src/utils/version.js && rollup -c",
+    "build": "npx tsc && cp types.d.ts dist/types.d.ts && genversion --es6 src/utils/version.js && rollup -c",
     "prepare": "genversion --es6 src/utils/version.js && rollup -c",
     "build:watch": "genversion --es6 src/utils/version.js && rollup -c -w",
     "test": "jest",

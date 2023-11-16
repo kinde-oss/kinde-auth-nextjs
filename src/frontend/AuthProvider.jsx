@@ -15,12 +15,6 @@ export const flagDataTypeMap = {
   b: 'boolean'
 };
 
-const handleError = () => {
-  throw new Error(
-    'Oops! Seems like you forgot to wrap your app in <KindeProvider>.'
-  );
-};
-
 const AuthContext = createContext({
   ...config.initialState
 });
@@ -55,7 +49,6 @@ const tokenFetcher = async (url) => {
 /**
  *
  * @param {{children: React.ReactNode}} props
- * @returns {React.Provider<React.ProviderProps<children: React.ReactNode>>}
  */
 export const KindeProvider = ({children}) => {
   const [state, setState] = useState({
@@ -257,7 +250,8 @@ export const KindeProvider = ({children}) => {
     getOrganization,
     getPermission,
     getPermissions,
-    getUserOrganozations,
+    getUser,
+    getUserOrganizations,
     permissions,
     organization,
     userOrganizations,
@@ -283,8 +277,8 @@ export const KindeProvider = ({children}) => {
         getOrganization,
         getPermission,
         getPermissions,
-        getUserOrganzations,
-        getPermission,
+        getUser,
+        getUserOrganizations,
         permissions,
         organization,
         userOrganizations,
