@@ -2,7 +2,6 @@
   "name": "@kinde-oss/kinde-auth-nextjs",
   "version": "2.0.8-beta.7",
   "description": "Kinde Auth SDK for NextJS",
-  "type": "module",
   "module": "dist/index.js",
   "main": "dist/cjs/index.js",
   "files": [

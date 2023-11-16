@@ -34,19 +34,20 @@ export default [
     input: 'src/server/index.js',
     output: [
       {
-        file: 'dist/server/index.js',
-        format: 'esm',
-        sourcemap: true,
-        exports: 'named'
-      },
-      {
         file: 'dist/server/cjs/index.js',
         format: 'cjs',
         sourcemap: true,
         exports: 'named'
+      },
+      {
+        file: `dist/server/index.js`,
+        sourcemap: true,
+        exports: 'named',
+        format: 'esm'
       }
     ]
   },
+
   {
     plugins: [babel({babelHelpers: 'bundled'}), terser()],
     input: 'src/components/index.js',
