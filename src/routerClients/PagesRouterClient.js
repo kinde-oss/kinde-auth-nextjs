@@ -42,7 +42,7 @@ export default class PagesRouterClient extends RouterClient {
    * @param {{status: number}} status
    * @returns
    */
-  json(data, status) {
+  json(data, status = {status: 200}) {
     return this.res.status(status.status).json(data);
   }
 
