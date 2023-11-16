@@ -166,25 +166,21 @@ export type KindeState = {
   organization: KindeOrganization;
   permissions: KindePermissions;
   user: KindeUser | null;
-  userOrganizations: string[];
+  userOrganizations: KindeOrganizations;
   getAccessToken: () => KindeAccessToken | null;
-  getBooleanFlag: (code: string,
-    defaultValue?: boolean | undefined) => boolean | null | undefined;
+  getBooleanFlag: (
+    code: string,
+    defaultValue: boolean
+  ) => boolean | null | undefined;
   getClaim: (
     claim: string,
-    tokenKey?: 'access_token' | 'id_token',
-
+    tokenKey?: 'access_token' | 'id_token'
   ) => {name: string; value: string} | null;
   getFlag: (
     code: string,
     defaultValue: string | number | boolean,
     flagType: KindeFlagTypeCode
-  ) => {
-    code: string;
-    type: string;
-    value: string | number | boolean;
-    is_default: boolean;
-  } | null;
+  ) => KindeFlag | null;
   getIdToken: () => KindeIdToken | null;
   getIntegerFlag: (
     code: string,
