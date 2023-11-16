@@ -30,7 +30,7 @@ export default [
     ]
   },
   {
-    plugins: [babel({babelHelpers: 'bundled'}), terser()],
+    plugins: [babel({babelHelpers: 'bundled'}), terser(), nodeResolve()],
     input: 'src/server/index.js',
     output: [
       {
