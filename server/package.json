@@ -3,5 +3,5 @@
   "private": true,
   "main": "../dist/server/cjs/index.js",
   "module": "../dist/server/index.js",
-  "typings": "../dist/server/index.d.ts"
+  "typings": "../dist/types/server/index.d.ts"
 }
