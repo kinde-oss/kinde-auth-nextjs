@@ -35,12 +35,12 @@ export const appRouterSessionManager = (cookieStore) => ({
         if (typeof jsonValue === 'object') {
           return jsonValue;
         }
-        return new Promise(() => item.value);
+        return item.value;
       } catch (error) {
-        return new Promise(() => item.value);
+        return item.value;
       }
     }
-    return new Promise(() => null);
+    return null;
   },
   /**
    *
@@ -55,7 +55,6 @@ export const appRouterSessionManager = (cookieStore) => ({
         typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue
       );
     }
-    return new Promise(() => {});
   },
   /**
    *
@@ -64,7 +63,6 @@ export const appRouterSessionManager = (cookieStore) => ({
    */
   removeSessionItem: (itemKey) => {
     cookieStore.delete(itemKey);
-    return new Promise(() => {});
   },
   /**
    * @returns {Promise<void>}
@@ -78,7 +76,6 @@ export const appRouterSessionManager = (cookieStore) => ({
       'user',
       'refresh_token'
     ].forEach((name) => cookieStore.delete(name));
-    return new Promise(() => {});
   }
 });
 
@@ -102,12 +99,11 @@ export const pageRouterSessionManager = (req, res) => ({
         if (typeof jsonValue === 'object') {
           return jsonValue;
         }
-        return new Promise(() => itemValue);
+        return itemValue;
       } catch (error) {
-        return new Promise(() => itemValue);
+        return itemValue;
       }
     }
-    return new Promise(() => undefined);
   },
   /**
    *
@@ -131,7 +127,6 @@ export const pageRouterSessionManager = (req, res) => ({
       )
     ]);
 
-    return new Promise(() => {});
   },
   /**
    *
@@ -144,7 +139,6 @@ export const pageRouterSessionManager = (req, res) => ({
       cookie.serialize(itemKey, '', {path: '/', maxAge: -1})
     );
 
-    return new Promise(() => {});
   },
   destroySession: () => {
     res?.setHeader(
@@ -158,7 +152,5 @@ export const pageRouterSessionManager = (req, res) => ({
         'refresh_token'
       ].map((name) => cookie.serialize(name, '', {path: '/', maxAge: -1}))
     );
-
-    return new Promise(() => {});
   }
 });
