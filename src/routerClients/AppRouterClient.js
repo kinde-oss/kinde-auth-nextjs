@@ -1,7 +1,7 @@
 import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
 import {cookies} from 'next/headers';
 import {redirect} from 'next/navigation';
-import {NextRequest} from 'next/server';
+import {NextRequest, NextResponse} from 'next/server';
 import {config} from '../config/index';
 import {appRouterSessionManager} from '../session/sessionManager';
 import RouterClient from './RouterClient';
@@ -48,8 +48,8 @@ export default class AppRouterClient extends RouterClient {
    * @param {{status: number}} status
    * @returns
    */
-  json(data, status) {
-    return Response.json(data, status);
+  json(data, status = {status: 200}) {
+    return NextResponse.json(data, status);
   }
 
   error() {

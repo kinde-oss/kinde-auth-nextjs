@@ -1,0 +1,7 @@
+{
+  "name": "@kinde-oss/kinde-auth-nextjs/server",
+  "private": true,
+  "main": "../dist/server/cjs/index.js",
+  "module": "../dist/server/index.js",
+  "typings": "../dist/types/server/index.d.ts"
+}

@@ -1,3 +1,9 @@
+import RouterClient from '../routerClients/RouterClient';
+
+/**
+ *
+ * @param {RouterClient} routerClient
+ */
 export const register = async (routerClient) => {
   const authUrl = await routerClient.kindeClient.register(
     routerClient.sessionManager,
@@ -11,11 +17,11 @@ export const register = async (routerClient) => {
   );
 
   if (postLoginRedirectURL) {
-    await routerClient.sessionManager.setSessionItem(
+    routerClient.sessionManager.setSessionItem(
       'post_login_redirect_url',
       postLoginRedirectURL
     );
   }
 
-  routerClient.redirect(authUrl);
+  routerClient.redirect(authUrl.toString());
 };
