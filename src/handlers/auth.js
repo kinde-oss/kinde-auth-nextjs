@@ -33,6 +33,7 @@ const getRoute = (endpoint) => {
 /**
  * @param {object} [request]
  * @param {string} [endpoint]
+ * @returns {(req, res) => any}
  */
 export default (request, endpoint) => {
   // For backwards compatibility in app router

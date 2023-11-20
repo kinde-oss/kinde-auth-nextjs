@@ -27,7 +27,7 @@ export const getFlagFactory =
 
       return flag;
     } catch (error) {
-      //@ts-ignore
+      // @ts-ignore
       if (error.message.includes('no default value has been provided')) {
         throw error;
       }

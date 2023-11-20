@@ -1,3 +1,10 @@
+import RouterClient from '../routerClients/RouterClient';
+
+/**
+ *
+ * @param {RouterClient} routerClient
+ * @returns
+ */
 export const setup = async (routerClient) => {
   const user = await routerClient.sessionManager.getSessionItem('user');
   if (user) {
