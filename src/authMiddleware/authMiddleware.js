@@ -49,13 +49,10 @@ const handleMiddleware = async (req, options, onSuccess) => {
         config.redirectURL
       )
     );
-    response.headers.set('x-hello-from-middleware2', 'hello');
     return response;
   }
 
-  const accessTokenValue = JSON.parse(
-    req.cookies.get('access_token_payload').value
-  );
+  const accessTokenValue = jwt_decode(req.cookies.get('access_token').value);
 
   const isAuthorized =
     options?.isAuthorized({req, token: accessTokenValue}) ??
@@ -63,7 +60,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   if (isAuthorized && onSuccess) {
     return await onSuccess({
-      token: JSON.parse(req.cookies.get('access_token_payload').value),
+      token: accessTokenValue,
       user: JSON.parse(req.cookies.get('user').value)
     });
   }
