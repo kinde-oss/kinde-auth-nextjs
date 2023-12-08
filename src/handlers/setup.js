@@ -1,3 +1,4 @@
+import jwtDecode from 'jwt-decode';
 import RouterClient from '../routerClients/RouterClient';
 
 /**
@@ -8,17 +9,17 @@ import RouterClient from '../routerClients/RouterClient';
 export const setup = async (routerClient) => {
   const user = await routerClient.sessionManager.getSessionItem('user');
   if (user) {
-    const accessToken = await routerClient.sessionManager.getSessionItem(
-      'access_token_payload'
-    );
-
-    const idToken = await routerClient.sessionManager.getSessionItem(
-      'id_token_payload'
-    );
-
     const accessTokenEncoded = await routerClient.sessionManager.getSessionItem(
       'access_token'
     );
+
+    const idTokenEncoded = await routerClient.sessionManager.getSessionItem(
+      'id_token'
+    );
+
+    const accessToken = jwtDecode(accessTokenEncoded);
+
+    const idToken = jwtDecode(idTokenEncoded);
 
     const permissions = await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
