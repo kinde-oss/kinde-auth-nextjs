@@ -46,10 +46,6 @@ const tokenFetcher = async (url) => {
   }
 };
 
-/**
- *
- * @param {{children: React.ReactNode}} props
- */
 export const KindeProvider = ({children}) => {
   const [state, setState] = useState({
     ...config.initialState
