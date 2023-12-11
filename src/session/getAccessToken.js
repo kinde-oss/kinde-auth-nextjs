@@ -1,3 +1,4 @@
+import jwtDecode from 'jwt-decode';
 import {sessionManager} from './sessionManager';
 
 /**
@@ -14,5 +15,7 @@ import {sessionManager} from './sessionManager';
  */
 // @ts-ignore
 export const getAccessTokenFactory = (req, res) => async () => {
-  return await sessionManager(req, res).getSessionItem('access_token_payload');
+  return jwtDecode(
+    await sessionManager(req, res).getSessionItem('access_token')
+  );
 };

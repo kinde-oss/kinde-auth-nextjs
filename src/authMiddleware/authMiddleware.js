@@ -1,3 +1,4 @@
+import jwt_decode from 'jwt-decode';
 import {NextResponse} from 'next/server';
 import {config} from '../config/index';
 import {isTokenValid} from '../utils/pageRouter/isTokenValid';
@@ -9,10 +10,11 @@ export function authMiddleware(request) {
   let isAuthenticated = false;
   const nextUrl = trimTrailingSlash(request.nextUrl.href);
   const logoutUrl = trimTrailingSlash(config.postLogoutRedirectURL);
-  const kinde_token = request.cookies.get('access_token');
+  const kinde_token = request.cookies.get('kinde_token');
   const isLogoutUrl = nextUrl === logoutUrl;
 
   if (kinde_token) {
+    const payload = jwt_decode(JSON.parse(kinde_token.value).access_token);
     isAuthenticated = true;
   }
 
@@ -50,9 +52,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     return response;
   }
 
-  const accessTokenValue = JSON.parse(
-    req.cookies.get('access_token_payload').value
-  );
+  const accessTokenValue = jwt_decode(req.cookies.get('access_token').value);
 
   const isAuthorized =
     options?.isAuthorized({req, token: accessTokenValue}) ??
@@ -60,7 +60,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   if (isAuthorized && onSuccess) {
     return await onSuccess({
-      token: JSON.parse(req.cookies.get('access_token_payload').value),
+      token: accessTokenValue,
       user: JSON.parse(req.cookies.get('user').value)
     });
   }

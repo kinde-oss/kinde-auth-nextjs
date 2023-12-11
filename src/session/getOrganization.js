@@ -1,6 +1,5 @@
 import {sessionManager} from './sessionManager';
 import {kindeClient} from './kindeServerClient';
-
 /**
  * @callback getOrganization
  * @returns {Promise<import('../../types').KindeOrganization | null>}

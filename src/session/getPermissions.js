@@ -1,6 +1,5 @@
 import {sessionManager} from './sessionManager';
 import {kindeClient} from './kindeServerClient';
-
 /**
  * @callback getPermissions
  * @returns {Promise<import('../../types').KindePermissions | null>}
