@@ -1,5 +1,6 @@
 import {cookies} from 'next/headers';
 import {isAppRouter} from '../utils/isAppRouter';
+import {config} from '../config/index';
 
 var cookie = require('cookie');
 
@@ -52,7 +53,8 @@ export const appRouterSessionManager = (cookieStore) => ({
     if (itemValue !== undefined) {
       cookieStore.set(
         itemKey,
-        typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue
+        typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
+        {domain: config.cookieDomain ? config.cookieDomain : undefined}
       );
     }
   },
@@ -123,10 +125,9 @@ export const pageRouterSessionManager = (req, res) => ({
       cookie.serialize(
         itemKey,
         typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
-        {path: '/'}
+        {domain: config.cookieDomain ? config.cookieDomain : undefined}
       )
     ]);
-
   },
   /**
    *
@@ -138,7 +139,6 @@ export const pageRouterSessionManager = (req, res) => ({
       'Set-Cookie',
       cookie.serialize(itemKey, '', {path: '/', maxAge: -1})
     );
-
   },
   destroySession: () => {
     res?.setHeader(
