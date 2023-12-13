@@ -48,6 +48,7 @@ const KINDE_ISSUER_URL = process.env.KINDE_ISSUER_URL;
 const KINDE_CLIENT_ID = process.env.KINDE_CLIENT_ID;
 const KINDE_CLIENT_SECRET = process.env.KINDE_CLIENT_SECRET;
 const KINDE_AUDIENCE = process.env.KINDE_AUDIENCE;
+const KINDE_COOKIE_DOMAIN = process.env.KINDE_COOKIE_DOMAIN;
 
 export const config = {
   apiPath: KINDE_AUTH_API_PATH,
@@ -60,6 +61,7 @@ export const config = {
   clientSecret: KINDE_CLIENT_SECRET,
   postLogoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL,
   audience: KINDE_AUDIENCE,
+  cookieDomain: KINDE_COOKIE_DOMAIN,
   responseType: 'code',
   scope: 'openid profile email offline',
   codeChallengeMethod: 'S256',
