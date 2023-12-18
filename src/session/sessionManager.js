@@ -125,7 +125,11 @@ export const pageRouterSessionManager = (req, res) => ({
       cookie.serialize(
         itemKey,
         typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
-        {domain: config.cookieDomain ? config.cookieDomain : undefined}
+
+        {
+          domain: config.cookieDomain ? config.cookieDomain : undefined,
+          path: '/'
+        }
       )
     ]);
   },

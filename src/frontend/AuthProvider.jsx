@@ -46,10 +46,18 @@ const tokenFetcher = async (url) => {
   }
 };
 
-export const KindeProvider = ({children}) => {
+/**
+ *
+ * @param {{children: import('react').ReactNode, options?: {apiPath: string} | undefined} props
+ * @returns
+ */
+export const KindeProvider = ({children, options}) => {
   const [state, setState] = useState({
     ...config.initialState
   });
+
+  // console.log('state', state);
+  config.apiPath = options?.apiPath ? options.apiPath : '/api/auth';
 
   const setupUrl = `${config.apiPath}/setup`;
 
@@ -230,56 +238,11 @@ export const KindeProvider = ({children}) => {
     }
   }, [state.user]);
 
-  // provide this stuff to the rest of your app
-  const {
-    user,
-    accessToken,
-    idToken,
-    getAccessToken,
-    getToken,
-    getClaim,
-    getFlag,
-    getIdToken,
-    getBooleanFlag,
-    getStringFlag,
-    getIntegerFlag,
-    getOrganization,
-    getPermission,
-    getPermissions,
-    getUser,
-    getUserOrganizations,
-    permissions,
-    organization,
-    userOrganizations,
-    error,
-    isLoading
-  } = state;
-
   return (
     <AuthContext.Provider
       value={{
-        user,
-        error,
-        accessToken,
-        idToken,
-        getAccessToken,
-        getToken,
-        getClaim,
-        getFlag,
-        getIdToken,
-        getBooleanFlag,
-        getStringFlag,
-        getIntegerFlag,
-        getOrganization,
-        getPermission,
-        getPermissions,
-        getUser,
-        getUserOrganizations,
-        permissions,
-        organization,
-        userOrganizations,
-        isLoading,
-        isAuthenticated: !!user
+        ...state,
+        isAuthenticated: !!state.user
       }}
     >
       {children}
