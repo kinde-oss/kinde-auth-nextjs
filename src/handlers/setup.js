@@ -45,7 +45,10 @@ export const setup = async (routerClient) => {
     return routerClient.json({
       accessToken,
       accessTokenEncoded,
+      accessTokenRaw: accessTokenEncoded,
       idToken,
+      idTokenRaw: idTokenEncoded,
+      idTokenEncoded,
       user,
       permissions: {
         permissions,
