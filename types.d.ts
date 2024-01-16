@@ -159,8 +159,12 @@ export type KindeClient = {
 
 export type KindeState = {
   accessToken: KindeAccessToken | null;
+  accessTokenEncoded: string | null;
+  accessTokenRaw: string | null;
   error?: string | null;
   idToken: KindeIdToken | null;
+  idTokenRaw: string | null;
+  idTokenEncoded: string | null;
   isAuthenticated: boolean | null;
   isLoading: boolean | null;
   organization: KindeOrganization;
@@ -168,6 +172,8 @@ export type KindeState = {
   user: KindeUser | null;
   userOrganizations: KindeOrganizations;
   getAccessToken: () => KindeAccessToken | null;
+  getAccessTokenRaw: () => string | null;
+  getIdTokenRaw: () => string | null;
   getBooleanFlag: (
     code: string,
     defaultValue: boolean

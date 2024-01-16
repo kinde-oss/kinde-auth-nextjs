@@ -8,10 +8,11 @@ import {flagDataTypeMap} from './AuthProvider.jsx';
 export const useKindeBrowserClient = () => {
   const [state, setState] = useState({
     accessToken: null,
-    accessTokenEncoded: null,
+    accessTokenRaw: null,
     error: null,
     featureFlags: [],
     idToken: null,
+    idTokenRaw: null,
     isAuthenticated: false,
     isLoading: true,
     organization: null,
@@ -142,6 +143,20 @@ export const useKindeBrowserClient = () => {
   const getToken = () => {
     return state.accessTokenEncoded;
   };
+
+  /**
+   * @returns {string | null}
+   */
+  const getAccessTokenRaw = () => {
+    return state.accessTokenEncoded;
+  };
+
+  /**
+   * @returns {string | null}
+   */
+  const getIdTokenRaw = () => {
+    return state.idTokenRaw;
+  };
   /**
    * @returns {import('../../types.js').KindeIdToken | null}
    */
@@ -181,6 +196,7 @@ export const useKindeBrowserClient = () => {
   return {
     ...state,
     isAuthenticated: !!state.user,
+    getIdTokenRaw,
     getPermission,
     getBooleanFlag,
     getIntegerFlag,
@@ -189,6 +205,7 @@ export const useKindeBrowserClient = () => {
     getClaim,
     getAccessToken,
     getToken,
+    getAccessTokenRaw,
     getIdToken,
     getOrganization,
     getPermissions,
