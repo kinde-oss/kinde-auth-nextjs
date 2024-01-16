@@ -43,7 +43,7 @@ export const createKindeManagementAPIClient = async (req, res) => {
         grant_type: 'client_credentials',
         client_id: config.clientID || '',
         client_secret: config.clientSecret || '',
-        audience: config.audience || ''
+        audience: config.issuerURL + '/api'
       })
     });
     apiToken = (await response.json()).access_token;
