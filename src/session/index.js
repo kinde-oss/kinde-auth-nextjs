@@ -10,6 +10,8 @@ import {getStringFlagFactory} from './getStringFlag';
 import {getUserFactory} from './getUser';
 import {getUserOrganizationsFactory} from './getUserOrganizations';
 import {isAuthenticatedFactory} from './isAuthenticated';
+import {getAccessTokenRawFactory} from './getAccessTokenRaw';
+import {getIdTokenRawFactory} from './getIdTokenRaw';
 
 /**
  *
@@ -23,6 +25,8 @@ export default function (req, res) {
     getBooleanFlag: getBooleanFlagFactory(req, res),
     getFlag: getFlagFactory(req, res),
     getIdToken: getIdTokenFactory(req, res),
+    getIdTokenRaw: getIdTokenRawFactory(req, res),
+    getAccessTokenRaw: getAccessTokenRawFactory(req, res),
     getIntegerFlag: getIntegerFlagFactory(req, res),
     getOrganization: getOrganizationFactory(req, res),
     getPermission: getPermissionFactory(req, res),
