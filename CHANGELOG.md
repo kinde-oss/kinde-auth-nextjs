@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.1.3-alpha.0
+
+[compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.3...v2.1.3-alpha.0)
+
+### 🚀 Enhancements
+
+- Set cookie path to / ([83ef427](https://github.com/kinde-oss/kinde-auth-nextjs/commit/83ef427))
+
+### ❤️ Contributors
+
+- Peter Phanouvong ([@peterphanouvong](http://github.com/peterphanouvong))
+
 ## v2.1.3
 
 [compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.2...v2.1.3)
