@@ -88,7 +88,6 @@ export const appRouterSessionManager = (cookieStore) => ({
  * @returns {import('@kinde-oss/kinde-typescript-sdk').SessionManager}
  */
 export const pageRouterSessionManager = (req, res) => {
-  console.log('PAGE ROUTER');
   return {
     /**
      *

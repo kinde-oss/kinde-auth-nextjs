@@ -51,7 +51,7 @@ export default (request, endpoint) => {
       ? // @ts-ignore
         appRouterHandler(req, res)
       : // @ts-ignore
-        pagesRouterHandler(req, res);
+        pagesRouterHandler(req, res, request);
   };
 };
 
@@ -77,9 +77,10 @@ const appRouterHandler = async (req, res) => {
  *
  * @param {import('next').NextApiRequest} req
  * @param {import('next').NextApiResponse} res
+ * @param {{domain: string, clientId: string, clientSecret: string}} clientOptions
  * @returns
  */
-const pagesRouterHandler = async (req, res) => {
+const pagesRouterHandler = async (req, res, clientOptions) => {
   let {
     query: {kindeAuth: endpoint}
   } = req;
@@ -90,6 +91,6 @@ const pagesRouterHandler = async (req, res) => {
   const route = getRoute(endpoint);
   return route
     ? // @ts-ignore
-      await route(new PagesRouterClient(req, res))
+      await route(new PagesRouterClient(req, res, clientOptions))
     : res.status(404).end();
 };
