@@ -12,7 +12,7 @@ const initialState = {
   organization: null,
   permissions: [],
   user: null,
-  userOrganiaztions: [],
+  userOrganizations: [],
   getAccessToken: () => null,
   getBooleanFlag: () => null,
   getClaim: () => null,
