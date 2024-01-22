@@ -56,7 +56,6 @@ export const KindeProvider = ({children, options}) => {
     ...config.initialState
   });
 
-  // console.log('state', state);
   config.apiPath = options?.apiPath ? options.apiPath : '/api/auth';
 
   const setupUrl = `${config.apiPath}/setup`;
