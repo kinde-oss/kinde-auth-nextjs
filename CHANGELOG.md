@@ -1,7 +1,5 @@
 # Changelog
 
-## v2.1.3-alpha.1
-
 [compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.3-alpha.0...v2.1.3-alpha.1)
 
 ### 🚀 Enhancements
