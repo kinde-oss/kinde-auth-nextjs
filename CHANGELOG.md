@@ -1,5 +1,26 @@
 # Changelog
 
+## v2.1.3-alpha.1
+
+[compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.3-alpha.0...v2.1.3-alpha.1)
+
+### 🚀 Enhancements
+
+- Support multiple apps ([3b31a69](https://github.com/kinde-oss/kinde-auth-nextjs/commit/3b31a69))
+
+### 🩹 Fixes
+
+- Get refresh token client side ([0b262e7](https://github.com/kinde-oss/kinde-auth-nextjs/commit/0b262e7))
+
+### 🏡 Chore
+
+- **release:** V2.1.3-alpha.0 ([47982a1](https://github.com/kinde-oss/kinde-auth-nextjs/commit/47982a1))
+- Update version ([1afc302](https://github.com/kinde-oss/kinde-auth-nextjs/commit/1afc302))
+
+### ❤️ Contributors
+
+- Peter Phanouvong ([@peterphanouvong](http://github.com/peterphanouvong))
+
 ## v2.1.3-alpha.0
 
 [compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.3...v2.1.3-alpha.0)
