@@ -139,23 +139,30 @@ export const pageRouterSessionManager = (req, res) => {
      * @returns {Promise<void>}
      */
     removeSessionItem: (itemKey) => {
-      res?.setHeader(
-        'Set-Cookie',
-        cookie.serialize(itemKey, '', {path: '/', maxAge: -1})
-      );
+      res?.setHeader('Set-Cookie', [
+        cookie.serialize(itemKey, '', {path: '/', maxAge: -1}),
+        cookie.serialize(itemKey, '', {maxAge: -1})
+      ]);
     },
     destroySession: () => {
-      res?.setHeader(
-        'Set-Cookie',
-        [
+      res?.setHeader('Set-Cookie', [
+        ...[
           'id_token_payload',
           'id_token',
           'access_token_payload',
           'access_token',
           'user',
           'refresh_token'
-        ].map((name) => cookie.serialize(name, '', {path: '/', maxAge: -1}))
-      );
+        ].map((name) => cookie.serialize(name, '', {path: '/', maxAge: -1})),
+        ...[
+          'id_token_payload',
+          'id_token',
+          'access_token_payload',
+          'access_token',
+          'user',
+          'refresh_token'
+        ].map((name) => cookie.serialize(name, '', {maxAge: -1}))
+      ]);
     }
   };
 };
