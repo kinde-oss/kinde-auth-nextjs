@@ -19,6 +19,31 @@
 - Changelog revert ([7243dde](https://github.com/kinde-oss/kinde-auth-nextjs/commit/7243dde))
 - Revert changelog ([699a36b](https://github.com/kinde-oss/kinde-auth-nextjs/commit/699a36b))
 - **release:** V2.1.3-alpha.1 ([affdca4](https://github.com/kinde-oss/kinde-auth-nextjs/commit/affdca4))
+- **release:** V2.1.3-alpha.1 ([4b02c3a](https://github.com/kinde-oss/kinde-auth-nextjs/commit/4b02c3a))
+
+### ❤️ Contributors
+
+- Peter Phanouvong ([@peterphanouvong](http://github.com/peterphanouvong))
+
+## v2.1.3-alpha.1
+
+[compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.3-alpha.1...v2.1.3-alpha.1)
+
+### 🚀 Enhancements
+
+- Raw id and access tokens ([d094900](https://github.com/kinde-oss/kinde-auth-nextjs/commit/d094900))
+
+### 🩹 Fixes
+
+- Typo ([adec5c9](https://github.com/kinde-oss/kinde-auth-nextjs/commit/adec5c9))
+
+### 🏡 Chore
+
+- Remove comment ([b02bb50](https://github.com/kinde-oss/kinde-auth-nextjs/commit/b02bb50))
+- Bump version ([50a313f](https://github.com/kinde-oss/kinde-auth-nextjs/commit/50a313f))
+- Changelog revert ([7243dde](https://github.com/kinde-oss/kinde-auth-nextjs/commit/7243dde))
+- Revert changelog ([699a36b](https://github.com/kinde-oss/kinde-auth-nextjs/commit/699a36b))
+- **release:** V2.1.3-alpha.1 ([affdca4](https://github.com/kinde-oss/kinde-auth-nextjs/commit/affdca4))
 
 ### ❤️ Contributors
 
