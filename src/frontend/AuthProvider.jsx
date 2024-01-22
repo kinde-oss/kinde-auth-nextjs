@@ -45,18 +45,15 @@ const tokenFetcher = async (url) => {
     throw new Error('Failed to fetch token');
   }
 };
-
 /**
  *
- * @param {{children: import('react').ReactNode, options?: {apiPath: string} | undefined} props
+ * @param {children: import('react').ReactNode, options?: {apiPath: string} | undefined} props
  * @returns
  */
-export const KindeProvider = ({children, options}) => {
+export const KindeProvider = ({children}) => {
   const [state, setState] = useState({
     ...config.initialState
   });
-
-  config.apiPath = options?.apiPath ? options.apiPath : '/api/auth';
 
   const setupUrl = `${config.apiPath}/setup`;
 
@@ -75,12 +72,16 @@ export const KindeProvider = ({children, options}) => {
         organization,
         permissions,
         user,
-        userOrganizations
+        userOrganizations,
+        idTokenRaw
       } = tokens;
 
       const getAccessToken = () => accessToken;
+      const getAccessTokenRaw = () => accessTokenEncoded;
+      const getAccessTokenEncoded = () => accessTokenEncoded;
       const getToken = () => accessTokenEncoded;
       const getIdToken = () => idToken;
+      const getIdTokenRaw = () => idTokenRaw;
       const getPermissions = () => permissions;
       const getOrganization = () => organization;
       const getUser = () => user;
@@ -197,17 +198,24 @@ export const KindeProvider = ({children, options}) => {
       setState((previous) => ({
         ...previous,
         accessToken,
+        accessTokenEncoded,
+        accessTokenRaw: accessTokenEncoded,
         idToken,
+        idTokenRaw,
+        idTokenEncoded: idTokenRaw,
         isLoading: false,
         organization,
         permissions,
         user,
         userOrganizations,
         getAccessToken,
+        getAccessTokenRaw,
+        getAccessTokenEncoded,
         getBooleanFlag,
         getClaim,
         getFlag,
         getIdToken,
+        getIdTokenRaw,
         getIntegerFlag,
         getOrganization,
         getPermission,
@@ -237,11 +245,68 @@ export const KindeProvider = ({children, options}) => {
     }
   }, [state.user]);
 
+  // provide this stuff to the rest of your app
+  const {
+    user,
+    accessToken,
+    accessTokenRaw,
+    accessTokenEncoded,
+    idToken,
+    idTokenEncoded,
+    idTokenRaw,
+    getAccessToken,
+    getAccessTokenRaw,
+    getIdTokenRaw,
+    getToken,
+    getClaim,
+    getFlag,
+    getIdToken,
+    getBooleanFlag,
+    getStringFlag,
+    getIntegerFlag,
+    getOrganization,
+    getPermission,
+    getPermissions,
+    getUser,
+    getUserOrganizations,
+    permissions,
+    organization,
+    userOrganizations,
+    error,
+    isLoading
+  } = state;
+
   return (
     <AuthContext.Provider
       value={{
-        ...state,
-        isAuthenticated: !!state.user
+        user,
+        error,
+        accessToken,
+        idToken,
+        accessTokenEncoded,
+        accessTokenRaw,
+        idTokenEncoded,
+        idTokenRaw,
+        getAccessToken,
+        getAccessTokenRaw,
+        getToken,
+        getClaim,
+        getFlag,
+        getIdToken,
+        getIdTokenRaw,
+        getBooleanFlag,
+        getStringFlag,
+        getIntegerFlag,
+        getOrganization,
+        getPermission,
+        getPermissions,
+        getUser,
+        getUserOrganizations,
+        permissions,
+        organization,
+        userOrganizations,
+        isLoading,
+        isAuthenticated: !!user
       }}
     >
       {children}
