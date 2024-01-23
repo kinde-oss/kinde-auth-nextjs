@@ -45,7 +45,11 @@ const tokenFetcher = async (url) => {
     throw new Error('Failed to fetch token');
   }
 };
-
+/**
+ *
+ * @param {children: import('react').ReactNode, options?: {apiPath: string} | undefined} props
+ * @returns
+ */
 export const KindeProvider = ({children}) => {
   const [state, setState] = useState({
     ...config.initialState
@@ -68,12 +72,16 @@ export const KindeProvider = ({children}) => {
         organization,
         permissions,
         user,
-        userOrganizations
+        userOrganizations,
+        idTokenRaw
       } = tokens;
 
       const getAccessToken = () => accessToken;
+      const getAccessTokenRaw = () => accessTokenEncoded;
+      const getAccessTokenEncoded = () => accessTokenEncoded;
       const getToken = () => accessTokenEncoded;
       const getIdToken = () => idToken;
+      const getIdTokenRaw = () => idTokenRaw;
       const getPermissions = () => permissions;
       const getOrganization = () => organization;
       const getUser = () => user;
@@ -190,17 +198,24 @@ export const KindeProvider = ({children}) => {
       setState((previous) => ({
         ...previous,
         accessToken,
+        accessTokenEncoded,
+        accessTokenRaw: accessTokenEncoded,
         idToken,
+        idTokenRaw,
+        idTokenEncoded: idTokenRaw,
         isLoading: false,
         organization,
         permissions,
         user,
         userOrganizations,
         getAccessToken,
+        getAccessTokenRaw,
+        getAccessTokenEncoded,
         getBooleanFlag,
         getClaim,
         getFlag,
         getIdToken,
+        getIdTokenRaw,
         getIntegerFlag,
         getOrganization,
         getPermission,
@@ -234,8 +249,14 @@ export const KindeProvider = ({children}) => {
   const {
     user,
     accessToken,
+    accessTokenRaw,
+    accessTokenEncoded,
     idToken,
+    idTokenEncoded,
+    idTokenRaw,
     getAccessToken,
+    getAccessTokenRaw,
+    getIdTokenRaw,
     getToken,
     getClaim,
     getFlag,
@@ -262,11 +283,17 @@ export const KindeProvider = ({children}) => {
         error,
         accessToken,
         idToken,
+        accessTokenEncoded,
+        accessTokenRaw,
+        idTokenEncoded,
+        idTokenRaw,
         getAccessToken,
+        getAccessTokenRaw,
         getToken,
         getClaim,
         getFlag,
         getIdToken,
+        getIdTokenRaw,
         getBooleanFlag,
         getStringFlag,
         getIntegerFlag,

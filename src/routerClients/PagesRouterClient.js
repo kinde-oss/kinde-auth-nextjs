@@ -10,11 +10,22 @@ export default class PagesRouterClient extends RouterClient {
    * @param {import('next').NextApiRequest} req
    * @param {import('next').NextApiResponse} res
    */
-  constructor(req, res) {
+  constructor(req, res, clientOptions) {
     super();
+    const url = req.url.split('/');
+    url.pop();
+
     this.kindeClient = createKindeServerClient(
       config.grantType,
-      config.clientOptions
+      clientOptions
+        ? {
+            ...config.clientOptions,
+            authDomain: clientOptions.domain || '',
+            clientId: clientOptions.clientId || '',
+            clientSecret: clientOptions.clientSecret || '',
+            redirectURL: `${config.redirectURL}${url.join('/')}/kinde_callback`
+          }
+        : config.clientOptions
     );
     // @ts-ignore
     this.url = new URL(config.redirectURL + req.url);
