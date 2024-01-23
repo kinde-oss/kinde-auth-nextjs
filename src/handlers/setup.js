@@ -7,7 +7,9 @@ import RouterClient from '../routerClients/RouterClient';
  * @returns
  */
 export const setup = async (routerClient) => {
-  const user = await routerClient.sessionManager.getSessionItem('user');
+  const user = await routerClient.kindeClient.getUser(
+    routerClient.sessionManager
+  );
   if (user) {
     const accessTokenEncoded = await routerClient.sessionManager.getSessionItem(
       'access_token'
