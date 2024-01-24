@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.1.5
+
+[compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.4...v2.1.5)
+
+### 🏡 Chore
+
+- Update version ([5356126](https://github.com/kinde-oss/kinde-auth-nextjs/commit/5356126))
+- Update TS SDK version ([961e1e4](https://github.com/kinde-oss/kinde-auth-nextjs/commit/961e1e4))
+
+### ❤️ Contributors
+
+- Peter Phanouvong ([@peterphanouvong](http://github.com/peterphanouvong))
+
 ## v2.1.4
 
 [compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.3-alpha.1...v2.1.4)
