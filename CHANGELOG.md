@@ -1,5 +1,21 @@
 # Changelog
 
+## v2.1.6
+
+[compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.5...v2.1.6)
+
+### 🩹 Fixes
+
+- Setup ([784066f](https://github.com/kinde-oss/kinde-auth-nextjs/commit/784066f))
+
+### 🏡 Chore
+
+- Update version ([b06d9f2](https://github.com/kinde-oss/kinde-auth-nextjs/commit/b06d9f2))
+
+### ❤️ Contributors
+
+- Peter Phanouvong ([@peterphanouvong](http://github.com/peterphanouvong))
+
 ## v2.1.5
 
 [compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.4...v2.1.5)
