@@ -7,10 +7,11 @@ import RouterClient from '../routerClients/RouterClient';
  * @returns
  */
 export const setup = async (routerClient) => {
-  const user = await routerClient.kindeClient.getUser(
-    routerClient.sessionManager
-  );
-  if (user) {
+  try {
+    const user = await routerClient.kindeClient.getUser(
+      routerClient.sessionManager
+    );
+
     const accessTokenEncoded = await routerClient.sessionManager.getSessionItem(
       'access_token'
     );
@@ -60,7 +61,8 @@ export const setup = async (routerClient) => {
       featureFlags,
       userOrganizations
     });
-  } else {
-    return routerClient.json({error: 'Log in with Kinde'}, {status: 401});
+  } catch (error) {
+    console.error(error);
   }
+  return routerClient.json({error: 'Log in with Kinde'}, {status: 401});
 };
