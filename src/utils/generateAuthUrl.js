@@ -2,7 +2,7 @@ import {config} from '../config/index';
 import {generateCallbackUrl} from '../utils/generateCallbackUrl';
 
 export function generateAuthUrl(options, type = 'login') {
-  const {org_code, is_create_org, org_name = ''} = options;
+  const {org_code, is_create_org, org_name = '', login_hint} = options;
   const authUrl = new URL(config.issuerURL + config.issuerRoutes[type]);
 
   let searchParams = {
@@ -24,6 +24,10 @@ export function generateAuthUrl(options, type = 'login') {
 
   if (org_code) {
     searchParams.org_code = org_code;
+  }
+
+  if (login_hint) {
+    searchParams.login_hint = login_hint
   }
 
   if (is_create_org) {
