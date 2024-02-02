@@ -23,7 +23,9 @@ export function generateAuthUrl(options, type = 'login') {
 
   for (const [key, value] of Object.entries(options)) {
     if (key === 'kindeAuth') continue;
-    searchParams[key] = value;
+    if (value !== null && value !== undefined) {
+      searchParams[key] = value;
+    }
   }
 
   authUrl.search = new URLSearchParams(searchParams);
