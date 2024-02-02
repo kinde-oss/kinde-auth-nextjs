@@ -1,6 +1,17 @@
 # Changelog
 
+## v1.9.2
 
+[compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v1.9.1...v1.9.2)
+
+### 🩹 Fixes
+
+- Add nullish check on url params ([175dea0](https://github.com/kinde-oss/kinde-auth-nextjs/commit/175dea0))
+
+### ❤️ Contributors
+
+- Daniel Rivers ([@DanielRivers](http://github.com/DanielRivers))
+- 
 ## v1.9.1
 
 [compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/1.8.25...v1.9.1)
