@@ -5,7 +5,11 @@ import {flagDataTypeMap} from './AuthProvider.jsx';
  *
  * @returns {import('../../types.js').KindeState}
  */
-export const useKindeBrowserClient = () => {
+export const useKindeBrowserClient = (
+  apiPath = process.env.NEXT_PUBLIC_KINDE_AUTH_API_PATH ||
+    process.env.KINDE_AUTH_API_PATH ||
+    '/api/auth'
+) => {
   const [state, setState] = useState({
     accessToken: null,
     accessTokenRaw: null,
@@ -23,7 +27,8 @@ export const useKindeBrowserClient = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch('/api/auth/setup');
+      const setupUrl = `${apiPath}/setup`;
+      const res = await fetch(setupUrl);
       const kindeData = await res.json();
       if (res.status == 200) {
         setState({
