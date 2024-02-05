@@ -1,4 +1,3 @@
-import {GrantType} from '@kinde-oss/kinde-typescript-sdk';
 import {NextResponse} from 'next/server';
 
 export default class RouterClient {
