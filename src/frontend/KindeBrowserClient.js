@@ -1,6 +1,5 @@
 import {useEffect, useState} from 'react';
 import {flagDataTypeMap} from './AuthProvider.jsx';
-import {config} from '../config/index.js';
 
 /**
  *
