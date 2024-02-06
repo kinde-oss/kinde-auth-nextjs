@@ -1,5 +1,26 @@
 # Changelog
 
+## v2.1.7
+
+[compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.6...v2.1.7)
+
+### 🚀 Enhancements
+
+- Api path from env and as prop ([3997b85](https://github.com/kinde-oss/kinde-auth-nextjs/commit/3997b85))
+
+### 🏡 Chore
+
+- Remove unused import ([e8cf1f9](https://github.com/kinde-oss/kinde-auth-nextjs/commit/e8cf1f9))
+- **release:** V2.1.6 ([fdc8fc0](https://github.com/kinde-oss/kinde-auth-nextjs/commit/fdc8fc0))
+
+### ✅ Tests
+
+- ApiPath browser client ([dae1b88](https://github.com/kinde-oss/kinde-auth-nextjs/commit/dae1b88))
+
+### ❤️ Contributors
+
+- Peter Phanouvong ([@peterphanouvong](http://github.com/peterphanouvong))
+
 ## v2.1.6
 
 [compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.6...v2.1.6)
