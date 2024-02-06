@@ -3,3 +3,7 @@ dist
 .DS_Store
 coverage
 playground
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
