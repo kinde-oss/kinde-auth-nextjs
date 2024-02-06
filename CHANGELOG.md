@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1.8
+
+[compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.7...v2.1.8)
+
 ## v2.1.5
 
 [compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.4...v2.1.5)
