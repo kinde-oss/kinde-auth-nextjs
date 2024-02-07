@@ -11,7 +11,8 @@
     "build:watch": "genversion --es6 src/utils/version.js && rollup -c -w",
     "test": "jest",
     "release": "release-it",
-    "lint": "eslint --ignore-path .eslintignore --ext .js"
+    "lint": "eslint --ignore-path .eslintignore --ext .js",
+    "release:dry": "release-it --ci --dry-run --npm.tag=old-version"
   },
   "author": {
     "name": "Kinde",
