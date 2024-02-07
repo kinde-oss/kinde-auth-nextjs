@@ -6,7 +6,6 @@
   "globals": {
     "window": true,
     "module": true,
-    "jest": true
   },
   "extends": ["eslint:recommended", "prettier"],
   "parserOptions": {

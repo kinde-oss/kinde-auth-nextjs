@@ -1,17 +1,18 @@
 import {renderHook, waitFor} from '@testing-library/react';
 import {useKindeBrowserClient} from '../../src/frontend/KindeBrowserClient';
+import { expect, test, describe, beforeEach,afterEach, vi } from 'vitest'
 
 describe('useKindeBrowserClient', () => {
   beforeEach(() => {
-    jest.resetModules(); // Most important - it clears the cache
+    vi.resetModules(); // Most important - it clears the cache
   });
   afterEach(() => delete (global as any).fetch);
 
   test('should use default setup url', async () => {
-    const mockedFetch = jest.fn();
+    const mockedFetch = vi.fn();
     global.fetch = mockedFetch;
 
-    jest.spyOn(global, 'fetch').mockResolvedValue({
+    vi.spyOn(global, 'fetch').mockResolvedValue({
       json: () => Promise.resolve({}),
       ok: true
     } as any);
@@ -25,10 +26,10 @@ describe('useKindeBrowserClient', () => {
   });
 
   test('should use custom setup url when passed in as prop', async () => {
-    const mockedFetch = jest.fn();
+    const mockedFetch = vi.fn();
     global.fetch = mockedFetch;
 
-    jest.spyOn(global, 'fetch').mockResolvedValue({
+    vi.spyOn(global, 'fetch').mockResolvedValue({
       json: () => Promise.resolve({}),
       ok: true
     } as any);
@@ -46,10 +47,10 @@ describe('useKindeBrowserClient', () => {
   test('should use custom setup url when using .env variable', async () => {
     process.env.KINDE_AUTH_API_PATH = '/api/custom-auth';
 
-    const mockedFetch = jest.fn();
+    const mockedFetch = vi.fn();
     global.fetch = mockedFetch;
 
-    jest.spyOn(global, 'fetch').mockResolvedValue({
+    vi.spyOn(global, 'fetch').mockResolvedValue({
       json: () => Promise.resolve({}),
       ok: true
     } as any);
