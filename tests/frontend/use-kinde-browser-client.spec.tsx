@@ -1,12 +1,15 @@
 import {renderHook, waitFor} from '@testing-library/react';
 import {useKindeBrowserClient} from '../../src/frontend/KindeBrowserClient';
-import { expect, test, describe, beforeEach,afterEach, vi } from 'vitest'
+import {expect, test, describe, beforeEach, afterEach, vi} from 'vitest';
 
 describe('useKindeBrowserClient', () => {
   beforeEach(() => {
     vi.resetModules(); // Most important - it clears the cache
   });
-  afterEach(() => delete (global as any).fetch);
+
+  afterEach(() => {
+    delete (global as any).fetch;
+  });
 
   test('should use default setup url', async () => {
     const mockedFetch = vi.fn();
