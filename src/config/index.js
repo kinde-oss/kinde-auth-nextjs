@@ -1,5 +1,6 @@
 import {GrantType} from '@kinde-oss/kinde-typescript-sdk';
 import {version} from '../utils/version';
+import {removeTrailingSlash} from '../utils/removeTrailingSlash';
 
 /**
  * @type {import('../../types').KindeState}
@@ -30,25 +31,28 @@ const initialState = {
 
 const SESSION_PREFIX = 'pkce-verifier';
 
-const KINDE_SITE_URL = process.env.KINDE_SITE_URL;
+const KINDE_SITE_URL = removeTrailingSlash(process.env.KINDE_SITE_URL);
 
 // We need to use NEXT_PUBLIC for frontend vars
 const KINDE_AUTH_API_PATH =
-  process.env.NEXT_PUBLIC_KINDE_AUTH_API_PATH ||
-  process.env.KINDE_AUTH_API_PATH ||
+  removeTrailingSlash(process.env.NEXT_PUBLIC_KINDE_AUTH_API_PATH) ||
+  removeTrailingSlash(process.env.KINDE_AUTH_API_PATH) ||
   '/api/auth';
 
 const KINDE_POST_LOGIN_REDIRECT_URL =
-  process.env.KINDE_POST_LOGIN_REDIRECT_URL ||
-  process.env.KINDE_POST_LOGIN_URL_REDIRECT_URL;
-const KINDE_POST_LOGOUT_REDIRECT_URL =
-  process.env.KINDE_POST_LOGOUT_REDIRECT_URL;
+  removeTrailingSlash(process.env.KINDE_POST_LOGIN_REDIRECT_URL) ||
+  removeTrailingSlash(process.env.KINDE_POST_LOGIN_URL_REDIRECT_URL);
+const KINDE_POST_LOGOUT_REDIRECT_URL = removeTrailingSlash(
+  process.env.KINDE_POST_LOGOUT_REDIRECT_URL
+);
 
-const KINDE_ISSUER_URL = process.env.KINDE_ISSUER_URL;
+const KINDE_ISSUER_URL = removeTrailingSlash(process.env.KINDE_ISSUER_URL);
 const KINDE_CLIENT_ID = process.env.KINDE_CLIENT_ID;
 const KINDE_CLIENT_SECRET = process.env.KINDE_CLIENT_SECRET;
 const KINDE_AUDIENCE = process.env.KINDE_AUDIENCE;
-const KINDE_COOKIE_DOMAIN = process.env.KINDE_COOKIE_DOMAIN;
+const KINDE_COOKIE_DOMAIN = removeTrailingSlash(
+  process.env.KINDE_COOKIE_DOMAIN
+);
 
 export const config = {
   apiPath: KINDE_AUTH_API_PATH,
