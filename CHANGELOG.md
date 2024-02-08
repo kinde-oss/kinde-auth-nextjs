@@ -1,5 +1,24 @@
 # Changelog
 
+## v2.1.10
+
+[compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.7...v2.1.10)
+
+### 🩹 Fixes
+
+- Removing cookies across domains ([566c3f4](https://github.com/kinde-oss/kinde-auth-nextjs/commit/566c3f4))
+
+### 🏡 Chore
+
+- Bump v2.1.8 ([1cdd015](https://github.com/kinde-oss/kinde-auth-nextjs/commit/1cdd015))
+- Bump v2.1.8 ([54ec11b](https://github.com/kinde-oss/kinde-auth-nextjs/commit/54ec11b))
+- Remove traliing slashes for urls ([b48705e](https://github.com/kinde-oss/kinde-auth-nextjs/commit/b48705e))
+- **release:** V2.1.9 ([c41cc6a](https://github.com/kinde-oss/kinde-auth-nextjs/commit/c41cc6a))
+
+### ❤️ Contributors
+
+- Peter Phanouvong ([@peterphanouvong](http://github.com/peterphanouvong))
+
 ## v2.1.9
 
 [compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.7...v2.1.9)
