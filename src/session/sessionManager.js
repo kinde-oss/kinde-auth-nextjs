@@ -64,7 +64,10 @@ export const appRouterSessionManager = (cookieStore) => ({
    * @returns {Promise<void>}
    */
   removeSessionItem: (itemKey) => {
-    cookieStore.delete(itemKey);
+    cookieStore.set(itemKey, '', {
+      domain: config.cookieDomain ? config.cookieDomain : undefined,
+      maxAge: 0
+    });
   },
   /**
    * @returns {Promise<void>}
@@ -76,8 +79,14 @@ export const appRouterSessionManager = (cookieStore) => ({
       'access_token_payload',
       'access_token',
       'user',
-      'refresh_token'
-    ].forEach((name) => cookieStore.delete(name));
+      'refresh_token',
+      'post_login_redirect_url'
+    ].forEach((name) =>
+      cookieStore.set(name, '', {
+        domain: config.cookieDomain ? config.cookieDomain : undefined,
+        maxAge: 0
+      })
+    );
   }
 });
 
@@ -140,8 +149,11 @@ export const pageRouterSessionManager = (req, res) => {
      */
     removeSessionItem: (itemKey) => {
       res?.setHeader('Set-Cookie', [
-        cookie.serialize(itemKey, '', {path: '/', maxAge: -1}),
-        cookie.serialize(itemKey, '', {maxAge: -1})
+        cookie.serialize(itemKey, '', {
+          domain: config.cookieDomain ? config.cookieDomain : undefined,
+          path: '/',
+          maxAge: -1
+        })
       ]);
     },
     destroySession: () => {
@@ -152,16 +164,15 @@ export const pageRouterSessionManager = (req, res) => {
           'access_token_payload',
           'access_token',
           'user',
-          'refresh_token'
-        ].map((name) => cookie.serialize(name, '', {path: '/', maxAge: -1})),
-        ...[
-          'id_token_payload',
-          'id_token',
-          'access_token_payload',
-          'access_token',
-          'user',
-          'refresh_token'
-        ].map((name) => cookie.serialize(name, '', {maxAge: -1}))
+          'refresh_token',
+          'post_login_redirect_url'
+        ].map((name) =>
+          cookie.serialize(name, '', {
+            domain: config.cookieDomain ? config.cookieDomain : undefined,
+            path: '/',
+            maxAge: -1
+          })
+        )
       ]);
     }
   };
