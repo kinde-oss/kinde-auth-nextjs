@@ -1,5 +1,6 @@
 import React from 'react';
 import {config} from '../config/index';
+import {generateAuthUrlParams} from '../utils/generateAuthUrlParams';
 
 /**
  * @typedef {Object} PropsType
@@ -21,15 +22,11 @@ export function LoginLink({
   authUrlParams,
   ...props
 }) {
-  let params = new URLSearchParams();
-  let paramsObj = {};
-  if (orgCode != null) paramsObj.org_code = orgCode;
-  if (postLoginRedirectURL != null)
-    paramsObj.post_login_redirect_url = postLoginRedirectURL;
-
-  paramsObj = {...authUrlParams, ...paramsObj};
-
-  for (const key in paramsObj) params.append(key, paramsObj[key]);
+  const params = generateAuthUrlParams(
+    orgCode,
+    postLoginRedirectURL,
+    authUrlParams
+  );
 
   return (
     <a
