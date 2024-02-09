@@ -1,5 +1,24 @@
 # Changelog
 
+## v2.1.10
+
+[compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.9...v2.1.10)
+
+### 🩹 Fixes
+
+- Remove cookies from root domain ([8d2a332](https://github.com/kinde-oss/kinde-auth-nextjs/commit/8d2a332))
+
+### 🏡 Chore
+
+- **release:** V2.1.9 ([c41cc6a](https://github.com/kinde-oss/kinde-auth-nextjs/commit/c41cc6a))
+- **release:** V2.1.10 ([cf6bd83](https://github.com/kinde-oss/kinde-auth-nextjs/commit/cf6bd83))
+- **release:** V2.1.9 ([6c3394c](https://github.com/kinde-oss/kinde-auth-nextjs/commit/6c3394c))
+- Bump version ([cd3c65d](https://github.com/kinde-oss/kinde-auth-nextjs/commit/cd3c65d))
+
+### ❤️ Contributors
+
+- Peter Phanouvong ([@peterphanouvong](http://github.com/peterphanouvong))
+
 ## v2.1.9
 
 [compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.7...v2.1.9)
