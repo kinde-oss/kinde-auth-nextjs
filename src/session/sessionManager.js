@@ -155,6 +155,14 @@ export const pageRouterSessionManager = (req, res) => {
           maxAge: -1
         })
       ]);
+
+      // remove cookies from the root domain
+      res?.setHeader('Set-Cookie', [
+        cookie.serialize(itemKey, '', {
+          path: '/',
+          maxAge: -1
+        })
+      ]);
     },
     destroySession: () => {
       res?.setHeader('Set-Cookie', [
@@ -169,6 +177,24 @@ export const pageRouterSessionManager = (req, res) => {
         ].map((name) =>
           cookie.serialize(name, '', {
             domain: config.cookieDomain ? config.cookieDomain : undefined,
+            path: '/',
+            maxAge: -1
+          })
+        )
+      ]);
+
+      // remove cookies from the root domain
+      res?.setHeader('Set-Cookie', [
+        ...[
+          'id_token_payload',
+          'id_token',
+          'access_token_payload',
+          'access_token',
+          'user',
+          'refresh_token',
+          'post_login_redirect_url'
+        ].map((name) =>
+          cookie.serialize(name, '', {
             path: '/',
             maxAge: -1
           })
