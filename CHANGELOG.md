@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.1.11
+
+[compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.10...v2.1.11)
+
+### 🚀 Enhancements
+
+- Middleware to return to current page ([7dc8a68](https://github.com/kinde-oss/kinde-auth-nextjs/commit/7dc8a68))
+
+### 🏡 Chore
+
+- **release:** V2.1.10 ([97e1bae](https://github.com/kinde-oss/kinde-auth-nextjs/commit/97e1bae))
+- Update version ([fa80849](https://github.com/kinde-oss/kinde-auth-nextjs/commit/fa80849))
+
+### ❤️ Contributors
+
+- Peter Phanouvong ([@peterphanouvong](http://github.com/peterphanouvong))
+
 ## v2.1.10
 
 [compare changes](https://github.com/kinde-oss/kinde-auth-nextjs/compare/v2.1.9...v2.1.10)
