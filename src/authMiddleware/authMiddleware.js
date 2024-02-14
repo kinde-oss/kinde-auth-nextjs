@@ -34,8 +34,13 @@ export function authMiddleware(request) {
 const handleMiddleware = async (req, options, onSuccess) => {
   const {pathname} = req.nextUrl;
 
+  const isReturnToCurrentPage = options?.isReturnToCurrentPage;
   const loginPage = options?.loginPage || '/api/auth/login';
   const publicPaths = ['/_next', '/favicon.ico'];
+
+  const loginRedirectUrl = isReturnToCurrentPage
+    ? `${loginPage}?post_login_redirect_url=${pathname}`
+    : loginPage;
 
   if (loginPage == pathname || publicPaths.some((p) => pathname.startsWith(p)))
     return;
@@ -44,19 +49,16 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   if (!kindeToken) {
     const response = NextResponse.redirect(
-      new URL(
-        `${loginPage}?post_login_redirect_url=${pathname}`,
-        config.redirectURL
-      )
+      new URL(loginRedirectUrl, config.redirectURL)
     );
     return response;
   }
 
   const accessTokenValue = jwt_decode(req.cookies.get('access_token').value);
 
-  const isAuthorized =
-    options?.isAuthorized({req, token: accessTokenValue}) ??
-    isTokenValid(kindeToken.value);
+  const isAuthorized = options?.isAuthorized
+    ? options.isAuthorized({req, token: accessTokenValue})
+    : isTokenValid(kindeToken.value);
 
   if (isAuthorized && onSuccess) {
     return await onSuccess({
@@ -69,12 +71,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     return;
   }
 
-  return NextResponse.redirect(
-    new URL(
-      `${loginPage}?post_login_redirect_url=${pathname}`,
-      config.redirectURL
-    )
-  );
+  return NextResponse.redirect(new URL(loginRedirectUrl, config.redirectURL));
 };
 
 /**
