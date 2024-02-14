@@ -4,6 +4,7 @@ import {createOrg} from './createOrg';
 import {login} from './login';
 import {logout} from './logout';
 import {setup} from './setup';
+import {health} from './health';
 import {register} from './register';
 import AppRouterClient from '../routerClients/AppRouterClient';
 import PagesRouterClient from '../routerClients/PagesRouterClient';
@@ -19,6 +20,7 @@ const routeMap = {
   setup,
   login,
   logout,
+  health,
   kinde_callback: callback
 };
 
