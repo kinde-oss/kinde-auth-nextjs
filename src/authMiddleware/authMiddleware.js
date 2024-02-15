@@ -2,9 +2,7 @@ import jwt_decode from 'jwt-decode';
 import {NextResponse} from 'next/server';
 import {config} from '../config/index';
 import {isTokenValid} from '../utils/pageRouter/isTokenValid';
-
-const trimTrailingSlash = (str) =>
-  str && str.charAt(str.length - 1) === '/' ? str.slice(0, -1) : str;
+import {trimTrailingSlash} from '../utils/trimTrailingSlash'
 
 export function authMiddleware(request) {
   let isAuthenticated = false;

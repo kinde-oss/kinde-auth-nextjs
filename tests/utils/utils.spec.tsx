@@ -1,5 +1,6 @@
 import {generateAuthUrlParams} from '../../src/utils/generateAuthUrlParams'; // Assuming the function is exported from this file
 import {expect, test, describe} from 'vitest';
+import { trimTrailingSlash } from '../../src/utils/trimTrailingSlash'
 
 describe('generateAuthUrlParams', () => {
   test('should generate correct url parameters', () => {
@@ -50,3 +51,14 @@ describe('generateAuthUrlParams', () => {
     );
   });
 });
+
+
+describe('trimTrailingSlash', () => {
+  test ('slashes are trimmed', () => {
+    expect(trimTrailingSlash('test/')).toEqual('test')
+  })
+
+  test ('leave alone if no trailing', () => {
+    expect(trimTrailingSlash('test')).toEqual('test')
+  })
+})
