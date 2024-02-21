@@ -4,6 +4,12 @@ import {config} from '../config/index';
 
 var cookie = require('cookie');
 
+const cookieSecurity = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax'
+};
+
 /**
  *
  * @param {import('next').NextApiRequest} [req]
@@ -54,7 +60,10 @@ export const appRouterSessionManager = (cookieStore) => ({
       cookieStore.set(
         itemKey,
         typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
-        {domain: config.cookieDomain ? config.cookieDomain : undefined}
+        {
+          domain: config.cookieDomain ? config.cookieDomain : undefined,
+          ...cookieSecurity
+        }
       );
     }
   },
@@ -66,7 +75,8 @@ export const appRouterSessionManager = (cookieStore) => ({
   removeSessionItem: (itemKey) => {
     cookieStore.set(itemKey, '', {
       domain: config.cookieDomain ? config.cookieDomain : undefined,
-      maxAge: 0
+      maxAge: 0,
+      ...cookieSecurity
     });
   },
   /**
@@ -84,7 +94,8 @@ export const appRouterSessionManager = (cookieStore) => ({
     ].forEach((name) =>
       cookieStore.set(name, '', {
         domain: config.cookieDomain ? config.cookieDomain : undefined,
-        maxAge: 0
+        maxAge: 0,
+        ...cookieSecurity
       })
     );
   }
@@ -137,7 +148,8 @@ export const pageRouterSessionManager = (req, res) => {
           typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
           {
             domain: config.cookieDomain ? config.cookieDomain : undefined,
-            path: '/'
+            path: '/',
+            ...cookieSecurity
           }
         )
       ]);
@@ -160,7 +172,8 @@ export const pageRouterSessionManager = (req, res) => {
       res?.setHeader('Set-Cookie', [
         cookie.serialize(itemKey, '', {
           path: '/',
-          maxAge: -1
+          maxAge: -1,
+          ...cookieSecurity
         })
       ]);
     },
@@ -178,7 +191,8 @@ export const pageRouterSessionManager = (req, res) => {
           cookie.serialize(name, '', {
             domain: config.cookieDomain ? config.cookieDomain : undefined,
             path: '/',
-            maxAge: -1
+            maxAge: -1,
+            ...cookieSecurity
           })
         )
       ]);
@@ -196,7 +210,8 @@ export const pageRouterSessionManager = (req, res) => {
         ].map((name) =>
           cookie.serialize(name, '', {
             path: '/',
-            maxAge: -1
+            maxAge: -1,
+            ...cookieSecurity
           })
         )
       ]);
