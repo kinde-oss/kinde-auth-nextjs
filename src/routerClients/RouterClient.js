@@ -1,23 +1,24 @@
 import {NextResponse} from 'next/server';
 
 export default class RouterClient {
+  /** @type {import('../../types').KindeClient} */
+  kindeClient = null;
+  /** @type {URL} */
+  url;
+  /** @type {import('@kinde-oss/kinde-typescript-sdk').SessionManager} */
+  sessionManager;
+  /** @type {import('next').NextApiResponse | *} */
+  res;
+  /** @type {import('next').NextApiRequest | NextResponse | *} */
+  req;
+  /** @type {URLSearchParams} */
+  searchParams;
+ 
   constructor() {
     if (this.constructor == RouterClient) {
       throw new Error("Abstract classes can't be instantiated.");
     }
-    /** @type {import('../../types').KindeClient} */
-    this.kindeClient;
-    /** @type {URL} */
-    this.url;
-    /** @type {import('@kinde-oss/kinde-typescript-sdk').SessionManager} */
-    this.sessionManager;
-    /** @type {import('next').NextApiResponse | *} */
-    this.res;
-    /** @type {import('next').NextApiRequest | NextResponse | *} */
-    this.req;
-    /** @type {URLSearchParams} */
-    this.searchParams;
-  }
+   }
 
   /**
    *
