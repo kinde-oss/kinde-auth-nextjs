@@ -4,12 +4,14 @@ import {config} from '../config/index';
 
 var cookie = require('cookie');
 
+const TWENTY_NINE_DAYS = 2505600;
+
 export const GLOBAL_COOKIE_OPTIONS = {
   sameSite: 'lax',
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  path: '/',
-}
+  path: '/'
+};
 
 const COOKIE_LIST = [
   'id_token_payload',
@@ -19,7 +21,7 @@ const COOKIE_LIST = [
   'user',
   'refresh_token',
   'post_login_redirect_url'
-]
+];
 
 /**
  *
@@ -72,6 +74,7 @@ export const appRouterSessionManager = (cookieStore) => ({
         itemKey,
         typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
         {
+          maxAge: TWENTY_NINE_DAYS,
           domain: config.cookieDomain ? config.cookieDomain : undefined,
           ...GLOBAL_COOKIE_OPTIONS
         }
@@ -151,7 +154,8 @@ export const pageRouterSessionManager = (req, res) => {
           typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
           {
             domain: config.cookieDomain ? config.cookieDomain : undefined,
-            ...GLOBAL_COOKIE_OPTIONS
+            ...GLOBAL_COOKIE_OPTIONS,
+            maxAge: TWENTY_NINE_DAYS
           }
         )
       ]);
