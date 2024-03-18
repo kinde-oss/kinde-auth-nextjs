@@ -4,6 +4,25 @@ import {config} from '../config/index';
 
 var cookie = require('cookie');
 
+const TWENTY_NINE_DAYS = 2505600;
+
+export const GLOBAL_COOKIE_OPTIONS = {
+  sameSite: 'lax',
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  path: '/'
+};
+
+const COOKIE_LIST = [
+  'id_token_payload',
+  'id_token',
+  'access_token_payload',
+  'access_token',
+  'user',
+  'refresh_token',
+  'post_login_redirect_url'
+];
+
 /**
  *
  * @param {import('next').NextApiRequest} [req]
@@ -54,7 +73,11 @@ export const appRouterSessionManager = (cookieStore) => ({
       cookieStore.set(
         itemKey,
         typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
-        {domain: config.cookieDomain ? config.cookieDomain : undefined}
+        {
+          maxAge: TWENTY_NINE_DAYS,
+          domain: config.cookieDomain ? config.cookieDomain : undefined,
+          ...GLOBAL_COOKIE_OPTIONS
+        }
       );
     }
   },
@@ -66,25 +89,19 @@ export const appRouterSessionManager = (cookieStore) => ({
   removeSessionItem: (itemKey) => {
     cookieStore.set(itemKey, '', {
       domain: config.cookieDomain ? config.cookieDomain : undefined,
-      maxAge: 0
+      maxAge: 0,
+      ...GLOBAL_COOKIE_OPTIONS
     });
   },
   /**
    * @returns {Promise<void>}
    */
   destroySession: () => {
-    [
-      'id_token_payload',
-      'id_token',
-      'access_token_payload',
-      'access_token',
-      'user',
-      'refresh_token',
-      'post_login_redirect_url'
-    ].forEach((name) =>
+    COOKIE_LIST.forEach((name) =>
       cookieStore.set(name, '', {
         domain: config.cookieDomain ? config.cookieDomain : undefined,
-        maxAge: 0
+        maxAge: 0,
+        ...GLOBAL_COOKIE_OPTIONS
       })
     );
   }
@@ -137,7 +154,8 @@ export const pageRouterSessionManager = (req, res) => {
           typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
           {
             domain: config.cookieDomain ? config.cookieDomain : undefined,
-            path: '/'
+            ...GLOBAL_COOKIE_OPTIONS,
+            maxAge: TWENTY_NINE_DAYS
           }
         )
       ]);
@@ -151,8 +169,8 @@ export const pageRouterSessionManager = (req, res) => {
       res?.setHeader('Set-Cookie', [
         cookie.serialize(itemKey, '', {
           domain: config.cookieDomain ? config.cookieDomain : undefined,
-          path: '/',
-          maxAge: -1
+          maxAge: -1,
+          ...GLOBAL_COOKIE_OPTIONS
         })
       ]);
 
@@ -160,43 +178,28 @@ export const pageRouterSessionManager = (req, res) => {
       res?.setHeader('Set-Cookie', [
         cookie.serialize(itemKey, '', {
           path: '/',
-          maxAge: -1
+          maxAge: -1,
+          ...GLOBAL_COOKIE_OPTIONS
         })
       ]);
     },
     destroySession: () => {
       res?.setHeader('Set-Cookie', [
-        ...[
-          'id_token_payload',
-          'id_token',
-          'access_token_payload',
-          'access_token',
-          'user',
-          'refresh_token',
-          'post_login_redirect_url'
-        ].map((name) =>
+        ...COOKIE_LIST.map((name) =>
           cookie.serialize(name, '', {
             domain: config.cookieDomain ? config.cookieDomain : undefined,
-            path: '/',
-            maxAge: -1
+            maxAge: -1,
+            ...GLOBAL_COOKIE_OPTIONS
           })
         )
       ]);
 
       // remove cookies from the root domain
       res?.setHeader('Set-Cookie', [
-        ...[
-          'id_token_payload',
-          'id_token',
-          'access_token_payload',
-          'access_token',
-          'user',
-          'refresh_token',
-          'post_login_redirect_url'
-        ].map((name) =>
+        ...COOKIE_LIST.map((name) =>
           cookie.serialize(name, '', {
-            path: '/',
-            maxAge: -1
+            maxAge: -1,
+            ...GLOBAL_COOKIE_OPTIONS
           })
         )
       ]);
