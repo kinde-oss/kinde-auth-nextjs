@@ -36,7 +36,13 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
   const loginPage = options?.loginPage || '/api/auth/login';
-  const publicPaths = ['/_next', '/favicon.ico'];
+
+  let publicPaths = ['/_next', '/favicon.ico'];
+  if (options?.publicPaths !== undefined) {
+    if (Array.isArray(options?.publicPaths)) {
+      publicPaths = options.publicPaths;
+    }
+  }
 
   const loginRedirectUrl = isReturnToCurrentPage
     ? `${loginPage}?post_login_redirect_url=${pathname}`
