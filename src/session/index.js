@@ -12,6 +12,8 @@ import {getUserOrganizationsFactory} from './getUserOrganizations';
 import {isAuthenticatedFactory} from './isAuthenticated';
 import {getAccessTokenRawFactory} from './getAccessTokenRaw';
 import {getIdTokenRawFactory} from './getIdTokenRaw';
+import {kindeClient} from './kindeServerClient';
+import {sessionManager} from './sessionManager';
 
 /**
  *
@@ -21,6 +23,7 @@ import {getIdTokenRawFactory} from './getIdTokenRaw';
  */
 export default function (req, res) {
   return {
+    refreshTokens: () => kindeClient.refreshTokens(sessionManager(req, res)),
     getAccessToken: getAccessTokenFactory(req, res),
     getBooleanFlag: getBooleanFlagFactory(req, res),
     getFlag: getFlagFactory(req, res),
