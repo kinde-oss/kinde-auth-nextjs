@@ -23,7 +23,17 @@ import {sessionManager} from './sessionManager';
  */
 export default function (req, res) {
   return {
-    refreshTokens: () => kindeClient.refreshTokens(sessionManager(req, res)),
+    refreshTokens: async () => {
+      try {
+        const response = await kindeClient.refreshTokens(
+          sessionManager(req, res)
+        );
+        return response;
+      } catch (error) {
+        console.error('Error refreshing tokens', error);
+        return null;
+      }
+    },
     getAccessToken: getAccessTokenFactory(req, res),
     getBooleanFlag: getBooleanFlagFactory(req, res),
     getFlag: getFlagFactory(req, res),
