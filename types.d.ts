@@ -16,7 +16,10 @@ export type KindeAccessToken = {
   iss: string;
   jti: string;
   org_code: string;
+  org_name?: string;
   permissions: KindePermissions;
+  roles?: KindeRole[];
+  email?: string;
   scp: string[];
   sub: string;
 };
@@ -56,6 +59,12 @@ export type KindePermission = {
   isGranted: boolean;
   orgCode: string | null;
 };
+
+export type KindeRole = {
+  id: string;
+  key: string;
+  name: string;
+}
 
 export type KindeFlagRaw = {
   t: KindeFlagTypeCode;
