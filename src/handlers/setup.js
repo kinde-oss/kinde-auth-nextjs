@@ -61,8 +61,6 @@ export const setup = async (routerClient) => {
       featureFlags,
       userOrganizations
     });
-  } catch (error) {
-    console.error(error);
-  }
+  } catch (error) {}
   return routerClient.json({error: 'Log in with Kinde'}, {status: 401});
 };
