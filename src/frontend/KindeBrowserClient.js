@@ -193,7 +193,7 @@ export const useKindeBrowserClient = (
    */
   const getPermission = (key) => {
     return {
-      isGranted: state.permissions.some((p) => p === key),
+      isGranted: state.permissions.permissions.some((p) => p === key),
       orgCode: state.organization
     };
   };
