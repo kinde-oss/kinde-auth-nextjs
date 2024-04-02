@@ -45,6 +45,12 @@
         "types": "./dist/types/middleware/index.d.ts",
         "default": "./dist/middleware/cjs/index.js"
       }
+    },
+    "./types": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/types.js"
+      }
     }
   },
   "scripts": {
