@@ -60,8 +60,7 @@
     "test": "jest",
     "release": "release-it",
     "lint": "eslint --ignore-path .eslintignore --ext .js",
-    "dev:prepare": "rm -rf playground && git clone https://github.com/kinde-starter-kits/kinde-nextjs-app-router-starter-kit playground && npm link && cd playground && mv .env.local.sample .env.local && npm uninstall @kinde-oss/kinde-auth-nextjs && rm -rf .git && npm link @kinde-oss/kinde-auth-nextjs",
-    "dev": "cd playground && npm run dev"
+    "dev": "cd playground && pnpm run dev"
   },
   "author": {
     "name": "Kinde",
