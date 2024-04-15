@@ -59,7 +59,8 @@ export const callback = async (req, res) => {
             expires: new Date(accessToken.exp * 1000),
             sameSite: 'lax',
             secure: config.redirectURL.substring(0, 6) == 'https:',
-            path: '/'
+            path: '/',
+            domain: config.cookieDomain ? config.cookieDomain : undefined
           })
         );
       } else {

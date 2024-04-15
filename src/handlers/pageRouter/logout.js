@@ -10,7 +10,8 @@ export const logout = async (req, res) => {
       expires: new Date(0),
       sameSite: 'lax',
       secure: config.redirectURL.substring(0, 6) == 'https:',
-      path: '/'
+      path: '/',
+      domain: config.cookieDomain ? config.cookieDomain : undefined
     })
   );
 

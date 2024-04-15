@@ -70,7 +70,8 @@ export const callback = async (request) => {
           expires: new Date(payload.exp * 1000),
           sameSite: 'lax',
           secure: config.redirectURL.substring(0, 6) == 'https:',
-          path: '/'
+          path: '/',
+          domain: config.cookieDomain ? config.cookieDomain : undefined
         });
       } else {
         console.error('One or more of the claims were not verified.');

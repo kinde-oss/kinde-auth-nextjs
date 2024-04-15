@@ -11,7 +11,8 @@ export const logout = async (request) => {
     expires: new Date(0),
     sameSite: 'lax',
     secure: config.redirectURL.substring(0, 6) == 'https:',
-    path: '/'
+    path: '/',
+    domain: config.cookieDomain ? config.cookieDomain : undefined
   });
 
   const logoutURL = new URL(config.issuerURL + config.issuerRoutes.logout);
