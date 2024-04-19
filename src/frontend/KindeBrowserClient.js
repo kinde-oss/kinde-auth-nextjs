@@ -192,8 +192,10 @@ export const useKindeBrowserClient = (
    * @returns {import('../../types.js').KindePermission}
    */
   const getPermission = (key) => {
+    if (!state.permissions) return { isGranted: false, orgCode: null };
+
     return {
-      isGranted: state.permissions.permissions.some((p) => p === key),
+      isGranted: state.permissions.permissions?.some((p) => p === key),
       orgCode: state.organization
     };
   };
@@ -201,6 +203,7 @@ export const useKindeBrowserClient = (
   return {
     ...state,
     isAuthenticated: !!state.user,
+    getUser: () => state.user,
     getIdTokenRaw,
     getPermission,
     getBooleanFlag,
