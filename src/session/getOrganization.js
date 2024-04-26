@@ -1,5 +1,6 @@
 import {sessionManager} from './sessionManager';
 import {kindeClient} from './kindeServerClient';
+import {config} from '../config';
 /**
  * @callback getOrganization
  * @returns {Promise<import('../../types').KindeOrganization | null>}
@@ -36,6 +37,9 @@ export const getOrganizationFactory = (req, res) => async () => {
       }
     };
   } catch (error) {
+    if (config.isDebugMode) {
+      console.error(error);
+    }
     return null;
   }
 };

@@ -1,5 +1,6 @@
 import {sessionManager} from './sessionManager';
 import {kindeClient} from './kindeServerClient';
+import {config} from '../config';
 
 /**
  * @callback getUser
@@ -34,6 +35,9 @@ export const getUserFactory = (req, res) => async () => {
       }
     };
   } catch (error) {
+    if (config.isDebugMode) {
+      console.error(error);
+    }
     return null;
   }
 };

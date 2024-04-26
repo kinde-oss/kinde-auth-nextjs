@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import {flagDataTypeMap} from './AuthProvider.jsx';
+import {config} from '../config/index.js';
 
 /**
  *
@@ -108,7 +109,7 @@ export const useKindeBrowserClient = (
       return flag.value;
     } catch (err) {
       if (config.isDebugMode) {
-        console.error(error);
+        console.error(err);
       }
       err;
     }
@@ -126,7 +127,7 @@ export const useKindeBrowserClient = (
       return flag.value;
     } catch (err) {
       if (config.isDebugMode) {
-        console.error(error);
+        console.error(err);
       }
       err;
     }

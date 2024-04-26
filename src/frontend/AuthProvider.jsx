@@ -232,6 +232,9 @@ export const KindeProvider = ({children}) => {
         getUserOrganizations
       }));
     } catch (error) {
+      if (config.isDebugMode) {
+        console.error(error);
+      }
       // @ts-ignore
       setState((previous) => ({...previous, isLoading: false, error: error}));
     }

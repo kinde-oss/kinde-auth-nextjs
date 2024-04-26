@@ -1,5 +1,6 @@
 import {sessionManager} from './sessionManager';
 import {kindeClient} from './kindeServerClient';
+import {config} from '../config';
 
 /**
  * @callback getClaim
@@ -23,6 +24,9 @@ export const getClaimFactory = (req, res) => async (claim, type) => {
     );
     return kindeClaim;
   } catch (error) {
+    if (config.isDebugMode) {
+      console.error(error);
+    }
     return null;
   }
 };
