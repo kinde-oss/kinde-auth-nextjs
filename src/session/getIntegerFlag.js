@@ -19,7 +19,9 @@ export const getIntegerFlagFactory =
       const flag = await getFlagFactory(req, res)(code, defaultValue, 'i');
       return flag.value;
     } catch (err) {
-      console.error(err);
+      if (config.isDebugMode) {
+        console.error(err);
+      }
       return null;
     }
   };

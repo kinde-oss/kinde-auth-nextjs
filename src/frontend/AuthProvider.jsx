@@ -149,7 +149,9 @@ export const KindeProvider = ({children}) => {
           const flag = getFlag(code, defaultValue, 'b');
           return flag.value;
         } catch (err) {
-          console.error(err);
+          if (config.isDebugMode) {
+            console.error(err);
+          }
         }
       };
 
@@ -164,7 +166,9 @@ export const KindeProvider = ({children}) => {
           const flag = getFlag(code, defaultValue, 's');
           return flag.value;
         } catch (err) {
-          console.error(err);
+          if (config.isDebugMode) {
+            console.error(err);
+          }
         }
       };
 
@@ -179,7 +183,9 @@ export const KindeProvider = ({children}) => {
           const flag = getFlag(code, defaultValue, 'i');
           return flag.value;
         } catch (err) {
-          console.error(err);
+          if (config.isDebugMode) {
+            console.error(err);
+          }
         }
       };
 

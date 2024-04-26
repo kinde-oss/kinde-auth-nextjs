@@ -32,7 +32,9 @@ export default function (req, res) {
         );
         return response;
       } catch (error) {
-        console.error('Error refreshing tokens', error);
+        if (config.isDebugMode) {
+          console.error(error);
+        }
         return null;
       }
     },
