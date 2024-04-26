@@ -45,6 +45,27 @@ export const setup = async (routerClient) => {
       'id_token'
     );
 
+    const orgName = await routerClient.kindeClient.getClaimValue(
+      routerClient.sessionManager,
+      'org_name'
+    );
+
+    const orgProperties = await routerClient.kindeClient.getClaimValue(
+      routerClient.sessionManager,
+      'organization_properties'
+    );
+
+    const userProperties = await routerClient.kindeClient.getClaimValue(
+      routerClient.sessionManager,
+      'user_properties'
+    );
+
+    const orgNames = await routerClient.kindeClient.getClaimValue(
+      routerClient.sessionManager,
+      'organizations',
+      'id_token'
+    );
+
     return routerClient.json({
       accessToken,
       accessTokenEncoded,
@@ -52,14 +73,44 @@ export const setup = async (routerClient) => {
       idToken,
       idTokenRaw: idTokenEncoded,
       idTokenEncoded,
-      user,
+      user: {
+        ...user,
+        properties: {
+          city: userProperties?.kp_usr_city?.v,
+          industry: userProperties?.kp_usr_industry?.v,
+          job_title: userProperties?.kp_usr_job_title?.v,
+          middle_name: userProperties?.kp_usr_middle_name?.v,
+          postcode: userProperties?.kp_usr_postcode?.v,
+          salutation: userProperties?.kp_usr_salutation?.v,
+          state_region: userProperties?.kp_usr_state_region?.v,
+          street_address: userProperties?.kp_usr_street_address?.v,
+          street_address_2: userProperties?.kp_usr_street_address_2?.v
+        }
+      },
       permissions: {
         permissions,
         orgCode: organization
       },
-      organization,
+      organization: {
+        orgCode: organization,
+        orgName,
+        properties: {
+          city: orgProperties?.kp_org_city?.v,
+          industry: orgProperties?.kp_org_industry?.v,
+          postcode: orgProperties?.kp_org_postcode?.v,
+          state_region: orgProperties?.kp_org_state_region?.v,
+          street_address: orgProperties?.kp_org_street_address?.v,
+          street_address_2: orgProperties?.kp_org_street_address_2?.v
+        }
+      },
       featureFlags,
-      userOrganizations
+      userOrganizations: {
+        orgCodes: userOrganizations,
+        orgs: orgNames.map((org) => ({
+          code: org?.id,
+          name: org?.name
+        }))
+      }
     });
   } catch (error) {
     console.error(error);
