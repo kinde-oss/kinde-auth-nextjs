@@ -113,7 +113,9 @@ export const setup = async (routerClient) => {
       }
     });
   } catch (error) {
-    console.error(error);
+    if (config.isDebugMode) {
+      console.error(error);
+    }
   }
   return routerClient.json({error: 'Log in with Kinde'}, {status: 401});
 };
