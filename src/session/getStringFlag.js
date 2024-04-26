@@ -1,4 +1,5 @@
 import {getFlagFactory} from './getFlag';
+import {config} from '../config';
 /**
  * @callback getStringFlag
  * @param {string} code

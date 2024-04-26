@@ -1,5 +1,6 @@
 import {sessionManager} from './sessionManager';
 import {kindeClient} from './kindeServerClient';
+import {config} from '../config';
 /**
  * @callback getRoles
  * @returns {Promise<import('../../types').KindeRoles | null>}
@@ -19,6 +20,9 @@ export const getRolesFactory = (req, res) => async () => {
     );
     return roles;
   } catch (error) {
+    if (config.isDebugMode) {
+      console.error(error);
+    }
     return null;
   }
 };

@@ -1,5 +1,6 @@
 import {sessionManager} from './sessionManager';
 import {kindeClient} from './kindeServerClient';
+import {config} from '../config';
 /**
  * @callback getPermissions
  * @returns {Promise<import('../../types').KindePermissions | null>}
@@ -18,6 +19,9 @@ export const getPermissionsFactory = (req, res) => async () => {
     );
     return permissions;
   } catch (error) {
+    if (config.isDebugMode) {
+      console.error(error);
+    }
     return null;
   }
 };
