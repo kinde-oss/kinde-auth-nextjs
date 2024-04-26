@@ -14,6 +14,8 @@ import {getAccessTokenRawFactory} from './getAccessTokenRaw';
 import {getIdTokenRawFactory} from './getIdTokenRaw';
 import {kindeClient} from './kindeServerClient';
 import {sessionManager} from './sessionManager';
+import {getRolesFactory} from './getRoles';
+import {getClaimFactory} from './getClaim';
 
 /**
  *
@@ -47,6 +49,8 @@ export default function (req, res) {
     getStringFlag: getStringFlagFactory(req, res),
     getUser: getUserFactory(req, res),
     getUserOrganizations: getUserOrganizationsFactory(req, res),
-    isAuthenticated: isAuthenticatedFactory(req, res)
+    isAuthenticated: isAuthenticatedFactory(req, res),
+    getRoles: getRolesFactory(req, res),
+    getClaim: getClaimFactory(req, res)
   };
 }
