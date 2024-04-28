@@ -7,5 +7,5 @@ export {
   RegisterLink
 } from '../components/index';
 export {createKindeManagementAPIClient} from '../api-client';
-export { default as handleAuth } from '../handlers/auth';
-export { default as protectPage} from '../handlers/protect';
+export {default as handleAuth} from '../handlers/auth';
+export {default as protectPage} from '../handlers/protect';
