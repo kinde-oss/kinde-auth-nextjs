@@ -13,7 +13,7 @@ import {redirect} from 'next/navigation';
  */
 
 const protectPage =
-  (page, config = {redirect: '/api/login', statusCode: 302}) =>
+  (page, config = {redirect: '/api/auth/login', statusCode: 302}) =>
   async (props) => {
     const {isAuthenticated, getAccessToken, getPermission, getPermissions} =
       kinde();
