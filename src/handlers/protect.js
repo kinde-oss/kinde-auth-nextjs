@@ -15,7 +15,8 @@ import {redirect} from 'next/navigation';
 const protectPage =
   (page, config = {redirect: '/api/login', statusCode: 302}) =>
   async (props) => {
-    const {isAuthenticated, getAccessToken, getPermission} = kinde();
+    const {isAuthenticated, getAccessToken, getPermission, getPermissions} =
+      kinde();
     const isSignedIn = await isAuthenticated();
 
     if (!isSignedIn) {
@@ -38,10 +39,12 @@ const protectPage =
     }
 
     if (Array.isArray(config.permissions)) {
-      const hasPermission = await Promise.all(
-        config.permissions.map((permission) => getPermission(permission))
-      );
-      if (!hasPermission.some((permission) => permission)) {
+      const permissions = await getPermissions();
+      if (
+        !config.permissions.some((permission) =>
+          permissions.includes(permission)
+        )
+      ) {
         return redirect(config.redirect, {statusCode});
       }
     }
