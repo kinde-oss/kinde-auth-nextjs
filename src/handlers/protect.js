@@ -17,36 +17,42 @@ const protectPage =
   async (props) => {
     const {isAuthenticated, getAccessToken, getPermission, getPermissions} =
       kinde();
-    const isSignedIn = await isAuthenticated();
+    try {
+      const isSignedIn = await isAuthenticated();
 
-    if (!isSignedIn) {
-      return redirect(config.redirect, {statusCode});
-    }
-
-    if (config.role) {
-      const token = await getAccessToken();
-      const roles = token?.roles;
-      if (!roles || !config.role.some((role) => roles.includes(role))) {
+      if (!isSignedIn) {
         return redirect(config.redirect, {statusCode});
       }
-    }
 
-    if (typeof config.permissions === 'string') {
-      const hasPermission = await getPermission(config.permissions);
-      if (!hasPermission) {
-        return redirect(config.redirect, {statusCode});
+      if (config.role) {
+        const token = await getAccessToken();
+        const roles = token?.roles;
+        if (!roles || !config.role.some((role) => roles.includes(role))) {
+          return redirect(config.redirect, {statusCode});
+        }
       }
-    }
 
-    if (Array.isArray(config.permissions)) {
-      const permissions = await getPermissions();
-      if (
-        !config.permissions.some((permission) =>
-          permissions.includes(permission)
-        )
-      ) {
-        return redirect(config.redirect, {statusCode});
+      if (typeof config.permissions === 'string') {
+        const hasPermission = await getPermission(config.permissions);
+        if (!hasPermission) {
+          return redirect(config.redirect, {statusCode});
+        }
       }
+
+      if (Array.isArray(config.permissions)) {
+        const permissions = await getPermissions();
+        if (
+          !config.permissions.some((permission) =>
+            permissions.includes(permission)
+          )
+        ) {
+          return redirect(config.redirect, {statusCode});
+        }
+      }
+    } catch (error) {
+      // return redirect(config.redirect, {statusCode});
+      console.error('Error protecting page', error);
+      return null;
     }
 
     return page(props);
