@@ -205,7 +205,7 @@ export const useKindeBrowserClient = (
 
     return {
       isGranted: state.permissions.permissions?.some((p) => p === key),
-      orgCode: state.organization
+      orgCode: state.organization?.orgCode
     };
   };
 
