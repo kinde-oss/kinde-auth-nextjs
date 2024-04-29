@@ -3,24 +3,26 @@ import {kindeClient} from './kindeServerClient';
 import {config} from '../config/index';
 
 /**
- * @callback getPermission
- *  @param {string} name
- * @returns {Promise<import('../../types').KindePermission | null>}
+ * @callback getClaim
+ *  @param {string} claim
+ *  @param {"access_token" | "id_token"} [type]
+ * @returns {Promise<{name: string, value: string}> | null>}
  */
 
 /**
  *
  * @param {import('next').NextApiRequest} [req]
  * @param {import('next').NextApiResponse} [res]
- * @returns {getPermission}
+ * @returns {getClaim}
  */
-export const getPermissionFactory = (req, res) => async (name) => {
+export const getClaimFactory = (req, res) => async (claim, type) => {
   try {
-    const permission = await kindeClient.getPermission(
+    const kindeClaim = await kindeClient.getClaim(
       sessionManager(req, res),
-      name
+      claim,
+      type
     );
-    return permission;
+    return kindeClaim;
   } catch (error) {
     if (config.isDebugMode) {
       console.error(error);
