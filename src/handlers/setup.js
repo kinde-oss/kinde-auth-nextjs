@@ -57,7 +57,9 @@ export const setup = async (routerClient) => {
         permissions,
         orgCode: organization
       },
-      organization,
+      organization: {
+        orgCode: organization
+      },
       featureFlags,
       userOrganizations
     });
