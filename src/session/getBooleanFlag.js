@@ -1,5 +1,5 @@
 import {getFlagFactory} from './getFlag';
-import {config} from '../config';
+import {config} from '../config/index';
 
 /**
  * @callback getBooleanFlag

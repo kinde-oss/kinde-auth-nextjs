@@ -1,6 +1,6 @@
 import jwtDecode from 'jwt-decode';
 import RouterClient from '../routerClients/RouterClient';
-import {config} from '../config';
+import {config} from '../config/index';
 
 /**
  *
