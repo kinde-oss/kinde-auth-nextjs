@@ -1,4 +1,5 @@
 import {getFlagFactory} from './getFlag';
+import {config} from '../config/index';
 /**
  * @callback getStringFlag
  * @param {string} code
@@ -18,7 +19,9 @@ export const getStringFlagFactory =
       const flag = await getFlagFactory(req, res)(code, defaultValue, 's');
       return flag.value;
     } catch (err) {
-      console.error(err);
+      if (config.isDebugMode) {
+        console.error(err);
+      }
       return null;
     }
   };

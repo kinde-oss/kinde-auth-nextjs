@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import {flagDataTypeMap} from './AuthProvider.jsx';
+import {config} from '../config/index.js';
 
 /**
  *
@@ -90,7 +91,9 @@ export const useKindeBrowserClient = (
       const flag = getFlag(code, defaultValue, 'b');
       return flag.value;
     } catch (err) {
-      console.error(err);
+      if (config.isDebugMode) {
+        console.error(err);
+      }
     }
   };
 
@@ -105,7 +108,10 @@ export const useKindeBrowserClient = (
       const flag = getFlag(code, defaultValue, 's');
       return flag.value;
     } catch (err) {
-      console.error(err);
+      if (config.isDebugMode) {
+        console.error(err);
+      }
+      err;
     }
   };
 
@@ -120,7 +126,10 @@ export const useKindeBrowserClient = (
       const flag = getFlag(code, defaultValue, 'i');
       return flag.value;
     } catch (err) {
-      console.error(err);
+      if (config.isDebugMode) {
+        console.error(err);
+      }
+      err;
     }
   };
 
@@ -192,15 +201,18 @@ export const useKindeBrowserClient = (
    * @returns {import('../../types.js').KindePermission}
    */
   const getPermission = (key) => {
+    if (!state.permissions) return {isGranted: false, orgCode: null};
+
     return {
-      isGranted: state.permissions.some((p) => p === key),
-      orgCode: state.organization
+      isGranted: state.permissions.permissions?.some((p) => p === key),
+      orgCode: state.organization?.orgCode
     };
   };
 
   return {
     ...state,
     isAuthenticated: !!state.user,
+    getUser: () => state.user,
     getIdTokenRaw,
     getPermission,
     getBooleanFlag,

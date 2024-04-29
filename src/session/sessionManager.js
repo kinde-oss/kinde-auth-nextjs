@@ -173,35 +173,14 @@ export const pageRouterSessionManager = (req, res) => {
           ...GLOBAL_COOKIE_OPTIONS
         })
       ]);
-
-      // remove cookies from the root domain
-      res?.setHeader('Set-Cookie', [
-        cookie.serialize(itemKey, '', {
-          path: '/',
-          maxAge: -1,
-          ...GLOBAL_COOKIE_OPTIONS
-        })
-      ]);
     },
     destroySession: () => {
-      res?.setHeader('Set-Cookie', [
-        ...COOKIE_LIST.map((name) =>
-          cookie.serialize(name, '', {
-            domain: config.cookieDomain ? config.cookieDomain : undefined,
-            maxAge: -1,
-            ...GLOBAL_COOKIE_OPTIONS
-          })
-        )
-      ]);
-
-      // remove cookies from the root domain
-      res?.setHeader('Set-Cookie', [
-        ...COOKIE_LIST.map((name) =>
-          cookie.serialize(name, '', {
-            maxAge: -1,
-            ...GLOBAL_COOKIE_OPTIONS
-          })
-        )
+      res?.setHeader('Set-Cookie', [ ...COOKIE_LIST.map((name) =>
+        cookie.serialize(name, '', {
+          domain: config.cookieDomain ? config.cookieDomain : undefined,
+          maxAge: -1,
+          ...GLOBAL_COOKIE_OPTIONS
+        }))
       ]);
     }
   };

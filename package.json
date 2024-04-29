@@ -1,10 +1,58 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "2.1.15",
+  "version": "2.2.4",
   "description": "Kinde Auth SDK for NextJS",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
   "typings": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./server": {
+      "import": {
+        "types": "./dist/types/server/index.d.ts",
+        "default": "./dist/server/index.js"
+      },
+      "require": {
+        "types": "./dist/types/server/index.d.ts",
+        "default": "./dist/server/cjs/index.js"
+      }
+    },
+    "./components": {
+      "import": {
+        "types": "./dist/types/components/index.d.ts",
+        "default": "./dist/components/index.js"
+      },
+      "require": {
+        "types": "./dist/types/components/index.d.ts",
+        "default": "./dist/components/cjs/index.js"
+      }
+    },
+    "./middleware": {
+      "import": {
+        "types": "./dist/types/middleware/index.d.ts",
+        "default": "./dist/middleware/index.js"
+      },
+      "require": {
+        "types": "./dist/types/middleware/index.d.ts",
+        "default": "./dist/middleware/cjs/index.js"
+      }
+    },
+    "./types": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/types.js"
+      }
+    }
+  },
   "scripts": {
     "build": "npx tsc && cp types.d.ts dist/types.d.ts && genversion --es6 src/utils/version.js && rollup -c",
     "prepare": "genversion --es6 src/utils/version.js && rollup -c",
@@ -12,8 +60,7 @@
     "test": "jest",
     "release": "release-it",
     "lint": "eslint --ignore-path .eslintignore --ext .js",
-    "dev:prepare": "rm -rf playground && git clone https://github.com/kinde-starter-kits/kinde-nextjs-app-router-starter-kit playground && npm link && cd playground && mv .env.local.sample .env.local && npm uninstall @kinde-oss/kinde-auth-nextjs && rm -rf .git && npm link @kinde-oss/kinde-auth-nextjs",
-    "dev": "cd playground && npm run dev"
+    "dev": "cd playground && pnpm run dev"
   },
   "author": {
     "name": "Kinde",
@@ -58,7 +105,7 @@
   "dependencies": {
     "@babel/preset-env": "^7.23.9",
     "@kinde-oss/kinde-typescript-sdk": "^2.8.0",
-    "cookie": "^0.5.0",
+    "cookie": "^0.6.0",
     "crypto-js": "^4.1.1",
     "jwt-decode": "^3.1.2",
     "uncrypto": "^0.1.3"

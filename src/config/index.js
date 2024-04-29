@@ -54,7 +54,10 @@ const KINDE_COOKIE_DOMAIN = removeTrailingSlash(
   process.env.KINDE_COOKIE_DOMAIN
 );
 
+const isDebugMode = process.env.KINDE_DEBUG_MODE === 'true';
+
 export const config = {
+  isDebugMode,
   apiPath: KINDE_AUTH_API_PATH,
   initialState,
   SESSION_PREFIX,
