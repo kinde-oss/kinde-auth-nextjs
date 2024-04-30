@@ -1,5 +1,5 @@
 export function removeTrailingSlash(url) {
-  if (url === undefined) return url;
+  if (url === undefined || url === null) return undefined;
 
   url = url.trim();
 
