@@ -61,9 +61,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   }
 
   const accessTokenValue = jwt_decode(req.cookies.get('access_token').value);
-  const idTokenValue = JSON.parse(
-    jwt_decode(req.cookies.get('id_token')?.value)
-  );
+  const idTokenValue = jwt_decode(req.cookies.get('id_token')?.value);
 
   const isAuthorized = options?.isAuthorized
     ? options.isAuthorized({req, token: accessTokenValue})
