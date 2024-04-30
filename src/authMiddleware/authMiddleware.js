@@ -75,7 +75,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         given_name: idTokenValue.given_name,
         email: idTokenValue.email,
         id: idTokenValue.sub,
-        picutre: idTokenValue.picture
+        picture: idTokenValue.picture
       }
     });
   }
