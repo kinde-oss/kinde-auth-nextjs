@@ -175,12 +175,14 @@ export const pageRouterSessionManager = (req, res) => {
       ]);
     },
     destroySession: () => {
-      res?.setHeader('Set-Cookie', [ ...COOKIE_LIST.map((name) =>
-        cookie.serialize(name, '', {
-          domain: config.cookieDomain ? config.cookieDomain : undefined,
-          maxAge: -1,
-          ...GLOBAL_COOKIE_OPTIONS
-        }))
+      res?.setHeader('Set-Cookie', [
+        ...COOKIE_LIST.map((name) =>
+          cookie.serialize(name, '', {
+            domain: config.cookieDomain ? config.cookieDomain : undefined,
+            maxAge: -1,
+            ...GLOBAL_COOKIE_OPTIONS
+          })
+        )
       ]);
     }
   };
