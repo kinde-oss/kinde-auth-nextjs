@@ -9,12 +9,11 @@ import {NextResponse} from 'next/server';
  * @param {string} config.redirect - The redirect path if the user is not authenticated or does not have the required role or permissions.
  * @param {string[]} config.role - The required role(s) for accessing the protected page.
  * @param {string|string[]} config.permissions - The required permission(s) for accessing the protected page.
- * @param {number} config.statusCode - The status code for the redirect response.
  * @returns {Function} - The protected page component.
  */
 
 export const protectPage =
-  (page, config = {redirect: '/api/auth/login', statusCode: 302}) =>
+  (page, config = {redirect: '/api/auth/login'}) =>
   async (props) => {
     const {isAuthenticated, getAccessToken, getPermission, getPermissions} =
       kinde();
@@ -22,21 +21,23 @@ export const protectPage =
       const isSignedIn = await isAuthenticated();
 
       if (!isSignedIn) {
-        return redirect(config.redirect, {statusCode});
+        return redirect(config.redirect);
       }
 
       if (config.role) {
         const token = await getAccessToken();
         const roles = token?.roles;
-        if (!roles || !config.role.some((role) => roles.includes(role))) {
-          return redirect(config.redirect, {statusCode});
+        if (!roles) return redirect(config.redirect);
+        const roleNames = new Set(roles.map((r) => r.name));
+        if (!config.role.some((role) => roleNames.has(role))) {
+          return redirect(config.redirect);
         }
       }
 
       if (typeof config.permissions === 'string') {
         const hasPermission = await getPermission(config.permissions);
         if (!hasPermission) {
-          return redirect(config.redirect, {statusCode});
+          return redirect(config.redirect);
         }
       }
 
@@ -47,12 +48,12 @@ export const protectPage =
             permissions.includes(permission)
           )
         ) {
-          return redirect(config.redirect, {statusCode});
+          return redirect(config.redirect);
         }
       }
     } catch (error) {
-      // return redirect(config.redirect, {statusCode});
       console.error('Error protecting page', error);
+      // return redirect(config.redirect);
       return null;
     }
 
@@ -81,8 +82,11 @@ export const protectApi = (handler, config) => async (req) => {
     if (config.role) {
       const token = await getAccessToken();
       const roles = token?.roles;
-      if (!roles || !config.role.some((role) => roles.includes(role))) {
-        return res.redirect({statusCode: 403, message: 'Forbidden'});
+      if (!roles)
+        return NextResponse.json({statusCode: 401, message: 'Unauthorized'});
+      const roleNames = new Set(roles.map((r) => r.name));
+      if (!config.role.some((role) => roleNames.has(role))) {
+        return NextResponse.json({statusCode: 401, message: 'Unauthorized'});
       }
     }
 
@@ -104,11 +108,11 @@ export const protectApi = (handler, config) => async (req) => {
       }
     }
   } catch (error) {
+    console.error('Error protecting page', error);
     // return NextResponse.json({
     //   statusCode: 500,
     //   message: 'Internal Server Error'
     // });
-    console.error('Error protecting page', error);
     return null;
   }
 
