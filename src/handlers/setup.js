@@ -107,7 +107,7 @@ export const setup = async (routerClient) => {
       featureFlags,
       userOrganizations: {
         orgCodes: userOrganizations,
-        orgs: orgNames.map((org) => ({
+        orgs: orgNames?.map((org) => ({
           code: org?.id,
           name: org?.name
         }))
