@@ -1,5 +1,6 @@
 import jwtDecode from 'jwt-decode';
 import {sessionManager} from './sessionManager';
+import {config} from '../config/index';
 
 /**
  * @callback getAccessToken
@@ -15,7 +16,14 @@ import {sessionManager} from './sessionManager';
  */
 // @ts-ignore
 export const getAccessTokenFactory = (req, res) => async () => {
-  return jwtDecode(
-    await sessionManager(req, res).getSessionItem('access_token')
-  );
+  try {
+    return jwtDecode(
+      await sessionManager(req, res).getSessionItem('access_token')
+    );
+  } catch (err) {
+    if (config.isDebugMode) {
+      console.error(err);
+    }
+    return null;
+  }
 };
