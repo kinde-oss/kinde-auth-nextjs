@@ -30,6 +30,7 @@ export const getUserOrganizationsFactory = (req, res) => async () => {
       }))
     };
   } catch (error) {
+    console.error('Failed to fetch user organizations:', error);
     return null;
   }
 };
