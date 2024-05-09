@@ -24,12 +24,13 @@ export const getUserOrganizationsFactory = (req, res) => async () => {
 
     return {
       orgCodes: userOrgs.orgCodes,
-      orgs: orgNames.map((org) => ({
+      orgs: orgNames?.map((org) => ({
         code: org?.id,
         name: org?.name
       }))
     };
   } catch (error) {
+    console.error('Failed to fetch user organizations:', error);
     return null;
   }
 };
