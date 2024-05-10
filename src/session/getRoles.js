@@ -2,22 +2,23 @@ import {sessionManager} from './sessionManager';
 import {kindeClient} from './kindeServerClient';
 import {config} from '../config/index';
 /**
- * @callback getPermissions
- * @returns {Promise<import('../../types').KindePermissions | null>}
+ * @callback getRoles
+ * @returns {Promise<import('../../types').KindeRoles | null>}
  */
 
 /**
  *
  * @param {import('next').NextApiRequest} [req]
  * @param {import('next').NextApiResponse} [res]
- * @returns {getPermissions}
+ * @returns {getRoles}
  */
-export const getPermissionsFactory = (req, res) => async () => {
+export const getRolesFactory = (req, res) => async () => {
   try {
-    const permissions = await kindeClient.getPermissions(
-      sessionManager(req, res)
+    const roles = await kindeClient.getClaimValue(
+      sessionManager(req, res),
+      'roles'
     );
-    return permissions;
+    return roles;
   } catch (error) {
     if (config.isDebugMode) {
       console.error(error);

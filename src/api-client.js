@@ -50,7 +50,9 @@ export const createKindeManagementAPIClient = async (req, res) => {
     try {
       store.setSessionItem('kinde_api_access_token', apiToken);
     } catch (error) {
-      console.error(error);
+      if (config.isDebugMode) {
+        console.error(error);
+      }
     }
   }
 

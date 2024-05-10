@@ -61,6 +61,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   }
 
   const accessTokenValue = jwt_decode(req.cookies.get('access_token').value);
+  const idTokenValue = jwt_decode(req.cookies.get('id_token')?.value);
 
   const isAuthorized = options?.isAuthorized
     ? options.isAuthorized({req, token: accessTokenValue})
@@ -69,7 +70,13 @@ const handleMiddleware = async (req, options, onSuccess) => {
   if (isAuthorized && onSuccess) {
     return await onSuccess({
       token: accessTokenValue,
-      user: JSON.parse(req.cookies.get('user').value)
+      user: {
+        family_name: idTokenValue.family_name,
+        given_name: idTokenValue.given_name,
+        email: idTokenValue.email,
+        id: idTokenValue.sub,
+        picture: idTokenValue.picture
+      }
     });
   }
 
