@@ -53,7 +53,6 @@ export const protectPage =
       }
     } catch (error) {
       console.error('Error protecting page', error);
-      // return redirect(config.redirect);
       return null;
     }
 
@@ -109,10 +108,6 @@ export const protectApi = (handler, config) => async (req) => {
     }
   } catch (error) {
     console.error('Error protecting page', error);
-    // return NextResponse.json({
-    //   statusCode: 500,
-    //   message: 'Internal Server Error'
-    // });
     return null;
   }
 
