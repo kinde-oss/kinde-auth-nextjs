@@ -1,4 +1,5 @@
 import {getFlagFactory} from './getFlag';
+import {config} from '../config/index';
 
 /**
  * @callback getBooleanFlag
@@ -19,7 +20,9 @@ export const getBooleanFlagFactory =
       const flag = await getFlagFactory(req, res)(code, defaultValue, 'b');
       return flag.value;
     } catch (err) {
-      console.error(err);
+      if (config.isDebugMode) {
+        console.error(err);
+      }
       return null;
     }
   };

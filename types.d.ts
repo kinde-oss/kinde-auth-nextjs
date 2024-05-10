@@ -48,6 +48,17 @@ export type KindeUser = {
   given_name: string | null;
   family_name: string | null;
   picture: string | null;
+  properties?: {
+    usr_city?: string;
+    usr_industry?: string;
+    usr_job_title?: string;
+    usr_middle_name?: string;
+    usr_postcode?: string;
+    usr_salutation?: string;
+    usr_state_region?: string;
+    usr_street_address?: string;
+    usr_street_address_2?: string;
+  };
 };
 
 export type KindePermissions = {
@@ -64,7 +75,7 @@ export type KindeRole = {
   id: string;
   key: string;
   name: string;
-}
+};
 
 export type KindeFlagRaw = {
   t: KindeFlagTypeCode;
@@ -85,10 +96,24 @@ export type KindeFlag = {
 
 export type KindeOrganization = {
   orgCode: string | null;
+  orgName?: string | null;
+  properties?: {
+    org_city?: string;
+    org_country?: string;
+    org_industry?: string;
+    org_postcode?: string;
+    org_state_region?: string;
+    org_street_address?: string;
+    org_street_address_2?: string;
+  };
 };
 
 export type KindeOrganizations = {
   orgCodes: string[];
+  orgs: {
+    code: string;
+    name?: string;
+  }[];
 };
 
 export type KindeClient = {
@@ -113,9 +138,9 @@ export type KindeClient = {
     sessionManager: SessionManager,
     options?: LoginURLOptions
   ) => Promise<URL>;
-  getUserOrganizations: (
-    sessionManager: SessionManager
-  ) => Promise<KindeOrganizations>;
+  getUserOrganizations: (sessionManager: SessionManager) => Promise<{
+    orgCodes: string[];
+  }>;
   getOrganization: (
     sessionManager: SessionManager
   ) => Promise<KindeOrganization>;
@@ -178,7 +203,13 @@ export type KindeState = {
   isLoading: boolean | null;
   organization: KindeOrganization;
   permissions: KindePermissions;
-  user: KindeUser | null;
+  user: {
+    id: string;
+    email: string | null;
+    given_name: string | null;
+    family_name: string | null;
+    picture: string | null;
+  } | null;
   userOrganizations: KindeOrganizations;
   getAccessToken: () => KindeAccessToken | null;
   getAccessTokenRaw: () => string | null;
@@ -225,3 +256,9 @@ export type KindeSetupResponse = {
   featureFlags: Record<string, KindeFlagRaw>;
   userOrganizations: KindeOrganizations;
 };
+
+export type KindeRoles = {
+  id: string;
+  key: string;
+  name: string;
+}[];
