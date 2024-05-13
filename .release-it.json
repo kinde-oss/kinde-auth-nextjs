@@ -11,6 +11,7 @@
     "release": true
   },
   "npm": {
-    "publish": true
+    "publish": true,
+    "tag": "vone"
   }
 }
