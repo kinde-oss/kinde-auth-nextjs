@@ -9,9 +9,10 @@ const SESSION_PREFIX = 'pkce-verifier';
 const KINDE_SITE_URL = process.env.KINDE_SITE_URL;
 
 // We need to use NEXT_PUBLIC for frontend vars
-const KINDE_AUTH_API_PATH = process.env.NEXT_PUBLIC_KINDE_AUTH_API_PATH
-  || process.env.KINDE_AUTH_API_PATH
-  || '/api/auth';
+const KINDE_AUTH_API_PATH =
+  process.env.NEXT_PUBLIC_KINDE_AUTH_API_PATH ||
+  process.env.KINDE_AUTH_API_PATH ||
+  '/api/auth';
 
 const KINDE_POST_LOGIN_REDIRECT_URL =
   process.env.KINDE_POST_LOGIN_REDIRECT_URL ||
@@ -23,6 +24,7 @@ const KINDE_ISSUER_URL = process.env.KINDE_ISSUER_URL;
 const KINDE_CLIENT_ID = process.env.KINDE_CLIENT_ID;
 const KINDE_CLIENT_SECRET = process.env.KINDE_CLIENT_SECRET;
 const KINDE_AUDIENCE = process.env.KINDE_AUDIENCE;
+const KINDE_COOKIE_DOMAIN = process.env.KINDE_COOKIE_DOMAIN;
 
 export const config = {
   apiPath: KINDE_AUTH_API_PATH,
@@ -38,6 +40,7 @@ export const config = {
   responseType: 'code',
   scope: 'openid profile email offline',
   codeChallengeMethod: 'S256',
+  cookieDomain: KINDE_COOKIE_DOMAIN,
   redirectRoutes: {
     callback: `${KINDE_AUTH_API_PATH}/kinde_callback`
   },

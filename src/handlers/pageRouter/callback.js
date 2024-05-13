@@ -52,16 +52,40 @@ export const callback = async (req, res) => {
 
       const accessToken = jwt_decode(data.access_token);
       if (isTokenValid(data)) {
-        res.setHeader(
-          'Set-Cookie',
+        res.setHeader('Set-Cookie', [
           cookie.serialize(`kinde_token`, JSON.stringify(data), {
             httpOnly: true,
             expires: new Date(accessToken.exp * 1000),
             sameSite: 'lax',
             secure: config.redirectURL.substring(0, 6) == 'https:',
-            path: '/'
+            path: '/',
+            domain: config.cookieDomain ? config.cookieDomain : undefined
+          }),
+          cookie.serialize(`access_token`, data.access_token, {
+            httpOnly: true,
+            expires: new Date(accessToken.exp * 1000),
+            sameSite: 'lax',
+            secure: config.redirectURL.substring(0, 6) == 'https:',
+            path: '/',
+            domain: config.cookieDomain ? config.cookieDomain : undefined
+          }),
+          cookie.serialize(`id_token`, data.id_token, {
+            httpOnly: true,
+            expires: new Date(accessToken.exp * 1000),
+            sameSite: 'lax',
+            secure: config.redirectURL.substring(0, 6) == 'https:',
+            path: '/',
+            domain: config.cookieDomain ? config.cookieDomain : undefined
+          }),
+          cookie.serialize(`refresh_token`, data.refresh_token, {
+            httpOnly: true,
+            expires: new Date(accessToken.exp * 1000),
+            sameSite: 'lax',
+            secure: config.redirectURL.substring(0, 6) == 'https:',
+            path: '/',
+            domain: config.cookieDomain ? config.cookieDomain : undefined
           })
-        );
+        ]);
       } else {
         console.error('One or more of the claims were not verified.');
       }

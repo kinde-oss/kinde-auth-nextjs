@@ -14,7 +14,8 @@ export function generateAuthUrl(options, type = 'login') {
     scope: config.scope,
     code_challenge: options.code_challenge,
     code_challenge_method: config.codeChallengeMethod,
-    state: options.state
+    state: options.state,
+    audience: config.audience
   };
 
   if (type === 'register') {
