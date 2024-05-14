@@ -16,6 +16,7 @@ import {kindeClient} from './kindeServerClient';
 import {sessionManager} from './sessionManager';
 import {getRolesFactory} from './getRoles';
 import {getClaimFactory} from './getClaim';
+import {config} from './config/index';
 
 /**
  *
