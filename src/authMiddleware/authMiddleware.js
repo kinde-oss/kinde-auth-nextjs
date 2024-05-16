@@ -55,7 +55,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   if (!kindeToken) {
     const response = NextResponse.redirect(
-      new URL(loginRedirectUrl, options.redirectURLBase || config.redirectURL)
+      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)
     );
     return response;
   }
@@ -85,7 +85,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   }
 
   return NextResponse.redirect(
-    new URL(loginRedirectUrl, options.redirectURLBase || config.redirectURL)
+    new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)
   );
 };
 
