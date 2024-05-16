@@ -15,8 +15,19 @@ export function generateAuthUrl(options, type = 'login') {
     code_challenge: options.code_challenge,
     code_challenge_method: config.codeChallengeMethod,
     state: options.state,
-    audience: config.audience
   };
+
+  if (config.audience) {
+    searchParams.audience = config.audience;
+  }
+
+  if (config.login_hint) {
+    searchParams.login_hint = config.login_hint;
+  }
+
+  if (config.connection_id) {
+    searchParams.connection_id = config.connection_id;
+  }
 
   if (type === 'register') {
     searchParams.start_page = 'registration';
