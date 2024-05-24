@@ -13,7 +13,7 @@ import {NextResponse} from 'next/server';
  */
 
 export const protectPage =
-  (page, config = {redirect: '/api/auth/login'}) =>
+  (Page, config = {redirect: '/api/auth/login'}) =>
   async (props) => {
     const {isAuthenticated, getAccessToken, getPermission, getPermissions} =
       kinde();
@@ -56,7 +56,7 @@ export const protectPage =
       return null;
     }
 
-    return page(props);
+    return <Page {...props} />;
   };
 
 /**
