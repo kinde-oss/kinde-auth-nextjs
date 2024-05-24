@@ -15,8 +15,7 @@ import {NextResponse} from 'next/server';
 export const protectPage =
   (Page, config = {redirect: '/api/auth/login'}) =>
   async (props) => {
-    const {isAuthenticated, getAccessToken, getPermission, getPermissions} =
-      kinde();
+    const {isAuthenticated, getPermission, getPermissions, getRoles} = kinde();
     try {
       const isSignedIn = await isAuthenticated();
 
@@ -25,8 +24,7 @@ export const protectPage =
       }
 
       if (config.roles) {
-        const token = await getAccessToken();
-        const roles = token?.roles;
+        const roles = await getRoles();
         if (!roles) return redirect(config.redirect);
         const roleNames = new Set(roles.map((r) => r.name));
         if (!config.roles.some((role) => roleNames.has(role))) {
@@ -69,8 +67,7 @@ export const protectPage =
  */
 
 export const protectApi = (handler, config) => async (req) => {
-  const {isAuthenticated, getAccessToken, getPermission, getPermissions} =
-    kinde();
+  const {isAuthenticated, getPermission, getPermissions, getRoles} = kinde();
   try {
     const isSignedIn = await isAuthenticated();
 
@@ -79,8 +76,7 @@ export const protectApi = (handler, config) => async (req) => {
     }
 
     if (config.roles) {
-      const token = await getAccessToken();
-      const roles = token?.roles;
+      const roles = await getRoles();
       if (!roles)
         return NextResponse.json({statusCode: 401, message: 'Unauthorized'});
       const roleNames = new Set(roles.map((r) => r.name));
