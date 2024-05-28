@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server';
 import {config} from '../config/index';
 import RouterClient from '../routerClients/RouterClient';
 
@@ -23,5 +24,5 @@ export const callback = async (routerClient) => {
   );
 
   if (typeof postLoginRedirectURL === 'string')
-    return routerClient.redirect(postLoginRedirectURL);
+    return NextResponse.redirect(postLoginRedirectURL);
 };

@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server';
 import RouterClient from '../routerClients/RouterClient';
 
 /**
@@ -23,5 +24,5 @@ export const register = async (routerClient) => {
     );
   }
 
-  return routerClient.redirect(authUrl.toString());
+  return NextResponse.redirect(authUrl.toString());
 };
