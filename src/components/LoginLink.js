@@ -25,7 +25,7 @@ export function LoginLink({
   let paramsObj = {};
   if (orgCode != null) paramsObj.org_code = orgCode;
   if (postLoginRedirectURL != null) {
-    if (postLoginRedirectURL.startsWith('/')) {
+    if (postLoginRedirectURL?.startsWith('/')) {
       const host = typeof window !== 'undefined' ? window.location.origin : process.env.KINDE_SITE_URL;
       postLoginRedirectURL = `${host}${postLoginRedirectURL}`;
     }
