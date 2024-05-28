@@ -21,7 +21,7 @@ export function LoginLink({
   authUrlParams,
   ...props
 }) {
-  let params = new URLSearchParams();
+  const params = new URLSearchParams();
   let paramsObj = {};
   if (orgCode != null) paramsObj.org_code = orgCode;
   if (postLoginRedirectURL != null) {
