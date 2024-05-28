@@ -23,5 +23,5 @@ export const callback = async (routerClient) => {
   );
 
   if (typeof postLoginRedirectURL === 'string')
-    routerClient.redirect(postLoginRedirectURL);
+    return routerClient.redirect(postLoginRedirectURL);
 };
