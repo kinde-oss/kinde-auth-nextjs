@@ -16,5 +16,5 @@ export const createOrg = async (routerClient) => {
     options
   );
 
-  routerClient.redirect(authUrl.toString());
+  return routerClient.redirect(authUrl.toString());
 };

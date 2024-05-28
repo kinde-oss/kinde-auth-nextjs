@@ -1,6 +1,5 @@
 import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
 import {cookies} from 'next/headers';
-import {redirect} from 'next/navigation';
 import {NextRequest, NextResponse} from 'next/server';
 import {config} from '../config/index';
 import {appRouterSessionManager} from '../session/sessionManager';
@@ -31,7 +30,7 @@ export default class AppRouterClient extends RouterClient {
    * @returns
    */
   redirect(url) {
-    return redirect(url);
+    return NextResponse.redirect(url);
   }
 
   /**
