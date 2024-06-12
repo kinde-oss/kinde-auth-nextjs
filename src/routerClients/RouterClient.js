@@ -13,12 +13,12 @@ export default class RouterClient {
   req;
   /** @type {URLSearchParams} */
   searchParams;
- 
+
   constructor() {
     if (this.constructor == RouterClient) {
       throw new Error("Abstract classes can't be instantiated.");
     }
-   }
+  }
 
   /**
    *
@@ -58,5 +58,9 @@ export default class RouterClient {
    */
   getSearchParam(key) {
     throw new Error("Method 'getSearchParam()' must be implemented.");
+  }
+
+  onError() {
+    throw new Error("Method 'onError()' must be implemented.");
   }
 }
