@@ -16,12 +16,18 @@ export const callback = async (routerClient) => {
   const postLoginRedirectURL = postLoginRedirectURLFromMemory
     ? postLoginRedirectURLFromMemory
     : config.postLoginRedirectURL;
-
-  await routerClient.kindeClient.handleRedirectToApp(
-    routerClient.sessionManager,
-    routerClient.getUrl()
-  );
+  try {
+    await routerClient.kindeClient.handleRedirectToApp(
+      routerClient.sessionManager,
+      routerClient.getUrl()
+    );
+  } catch (error) {
+    routerClient.onError(error);
+    return routerClient.json({error: error.message}, {status: 500});
+  }
 
   if (typeof postLoginRedirectURL === 'string')
     return routerClient.redirect(postLoginRedirectURL);
+
+  return routerClient.redirect(config.redirectURL);
 };
