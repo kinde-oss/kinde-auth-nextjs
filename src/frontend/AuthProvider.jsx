@@ -1,13 +1,6 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useState,
-  useEffect
-} from 'react';
-
 import {config} from '../config/index';
-
+import { createContext, useContext, useState, useCallback,useEffect } from 'react';
+import React from 'react';
 /** @type {Record<import('../../types').KindeFlagTypeCode, import('../../types').KindeFlagTypeValue>} */
 export const flagDataTypeMap = {
   s: 'string',
@@ -39,25 +32,20 @@ const tokenFetcher = async (url) => {
   }
 
   if (response.ok) {
-    const json = await response.json();
-    return json;
+    return await response.json();
   } else if (response.status === 401) {
     throw new Error('Failed to fetch token');
   }
 };
+
 /**
  *
  * @param {children: import('react').ReactNode, options?: {apiPath: string} | undefined} props
  * @returns
  */
 export const KindeProvider = ({children}) => {
-  const [state, setState] = useState({
-    ...config.initialState
-  });
-
   const setupUrl = `${config.apiPath}/setup`;
 
-  // try and get the user (by fetching /api/auth/setup) -> this needs to do the OAuth stuff
   const checkSession = useCallback(async () => {
     try {
       const tokens = await tokenFetcher(setupUrl);
@@ -72,8 +60,7 @@ export const KindeProvider = ({children}) => {
         organization,
         permissions,
         user,
-        userOrganizations,
-        idTokenRaw
+        userOrganizations
       } = tokens;
 
       const getAccessToken = () => accessToken;
@@ -86,6 +73,9 @@ export const KindeProvider = ({children}) => {
       const getOrganization = () => organization;
       const getUser = () => user;
       const getUserOrganizations = () => userOrganizations;
+      const refreshData = () => {
+        checkSession()
+      };
 
       /**
        *
@@ -110,7 +100,7 @@ export const KindeProvider = ({children}) => {
         const flags = featureFlags;
         const flag = flags && flags[code] ? flags[code] : {};
 
-        if (flag == {} && defaultValue == undefined) {
+        if (Object.keys(flag).length === 0 && defaultValue == undefined) {
           throw Error(
             `Flag ${code} was not found, and no default value has been provided`
           );
@@ -229,7 +219,8 @@ export const KindeProvider = ({children}) => {
         getStringFlag,
         getToken,
         getUser,
-        getUserOrganizations
+        getUserOrganizations,
+        refreshData
       }));
     } catch (error) {
       if (config.isDebugMode) {
@@ -239,6 +230,10 @@ export const KindeProvider = ({children}) => {
       setState((previous) => ({...previous, isLoading: false, error: error}));
     }
   }, [setupUrl]);
+
+  const [state, setState] = useState({
+    ...config.initialState,
+  });
 
   // if you get the user set loading false
   useEffect(() => {
@@ -282,7 +277,8 @@ export const KindeProvider = ({children}) => {
     organization,
     userOrganizations,
     error,
-    isLoading
+    isLoading,
+    refreshData
   } = state;
 
   return (
@@ -315,7 +311,8 @@ export const KindeProvider = ({children}) => {
         organization,
         userOrganizations,
         isLoading,
-        isAuthenticated: !!user
+        isAuthenticated: !!user,
+        refreshData
       }}
     >
       {children}
