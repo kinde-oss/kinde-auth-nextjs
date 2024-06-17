@@ -189,6 +189,7 @@ export type KindeClient = {
     defaultValue?: string | number | boolean | undefined,
     type?: keyof FlagType | undefined
   ) => Promise<GetFlagType>;
+  refreshData: () => Promise<void>;
 };
 
 export type KindeState = {
@@ -244,6 +245,7 @@ export type KindeState = {
   getToken: () => string | null;
   getUser: () => KindeUser | null;
   getUserOrganizations: () => KindeOrganizations | null;
+  refreshData: () => Promise<void>;
 };
 
 export type KindeSetupResponse = {

@@ -27,21 +27,24 @@ export const useKindeBrowserClient = (
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      const setupUrl = `${apiPath}/setup`;
-      const res = await fetch(setupUrl);
-      const kindeData = await res.json();
-      if (res.status == 200) {
-        setState({
-          ...kindeData
-        });
-      }
-      const error = kindeData.error;
-      setState((prev) => ({...prev, isLoading: false, error}));
-    };
-
-    fetchData();
+    refreshData();
   }, []);
+
+  const refreshData = async () => {
+    const setupUrl = `${apiPath}/setup`;
+    const res = await fetch(setupUrl);
+    const kindeData = await res.json();
+    if (res.status == 200) {
+      setState({
+        ...kindeData
+      });
+    }
+    if (res.ok) {
+      setState({ ...kindeData, isLoading: false });
+    } else {
+      setState(prev => ({ ...prev, isLoading: false, error: res.statusText || 'An error occurred' }));
+    }
+  };
 
   /**
    *
@@ -226,6 +229,7 @@ export const useKindeBrowserClient = (
     getIdToken,
     getOrganization,
     getPermissions,
-    getUserOrganizations
+    getUserOrganizations,
+    refreshData
   };
 };

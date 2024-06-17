@@ -26,7 +26,8 @@ const initialState = {
   getStringFlag: () => null,
   getToken: () => null,
   getUser: () => null,
-  getUserOrganizations: () => null
+  getUserOrganizations: () => null,
+  refreshData: () => null
 };
 
 const SESSION_PREFIX = 'pkce-verifier';
