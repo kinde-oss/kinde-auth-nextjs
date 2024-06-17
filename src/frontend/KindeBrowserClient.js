@@ -39,8 +39,11 @@ export const useKindeBrowserClient = (
         ...kindeData
       });
     }
-    const error = kindeData.error;
-    setState((prev) => ({...prev, isLoading: false, error}));
+    if (res.ok) {
+      setState({ ...kindeData, isLoading: false });
+    } else {
+      setState(prev => ({ ...prev, isLoading: false, error: res.statusText || 'An error occurred' }));
+    }
   };
 
   /**
