@@ -8,3 +8,4 @@ export {
 } from '../components/index';
 export {createKindeManagementAPIClient} from '../api-client';
 export {default as handleAuth} from '../handlers/auth';
+export {protectPage, protectApi} from '../handlers/protect';
