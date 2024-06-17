@@ -11,8 +11,9 @@ export default class AppRouterClient extends RouterClient {
    *
    * @param {NextRequest} req
    * @param {*} res
+   * @param {{onError?: () => void}} options
    */
-  constructor(req, res) {
+  constructor(req, res, options) {
     super();
     this.kindeClient = createKindeServerClient(
       config.grantType,
@@ -22,6 +23,7 @@ export default class AppRouterClient extends RouterClient {
     this.sessionManager = appRouterSessionManager(cookies());
     this.req = req;
     this.searchParams = req.nextUrl.searchParams;
+    this.onErrorCallback = options?.onError;
   }
 
   /**
@@ -62,5 +64,11 @@ export default class AppRouterClient extends RouterClient {
    */
   getSearchParam(key) {
     return this.req.nextUrl.searchParams.get(key);
+  }
+
+  onError(error) {
+    if (this.onErrorCallback) {
+      this.onErrorCallback(error);
+    }
   }
 }
