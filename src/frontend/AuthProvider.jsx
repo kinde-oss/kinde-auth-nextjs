@@ -46,6 +46,10 @@ const tokenFetcher = async (url) => {
 export const KindeProvider = ({children}) => {
   const setupUrl = `${config.apiPath}/setup`;
 
+  const refreshData = useCallback(() => {
+    checkSession()
+  }, ['checkSession']);
+
   const checkSession = useCallback(async () => {
     try {
       const tokens = await tokenFetcher(setupUrl);
@@ -73,9 +77,6 @@ export const KindeProvider = ({children}) => {
       const getOrganization = () => organization;
       const getUser = () => user;
       const getUserOrganizations = () => userOrganizations;
-      const refreshData = () => {
-        checkSession()
-      };
 
       /**
        *
@@ -278,7 +279,6 @@ export const KindeProvider = ({children}) => {
     userOrganizations,
     error,
     isLoading,
-    refreshData
   } = state;
 
   return (
