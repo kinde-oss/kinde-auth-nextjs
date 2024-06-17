@@ -22,7 +22,6 @@ export const callback = async (routerClient) => {
       routerClient.getUrl()
     );
   } catch (error) {
-    routerClient.onError(error);
     return routerClient.json({error: error.message}, {status: 500});
   }
 
