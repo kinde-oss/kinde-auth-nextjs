@@ -264,3 +264,18 @@ export type KindeRoles = {
   key: string;
   name: string;
 }[];
+
+export type KindeClientConfig = {
+  redirectURL: string;
+  audience: string | string[];
+  clientId: string;
+  clientSecret: string;
+  issuerURL?: string;
+  siteUrl?: string;
+  postLoginRedirectUrl?: string;
+  postLogoutRedirectUrl?: string;
+  authDomain: any;
+  logoutRedirectURL: any;
+  frameworkVersion: string;
+  framework: string;
+};

@@ -1,6 +1,8 @@
 import {NextResponse} from 'next/server';
 
 export default class RouterClient {
+  /** @type {import('../../types').KindeClientConfig} */
+  clientConfig = {};
   /** @type {import('../../types').KindeClient} */
   kindeClient = null;
   /** @type {URL} */
