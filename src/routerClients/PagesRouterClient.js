@@ -9,26 +9,33 @@ export default class PagesRouterClient extends RouterClient {
    *
    * @param {import('next').NextApiRequest} req
    * @param {import('next').NextApiResponse} res
+   * @param {{onError?: () => void; config: {audience?: string | string[], clientId?: string, clientSecret?: string, issuerURL?: string, siteUrl?: string, postLoginRedirectUrl?: string, postLogoutRedirectUrl?: string}}} options
    */
-  constructor(req, res, clientOptions) {
+  constructor(req, res, options) {
     super();
     const url = req.url.split('/');
     url.pop();
-
+    this.clientConfig = {
+      ...config.clientOptions,
+      audience: options?.config?.audience || config.clientOptions.audience,
+      authDomain: options?.config?.issuerURL || config.clientOptions.authDomain,
+      clientId: options?.config?.clientId || config.clientOptions.clientId,
+      clientSecret:
+        options?.config?.clientSecret || config.clientOptions.clientSecret,
+      logoutRedirectURL:
+        options?.config?.postLogoutRedirectUrl ||
+        config.clientOptions.logoutRedirectURL,
+      redirectURL:
+        `${options?.config?.siteUrl}/api/auth/kinde_callback` ||
+        config.clientOptions.redirectURL,
+      siteUrl: config.redirectURL || options.config.siteUrl
+    };
     this.kindeClient = createKindeServerClient(
       config.grantType,
-      clientOptions
-        ? {
-            ...config.clientOptions,
-            authDomain: clientOptions.domain || '',
-            clientId: clientOptions.clientId || '',
-            clientSecret: clientOptions.clientSecret || '',
-            redirectURL: `${config.redirectURL}${url.join('/')}/kinde_callback`
-          }
-        : config.clientOptions
+      this.clientConfig
     );
     // @ts-ignore
-    this.url = new URL(config.redirectURL + req.url);
+    this.url = new URL(this.clientConfig.siteUrl + req.url);
     this.res = res;
     this.req = req;
     this.searchParams = this.url.searchParams;

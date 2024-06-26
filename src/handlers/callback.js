@@ -25,8 +25,7 @@ export const callback = async (routerClient) => {
     return routerClient.json({error: error.message}, {status: 500});
   }
 
-  if (typeof postLoginRedirectURL === 'string')
-    return routerClient.redirect(postLoginRedirectURL);
+  if (postLoginRedirectURL) return routerClient.redirect(postLoginRedirectURL);
 
-  return routerClient.redirect(config.redirectURL);
+  return routerClient.redirect(routerClient.clientConfig.siteUrl);
 };

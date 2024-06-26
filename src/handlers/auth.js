@@ -36,21 +36,29 @@ const getRoute = (endpoint) => {
 /**
  * @param {object} [request]
  * @param {string} [endpoint]
- * @param {{onError: (error: Error) => void}} [options]
+ * @param {{onError?: () => void; config: {audience?: string | string[], clientId?: string, clientSecret?: string, issuerURL?: string, siteUrl?: string, postLoginRedirectUrl?: string, postLogoutRedirectUrl?: string}}} options
  * @returns {(req, res) => any}
  */
 export default (request, endpoint, options) => {
-  if (!config.clientOptions.authDomain)
-    throw new Error("env variable 'KINDE_ISSUER_URL' is not set");
+  if (!config.clientOptions.authDomain && !options?.config?.issuerURL)
+    throw new Error(
+      "env variable 'KINDE_ISSUER_URL' is not set and not passed in options"
+    );
 
-  if (!config.clientOptions.clientId)
-    throw new Error("env variable 'KINDE_CLIENT_ID' is not set");
+  if (!config.clientOptions.clientId && !options?.config?.clientId)
+    throw new Error(
+      "env variable 'KINDE_CLIENT_ID' is not set and not passed in options"
+    );
 
-  if (!config.clientOptions.clientSecret)
-    throw new Error("env variable 'KINDE_CLIENT_SECRET' is not set");
+  if (!config.clientOptions.clientSecret && !options?.config?.clientSecret)
+    throw new Error(
+      "env variable 'KINDE_CLIENT_SECRET' is not set and not passed in options"
+    );
 
-  if (!config.clientOptions.redirectURL)
-    throw new Error("env variable 'KINDE_SITE_URL' is not set");
+  if (!config.clientOptions.redirectURL && !options?.config?.siteUrl)
+    throw new Error(
+      "env variable 'KINDE_SITE_URL' is not set and not passed in options"
+    );
 
   // For backwards compatibility in app router
   if (typeof request == 'object' && typeof endpoint == 'string') {
