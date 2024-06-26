@@ -25,9 +25,9 @@ export default class AppRouterClient extends RouterClient {
       logoutRedirectURL:
         options?.config?.postLogoutRedirectUrl ||
         config.clientOptions.logoutRedirectURL,
-      redirectURL:
-        `${options?.config?.siteUrl}/api/auth/kinde_callback` ||
-        config.clientOptions.redirectURL,
+      redirectURL: options?.config?.siteUrl
+        ? `${options?.config?.siteUrl}/api/auth/kinde_callback`
+        : config.clientOptions.redirectURL,
       siteUrl: config.redirectURL || options.config.siteUrl
     };
     this.kindeClient = createKindeServerClient(

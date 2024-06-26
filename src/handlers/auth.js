@@ -36,13 +36,13 @@ const getRoute = (endpoint) => {
 /**
  * @param {object} [request]
  * @param {string} [endpoint]
- * @param {{onError?: () => void; config: {audience?: string | string[], clientId?: string, clientSecret?: string, issuerURL?: string, siteUrl?: string, postLoginRedirectUrl?: string, postLogoutRedirectUrl?: string}}} options
+ * @param {{onError?: () => void; config: {audience?: string | string[], clientId?: string, clientSecret?: string, issuerURL?: string, siteUrl?: string, postLoginRedirectUrl?: string, postLogoutRedirectUrl?: string}}} [options]
  * @returns {(req, res) => any}
  */
 export default (request, endpoint, options) => {
-  if (!config.clientOptions.authDomain && !options?.config?.issuerURL)
+  if (!config.clientOptions.authDomain)
     throw new Error(
-      "env variable 'KINDE_ISSUER_URL' is not set and not passed in options"
+      "The environment variable 'KINDE_ISSUER_URL' is required. Set it in your .env file"
     );
 
   if (!config.clientOptions.clientId && !options?.config?.clientId)
