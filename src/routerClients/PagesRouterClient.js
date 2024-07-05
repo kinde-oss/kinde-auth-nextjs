@@ -9,7 +9,7 @@ export default class PagesRouterClient extends RouterClient {
    *
    * @param {import('next').NextApiRequest} req
    * @param {import('next').NextApiResponse} res
-   * @param {{onError?: () => void; config: {audience?: string | string[], clientId?: string, clientSecret?: string, issuerURL?: string, siteUrl?: string, postLoginRedirectUrl?: string, postLogoutRedirectUrl?: string}}} options
+   * @param {{onError?: () => void; config: {audience?: string | string[], clientId?: string, clientSecret?: string, issuerURL?: string, siteUrl?: string, postLoginRedirectUrl?: string, postLogoutRedirectUrl?: string, scope?: string}}} options
    */
   constructor(req, res, options) {
     super();
