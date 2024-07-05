@@ -48,6 +48,8 @@ export type KindeUser = {
   given_name: string | null;
   family_name: string | null;
   picture: string | null;
+  username?: string | null;
+  phone_number?: string | null;
   properties?: {
     usr_city?: string;
     usr_industry?: string;
