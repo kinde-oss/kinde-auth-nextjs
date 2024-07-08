@@ -54,6 +54,7 @@ const KINDE_AUDIENCE = process.env.KINDE_AUDIENCE;
 const KINDE_COOKIE_DOMAIN = removeTrailingSlash(
   process.env.KINDE_COOKIE_DOMAIN
 );
+const KINDE_SCOPE = process.env.KINDE_SCOPE || 'openid profile email offline';
 
 const isDebugMode = process.env.KINDE_DEBUG_MODE === 'true';
 
@@ -71,7 +72,6 @@ export const config = {
   audience: KINDE_AUDIENCE,
   cookieDomain: KINDE_COOKIE_DOMAIN,
   responseType: 'code',
-  scope: 'openid profile email offline',
   codeChallengeMethod: 'S256',
   redirectRoutes: {
     callback: `${KINDE_AUTH_API_PATH}/kinde_callback`
@@ -91,7 +91,8 @@ export const config = {
     logoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL || '',
     redirectURL: `${KINDE_SITE_URL}/api/auth/kinde_callback`,
     frameworkVersion: version,
-    framework: 'Next.js'
+    framework: 'Next.js',
+    scope: KINDE_SCOPE
   },
   grantType: GrantType.AUTHORIZATION_CODE
 };

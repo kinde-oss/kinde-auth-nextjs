@@ -11,7 +11,7 @@ export default class AppRouterClient extends RouterClient {
    *
    * @param {NextRequest} req
    * @param {*} res
-   * @param {{onError?: () => void; config: {audience?: string | string[], clientId?: string, clientSecret?: string, issuerURL?: string, siteUrl?: string, postLoginRedirectUrl?: string, postLogoutRedirectUrl?: string}}} options
+   * @param {{onError?: () => void; config: {audience?: string | string[], clientId?: string, clientSecret?: string, issuerURL?: string, siteUrl?: string, postLoginRedirectUrl?: string, postLogoutRedirectUrl?: string, scope?: string}}} options
    */
   constructor(req, res, options) {
     super();
@@ -28,7 +28,8 @@ export default class AppRouterClient extends RouterClient {
       redirectURL: options?.config?.siteUrl
         ? `${options?.config?.siteUrl}/api/auth/kinde_callback`
         : config.clientOptions.redirectURL,
-      siteUrl: config.redirectURL || options.config.siteUrl
+      siteUrl: config.redirectURL || options.config.siteUrl,
+      scope: options?.config?.scope || config.clientOptions.scope
     };
     this.kindeClient = createKindeServerClient(
       config.grantType,

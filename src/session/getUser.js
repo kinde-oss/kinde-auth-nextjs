@@ -20,8 +20,20 @@ export const getUserFactory = (req, res) => async () => {
       sessionManager(req, res),
       'user_properties'
     );
+    const phone_number = await kindeClient.getClaimValue(
+      sessionManager(req, res),
+      'phone_number',
+      'id_token'
+    );
+    const username = await kindeClient.getClaimValue(
+      sessionManager(req, res),
+      'preferred_username',
+      'id_token'
+    );
     return {
       ...user,
+      phone_number,
+      username,
       properties: {
         city: userProperties?.kp_usr_city?.v,
         industry: userProperties?.kp_usr_industry?.v,
