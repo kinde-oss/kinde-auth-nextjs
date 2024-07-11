@@ -69,7 +69,7 @@ export const config = {
   clientID: KINDE_CLIENT_ID,
   clientSecret: KINDE_CLIENT_SECRET,
   postLogoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL,
-  audience: KINDE_AUDIENCE,
+  audience: KINDE_AUDIENCE ? KINDE_AUDIENCE.split(' ') : '',
   cookieDomain: KINDE_COOKIE_DOMAIN,
   responseType: 'code',
   codeChallengeMethod: 'S256',
