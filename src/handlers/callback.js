@@ -24,8 +24,14 @@ export const callback = async (routerClient) => {
   } catch (error) {
     return routerClient.json({error: error.message}, {status: 500});
   }
-
-  if (postLoginRedirectURL) return routerClient.redirect(postLoginRedirectURL);
+  if (postLoginRedirectURL) {
+    if (postLoginRedirectURL.startsWith('http')) {
+     return routerClient.redirect(postLoginRedirectURL);
+    }
+    return routerClient.redirect(
+      `${routerClient.clientConfig.siteUrl}${postLoginRedirectURL}`
+    );
+  }
 
   return routerClient.redirect(routerClient.clientConfig.siteUrl);
 };
