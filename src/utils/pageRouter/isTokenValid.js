@@ -11,7 +11,7 @@ const isTokenValid = (token) => {
   if (config.audience)
     isAudienceValid =
       accessTokenPayload.aud &&
-      accessTokenPayload.aud.includes(config.audience);
+      accessTokenPayload.aud.includes(...config.audience);
 
   if (
     accessTokenPayload.iss == config.issuerURL &&
