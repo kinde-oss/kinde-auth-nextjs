@@ -8,7 +8,7 @@ You can also use the NextJS starter kit [here](https://github.com/kinde-starter
 
 ## Documentation
 
-Please refer to the Kinde [NextJS SDK document](https://kinde.notion.site/Next-js-App-Router-v2-e7a16d8ae38e45b6ad052910075e24ef?pvs=4).
+Please refer to the Kinde [NextJS SDK document](https://docs.kinde.com/developer-tools/sdks/backend/nextjs-sdk/).
 
 ## Publishing
 
