@@ -48,7 +48,7 @@ export const getUserFactory = (req, res) => async () => {
     };
   } catch (error) {
     if (config.isDebugMode) {
-      console.error(error);
+      console.warn(error);
     }
     return null;
   }
