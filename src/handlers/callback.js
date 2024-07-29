@@ -22,11 +22,14 @@ export const callback = async (routerClient) => {
       routerClient.getUrl()
     );
   } catch (error) {
+    if (config.isDebugMode) {
+      console.error('callback', error);
+    }
     return routerClient.json({error: error.message}, {status: 500});
   }
   if (postLoginRedirectURL) {
     if (postLoginRedirectURL.startsWith('http')) {
-     return routerClient.redirect(postLoginRedirectURL);
+      return routerClient.redirect(postLoginRedirectURL);
     }
     return routerClient.redirect(
       `${routerClient.clientConfig.siteUrl}${postLoginRedirectURL}`
