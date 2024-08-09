@@ -8,6 +8,9 @@ import {config} from '../config/index';
  * @returns
  */
 export const setup = async (routerClient) => {
+  // check if we have the user in the session
+  // check expiry on tokens
+  // use refreshtoken to get new tokens
   try {
     const user = await routerClient.kindeClient.getUser(
       routerClient.sessionManager
@@ -118,5 +121,8 @@ export const setup = async (routerClient) => {
       console.error(error);
     }
   }
-  return routerClient.json({error: 'Log in with Kinde'}, {status: 401});
+  // return routerClient.json({}, {status: 204});
+  return new Response(null, {
+    status: 204
+  });
 };

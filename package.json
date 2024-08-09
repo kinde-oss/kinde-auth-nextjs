@@ -1,6 +1,6 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "2.3.6",
+  "version": "2.3.7-beta.3",
   "description": "Kinde Auth SDK for NextJS",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
@@ -60,7 +60,9 @@
     "test": "jest",
     "release": "release-it",
     "lint": "eslint --ignore-path .eslintignore --ext .js",
-    "dev": "cd playground && pnpm run dev"
+    "lint:fix": "prettier --write .",
+    "dev": "cd playground && pnpm run dev",
+    "release:beta": "npm run lint:fix && npx release-it --no-git preRelease=beta"
   },
   "author": {
     "name": "Kinde",

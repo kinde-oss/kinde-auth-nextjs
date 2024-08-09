@@ -1,5 +1,11 @@
 import {config} from '../config/index';
-import { createContext, useContext, useState, useCallback,useEffect } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect
+} from 'react';
 import React from 'react';
 /** @type {Record<import('../../types').KindeFlagTypeCode, import('../../types').KindeFlagTypeValue>} */
 export const flagDataTypeMap = {
@@ -23,18 +29,37 @@ export const useKindeAuth = () => useContext(AuthContext);
  * @param {string} url
  * @returns {Promise<import('../../types').KindeSetupResponse | undefined>}
  */
-const tokenFetcher = async (url) => {
+const tokenFetcher = async (url, router) => {
   let response;
   try {
     response = await fetch(url);
-  } catch {
-    throw new Error('Failed to fetch token');
+  } catch (e) {
+    throw new Error('AuthProvider: Failed to fetch auth data', {
+      cause: e
+    });
   }
 
   if (response.ok) {
     return await response.json();
-  } else if (response.status === 401) {
-    throw new Error('Failed to fetch token');
+  } else {
+    if (response.status === 401) {
+      const loginUrl = response.headers.get('location') || LOGIN_PAGE;
+      console.debug(
+        'AuthProvider: Auth token expired, redirecting to login page',
+        {location: loginUrl}
+      );
+      router.push(loginUrl);
+    } else {
+      console.error(
+        'AuthProvider: Unknown error while trying to obtain auth data',
+        {
+          response: {
+            status: response.status,
+            statusText: response.statusText
+          }
+        }
+      );
+    }
   }
 };
 
@@ -47,7 +72,7 @@ export const KindeProvider = ({children}) => {
   const setupUrl = `${config.apiPath}/setup`;
 
   const refreshData = useCallback(() => {
-    checkSession()
+    checkSession();
   }, ['checkSession']);
 
   const checkSession = useCallback(async () => {
@@ -233,7 +258,7 @@ export const KindeProvider = ({children}) => {
   }, [setupUrl]);
 
   const [state, setState] = useState({
-    ...config.initialState,
+    ...config.initialState
   });
 
   // if you get the user set loading false
@@ -278,7 +303,7 @@ export const KindeProvider = ({children}) => {
     organization,
     userOrganizations,
     error,
-    isLoading,
+    isLoading
   } = state;
 
   return (

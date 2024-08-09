@@ -32,17 +32,23 @@ export const useKindeBrowserClient = (
 
   const refreshData = async () => {
     const setupUrl = `${apiPath}/setup`;
-    const res = await fetch(setupUrl);
-    const kindeData = await res.json();
-    if (res.status == 200) {
-      setState({
-        ...kindeData
-      });
-    }
-    if (res.ok) {
-      setState({ ...kindeData, isLoading: false });
-    } else {
-      setState(prev => ({ ...prev, isLoading: false, error: res.statusText || 'An error occurred' }));
+    try {
+      const res = await fetch(setupUrl);
+
+      if (res.ok) {
+        const kindeData = await res.json();
+        setState({...kindeData, isLoading: false});
+      } else if (res.status === 204) {
+        setState((prev) => ({...prev, isLoading: false}));
+      } else {
+        setState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: res.statusText || 'An error occurred'
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching data from Kinde', error);
     }
   };
 
