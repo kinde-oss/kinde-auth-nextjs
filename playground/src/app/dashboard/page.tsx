@@ -1,4 +1,14 @@
+'use client';
+
+import {useKindeBrowserClient} from '@kinde-oss/kinde-auth-nextjs';
+
 export default function Dashboard() {
+  const {accessToken, isLoading, error} = useKindeBrowserClient();
+  const now = Date.now();
+
+  if (isLoading) return 'Loading...';
+  const diff = Math.abs(now - accessToken?.exp * 1000);
+
   return (
     <div className="container">
       <div className="card start-hero">
@@ -11,6 +21,8 @@ export default function Dashboard() {
       </div>
       <section className="next-steps-section">
         <h2 className="text-heading-1">Next steps for you</h2>
+        {/* <pre>{accessToken?.exp}</pre> */}
+        <pre>{diff / 1000}</pre>
       </section>
     </div>
   );

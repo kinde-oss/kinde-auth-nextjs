@@ -16,9 +16,10 @@ export function LogoutLink({children, postLogoutRedirectURL, ...props}) {
   return (
     <a
       href={`${config.apiPath}/logout${
-          postLogoutRedirectURL
+        postLogoutRedirectURL
           ? `?post_logout_redirect_url=${postLogoutRedirectURL}`
-          : ''}
+          : ''
+      }
       `}
       {...props}
     >

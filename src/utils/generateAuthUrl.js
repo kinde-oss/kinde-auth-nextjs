@@ -27,7 +27,7 @@ export function generateAuthUrl(options, type = 'login') {
   }
 
   if (login_hint) {
-    searchParams.login_hint = login_hint
+    searchParams.login_hint = login_hint;
   }
 
   if (is_create_org) {
