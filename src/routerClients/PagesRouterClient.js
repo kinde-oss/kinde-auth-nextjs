@@ -17,6 +17,7 @@ export default class PagesRouterClient extends RouterClient {
     url.pop();
     this.clientConfig = {
       ...config.clientOptions,
+      framework: 'Next.js:Pages',
       audience: options?.config?.audience || config.clientOptions.audience,
       authDomain: options?.config?.issuerURL || config.clientOptions.authDomain,
       clientId: options?.config?.clientId || config.clientOptions.clientId,

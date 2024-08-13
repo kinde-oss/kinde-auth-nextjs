@@ -17,6 +17,7 @@ export default class AppRouterClient extends RouterClient {
     super();
     this.clientConfig = {
       ...config.clientOptions,
+      framework: 'Next.js:App', 
       audience: options?.config?.audience || config.clientOptions.audience,
       authDomain: options?.config?.issuerURL || config.clientOptions.authDomain,
       clientId: options?.config?.clientId || config.clientOptions.clientId,
