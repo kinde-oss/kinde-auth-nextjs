@@ -12,23 +12,8 @@ export const useKindeBrowserClient = (
     '/api/auth'
 ) => {
   const [state, setState] = useState({
-    accessToken: null,
-    accessTokenRaw: null,
-    error: null,
-    featureFlags: [],
-    idToken: null,
-    idTokenRaw: null,
-    isAuthenticated: false,
-    isLoading: true,
-    organization: null,
-    permissions: [],
-    user: null,
-    userOrganizations: []
+    ...config.initialState
   });
-
-  useEffect(() => {
-    refreshData();
-  }, []);
 
   const refreshData = async () => {
     const setupUrl = `${apiPath}/setup`;
@@ -51,6 +36,10 @@ export const useKindeBrowserClient = (
       console.error('Error fetching data from Kinde', error);
     }
   };
+
+  useEffect(() => {
+    refreshData();
+  }, []);
 
   /**
    *

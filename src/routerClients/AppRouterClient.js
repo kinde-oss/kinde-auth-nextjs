@@ -1,6 +1,6 @@
 import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
 import {cookies} from 'next/headers';
-import {NextRequest, NextResponse} from 'next/server';
+import {NextResponse} from 'next/server';
 import {config} from '../config/index';
 import {appRouterSessionManager} from '../session/sessionManager';
 import RouterClient from './RouterClient';
@@ -9,7 +9,7 @@ import RouterClient from './RouterClient';
 export default class AppRouterClient extends RouterClient {
   /**
    *
-   * @param {NextRequest} req
+   * @param {import('next/server').NextRequest} req
    * @param {*} res
    * @param {{onError?: () => void; config: {audience?: string | string[], clientId?: string, clientSecret?: string, issuerURL?: string, siteUrl?: string, postLoginRedirectUrl?: string, postLogoutRedirectUrl?: string, scope?: string}}} options
    */
