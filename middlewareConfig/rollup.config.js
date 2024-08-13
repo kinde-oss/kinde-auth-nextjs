@@ -17,5 +17,6 @@ export default {
       exports: 'named',
       format: 'esm'
     }
-  ]
+  ],
+  external: ['jwt-decode', '@kinde-oss/kinde-typescript-sdk', 'next/server']
 };

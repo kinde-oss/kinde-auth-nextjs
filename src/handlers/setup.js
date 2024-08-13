@@ -114,15 +114,28 @@ export const setup = async (routerClient) => {
           code: org?.id,
           name: org?.name
         }))
-      }
+      },
+      needsRefresh: false
     });
   } catch (error) {
     if (config.isDebugMode) {
+      console.log('BING BONG');
       console.error(error);
+      console.log('error code', error.code);
     }
+    if (error.code == 'ERR_JWT_EXPIRED') {
+      return routerClient.json(
+        {
+          needsRefresh: true
+        },
+        {status: 200}
+      );
+    }
+    return routerClient.json(
+      {
+        error
+      },
+      {status: 500}
+    );
   }
-  // return routerClient.json({}, {status: 204});
-  return new Response(null, {
-    status: 204
-  });
 };

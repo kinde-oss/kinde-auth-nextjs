@@ -7,7 +7,11 @@ import {removeTrailingSlash} from '../utils/removeTrailingSlash';
  */
 const initialState = {
   accessToken: null,
+  accessTokenRaw: null,
+  error: null,
+  featureFlags: [],
   idToken: null,
+  idTokenRaw: null,
   isAuthenticated: false,
   isLoading: true,
   organization: null,
