@@ -1,6 +1,5 @@
-import {GrantType} from '@kinde-oss/kinde-typescript-sdk';
-import {version} from '../utils/version';
 import {removeTrailingSlash} from '../utils/removeTrailingSlash';
+import {version} from '../utils/version';
 
 /**
  * @type {import('../../types').KindeState}
@@ -97,5 +96,5 @@ export const config = {
     frameworkVersion: version,
     scope: KINDE_SCOPE
   },
-  grantType: GrantType.AUTHORIZATION_CODE
+  grantType: 'AUTHORIZATION_CODE'
 };
