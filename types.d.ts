@@ -52,15 +52,16 @@ export type KindeUser = {
   username?: string | null;
   phone_number?: string | null;
   properties?: {
-    usr_city?: string;
-    usr_industry?: string;
-    usr_job_title?: string;
-    usr_middle_name?: string;
-    usr_postcode?: string;
-    usr_salutation?: string;
-    usr_state_region?: string;
-    usr_street_address?: string;
-    usr_street_address_2?: string;
+    city?: string;
+    industry?: string;
+    job_title?: string;
+    middle_name?: string;
+    postcode?: string;
+    salutation?: string;
+    state_region?: string;
+    street_address?: string;
+    street_address_2?: string;
+    [custom_property: string]: any;
   };
 };
 
@@ -207,13 +208,7 @@ export type KindeState = {
   isLoading: boolean | null;
   organization: KindeOrganization;
   permissions: KindePermissions;
-  user: {
-    id: string;
-    email: string | null;
-    given_name: string | null;
-    family_name: string | null;
-    picture: string | null;
-  } | null;
+  user: KindeUser | null;
   userOrganizations: KindeOrganizations;
   getAccessToken: () => KindeAccessToken | null;
   getAccessTokenRaw: () => string | null;
