@@ -28,6 +28,18 @@ export const callback = async (routerClient) => {
     if (config.isDebugMode) {
       console.error('callback', error);
     }
+
+    if (error.message.substr(90, 25) === 'Expected: State not found') {
+      return routerClient.json(
+        {
+          error:
+            `Error: State not found.\nTo resolve this error please visit our docs https://docs.kinde.com/developer-tools/sdks/backend/nextjs-sdk/#state-not-found-error` +
+            error.message
+        },
+        {status: 500}
+      );
+    }
+
     return routerClient.json({error: error.message}, {status: 500});
   }
   if (postLoginRedirectURL) {
