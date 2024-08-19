@@ -1,9 +1,9 @@
-import { config } from '../config/index'
-import { NextResponse } from "next/server";
-import { validateClientSecret } from '@kinde-oss/kinde-typescript-sdk';
+import {config} from '../config/index';
+import {NextResponse} from 'next/server';
+import {validateClientSecret} from '@kinde-oss/kinde-typescript-sdk';
 
 /**
- * 
+ *
  * @returns NextResponse
  */
 export const health = async () => {
@@ -13,7 +13,9 @@ export const health = async () => {
     postLoginRedirectURL: config.postLoginRedirectURL,
     issuerURL: config.issuerURL,
     clientID: config.clientID,
-    clientSecret: validateClientSecret(config.clientSecret) ? 'Set correctly' : 'Not set correctly',
+    clientSecret: validateClientSecret(config.clientSecret)
+      ? 'Set correctly'
+      : 'Not set correctly',
     postLogoutRedirectURL: config.postLogoutRedirectURL,
     audience: config.audience,
     cookieDomain: config.cookieDomain,

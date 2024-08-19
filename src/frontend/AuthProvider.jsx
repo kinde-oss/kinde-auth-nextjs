@@ -1,5 +1,11 @@
 import {config} from '../config/index';
-import { createContext, useContext, useState, useCallback,useEffect } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect
+} from 'react';
 import React from 'react';
 /** @type {Record<import('../../types').KindeFlagTypeCode, import('../../types').KindeFlagTypeValue>} */
 export const flagDataTypeMap = {
@@ -47,7 +53,7 @@ export const KindeProvider = ({children}) => {
   const setupUrl = `${config.apiPath}/setup`;
 
   const refreshData = useCallback(() => {
-    checkSession()
+    checkSession();
   }, ['checkSession']);
 
   const checkSession = useCallback(async () => {
@@ -233,7 +239,7 @@ export const KindeProvider = ({children}) => {
   }, [setupUrl]);
 
   const [state, setState] = useState({
-    ...config.initialState,
+    ...config.initialState
   });
 
   // if you get the user set loading false
@@ -278,7 +284,7 @@ export const KindeProvider = ({children}) => {
     organization,
     userOrganizations,
     error,
-    isLoading,
+    isLoading
   } = state;
 
   return (
