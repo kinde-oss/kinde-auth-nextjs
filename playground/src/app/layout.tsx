@@ -1,23 +1,23 @@
-import "./globals.css";
+import './globals.css';
 import {
   RegisterLink,
   LoginLink,
-  LogoutLink,
-} from "@kinde-oss/kinde-auth-nextjs/components";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import Link from "next/link";
+  LogoutLink
+} from '@kinde-oss/kinde-auth-nextjs/components';
+import {getKindeServerSession} from '@kinde-oss/kinde-auth-nextjs/server';
+import Link from 'next/link';
 
 export const metadata = {
-  title: "Kinde Auth",
-  description: "Kinde with NextJS App Router",
+  title: 'Kinde Auth',
+  description: 'Kinde with NextJS App Router'
 };
 
 export default async function RootLayout({
-  children,
+  children
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, getUser } = getKindeServerSession();
+  const {isAuthenticated, getUser} = getKindeServerSession();
   const user = await getUser();
   return (
     <html lang="en">
@@ -65,7 +65,7 @@ export default async function RootLayout({
           <div className="container">
             <strong className="text-heading-2">KindeAuth</strong>
             <p className="footer-tagline text-body-3">
-              Visit our{" "}
+              Visit our{' '}
               <Link className="link" href="https://kinde.com/docs">
                 help center
               </Link>

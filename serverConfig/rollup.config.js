@@ -17,5 +17,13 @@ export default {
       exports: 'named',
       format: 'esm'
     }
+  ],
+  external: [
+    'next/server',
+    'next/navigation',
+    'next/headers',
+    'react',
+    'jwt-decode',
+    '@kinde-oss/kinde-typescript-sdk'
   ]
 };

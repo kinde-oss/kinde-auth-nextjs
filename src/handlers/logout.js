@@ -1,4 +1,4 @@
-import { config } from '../config/index';
+import {config} from '../config/index';
 import RouterClient from '../routerClients/RouterClient';
 
 /**
@@ -10,7 +10,9 @@ export const logout = async (routerClient) => {
     routerClient.sessionManager
   );
 
-  let postLogoutRedirectURL = routerClient.getSearchParam('post_logout_redirect_url') || config.postLogoutRedirectURL;
+  let postLogoutRedirectURL =
+    routerClient.getSearchParam('post_logout_redirect_url') ||
+    config.postLogoutRedirectURL;
   if (postLogoutRedirectURL?.startsWith('/')) {
     postLogoutRedirectURL = config.redirectURL + postLogoutRedirectURL;
   }

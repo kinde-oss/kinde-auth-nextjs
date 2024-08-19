@@ -20,5 +20,10 @@ export default {
       exports: 'named'
     }
   ],
-  external: ['react', 'react-dom']
+  external: [
+    'react',
+    'react-dom',
+    'jwt-decode',
+    '@kinde-oss/kinde-typescript-sdk'
+  ]
 };
