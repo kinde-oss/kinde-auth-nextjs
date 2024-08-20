@@ -20,22 +20,22 @@ export const generateUserObject = (
     } = userProperties;
 
     const sanitizedRest = Object.keys(rest).reduce((acc, key) => {
-      acc[key] = rest[key].v;
+      acc[key] = rest[key]?.v;
       return acc;
     }, {});
 
     res = {
       ...res,
       properties: {
-        city: cityObj.v,
-        industry: industryObj.v,
-        job_title: jobTitleObj.v,
-        middle_name: middleNameObj.v,
-        postcode: postcodeObj.v,
-        salutation: salutationObj.v,
-        state_region: stateRegionObj.v,
-        street_address: streetAddressObj.v,
-        street_address_2: streetAddress2Obj.v,
+        city: cityObj?.v,
+        industry: industryObj?.v,
+        job_title: jobTitleObj?.v,
+        middle_name: middleNameObj?.v,
+        postcode: postcodeObj?.v,
+        salutation: salutationObj?.v,
+        state_region: stateRegionObj?.v,
+        street_address: streetAddressObj?.v,
+        street_address_2: streetAddress2Obj?.v,
         ...sanitizedRest
       }
     };

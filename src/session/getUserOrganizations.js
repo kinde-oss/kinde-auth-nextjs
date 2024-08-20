@@ -1,5 +1,6 @@
 import {sessionManager} from './sessionManager';
 import {kindeClient} from './kindeServerClient';
+import {config} from '../config/index';
 /**
  * @callback getUserOrganizations
  * @returns {Promise<import('../../types').KindeOrganizations | null>}
@@ -30,7 +31,9 @@ export const getUserOrganizationsFactory = (req, res) => async () => {
       }))
     };
   } catch (error) {
-    console.error('Failed to fetch user organizations:', error);
+    if (config.isDebugMode) {
+      console.debug('getUser', error);
+    }
     return null;
   }
 };
