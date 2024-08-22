@@ -25,13 +25,73 @@ export type KindeAccessToken = {
   sub: string;
 };
 
+type KindeTokenUserProperties = {
+  kp_usr_city: {
+    v: string;
+  };
+  kp_usr_industry: {
+    v: string;
+  };
+  kp_usr_is_marketing_opt_in: {
+    v: string;
+  };
+  kp_usr_job_title: {
+    v: string;
+  };
+  kp_usr_middle_name: {
+    v: string;
+  };
+  kp_usr_postcode: {
+    v: string;
+  };
+  kp_usr_salutation: {
+    v: string;
+  };
+  kp_usr_state_region: {
+    v: string;
+  };
+  kp_usr_street_address: {
+    v: string;
+  };
+  kp_usr_street_address_2: {
+    v: string;
+  };
+} & {
+  [key: string]: {
+    v: any;
+  };
+};
+
 export type KindeIdToken = {
   at_hash: string;
   aud: string[];
   auth_time: number;
   azp: string;
   email: string;
+  email_verified: boolean;
   exp: number;
+  ext_provider?: {
+    claims: {
+      connection_id: string;
+      email: string;
+      family_name: string;
+      given_name: string;
+      is_confirmed: boolean;
+      picture?: string;
+      profile?: {
+        email: string;
+        family_name: string;
+        given_name: string;
+        hd: string;
+        id: string;
+        name: string;
+        picture: string;
+        verified_email: boolean;
+      };
+    };
+    connection_id: string;
+    name: string;
+  };
   family_name: string;
   given_name: string;
   iat: number;
@@ -39,8 +99,18 @@ export type KindeIdToken = {
   jti: string;
   name: string;
   org_codes: string[];
+  organizations?: KindeOrganizations;
+  picture: string;
+  phone_number?: string;
+  preferred_username?: string;
+  properties?: KindeTokenUserProperties;
+  rat: number;
   sub: string;
   updated_at: number;
+};
+
+type KindeUserProperties<T, Mapping extends Record<string, any>> = {
+  [K in keyof T as K extends keyof Mapping ? Mapping[K] : K]: T[K];
 };
 
 export type KindeUser = {
@@ -51,18 +121,7 @@ export type KindeUser = {
   picture: string | null;
   username?: string | null;
   phone_number?: string | null;
-  properties?: {
-    city?: string;
-    industry?: string;
-    job_title?: string;
-    middle_name?: string;
-    postcode?: string;
-    salutation?: string;
-    state_region?: string;
-    street_address?: string;
-    street_address_2?: string;
-    [custom_property: string]: any;
-  };
+  properties?: KindeUserProperties;
 };
 
 export type KindePermissions = {
@@ -193,7 +252,7 @@ export type KindeClient = {
     defaultValue?: string | number | boolean | undefined,
     type?: keyof FlagType | undefined
   ) => Promise<GetFlagType>;
-  refreshData: () => Promise<void>;
+  refreshTokens: (sessionManager: SessionManager) => Promise<void>;
 };
 
 export type KindeState = {
@@ -247,7 +306,7 @@ export type KindeState = {
     defaultValue: string
   ) => string | null | undefined;
   getToken: () => string | null;
-  getUser: () => KindeUser | null;
+  getUser: () => KindeUser<{}> | null;
   getUserOrganizations: () => KindeOrganizations | null;
   refreshData: () => Promise<void>;
 };
@@ -256,7 +315,7 @@ export type KindeSetupResponse = {
   accessToken: KindeAccessToken;
   accessTokenEncoded: string;
   idToken: KindeIdToken;
-  user: KindeUser;
+  user: KindeUser<{}>;
   permissions: KindePermissions;
   organization: KindeOrganization;
   featureFlags: Record<string, KindeFlagRaw>;

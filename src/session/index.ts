@@ -17,17 +17,13 @@ import {sessionManager} from './sessionManager';
 import {getRolesFactory} from './getRoles';
 import {getClaimFactory} from './getClaim';
 import {config} from '../config/index';
+import {NextApiRequest, NextApiResponse} from 'next';
 
-/**
- *
- * @param {import('next').NextApiRequest | Request} [req]
- * @param {import('next').NextApiResponse | Response} [res]
- * @returns
- */
-export default function (req, res) {
+export default function (req: NextApiRequest, res: NextApiResponse) {
   return {
     refreshTokens: async () => {
       try {
+        // @ts-ignore
         const response = await kindeClient.refreshTokens(
           sessionManager(req, res)
         );
