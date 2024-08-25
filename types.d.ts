@@ -103,17 +103,26 @@ export type KindeIdToken = {
   picture: string;
   phone_number?: string;
   preferred_username?: string;
-  properties?: KindeTokenUserProperties;
+  user_properties?: KindeTokenUserProperties;
   rat: number;
   sub: string;
   updated_at: number;
 };
 
-type KindeUserProperties<T, Mapping extends Record<string, any>> = {
-  [K in keyof T as K extends keyof Mapping ? Mapping[K] : K]: T[K];
-};
+type KindeUserProperties<T = Record<string, any>> = {
+  city?: string;
+  industry?: string;
+  is_marketing_opt_in?: string;
+  job_title?: string;
+  middle_name?: string;
+  postcode?: string;
+  salutation?: string;
+  state_region?: string;
+  street_address?: string;
+  street_address_2?: string;
+} & T;
 
-export type KindeUser = {
+export type KindeUserBase = {
   id: string;
   email: string | null;
   given_name: string | null;
@@ -121,8 +130,11 @@ export type KindeUser = {
   picture: string | null;
   username?: string | null;
   phone_number?: string | null;
-  properties?: KindeUserProperties;
 };
+
+export interface KindeUser<T> extends KindeUserBase {
+  properties?: KindeUserProperties<T>;
+}
 
 export type KindePermissions = {
   permissions: string[];

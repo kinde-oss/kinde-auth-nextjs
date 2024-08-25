@@ -19,7 +19,7 @@ import {getClaimFactory} from './getClaim';
 import {config} from '../config/index';
 import {NextApiRequest, NextApiResponse} from 'next';
 
-export default function (req: NextApiRequest, res: NextApiResponse) {
+export default function (req?: NextApiRequest, res?: NextApiResponse) {
   return {
     refreshTokens: async () => {
       try {
