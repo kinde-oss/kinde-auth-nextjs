@@ -343,7 +343,7 @@ export type KindeState = {
     defaultValue: string
   ) => string | null | undefined;
   getToken: () => string | null;
-  getUser: () => KindeUser<{}> | null;
+  getUser: () => KindeUser<Record<string, string>> | null;
   getUserOrganizations: () => KindeOrganizations | null;
   refreshData: () => Promise<void>;
 };
@@ -352,7 +352,7 @@ export type KindeSetupResponse = {
   accessToken: KindeAccessToken;
   accessTokenEncoded: string;
   idToken: KindeIdToken;
-  user: KindeUser<{}>;
+  user: KindeUser<Record<string, string>>;
   permissions: KindePermissions;
   organization: KindeOrganization;
   featureFlags: Record<string, KindeFlagRaw>;
