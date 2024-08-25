@@ -11,54 +11,78 @@ import {
 
 export type KindeAccessToken = {
   aud: string[];
-  azp: number;
+  azp: string;
+  email?: string;
   exp: number;
+  feature_flags: Record<string, KindeFlagRaw>;
   iat: number;
   iss: string;
   jti: string;
   org_code: string;
   org_name?: string;
-  permissions: KindePermissions;
+  organization_properties?: KindeTokenOrganizationProperties;
+  permissions: string[];
   roles?: KindeRole[];
-  email?: string;
   scp: string[];
   sub: string;
+  user_properties?: KindeTokenUserProperties;
+};
+
+type KindeTokenOrganizationProperties = {
+  kp_org_city: {
+    v?: string;
+  };
+  kp_org_industry: {
+    v?: string;
+  };
+  kp_org_postcode: {
+    v?: string;
+  };
+  kp_org_state_region: {
+    v?: string;
+  };
+  kp_org_street_address: {
+    v?: string;
+  };
+  kp_org_street_address_2: {
+    v?: string;
+  };
 };
 
 type KindeTokenUserProperties = {
-  kp_usr_city: {
-    v: string;
+  kp_usr_city?: {
+    v?: string;
   };
-  kp_usr_industry: {
-    v: string;
+  kp_usr_industry?: {
+    v?: string;
   };
-  kp_usr_is_marketing_opt_in: {
-    v: string;
+  kp_usr_is_marketing_opt_in?: {
+    v?: string;
   };
-  kp_usr_job_title: {
-    v: string;
+  kp_usr_job_title?: {
+    v?: string;
   };
-  kp_usr_middle_name: {
-    v: string;
+  kp_usr_middle_name?: {
+    v?: string;
   };
-  kp_usr_postcode: {
-    v: string;
+  kp_usr_postcode?: {
+    v?: string;
   };
-  kp_usr_salutation: {
-    v: string;
+  kp_usr_salutation?: {
+    v?: string;
   };
-  kp_usr_state_region: {
-    v: string;
+  kp_usr_state_region?: {
+    v?: string;
   };
-  kp_usr_street_address: {
-    v: string;
+  kp_usr_street_address?: {
+    v?: string;
   };
-  kp_usr_street_address_2: {
-    v: string;
+  kp_usr_street_address_2?: {
+    v?: string;
   };
 } & {
   [key: string]: {
-    v: any;
+    v?: any;
   };
 };
 
@@ -98,8 +122,9 @@ export type KindeIdToken = {
   iss: string;
   jti: string;
   name: string;
+  organization_properties?: KindeTokenOrganizationProperties;
   org_codes: string[];
-  organizations?: KindeOrganizations;
+  organizations?: {id: string; name: string}[];
   picture: string;
   phone_number?: string;
   preferred_username?: string;
@@ -154,12 +179,12 @@ export type KindeRole = {
 
 export type KindeFlagRaw = {
   t: KindeFlagTypeCode;
-  v: string | number | boolean;
+  v?: string | number | boolean | object;
 };
 
-export type KindeFlagTypeCode = 'b' | 'i' | 's';
+export type KindeFlagTypeCode = 'b' | 'i' | 's' | 'j';
 
-export type KindeFlagTypeValue = 'boolean' | 'integer' | 'string';
+export type KindeFlagTypeValue = 'boolean' | 'integer' | 'string' | 'json';
 
 export type KindeFlag = {
   code: string;

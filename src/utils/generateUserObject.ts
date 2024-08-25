@@ -1,7 +1,10 @@
-import {KindeIdToken, KindeUser} from '../../types';
+import {KindeAccessToken, KindeIdToken, KindeUser} from '../../types';
 
 type CustomPropertyType = Record<string, any>;
-export const generateUserObject = (idToken: KindeIdToken) => {
+export const generateUserObject = (
+  idToken: KindeIdToken,
+  accessToken: KindeAccessToken
+) => {
   const user: KindeUser<CustomPropertyType> = {
     id: idToken.sub,
     email: idToken.email,
@@ -13,7 +16,7 @@ export const generateUserObject = (idToken: KindeIdToken) => {
   };
   let res = user;
 
-  const properties = idToken.user_properties;
+  const properties = idToken.user_properties || accessToken.user_properties;
 
   if (properties) {
     const {
