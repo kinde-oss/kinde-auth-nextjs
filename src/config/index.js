@@ -1,4 +1,3 @@
-import {GrantType} from '@kinde-oss/kinde-typescript-sdk';
 import {version} from '../utils/version';
 import {removeTrailingSlash} from '../utils/removeTrailingSlash';
 
@@ -91,8 +90,7 @@ export const config = {
     logoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL || '',
     redirectURL: `${KINDE_SITE_URL}/api/auth/kinde_callback`,
     frameworkVersion: version,
-    framework: 'Next.js',
     scope: KINDE_SCOPE
   },
-  grantType: GrantType.AUTHORIZATION_CODE
+  grantType: 'AUTHORIZATION_CODE'
 };

@@ -2,9 +2,10 @@ const packageJson = require('./package.json');
 
 import babel from '@rollup/plugin-babel';
 import {terser} from 'rollup-plugin-terser';
+import tsPlugin from '@rollup/plugin-typescript';
 
 export default {
-  plugins: [babel({babelHelpers: 'bundled'}), terser()],
+  plugins: [babel({babelHelpers: 'bundled'}), terser(), tsPlugin()],
   input: './src/index.js',
   output: [
     {
@@ -20,5 +21,10 @@ export default {
       exports: 'named'
     }
   ],
-  external: ['react', 'react-dom']
+  external: [
+    'react',
+    'react-dom',
+    'jwt-decode',
+    '@kinde-oss/kinde-typescript-sdk'
+  ]
 };

@@ -10,7 +10,7 @@
   --g-box-shadow: 0px 6px 12px rgba(18, 20, 23, 0.06),
     0px 15px 24px rgba(18, 20, 23, 0.07), 0px -4px 12px rgba(18, 20, 23, 0.05);
 
-  --g-font-family: "Helvetica";
+  --g-font-family: 'Helvetica';
 
   --g-font-size-x-small: 0.75rem; /* 12px */
   --g-font-size-small: 0.875rem; /* 14px */
