@@ -11,18 +11,79 @@ import {
 
 export type KindeAccessToken = {
   aud: string[];
-  azp: number;
+  azp: string;
+  email?: string;
   exp: number;
+  feature_flags: Record<string, KindeFlagRaw>;
   iat: number;
   iss: string;
   jti: string;
   org_code: string;
   org_name?: string;
-  permissions: KindePermissions;
+  organization_properties?: KindeTokenOrganizationProperties;
+  permissions: string[];
   roles?: KindeRole[];
-  email?: string;
   scp: string[];
   sub: string;
+  user_properties?: KindeTokenUserProperties;
+};
+
+type KindeTokenOrganizationProperties = {
+  kp_org_city: {
+    v?: string;
+  };
+  kp_org_industry: {
+    v?: string;
+  };
+  kp_org_postcode: {
+    v?: string;
+  };
+  kp_org_state_region: {
+    v?: string;
+  };
+  kp_org_street_address: {
+    v?: string;
+  };
+  kp_org_street_address_2: {
+    v?: string;
+  };
+};
+
+type KindeTokenUserProperties = {
+  kp_usr_city?: {
+    v?: string;
+  };
+  kp_usr_industry?: {
+    v?: string;
+  };
+  kp_usr_is_marketing_opt_in?: {
+    v?: string;
+  };
+  kp_usr_job_title?: {
+    v?: string;
+  };
+  kp_usr_middle_name?: {
+    v?: string;
+  };
+  kp_usr_postcode?: {
+    v?: string;
+  };
+  kp_usr_salutation?: {
+    v?: string;
+  };
+  kp_usr_state_region?: {
+    v?: string;
+  };
+  kp_usr_street_address?: {
+    v?: string;
+  };
+  kp_usr_street_address_2?: {
+    v?: string;
+  };
+} & {
+  [key: string]: {
+    v?: any;
+  };
 };
 
 export type KindeIdToken = {
@@ -31,19 +92,62 @@ export type KindeIdToken = {
   auth_time: number;
   azp: string;
   email: string;
+  email_verified: boolean;
   exp: number;
+  ext_provider?: {
+    claims: {
+      connection_id: string;
+      email: string;
+      family_name: string;
+      given_name: string;
+      is_confirmed: boolean;
+      picture?: string;
+      profile?: {
+        email: string;
+        family_name: string;
+        given_name: string;
+        hd: string;
+        id: string;
+        name: string;
+        picture: string;
+        verified_email: boolean;
+      };
+    };
+    connection_id: string;
+    name: string;
+  };
   family_name: string;
   given_name: string;
   iat: number;
   iss: string;
   jti: string;
   name: string;
+  organization_properties?: KindeTokenOrganizationProperties;
   org_codes: string[];
+  organizations?: {id: string; name: string}[];
+  picture: string;
+  phone_number?: string;
+  preferred_username?: string;
+  user_properties?: KindeTokenUserProperties;
+  rat: number;
   sub: string;
   updated_at: number;
 };
 
-export type KindeUser = {
+type KindeUserProperties<T = Record<string, any>> = {
+  city?: string;
+  industry?: string;
+  is_marketing_opt_in?: string;
+  job_title?: string;
+  middle_name?: string;
+  postcode?: string;
+  salutation?: string;
+  state_region?: string;
+  street_address?: string;
+  street_address_2?: string;
+} & T;
+
+export type KindeUserBase = {
   id: string;
   email: string | null;
   given_name: string | null;
@@ -51,18 +155,11 @@ export type KindeUser = {
   picture: string | null;
   username?: string | null;
   phone_number?: string | null;
-  properties?: {
-    usr_city?: string;
-    usr_industry?: string;
-    usr_job_title?: string;
-    usr_middle_name?: string;
-    usr_postcode?: string;
-    usr_salutation?: string;
-    usr_state_region?: string;
-    usr_street_address?: string;
-    usr_street_address_2?: string;
-  };
 };
+
+export interface KindeUser<T> extends KindeUserBase {
+  properties?: KindeUserProperties<T>;
+}
 
 export type KindePermissions = {
   permissions: string[];
@@ -82,12 +179,12 @@ export type KindeRole = {
 
 export type KindeFlagRaw = {
   t: KindeFlagTypeCode;
-  v: string | number | boolean;
+  v?: string | number | boolean | object;
 };
 
-export type KindeFlagTypeCode = 'b' | 'i' | 's';
+export type KindeFlagTypeCode = 'b' | 'i' | 's' | 'j';
 
-export type KindeFlagTypeValue = 'boolean' | 'integer' | 'string';
+export type KindeFlagTypeValue = 'boolean' | 'integer' | 'string' | 'json';
 
 export type KindeFlag = {
   code: string;
@@ -192,7 +289,7 @@ export type KindeClient = {
     defaultValue?: string | number | boolean | undefined,
     type?: keyof FlagType | undefined
   ) => Promise<GetFlagType>;
-  refreshData: () => Promise<void>;
+  refreshTokens: (sessionManager: SessionManager) => Promise<void>;
 };
 
 export type KindeState = {
@@ -246,7 +343,7 @@ export type KindeState = {
     defaultValue: string
   ) => string | null | undefined;
   getToken: () => string | null;
-  getUser: () => KindeUser | null;
+  getUser: () => KindeUser<Record<string, string>> | null;
   getUserOrganizations: () => KindeOrganizations | null;
   refreshData: () => Promise<void>;
 };
@@ -255,7 +352,7 @@ export type KindeSetupResponse = {
   accessToken: KindeAccessToken;
   accessTokenEncoded: string;
   idToken: KindeIdToken;
-  user: KindeUser;
+  user: KindeUser<Record<string, string>>;
   permissions: KindePermissions;
   organization: KindeOrganization;
   featureFlags: Record<string, KindeFlagRaw>;

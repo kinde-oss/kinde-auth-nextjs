@@ -1,6 +1,7 @@
 import jwtDecode from 'jwt-decode';
 import RouterClient from '../routerClients/RouterClient';
 import {config} from '../config/index';
+import {generateUserObject} from '../utils/generateUserObject';
 
 /**
  *
@@ -61,6 +62,17 @@ export const setup = async (routerClient) => {
       'user_properties'
     );
 
+    const phone_number = await routerClient.kindeClient.getClaimValue(
+      routerClient.sessionManager,
+      'phone_number',
+      'id_token'
+    );
+    const username = await routerClient.kindeClient.getClaimValue(
+      routerClient.sessionManager,
+      'preferred_username',
+      'id_token'
+    );
+
     const orgNames = await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
       'organizations',
@@ -74,24 +86,12 @@ export const setup = async (routerClient) => {
       idToken,
       idTokenRaw: idTokenEncoded,
       idTokenEncoded,
-      user: {
-        ...user,
-        properties: {
-          city: userProperties?.kp_usr_city?.v,
-          industry: userProperties?.kp_usr_industry?.v,
-          job_title: userProperties?.kp_usr_job_title?.v,
-          middle_name: userProperties?.kp_usr_middle_name?.v,
-          postcode: userProperties?.kp_usr_postcode?.v,
-          salutation: userProperties?.kp_usr_salutation?.v,
-          state_region: userProperties?.kp_usr_state_region?.v,
-          street_address: userProperties?.kp_usr_street_address?.v,
-          street_address_2: userProperties?.kp_usr_street_address_2?.v
-        }
-      },
+      user: generateUserObject(user, userProperties, phone_number, username),
       permissions: {
         permissions,
         orgCode: organization
       },
+      needsRefresh: false,
       organization: {
         orgCode: organization,
         orgName,
@@ -115,8 +115,22 @@ export const setup = async (routerClient) => {
     });
   } catch (error) {
     if (config.isDebugMode) {
-      console.error(error);
+      console.debug(error);
     }
+
+    if (error.code == 'ERR_JWT_EXPIRED') {
+      return routerClient.json(
+        {
+          needsRefresh: true
+        },
+        {status: 200}
+      );
+    }
+    return routerClient.json(
+      {
+        error
+      },
+      {status: 500}
+    );
   }
-  return routerClient.json({error: 'Log in with Kinde'}, {status: 401});
 };

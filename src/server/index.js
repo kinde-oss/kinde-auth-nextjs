@@ -1,4 +1,4 @@
-export {default as getKindeServerSession} from '../session/index';
+export {default as getKindeServerSession} from '../session/index.ts';
 export {authMiddleware, withAuth} from '../authMiddleware/authMiddleware';
 export {
   LoginLink,
