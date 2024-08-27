@@ -8,23 +8,22 @@ export const getUserOrganizationsFactory =
   (req?: NextApiRequest, res?: NextApiResponse) =>
   async (): Promise<KindeOrganizations | null> => {
     try {
-      const userOrgs = await kindeClient.getUserOrganizations(
-        sessionManager(req, res)
-      );
+      const session = sessionManager(req, res);
+      const userOrgs = await kindeClient.getUserOrganizations(session);
       const orgNames = (await kindeClient.getClaimValue(
-        sessionManager(req, res),
+        session,
         'organizations',
         'id_token'
       )) as {id: string; name: string}[];
 
       const hasuraOrgCodes = (await kindeClient.getClaimValue(
-        sessionManager(req, res),
+        session,
         'x-hasura-org-codes',
         'id_token'
       )) as string[];
 
       const hasuraOrganizations = (await kindeClient.getClaimValue(
-        sessionManager(req, res),
+        session,
         'x-hasura-organizations',
         'id_token'
       )) as {id: string; name: string}[];
@@ -38,7 +37,7 @@ export const getUserOrganizationsFactory =
       };
     } catch (error) {
       if (config.isDebugMode) {
-        console.debug('getUser', error);
+        console.debug('getUserOrganization error:', error);
       }
       return null;
     }
