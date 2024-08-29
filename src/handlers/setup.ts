@@ -1,5 +1,5 @@
 import jwtDecode from 'jwt-decode';
-import RouterClient from '../routerClients/RouterClient';
+import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
 
@@ -57,22 +57,6 @@ export const setup = async (routerClient) => {
       'organization_properties'
     );
 
-    const userProperties = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'user_properties'
-    );
-
-    const phone_number = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'phone_number',
-      'id_token'
-    );
-    const username = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'preferred_username',
-      'id_token'
-    );
-
     const orgNames = await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
       'organizations',
@@ -86,7 +70,10 @@ export const setup = async (routerClient) => {
       idToken,
       idTokenRaw: idTokenEncoded,
       idTokenEncoded,
-      user: generateUserObject(user, userProperties, phone_number, username),
+      user: generateUserObject(
+        idToken as KindeIdToken,
+        accessToken as KindeAccessToken
+      ),
       permissions: {
         permissions,
         orgCode: organization
