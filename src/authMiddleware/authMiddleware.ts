@@ -1,12 +1,13 @@
 import jwt_decode from 'jwt-decode';
-import {NextResponse} from 'next/server';
+import {NextRequest, NextResponse} from 'next/server';
+import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {isTokenValid} from '../utils/pageRouter/isTokenValid';
 
-const trimTrailingSlash = (str) =>
+const trimTrailingSlash = (str: string) =>
   str && str.charAt(str.length - 1) === '/' ? str.slice(0, -1) : str;
 
-export function authMiddleware(request) {
+export function authMiddleware(request: NextRequest) {
   let isAuthenticated = false;
   const nextUrl = trimTrailingSlash(request.nextUrl.href);
   const logoutUrl = trimTrailingSlash(config.postLogoutRedirectURL);
@@ -31,7 +32,20 @@ export function authMiddleware(request) {
   return NextResponse.next();
 }
 
-const handleMiddleware = async (req, options, onSuccess) => {
+const handleMiddleware = async (
+  req?: NextRequest,
+  options?: {
+    isReturnToCurrentPage?: boolean;
+    loginPage?: string;
+    publicPaths?: string[];
+    redirectURLBase?: string;
+    isAuthorized?: (args: {
+      req: NextRequest;
+      token: KindeAccessToken;
+    }) => boolean;
+  },
+  onSuccess?: (args: {token: any; user: any}) => any
+) => {
   const {pathname} = req.nextUrl;
 
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
@@ -60,8 +74,12 @@ const handleMiddleware = async (req, options, onSuccess) => {
     return response;
   }
 
-  const accessTokenValue = jwt_decode(req.cookies.get('access_token').value);
-  const idTokenValue = jwt_decode(req.cookies.get('id_token')?.value);
+  const accessTokenValue: KindeAccessToken = jwt_decode(
+    req.cookies.get('access_token').value
+  );
+  const idTokenValue: KindeIdToken = jwt_decode(
+    req.cookies.get('id_token')?.value
+  );
 
   const isAuthorized = options?.isAuthorized
     ? options.isAuthorized({req, token: accessTokenValue})
@@ -89,28 +107,35 @@ const handleMiddleware = async (req, options, onSuccess) => {
   );
 };
 
-/**
- * @param {Request} [req]
- * @param {function(req: Request & {kindeAuth: {user: any, token: string}})} [onIsAuthorized]
- */
-export function withAuth(...args) {
-  // most basic usage - no options
-  if (!args.length || args[0] instanceof Request) {
-    return handleMiddleware(...args);
-  }
+export type KindeRequest = NextRequest & {
+  kindeAuth: {
+    token: KindeAccessToken;
+    user: {
+      family_name: string;
+      given_name: string;
+      email: string;
+      id: string;
+      picture: string;
+    };
+  };
+};
 
-  // passing through the kindeAuth data to the middleware function
-  if (typeof args[0] === 'function') {
-    const middleware = args[0];
-    const options = args[1];
-    return async (...args) =>
-      await handleMiddleware(args[0], options, async ({token, user}) => {
-        args[0].kindeAuth = {token, user};
-        return await middleware(...args);
+export function withAuth(
+  reqOrMiddleware: NextRequest | ((req: KindeRequest) => any),
+  options?: {
+    isReturnToCurrentPage?: boolean;
+    loginPage?: string;
+    publicPaths?: string[];
+    redirectURLBase?: string;
+    isAuthorized?: (args: {req: NextRequest; token: any}) => boolean;
+  }
+) {
+  if (reqOrMiddleware instanceof Function) {
+    return async (req: any) =>
+      await handleMiddleware(req, options, async ({token, user}) => {
+        req.kindeAuth = {token, user};
+        return await reqOrMiddleware(req);
       });
   }
-
-  // includes options
-  const options = args[0];
-  return async (...args) => await handleMiddleware(args[0], options);
+  return handleMiddleware(reqOrMiddleware, options);
 }
