@@ -29,32 +29,20 @@ export const createKindeManagementAPIClient = async (req, res) => {
   let apiToken = null;
 
   const store = sessionManager(req, res);
-  const tokenFromCookie = store.getSessionItem('kinde_api_access_token');
 
-  if (isTokenValid(tokenFromCookie)) {
-    apiToken = tokenFromCookie;
-  } else {
-    const response = await fetch(`${config.issuerURL}/oauth2/token`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: config.clientID || '',
-        client_secret: config.clientSecret || '',
-        audience: config.issuerURL + '/api'
-      })
-    });
-    apiToken = (await response.json()).access_token;
-    try {
-      store.setSessionItem('kinde_api_access_token', apiToken);
-    } catch (error) {
-      if (config.isDebugMode) {
-        console.error(error);
-      }
-    }
-  }
+  const response = await fetch(`${config.issuerURL}/oauth2/token`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: config.clientID || '',
+      client_secret: config.clientSecret || '',
+      audience: config.issuerURL + '/api'
+    })
+  });
+  apiToken = (await response.json()).access_token;
 
   const cfg = new Configuration({
     basePath: config.issuerURL,
