@@ -29,7 +29,8 @@ export const createKindeManagementAPIClient = async (req, res) => {
   let apiToken = null;
 
   const store = sessionManager(req, res);
-
+  store.removeSessionItem('kinde_api_access_token');
+  
   const response = await fetch(`${config.issuerURL}/oauth2/token`, {
     method: 'POST',
     headers: {
