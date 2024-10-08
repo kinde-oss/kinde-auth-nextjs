@@ -23,7 +23,7 @@ export const useKindeBrowserClient = (
     organization: null,
     permissions: [],
     user: null,
-    userOrganizations: []
+    userOrganizations: null
   });
 
   useEffect(() => {
