@@ -20,13 +20,13 @@ export const getUserOrganizationsFactory =
         session,
         'x-hasura-org-codes',
         'id_token'
-      )) as string[];
+      )) as string[] ?? [];
 
       const hasuraOrganizations = (await kindeClient.getClaimValue(
         session,
         'x-hasura-organizations',
         'id_token'
-      )) as {id: string; name: string}[];
+      )) as {id: string; name: string}[] ?? [];
 
       return {
         orgCodes: [...userOrgs.orgCodes, ...hasuraOrgCodes],
