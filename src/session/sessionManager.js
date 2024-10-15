@@ -23,6 +23,19 @@ const COOKIE_LIST = [
   'post_login_redirect_url'
 ];
 
+const MAX_LENGTH = 2000;
+
+const splitString = (str, length) => {
+  if (length <= 0) {
+    return [];
+  }
+  const result = [];
+  for (let i = 0; i < str.length; i += length) {
+    result.push(str.slice(i, i + length));
+  }
+  return result;
+};
+
 /**
  *
  * @param {import('next').NextApiRequest} [req]
@@ -48,19 +61,25 @@ export const appRouterSessionManager = (cookieStore) => ({
    * @returns {Promise<string | object | null>}
    */
   getSessionItem: (itemKey) => {
-    const item = cookieStore.get(itemKey);
-    if (item) {
-      try {
-        const jsonValue = JSON.parse(item.value);
-        if (typeof jsonValue === 'object') {
-          return jsonValue;
-        }
-        return item.value;
-      } catch (error) {
-        return item.value;
+    const item = cookieStore.get(itemKey + '0');
+    if (!item) return null;
+    try {
+      let itemValue = '';
+      let index = 0;
+      let key = `${String(itemKey)}${index}`;
+      while (cookieStore.get(key)) {
+        itemValue += cookieStore.get(key).value;
+        index++;
+        key = `${String(itemKey)}${index}`;
       }
+      const jsonValue = JSON.parse(itemValue);
+      if (typeof jsonValue === 'object') {
+        return jsonValue;
+      }
+      return itemValue;
+    } catch (error) {
+      return item.value;
     }
-    return null;
   },
   /**
    *
@@ -70,15 +89,15 @@ export const appRouterSessionManager = (cookieStore) => ({
    */
   setSessionItem: (itemKey, itemValue) => {
     if (itemValue !== undefined) {
-      cookieStore.set(
-        itemKey,
-        typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
-        {
+      const itemValueString =
+        typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue;
+      splitString(itemValueString, MAX_LENGTH).forEach((value, index) => {
+        cookieStore.set(itemKey + index, value, {
           maxAge: TWENTY_NINE_DAYS,
           domain: config.cookieDomain ? config.cookieDomain : undefined,
           ...GLOBAL_COOKIE_OPTIONS
-        }
-      );
+        });
+      });
     }
   },
   /**
@@ -87,23 +106,35 @@ export const appRouterSessionManager = (cookieStore) => ({
    * @returns {Promise<void>}
    */
   removeSessionItem: (itemKey) => {
-    cookieStore.set(itemKey, '', {
-      domain: config.cookieDomain ? config.cookieDomain : undefined,
-      maxAge: 0,
-      ...GLOBAL_COOKIE_OPTIONS
-    });
+    cookieStore
+      .getAll()
+      .map((c) => c.name)
+      .forEach((key) => {
+        if (key.startsWith(`${String(itemKey)}`)) {
+          cookieStore.set(itemKey, '', {
+            domain: config.cookieDomain ? config.cookieDomain : undefined,
+            maxAge: 0,
+            ...GLOBAL_COOKIE_OPTIONS
+          });
+        }
+      });
   },
   /**
    * @returns {Promise<void>}
    */
   destroySession: () => {
-    COOKIE_LIST.forEach((name) =>
-      cookieStore.set(name, '', {
-        domain: config.cookieDomain ? config.cookieDomain : undefined,
-        maxAge: 0,
-        ...GLOBAL_COOKIE_OPTIONS
-      })
-    );
+    cookieStore
+      .getAll()
+      .map((c) => c.name)
+      .forEach((key) => {
+        if (COOKIE_LIST.some((substr) => key.startsWith(substr))) {
+          cookieStore.set(key, '', {
+            domain: config.cookieDomain ? config.cookieDomain : undefined,
+            maxAge: 0,
+            ...GLOBAL_COOKIE_OPTIONS
+          });
+        }
+      });
   }
 });
 
