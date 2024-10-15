@@ -1,15 +1,16 @@
-import {isAppRouter} from '../utils/isAppRouter';
-import {callback} from './callback';
-import {createOrg} from './createOrg';
-import {login} from './login';
-import {logout} from './logout';
-import {setup} from './setup';
-import {health} from './health';
-import {register} from './register';
+import {config} from '../config/index';
 import AppRouterClient from '../routerClients/AppRouterClient';
 import PagesRouterClient from '../routerClients/PagesRouterClient';
 import RouterClient from '../routerClients/RouterClient';
-import {config} from '../config/index';
+import {isAppRouter} from '../utils/isAppRouter';
+import {callback} from './callback';
+import {createOrg} from './createOrg';
+import {health} from './health';
+import {login} from './login';
+import {logout} from './logout';
+import {refresh} from './refresh';
+import {register} from './register';
+import {setup} from './setup';
 
 /**
  * @type {Record<string,(routerClient: RouterClient) => Promise<void>>}
@@ -21,7 +22,8 @@ const routeMap = {
   login,
   logout,
   health,
-  kinde_callback: callback
+  kinde_callback: callback,
+  refresh
 };
 
 /**
