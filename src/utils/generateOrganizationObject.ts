@@ -4,6 +4,16 @@ export const generateOrganizationObject = (
   idToken: KindeIdToken,
   accessToken: KindeAccessToken
 ) => {
+  if (!idToken || !accessToken) {
+    throw new Error('Both idToken and accessToken must be provided');
+  }
+
+  if (
+    typeof accessToken.org_code !== 'string' ||
+    typeof accessToken.org_name !== 'string'
+  ) {
+    throw new Error('Invalid accessToken structure');
+  }
   return {
     orgCode: accessToken.org_code,
     orgName: accessToken.org_name,

@@ -16,12 +16,22 @@ import {sessionManager} from './sessionManager';
  */
 export const getOrganizationFactory = (req, res) => async () => {
   try {
-    const idToken = jwtDecode(
-      (await sessionManager(req, res).getSessionItem('id_token')) as string
-    ) as KindeIdToken;
+    const idTokenString = await sessionManager(req, res).getSessionItem(
+      'id_token'
+    );
+    if (!idTokenString) {
+      throw new Error('ID token is missing');
+    }
+    const idToken = jwtDecode(idTokenString as string) as KindeIdToken;
 
+    const accessTokenString = await sessionManager(req, res).getSessionItem(
+      'access_token'
+    );
+    if (!accessTokenString) {
+      throw new Error('Access token is missing');
+    }
     const accessToken = jwtDecode(
-      (await sessionManager(req, res).getSessionItem('access_token')) as string
+      accessTokenString as string
     ) as KindeAccessToken;
 
     return generateOrganizationObject(idToken, accessToken);
