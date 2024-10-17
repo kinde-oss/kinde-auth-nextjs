@@ -2,6 +2,7 @@ import jwtDecode from 'jwt-decode';
 import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
+import {generateOrganizationObject} from '../utils/generateOrganizationObject';
 
 /**
  *
@@ -14,17 +15,15 @@ export const setup = async (routerClient) => {
       routerClient.sessionManager
     );
 
-    const accessTokenEncoded = await routerClient.sessionManager.getSessionItem(
-      'access_token'
-    );
+    const accessTokenEncoded =
+      await routerClient.sessionManager.getSessionItem('access_token');
 
-    const idTokenEncoded = await routerClient.sessionManager.getSessionItem(
-      'id_token'
-    );
+    const idTokenEncoded =
+      await routerClient.sessionManager.getSessionItem('id_token');
 
-    const accessToken = jwtDecode(accessTokenEncoded);
+    const accessToken: KindeAccessToken = jwtDecode(accessTokenEncoded);
 
-    const idToken = jwtDecode(idTokenEncoded);
+    const idToken: KindeIdToken = jwtDecode(idTokenEncoded);
 
     const permissions = await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
@@ -79,18 +78,7 @@ export const setup = async (routerClient) => {
         orgCode: organization
       },
       needsRefresh: false,
-      organization: {
-        orgCode: organization,
-        orgName,
-        properties: {
-          city: orgProperties?.kp_org_city?.v,
-          industry: orgProperties?.kp_org_industry?.v,
-          postcode: orgProperties?.kp_org_postcode?.v,
-          state_region: orgProperties?.kp_org_state_region?.v,
-          street_address: orgProperties?.kp_org_street_address?.v,
-          street_address_2: orgProperties?.kp_org_street_address_2?.v
-        }
-      },
+      organization: generateOrganizationObject(idToken, accessToken),
       featureFlags,
       userOrganizations: {
         orgCodes: userOrganizations,
