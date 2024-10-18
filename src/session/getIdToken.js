@@ -1,6 +1,6 @@
-import jwtDecode from 'jwt-decode';
 import {sessionManager} from './sessionManager';
 import {config} from '../config/index';
+import {jwtDecoder} from '@kinde/jwt-decoder';
 
 /**
  * @callback getIdToken
@@ -17,7 +17,9 @@ import {config} from '../config/index';
 // @ts-ignore
 export const getIdTokenFactory = (req, res) => async () => {
   try {
-    return jwtDecode(await sessionManager(req, res).getSessionItem('id_token'));
+    return jwtDecoder(
+      await sessionManager(req, res).getSessionItem('id_token')
+    );
   } catch (err) {
     if (config.isDebugMode) {
       console.error(err);
