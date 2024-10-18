@@ -24,7 +24,7 @@ export default {
     'next/navigation',
     'next/headers',
     'react',
-    'jwt-decode',
-    '@kinde-oss/kinde-typescript-sdk'
+    '@kinde-oss/kinde-typescript-sdk',
+    '@kinde/jwt-decoder'
   ]
 };
