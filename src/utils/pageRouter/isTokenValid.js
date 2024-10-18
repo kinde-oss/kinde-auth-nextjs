@@ -1,12 +1,12 @@
-import jwt_decode from 'jwt-decode';
+import {jwtDecoder, TokenPart} from '@kinde/jwt-decoder';
 import {config} from '../../config/index';
 
 const isTokenValid = (token) => {
   const accessToken = (token && token.access_token) || token;
   if (!accessToken) return false;
 
-  const accessTokenHeader = jwt_decode(accessToken, {header: true});
-  const accessTokenPayload = jwt_decode(accessToken);
+  const accessTokenHeader = jwtDecoder(accessToken, TokenPart.header);
+  const accessTokenPayload = jwtDecoder(accessToken);
   let isAudienceValid = true;
   if (config.audience)
     isAudienceValid =
