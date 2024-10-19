@@ -2,7 +2,7 @@ import {jwtDecoder, TokenPart} from '@kinde/jwt-decoder';
 import {config} from '../../config/index';
 
 const isTokenValid = (token) => {
-  const accessToken = (token && token.access_token) || token;
+  const accessToken = token?.access_token ?? token;
   if (!accessToken) return false;
 
   const accessTokenHeader = jwtDecoder(accessToken, TokenPart.header);
