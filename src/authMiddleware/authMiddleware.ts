@@ -1,22 +1,19 @@
-import jwt_decode from 'jwt-decode';
 import {NextResponse} from 'next/server';
 import {config} from '../config/index';
 import {isTokenValid} from '../utils/pageRouter/isTokenValid';
+import {type KindeAccessToken, KindeIdToken} from '../../types';
+import {jwtDecoder} from '@kinde/jwt-decoder';
 
 const trimTrailingSlash = (str) =>
   str && str.charAt(str.length - 1) === '/' ? str.slice(0, -1) : str;
 
 export function authMiddleware(request) {
-  let isAuthenticated = false;
   const nextUrl = trimTrailingSlash(request.nextUrl.href);
   const logoutUrl = trimTrailingSlash(config.postLogoutRedirectURL);
   const kinde_token = request.cookies.get('kinde_token');
   const isLogoutUrl = nextUrl === logoutUrl;
 
-  if (kinde_token) {
-    const payload = jwt_decode(JSON.parse(kinde_token.value).access_token);
-    isAuthenticated = true;
-  }
+  const isAuthenticated = isTokenValid(kinde_token?.value);
 
   if (!isAuthenticated && !isLogoutUrl) {
     return NextResponse.redirect(
@@ -60,8 +57,12 @@ const handleMiddleware = async (req, options, onSuccess) => {
     return response;
   }
 
-  const accessTokenValue = jwt_decode(req.cookies.get('access_token').value);
-  const idTokenValue = jwt_decode(req.cookies.get('id_token')?.value);
+  const accessTokenValue = jwtDecoder<KindeAccessToken>(
+    req.cookies.get('access_token')?.value
+  );
+  const idTokenValue = jwtDecoder<KindeIdToken>(
+    req.cookies.get('id_token')?.value
+  );
 
   const isAuthorized = options?.isAuthorized
     ? options.isAuthorized({req, token: accessTokenValue})
@@ -96,6 +97,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
 export function withAuth(...args) {
   // most basic usage - no options
   if (!args.length || args[0] instanceof Request) {
+    // @ts-ignore
     return handleMiddleware(...args);
   }
 
@@ -112,5 +114,6 @@ export function withAuth(...args) {
 
   // includes options
   const options = args[0];
+  // @ts-ignore
   return async (...args) => await handleMiddleware(args[0], options);
 }

@@ -1,3 +1,4 @@
+import {isTokenValid} from '../utils/pageRouter/isTokenValid';
 import {getUserFactory} from './getUser';
 
 /**
@@ -7,6 +8,12 @@ import {getUserFactory} from './getUser';
  * @returns {() => Promise<boolean>}
  */
 export const isAuthenticatedFactory = (req, res) => async () => {
+  const accessToken = await sessionManager(req, res).getSessionItem(
+    'access_token'
+  );
+
+  const validToken = isTokenValid(accessToken);
+
   const user = await getUserFactory(req, res)();
-  return Boolean(user);
+  return validToken && Boolean(user);
 };
