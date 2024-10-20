@@ -24,7 +24,7 @@ export default {
   external: [
     'react',
     'react-dom',
-    'jwt-decode',
-    '@kinde-oss/kinde-typescript-sdk'
+    '@kinde-oss/kinde-typescript-sdk',
+    '@kinde/jwt-decoder'
   ]
 };
