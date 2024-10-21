@@ -1,4 +1,4 @@
-import jwtDecode from 'jwt-decode';
+import {jwtDecoder} from '@kinde/jwt-decoder';
 import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
@@ -14,17 +14,15 @@ export const setup = async (routerClient) => {
       routerClient.sessionManager
     );
 
-    const accessTokenEncoded = await routerClient.sessionManager.getSessionItem(
-      'access_token'
-    );
+    const accessTokenEncoded =
+      await routerClient.sessionManager.getSessionItem('access_token');
 
-    const idTokenEncoded = await routerClient.sessionManager.getSessionItem(
-      'id_token'
-    );
+    const idTokenEncoded =
+      await routerClient.sessionManager.getSessionItem('id_token');
 
-    const accessToken = jwtDecode(accessTokenEncoded);
+    const accessToken = jwtDecoder<KindeAccessToken>(accessTokenEncoded);
 
-    const idToken = jwtDecode(idTokenEncoded);
+    const idToken = jwtDecoder<KindeIdToken>(idTokenEncoded);
 
     const permissions = await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,

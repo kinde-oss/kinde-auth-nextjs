@@ -1,6 +1,6 @@
-import jwtDecode from 'jwt-decode';
 import {sessionManager} from './sessionManager';
 import {config} from '../config/index';
+import {jwtDecoder} from '@kinde/jwt-decoder';
 
 /**
  * @callback getAccessToken
@@ -17,7 +17,7 @@ import {config} from '../config/index';
 // @ts-ignore
 export const getAccessTokenFactory = (req, res) => async () => {
   try {
-    return jwtDecode(
+    return jwtDecoder(
       await sessionManager(req, res).getSessionItem('access_token')
     );
   } catch (err) {
