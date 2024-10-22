@@ -2,6 +2,7 @@ import {jwtDecoder} from '@kinde/jwt-decoder';
 import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
+import {generateOrganizationObject} from '../utils/generateOrganizationObject';
 
 /**
  *
@@ -77,18 +78,7 @@ export const setup = async (routerClient) => {
         orgCode: organization
       },
       needsRefresh: false,
-      organization: {
-        orgCode: organization,
-        orgName,
-        properties: {
-          city: orgProperties?.kp_org_city?.v,
-          industry: orgProperties?.kp_org_industry?.v,
-          postcode: orgProperties?.kp_org_postcode?.v,
-          state_region: orgProperties?.kp_org_state_region?.v,
-          street_address: orgProperties?.kp_org_street_address?.v,
-          street_address_2: orgProperties?.kp_org_street_address_2?.v
-        }
-      },
+      organization: generateOrganizationObject(idToken, accessToken),
       featureFlags,
       userOrganizations: {
         orgCodes: userOrganizations,
