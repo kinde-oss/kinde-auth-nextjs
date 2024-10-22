@@ -27,12 +27,12 @@ const COOKIE_LIST = [
  *
  * @param {import('next').NextApiRequest} [req]
  * @param {import('next').NextApiResponse} [res]
- * @returns {import('@kinde-oss/kinde-typescript-sdk').SessionManager}
+ * @returns {Promise<import('@kinde-oss/kinde-typescript-sdk').SessionManager>}
  */
-export const sessionManager = (req, res) => {
-  if (!req) return appRouterSessionManager(cookies());
+export const sessionManager = async (req, res) => {
+  if (!req) return appRouterSessionManager(await cookies());
   return isAppRouter(req)
-    ? appRouterSessionManager(cookies())
+    ? appRouterSessionManager(await cookies())
     : pageRouterSessionManager(req, res);
 };
 

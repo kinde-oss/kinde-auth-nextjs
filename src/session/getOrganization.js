@@ -14,13 +14,14 @@ import {config} from '../config/index';
  */
 export const getOrganizationFactory = (req, res) => async () => {
   try {
-    const org = await kindeClient.getOrganization(sessionManager(req, res));
+    const session = await sessionManager(req, res)
+    const org = await kindeClient.getOrganization(session);
     const orgName = await kindeClient.getClaimValue(
-      sessionManager(req, res),
+      session,
       'org_name'
     );
     const orgProperties = await kindeClient.getClaimValue(
-      sessionManager(req, res),
+      session,
       'organization_properties'
     );
 

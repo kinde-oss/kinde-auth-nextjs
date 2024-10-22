@@ -10,11 +10,11 @@ export const getUserFactory =
   async <T = Record<string, any>>(): Promise<KindeUser<T>> => {
     try {
       const idToken = jwtDecoder<KindeIdToken>(
-        (await sessionManager(req, res).getSessionItem('id_token')) as string
+        (await (await sessionManager(req, res)).getSessionItem('id_token')) as string
       );
 
       const accessToken = jwtDecoder<KindeAccessToken>(
-        (await sessionManager(req, res).getSessionItem(
+        (await (await sessionManager(req, res)).getSessionItem(
           'access_token'
         )) as string
       );

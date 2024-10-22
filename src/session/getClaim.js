@@ -18,7 +18,7 @@ import {config} from '../config/index';
 export const getClaimFactory = (req, res) => async (claim, type) => {
   try {
     const kindeClaim = await kindeClient.getClaim(
-      sessionManager(req, res),
+      await sessionManager(req, res),
       claim,
       type
     );
