@@ -30,10 +30,16 @@ const COOKIE_LIST = [
  * @returns {Promise<import('@kinde-oss/kinde-typescript-sdk').SessionManager>}
  */
 export const sessionManager = async (req, res) => {
-  if (!req) return appRouterSessionManager(await cookies());
-  return isAppRouter(req)
-    ? appRouterSessionManager(await cookies())
-    : pageRouterSessionManager(req, res);
+  try{
+    const cookieStore = await cookies();
+    if (!req) return appRouterSessionManager(cookieStore);
+      return isAppRouter(req)
+        ? appRouterSessionManager(cookieStore)
+        : pageRouterSessionManager(req, res);
+  } catch (error) {
+    console.error('Failed to initialize session manager:', error);
+    throw error;
+  }
 };
 
 /**
