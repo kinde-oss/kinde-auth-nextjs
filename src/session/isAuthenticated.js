@@ -1,5 +1,6 @@
 import {isTokenValid} from '../utils/pageRouter/isTokenValid';
 import {getUserFactory} from './getUser';
+import {sessionManager} from './sessionManager';
 
 /**
  *
