@@ -1,4 +1,4 @@
-import jwtDecode from 'jwt-decode';
+import {jwtDecoder} from '@kinde/jwt-decoder';
 import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateOrganizationObject} from '../utils/generateOrganizationObject';
@@ -16,13 +16,23 @@ import {sessionManager} from './sessionManager';
  */
 export const getOrganizationFactory = (req, res) => async () => {
   try {
-    const idToken = jwtDecode(
-      (await sessionManager(req, res).getSessionItem('id_token')) as string
-    ) as KindeIdToken;
+    const idTokenString = await sessionManager(req, res).getSessionItem(
+      'id_token'
+    );
+    if (!idTokenString) {
+      throw new Error('ID token is missing');
+    }
+    const idToken = jwtDecoder<KindeIdToken>(idTokenString as string);
 
-    const accessToken = jwtDecode(
-      (await sessionManager(req, res).getSessionItem('access_token')) as string
-    ) as KindeAccessToken;
+    const accessTokenString = await sessionManager(req, res).getSessionItem(
+      'access_token'
+    );
+    if (!accessTokenString) {
+      throw new Error('Access token is missing');
+    }
+    const accessToken = jwtDecoder<KindeAccessToken>(
+      accessTokenString as string
+    );
 
     return generateOrganizationObject(idToken, accessToken);
   } catch (error) {

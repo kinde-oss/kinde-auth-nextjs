@@ -14,6 +14,7 @@ export const GLOBAL_COOKIE_OPTIONS = {
 };
 
 const COOKIE_LIST = [
+  'ac-state-key',
   'id_token_payload',
   'id_token',
   'access_token_payload',
@@ -23,7 +24,7 @@ const COOKIE_LIST = [
   'post_login_redirect_url'
 ];
 
-const MAX_LENGTH = 2000;
+const MAX_LENGTH = 3000;
 
 const splitString = (str, length) => {
   if (length <= 0) {
@@ -47,6 +48,20 @@ export const sessionManager = (req, res) => {
   return isAppRouter(req)
     ? appRouterSessionManager(cookies())
     : pageRouterSessionManager(req, res);
+};
+
+const setSessionItem = (itemKey, itemValue, cookieStore) => {
+  if (itemValue !== undefined) {
+    const itemValueString =
+      typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue;
+    splitString(itemValueString, MAX_LENGTH).forEach((value, index) => {
+      cookieStore.set(itemKey + index, value, {
+        maxAge: TWENTY_NINE_DAYS,
+        domain: config.cookieDomain ? config.cookieDomain : undefined,
+        ...GLOBAL_COOKIE_OPTIONS
+      });
+    });
+  }
 };
 
 /**
@@ -88,6 +103,9 @@ export const appRouterSessionManager = (cookieStore) => ({
    * @returns {Promise<void>}
    */
   setSessionItem: (itemKey, itemValue) => {
+    if (cookieStore.has(itemKey)) {
+      cookieStore.delete(itemKey);
+    }
     if (itemValue !== undefined) {
       const itemValueString =
         typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue;
@@ -106,6 +124,9 @@ export const appRouterSessionManager = (cookieStore) => ({
    * @returns {Promise<void>}
    */
   removeSessionItem: (itemKey) => {
+    if (cookieStore.has(itemKey)) {
+      cookieStore.delete(itemKey);
+    }
     cookieStore
       .getAll()
       .map((c) => c.name)

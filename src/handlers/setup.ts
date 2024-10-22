@@ -10,10 +10,6 @@ import {generateUserObject} from '../utils/generateUserObject';
  */
 export const setup = async (routerClient) => {
   try {
-    const user = await routerClient.kindeClient.getUser(
-      routerClient.sessionManager
-    );
-
     const accessTokenEncoded =
       await routerClient.sessionManager.getSessionItem('access_token');
 
@@ -24,42 +20,14 @@ export const setup = async (routerClient) => {
 
     const idToken = jwtDecoder<KindeIdToken>(idTokenEncoded);
 
-    const permissions = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'permissions'
-    );
+    const permissions = accessToken.permissions;
 
-    const organization = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'org_code'
-    );
-
-    const featureFlags = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'feature_flags'
-    );
-
-    const userOrganizations = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'org_codes',
-      'id_token'
-    );
-
-    const orgName = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'org_name'
-    );
-
-    const orgProperties = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'organization_properties'
-    );
-
-    const orgNames = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'organizations',
-      'id_token'
-    );
+    const organization = accessToken.org_code;
+    const featureFlags = accessToken.feature_flags;
+    const userOrganizations = idToken.org_codes;
+    const orgName = accessToken.org_name;
+    const orgProperties = accessToken.organization_properties;
+    const orgNames = idToken.organizations;
 
     return routerClient.json({
       accessToken,
