@@ -87,14 +87,18 @@ export default (request, endpoint, options) => {
  */
 const appRouterHandler = async (req, res, options) => {
   const {params} = res;
-  let endpoint = params.kindeAuth;
+  let endpoint = (await params).kindeAuth;
   endpoint = Array.isArray(endpoint) ? endpoint[0] : endpoint;
   const route = getRoute(endpoint);
 
-  return route
-    ? // @ts-ignore
-      await route(new AppRouterClient(req, res, options))
-    : new Response('This page could not be found.', {status: 404});
+  if (route) {
+    const routerClient = new AppRouterClient(req, res, options)
+    await routerClient.createStore();
+    return await route(routerClient);
+  } else {
+    return new Response('This page could not be found.', {status: 404});
+  }
+
 };
 
 /**

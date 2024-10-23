@@ -18,7 +18,7 @@ import {jwtDecoder} from '@kinde/jwt-decoder';
 export const getAccessTokenFactory = (req, res) => async () => {
   try {
     return jwtDecoder(
-      await sessionManager(req, res).getSessionItem('access_token')
+      await (await sessionManager(req, res)).getSessionItem('access_token')
     );
   } catch (err) {
     if (config.isDebugMode) {

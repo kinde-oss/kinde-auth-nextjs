@@ -19,7 +19,7 @@ export const getFlagFactory =
   (req, res) => async (code, defaultValue, flagType) => {
     try {
       const flag = await kindeClient.getFlag(
-        sessionManager(req, res),
+        await sessionManager(req, res),
         code,
         defaultValue,
         flagType

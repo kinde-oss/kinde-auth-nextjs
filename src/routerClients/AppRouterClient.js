@@ -36,10 +36,14 @@ export default class AppRouterClient extends RouterClient {
       this.clientConfig
     );
     this.url = new URL(req.url);
-    this.sessionManager = appRouterSessionManager(cookies());
+    
     this.req = req;
     this.searchParams = req.nextUrl.searchParams;
     this.onErrorCallback = options?.onError;
+  }
+
+  async createStore () {
+    this.sessionManager = appRouterSessionManager(await cookies());
   }
 
   /**
