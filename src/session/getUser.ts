@@ -4,7 +4,7 @@ import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
 import {sessionManager} from './sessionManager';
 import {jwtDecoder} from '@kinde/jwt-decoder';
-import { getAccessTokenWithRefresh } from './isAuthenticated';
+import {getAccessTokenWithRefresh} from '../utils/getAccessTokenWithRefresh';
 
 export const getUserFactory =
   (req: NextApiRequest, res: NextApiResponse) =>

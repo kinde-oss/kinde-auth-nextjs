@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import {config} from '../config/index';
-import {isTokenValid} from '../utils/pageRouter/isTokenValid';
+import {isTokenValid} from '../utils/isTokenValid';
 import {type KindeAccessToken, KindeIdToken} from '../../types';
 import {jwtDecoder} from '@kinde/jwt-decoder';
 

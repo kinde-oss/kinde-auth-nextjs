@@ -1,5 +1,5 @@
 import {jwtDecoder, TokenPart} from '@kinde/jwt-decoder';
-import {config} from '../../config/index';
+import {config} from '../config/index';
 
 const isTokenValid = (token) => {
   const accessToken = token?.access_token ?? token;

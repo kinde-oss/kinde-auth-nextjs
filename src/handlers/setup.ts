@@ -2,7 +2,7 @@ import {jwtDecoder} from '@kinde/jwt-decoder';
 import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
-import {isTokenValid} from '../utils/pageRouter/isTokenValid';
+import {isTokenValid} from '../utils/isTokenValid';
 import RouterClient from '../routerClients/RouterClient';
 
 /**

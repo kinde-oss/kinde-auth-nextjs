@@ -18,7 +18,7 @@ import {
 } from '@kinde-oss/kinde-typescript-sdk';
 import {config} from './config/index';
 import {sessionManager} from './session/sessionManager';
-import {isTokenValid} from './utils/pageRouter/isTokenValid';
+import {isTokenValid} from './utils/isTokenValid';
 
 /**
  * Create the Kinde Management API client
