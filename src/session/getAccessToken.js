@@ -1,7 +1,7 @@
 import {sessionManager} from './sessionManager';
 import {config} from '../config/index';
 import {jwtDecoder} from '@kinde/jwt-decoder';
-
+import {getAccessTokenWithRefresh} from './getAccessTokenWithRefresh';
 /**
  * @callback getAccessToken
  * @returns {Promise<import('../../types.js').KindeAccessToken | undefined>}
@@ -17,9 +17,7 @@ import {jwtDecoder} from '@kinde/jwt-decoder';
 // @ts-ignore
 export const getAccessTokenFactory = (req, res) => async () => {
   try {
-    return jwtDecoder(
-      await (await sessionManager(req, res)).getSessionItem('access_token')
-    );
+    return jwtDecoder(await getAccessTokenWithRefresh(req, res));
   } catch (err) {
     if (config.isDebugMode) {
       console.error(err);

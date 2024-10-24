@@ -14,5 +14,5 @@ import {sessionManager} from './sessionManager';
  */
 // @ts-ignore
 export const getAccessTokenRawFactory = (req, res) => async () => {
-  return await (await sessionManager(req, res)).getSessionItem('access_token');
+  return await getAccessTokenWithRefresh();
 };

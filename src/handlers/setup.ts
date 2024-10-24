@@ -2,23 +2,34 @@ import {jwtDecoder} from '@kinde/jwt-decoder';
 import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
+import {isTokenValid} from '../utils/pageRouter/isTokenValid';
+import RouterClient from '../routerClients/RouterClient';
 
 /**
  *
  * @param {RouterClient} routerClient
  * @returns
  */
-export const setup = async (routerClient) => {
+export const setup = async (routerClient: RouterClient) => {
   try {
     const user = await routerClient.kindeClient.getUser(
       routerClient.sessionManager
     );
 
-    const accessTokenEncoded =
-      await routerClient.sessionManager.getSessionItem('access_token');
+    let accessTokenEncoded = (await routerClient.sessionManager.getSessionItem(
+      'access_token'
+    )) as string;
 
-    const idTokenEncoded =
-      await routerClient.sessionManager.getSessionItem('id_token');
+    if (!isTokenValid(accessTokenEncoded)) {
+      await routerClient.kindeClient.refreshTokens(routerClient.sessionManager);
+      accessTokenEncoded = (await routerClient.sessionManager.getSessionItem(
+        'access_token'
+      )) as string;
+    }
+
+    const idTokenEncoded = (await routerClient.sessionManager.getSessionItem(
+      'id_token'
+    )) as string;
 
     const accessToken = jwtDecoder<KindeAccessToken>(accessTokenEncoded);
 
@@ -50,16 +61,16 @@ export const setup = async (routerClient) => {
       'org_name'
     );
 
-    const orgProperties = await routerClient.kindeClient.getClaimValue(
+    const orgProperties = (await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
       'organization_properties'
-    );
+    )) as any;
 
-    const orgNames = await routerClient.kindeClient.getClaimValue(
+    const orgNames = (await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
       'organizations',
       'id_token'
-    );
+    )) as {id: string; name: string}[];
 
     return routerClient.json({
       accessToken,

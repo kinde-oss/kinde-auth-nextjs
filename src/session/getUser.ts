@@ -4,6 +4,7 @@ import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
 import {sessionManager} from './sessionManager';
 import {jwtDecoder} from '@kinde/jwt-decoder';
+import { getAccessTokenWithRefresh } from './isAuthenticated';
 
 export const getUserFactory =
   (req: NextApiRequest, res: NextApiResponse) =>
@@ -16,9 +17,7 @@ export const getUserFactory =
       );
 
       const accessToken = jwtDecoder<KindeAccessToken>(
-        (await session.getSessionItem(
-          'access_token'
-        )) as string
+        await getAccessTokenWithRefresh(req, res)
       );
       return generateUserObject(idToken, accessToken) as KindeUser<T>;
     } catch (error) {
