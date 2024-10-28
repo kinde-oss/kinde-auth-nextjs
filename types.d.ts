@@ -157,7 +157,7 @@ export type KindeUserBase = {
   phone_number?: string | null;
 };
 
-export interface KindeUser<T> extends KindeUserBase {
+export interface KindeUser<T = void> extends KindeUserBase {
   properties?: KindeUserProperties<T>;
 }
 
