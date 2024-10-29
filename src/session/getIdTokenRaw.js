@@ -14,5 +14,5 @@ import {sessionManager} from './sessionManager';
 
 // @ts-ignore
 export const getIdTokenRawFactory = (req, res) => async () => {
-  return await sessionManager(req, res).getSessionItem('id_token');
+  return await (await sessionManager(req, res)).getSessionItem('id_token');
 };

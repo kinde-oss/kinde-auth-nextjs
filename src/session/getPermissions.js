@@ -15,7 +15,7 @@ import {config} from '../config/index';
 export const getPermissionsFactory = (req, res) => async () => {
   try {
     const permissions = await kindeClient.getPermissions(
-      sessionManager(req, res)
+      await sessionManager(req, res)
     );
     return permissions;
   } catch (error) {

@@ -41,13 +41,19 @@ const splitString = (str, length) => {
  *
  * @param {import('next').NextApiRequest} [req]
  * @param {import('next').NextApiResponse} [res]
- * @returns {import('@kinde-oss/kinde-typescript-sdk').SessionManager}
+ * @returns {Promise<import('@kinde-oss/kinde-typescript-sdk').SessionManager>}
  */
-export const sessionManager = (req, res) => {
-  if (!req) return appRouterSessionManager(cookies());
-  return isAppRouter(req)
-    ? appRouterSessionManager(cookies())
-    : pageRouterSessionManager(req, res);
+export const sessionManager = async (req, res) => {
+  try{
+    const cookieStore = await cookies();
+    if (!req) return appRouterSessionManager(cookieStore);
+      return isAppRouter(req)
+        ? appRouterSessionManager(cookieStore)
+        : pageRouterSessionManager(req, res);
+  } catch (error) {
+    console.error('Failed to initialize session manager:', error);
+    throw error;
+  }
 };
 
 const setSessionItem = (itemKey, itemValue, cookieStore) => {

@@ -25,7 +25,7 @@ export default function (req?: NextApiRequest, res?: NextApiResponse) {
       try {
         // @ts-ignore
         const response = await kindeClient.refreshTokens(
-          sessionManager(req, res)
+          await sessionManager(req, res)
         );
         return response;
       } catch (error) {
