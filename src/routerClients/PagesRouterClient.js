@@ -1,6 +1,9 @@
 import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
 import {config} from '../config/index';
-import {sessionManager} from '../session/sessionManager';
+import {
+  pageRouterSessionManager,
+  sessionManager
+} from '../session/sessionManager';
 import RouterClient from './RouterClient';
 
 // @ts-ignore
@@ -40,7 +43,7 @@ export default class PagesRouterClient extends RouterClient {
     this.res = res;
     this.req = req;
     this.searchParams = this.url.searchParams;
-    this.sessionManager = sessionManager(req, res);
+    this.sessionManager = pageRouterSessionManager(req, res);
   }
 
   /**

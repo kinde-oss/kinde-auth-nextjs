@@ -45,28 +45,20 @@ const splitString = (str, length) => {
  */
 export const sessionManager = async (req, res) => {
   try {
-    const cookieStore = await cookies();
-    if (!req) return appRouterSessionManager(cookieStore);
-    return isAppRouter(req)
-      ? appRouterSessionManager(cookieStore)
-      : pageRouterSessionManager(req, res);
+    if (!req) {
+      const cookieStore = await cookies();
+      return appRouterSessionManager(cookieStore);
+    }
+
+    if (isAppRouter(req)) {
+      const cookieStore = await cookies(req, res);
+      return appRouterSessionManager(cookieStore);
+    } else {
+      return pageRouterSessionManager(req, res);
+    }
   } catch (error) {
     console.error('Failed to initialize session manager:', error);
     throw error;
-  }
-};
-
-const setSessionItem = (itemKey, itemValue, cookieStore) => {
-  if (itemValue !== undefined) {
-    const itemValueString =
-      typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue;
-    splitString(itemValueString, MAX_LENGTH).forEach((value, index) => {
-      cookieStore.set(itemKey + index, value, {
-        maxAge: TWENTY_NINE_DAYS,
-        domain: config.cookieDomain ? config.cookieDomain : undefined,
-        ...GLOBAL_COOKIE_OPTIONS
-      });
-    });
   }
 };
 
@@ -101,7 +93,8 @@ export const appRouterSessionManager = (cookieStore) => ({
       } catch (err) {}
       return itemValue;
     } catch (error) {
-      console.error('Failed to parse session item:', error);
+      if (config.isDebugMode)
+        console.error('Failed to parse session item:', error);
       return item.value;
     }
   },
@@ -183,18 +176,33 @@ export const pageRouterSessionManager = (req, res) => {
      */
     getSessionItem: (itemKey) => {
       const itemValue = req.cookies[itemKey];
-      if (itemValue) {
+      if (!itemValue) return undefined;
+      try {
+        let itemValueString = '';
+        let index = 0;
+        let key = `${String(itemKey)}${index === 0 ? '' : index}`;
+        while (req.cookies[key]) {
+          itemValueString += req.cookies[key];
+          index++;
+          key = `${String(itemKey)}${index === 0 ? '' : index}`;
+        }
         try {
-          const jsonValue = JSON.parse(itemValue);
+          const jsonValue = JSON.parse(itemValueString);
           if (typeof jsonValue === 'object') {
             return jsonValue;
           }
-          return itemValue;
-        } catch (error) {
-          return itemValue;
+        } catch (err) {
+          if (config.isDebugMode)
+            console.error('Failed to parse session item:', err);
         }
+        return itemValueString;
+      } catch (error) {
+        if (config.isDebugMode)
+          console.error('Failed to parse session item:', error);
+        return itemValue;
       }
     },
+
     /**
      *
      * @param {string} itemKey
@@ -208,18 +216,44 @@ export const pageRouterSessionManager = (req, res) => {
         cookies = [cookies.toString()];
       }
 
-      res?.setHeader('Set-Cookie', [
-        ...cookies.filter((cookie) => !cookie.startsWith(`${itemKey}=`)),
-        cookie.serialize(
-          itemKey,
-          typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
+      if (req.cookies[itemKey] !== undefined) {
+        cookies.push(
+          cookie.serialize(itemKey, '', {
+            domain: config.cookieDomain ? config.cookieDomain : undefined,
+            maxAge: -1,
+            ...GLOBAL_COOKIE_OPTIONS
+          })
+        );
+      }
+
+      if (itemValue !== undefined) {
+        const itemValueString =
+          typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue;
+
+        res?.setHeader(
+          'Set-Cookie',
+          [
+            ...(cookies.filter((cookie) => !cookie.startsWith(`${itemKey}`)) ||
+              []),
+            ...splitString(itemValueString, MAX_LENGTH).map((value, index) => {
+              return cookie.serialize(
+                itemKey + (index === 0 ? '' : index),
+                value,
+                {
+                  domain: config.cookieDomain ? config.cookieDomain : undefined,
+                  ...GLOBAL_COOKIE_OPTIONS,
+                  maxAge: TWENTY_NINE_DAYS
+                }
+              );
+            })
+          ],
           {
             domain: config.cookieDomain ? config.cookieDomain : undefined,
             ...GLOBAL_COOKIE_OPTIONS,
             maxAge: TWENTY_NINE_DAYS
           }
-        )
-      ]);
+        );
+      }
     },
     /**
      *
@@ -227,23 +261,52 @@ export const pageRouterSessionManager = (req, res) => {
      * @returns {Promise<void>}
      */
     removeSessionItem: (itemKey) => {
-      res?.setHeader('Set-Cookie', [
-        cookie.serialize(itemKey, '', {
-          domain: config.cookieDomain ? config.cookieDomain : undefined,
-          maxAge: -1,
-          ...GLOBAL_COOKIE_OPTIONS
-        })
-      ]);
-    },
-    destroySession: () => {
-      res?.setHeader('Set-Cookie', [
-        ...COOKIE_LIST.map((name) =>
-          cookie.serialize(name, '', {
+      let cookies = res?.getHeader('Set-Cookie') || [];
+      if (!Array.isArray(cookies)) {
+        cookies = [cookies.toString()];
+      }
+
+      if (req.cookies[itemKey] !== undefined) {
+        cookies.push(
+          cookie.serialize(itemKey, '', {
             domain: config.cookieDomain ? config.cookieDomain : undefined,
             maxAge: -1,
             ...GLOBAL_COOKIE_OPTIONS
           })
-        )
+        );
+      }
+
+      res?.setHeader('Set-Cookie', [
+        ...cookies.map((c) => {
+          if (c.startsWith(`${itemKey}`)) {
+            return cookie.serialize(c.split('=')[0], '', {
+              domain: config.cookieDomain ? config.cookieDomain : undefined,
+              maxAge: -1,
+              ...GLOBAL_COOKIE_OPTIONS
+            });
+          } else {
+            return c;
+          }
+        })
+      ]);
+    },
+
+    destroySession: () => {
+      let cookies = res?.getHeader('Set-Cookie') || [];
+      if (!Array.isArray(cookies)) {
+        cookies = [cookies.toString()];
+      }
+
+      res?.setHeader('Set-Cookie', [
+        ...Object.keys(req.cookies).map((c) => {
+          if (COOKIE_LIST.some((substr) => c.startsWith(substr))) {
+            return cookie.serialize(c.split('=')[0], '', {
+              domain: config.cookieDomain ? config.cookieDomain : undefined,
+              maxAge: -1,
+              ...GLOBAL_COOKIE_OPTIONS
+            });
+          }
+        })
       ]);
     }
   };
