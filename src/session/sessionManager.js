@@ -44,12 +44,12 @@ const splitString = (str, length) => {
  * @returns {Promise<import('@kinde-oss/kinde-typescript-sdk').SessionManager>}
  */
 export const sessionManager = async (req, res) => {
-  try{
+  try {
     const cookieStore = await cookies();
     if (!req) return appRouterSessionManager(cookieStore);
-      return isAppRouter(req)
-        ? appRouterSessionManager(cookieStore)
-        : pageRouterSessionManager(req, res);
+    return isAppRouter(req)
+      ? appRouterSessionManager(cookieStore)
+      : pageRouterSessionManager(req, res);
   } catch (error) {
     console.error('Failed to initialize session manager:', error);
     throw error;
@@ -94,14 +94,14 @@ export const appRouterSessionManager = (cookieStore) => ({
         key = `${String(itemKey)}${index === 0 ? '' : index}`;
       }
       try {
-      const jsonValue = JSON.parse(itemValue);
-      if (typeof jsonValue === 'object') {
-        return jsonValue;
-      }
+        const jsonValue = JSON.parse(itemValue);
+        if (typeof jsonValue === 'object') {
+          return jsonValue;
+        }
       } catch (err) {}
       return itemValue;
     } catch (error) {
-      console.error('Failed to parse session item:', error);  
+      console.error('Failed to parse session item:', error);
       return item.value;
     }
   },
@@ -141,7 +141,7 @@ export const appRouterSessionManager = (cookieStore) => ({
       .map((c) => c.name)
       .forEach((key) => {
         if (key.startsWith(`${String(itemKey)}`)) {
-          cookieStore.set(itemKey, '', {
+          cookieStore.set(key, '', {
             domain: config.cookieDomain ? config.cookieDomain : undefined,
             maxAge: 0,
             ...GLOBAL_COOKIE_OPTIONS
@@ -182,7 +182,6 @@ export const pageRouterSessionManager = (req, res) => {
      * @returns {Promise<string | undefined>}
      */
     getSessionItem: (itemKey) => {
-
       const itemValue = req.cookies[itemKey];
       if (itemValue) {
         try {
