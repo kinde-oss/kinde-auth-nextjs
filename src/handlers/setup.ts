@@ -29,6 +29,10 @@ export const setup = async (routerClient) => {
     const orgProperties = accessToken.organization_properties;
     const orgNames = idToken.organizations;
 
+    if (!accessToken.permissions || !idToken.org_codes) {
+      throw new Error('Missing required claims in tokens');
+    }
+
     return routerClient.json({
       accessToken,
       accessTokenEncoded,
