@@ -30,11 +30,7 @@ const splitString = (str, length) => {
   if (length <= 0) {
     return [];
   }
-  const result = [];
-  for (let i = 0; i < str.length; i += length) {
-    result.push(str.slice(i, i + length));
-  }
-  return result;
+  return str.match(new RegExp(`.{1,${length}}`, 'g')) || [];  
 };
 
 /**
