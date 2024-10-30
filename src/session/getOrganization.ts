@@ -16,7 +16,7 @@ import {sessionManager} from './sessionManager';
  */
 export const getOrganizationFactory = (req, res) => async () => {
   try {
-    const idTokenString = await sessionManager(req, res).getSessionItem(
+    const idTokenString = await (await sessionManager(req, res)).getSessionItem(
       'id_token'
     );
     if (!idTokenString) {
@@ -24,7 +24,7 @@ export const getOrganizationFactory = (req, res) => async () => {
     }
     const idToken = jwtDecoder<KindeIdToken>(idTokenString as string);
 
-    const accessTokenString = await sessionManager(req, res).getSessionItem(
+    const accessTokenString = await (await sessionManager(req, res)).getSessionItem(
       'access_token'
     );
     if (!accessTokenString) {

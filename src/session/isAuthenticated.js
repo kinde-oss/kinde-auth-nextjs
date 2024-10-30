@@ -9,9 +9,9 @@ import {sessionManager} from './sessionManager';
  * @returns {() => Promise<boolean>}
  */
 export const isAuthenticatedFactory = (req, res) => async () => {
-  const accessToken = await sessionManager(req, res).getSessionItem(
-    'access_token'
-  );
+  const accessToken = await (
+    await sessionManager(req, res)
+  ).getSessionItem('access_token');
 
   const validToken = isTokenValid(accessToken);
 

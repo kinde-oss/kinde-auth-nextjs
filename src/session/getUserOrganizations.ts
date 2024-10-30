@@ -8,7 +8,7 @@ export const getUserOrganizationsFactory =
   (req?: NextApiRequest, res?: NextApiResponse) =>
   async (): Promise<KindeOrganizations | null> => {
     try {
-      const session = sessionManager(req, res);
+      const session = await sessionManager(req, res);
       const userOrgs = await kindeClient.getUserOrganizations(session);
       const orgNames = (await kindeClient.getClaimValue(
         session,

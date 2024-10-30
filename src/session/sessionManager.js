@@ -41,13 +41,19 @@ const splitString = (str, length) => {
  *
  * @param {import('next').NextApiRequest} [req]
  * @param {import('next').NextApiResponse} [res]
- * @returns {import('@kinde-oss/kinde-typescript-sdk').SessionManager}
+ * @returns {Promise<import('@kinde-oss/kinde-typescript-sdk').SessionManager>}
  */
-export const sessionManager = (req, res) => {
-  if (!req) return appRouterSessionManager(cookies());
-  return isAppRouter(req)
-    ? appRouterSessionManager(cookies())
-    : pageRouterSessionManager(req, res);
+export const sessionManager = async (req, res) => {
+  try{
+    const cookieStore = await cookies();
+    if (!req) return appRouterSessionManager(cookieStore);
+      return isAppRouter(req)
+        ? appRouterSessionManager(cookieStore)
+        : pageRouterSessionManager(req, res);
+  } catch (error) {
+    console.error('Failed to initialize session manager:', error);
+    throw error;
+  }
 };
 
 const setSessionItem = (itemKey, itemValue, cookieStore) => {
@@ -76,23 +82,26 @@ export const appRouterSessionManager = (cookieStore) => ({
    * @returns {Promise<string | object | null>}
    */
   getSessionItem: (itemKey) => {
-    const item = cookieStore.get(itemKey + '0');
+    const item = cookieStore.get(itemKey);
     if (!item) return null;
     try {
       let itemValue = '';
       let index = 0;
-      let key = `${String(itemKey)}${index}`;
-      while (cookieStore.get(key)) {
+      let key = `${String(itemKey)}${index === 0 ? '' : index}`;
+      while (cookieStore.has(key)) {
         itemValue += cookieStore.get(key).value;
         index++;
-        key = `${String(itemKey)}${index}`;
+        key = `${String(itemKey)}${index === 0 ? '' : index}`;
       }
+      try {
       const jsonValue = JSON.parse(itemValue);
       if (typeof jsonValue === 'object') {
         return jsonValue;
       }
+      } catch (err) {}
       return itemValue;
     } catch (error) {
+      console.error('Failed to parse session item:', error);  
       return item.value;
     }
   },
@@ -110,7 +119,7 @@ export const appRouterSessionManager = (cookieStore) => ({
       const itemValueString =
         typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue;
       splitString(itemValueString, MAX_LENGTH).forEach((value, index) => {
-        cookieStore.set(itemKey + index, value, {
+        cookieStore.set(itemKey + (index === 0 ? '' : index), value, {
           maxAge: TWENTY_NINE_DAYS,
           domain: config.cookieDomain ? config.cookieDomain : undefined,
           ...GLOBAL_COOKIE_OPTIONS
@@ -173,6 +182,7 @@ export const pageRouterSessionManager = (req, res) => {
      * @returns {Promise<string | undefined>}
      */
     getSessionItem: (itemKey) => {
+
       const itemValue = req.cookies[itemKey];
       if (itemValue) {
         try {

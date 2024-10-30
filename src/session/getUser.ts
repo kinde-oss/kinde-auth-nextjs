@@ -9,12 +9,13 @@ export const getUserFactory =
   (req: NextApiRequest, res: NextApiResponse) =>
   async <T = Record<string, any>>(): Promise<KindeUser<T>> => {
     try {
-      const idToken = jwtDecoder<KindeIdToken>(
-        (await sessionManager(req, res).getSessionItem('id_token')) as string
-      );
+      const session = await sessionManager(req, res);
+
+      const rawToken = await session.getSessionItem('id_token') as string;
+      const idToken = jwtDecoder<KindeIdToken>(rawToken);
 
       const accessToken = jwtDecoder<KindeAccessToken>(
-        (await sessionManager(req, res).getSessionItem(
+        (await session.getSessionItem(
           'access_token'
         )) as string
       );
