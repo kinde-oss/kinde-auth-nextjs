@@ -17,7 +17,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const {isAuthenticated, getUser} = getKindeServerSession();
+  const kindeSession = await getKindeServerSession();
+  const {isAuthenticated, getUser} = kindeSession;
   const user = await getUser();
   return (
     <html lang="en">
