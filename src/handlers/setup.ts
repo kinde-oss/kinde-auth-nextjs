@@ -1,6 +1,14 @@
 import {jwtDecoder} from '@kinde/jwt-decoder';
-import {KindeAccessToken, KindeIdToken} from '../../types';
+import {
+  KindeAccessToken,
+  KindeFlagRaw,
+  KindeIdToken,
+  KindeSetupResponse,
+  KindeTokenOrganizationProperties
+} from '../../types';
 import {config} from '../config/index';
+import RouterClient from '../routerClients/RouterClient';
+import {getAccessTokenWithRefresh} from '../session/getAccessTokenWithRefresh';
 import {generateUserObject} from '../utils/generateUserObject';
 
 /**
@@ -8,60 +16,62 @@ import {generateUserObject} from '../utils/generateUserObject';
  * @param {RouterClient} routerClient
  * @returns
  */
-export const setup = async (routerClient) => {
+export const setup = async (routerClient: RouterClient) => {
   try {
-    const user = await routerClient.kindeClient.getUser(
-      routerClient.sessionManager
+    const accessToken = await getAccessTokenWithRefresh(
+      routerClient.req,
+      routerClient.res
     );
 
     const accessTokenEncoded =
-      await routerClient.sessionManager.getSessionItem('access_token');
+      (await routerClient.sessionManager.getSessionItem(
+        'access_token'
+      )) as string;
 
-    const idTokenEncoded =
-      await routerClient.sessionManager.getSessionItem('id_token');
+    const idTokenEncoded = (await routerClient.sessionManager.getSessionItem(
+      'id_token'
+    )) as string;
 
-    const accessToken = jwtDecoder<KindeAccessToken>(accessTokenEncoded);
+    const idToken = jwtDecoder<KindeIdToken>(idTokenEncoded as string);
 
-    const idToken = jwtDecoder<KindeIdToken>(idTokenEncoded);
-
-    const permissions = await routerClient.kindeClient.getClaimValue(
+    const permissions = (await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
       'permissions'
-    );
+    )) as string[];
 
-    const organization = await routerClient.kindeClient.getClaimValue(
+    const organization = (await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
       'org_code'
-    );
+    )) as string;
 
-    const featureFlags = await routerClient.kindeClient.getClaimValue(
+    const featureFlags = (await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
       'feature_flags'
-    );
+    )) as Record<string, KindeFlagRaw>;
 
-    const userOrganizations = await routerClient.kindeClient.getClaimValue(
+    const userOrganizations = (await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
       'org_codes',
       'id_token'
-    );
+    )) as string[];
 
-    const orgName = await routerClient.kindeClient.getClaimValue(
+    const orgName = (await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
       'org_name'
-    );
+    )) as string;
 
-    const orgProperties = await routerClient.kindeClient.getClaimValue(
+    const orgProperties = (await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
       'organization_properties'
-    );
+    )) as KindeTokenOrganizationProperties;
 
-    const orgNames = await routerClient.kindeClient.getClaimValue(
+    const orgNames = (await routerClient.kindeClient.getClaimValue(
       routerClient.sessionManager,
       'organizations',
       'id_token'
-    );
+    )) as Array<{id: string; name: string}>;
 
-    return routerClient.json({
+    const res: KindeSetupResponse = {
       accessToken,
       accessTokenEncoded,
       accessTokenRaw: accessTokenEncoded,
@@ -76,7 +86,6 @@ export const setup = async (routerClient) => {
         permissions,
         orgCode: organization
       },
-      needsRefresh: false,
       organization: {
         orgCode: organization,
         orgName,
@@ -97,10 +106,12 @@ export const setup = async (routerClient) => {
           name: org?.name
         }))
       }
-    });
+    };
+
+    return routerClient.json(res, {status: 200});
   } catch (error) {
     if (config.isDebugMode) {
-      console.debug(error);
+      console.debug('look here', error);
     }
 
     if (error.code == 'ERR_JWT_EXPIRED') {

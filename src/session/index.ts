@@ -1,23 +1,23 @@
+import {NextApiRequest, NextApiResponse} from 'next';
+import {config} from '../config/index';
 import {getAccessTokenFactory} from './getAccessToken';
+import {getAccessTokenRawFactory} from './getAccessTokenRaw';
 import {getBooleanFlagFactory} from './getBooleanFlag';
+import {getClaimFactory} from './getClaim';
 import {getFlagFactory} from './getFlag';
 import {getIdTokenFactory} from './getIdToken';
+import {getIdTokenRawFactory} from './getIdTokenRaw';
 import {getIntegerFlagFactory} from './getIntegerFlag';
 import {getOrganizationFactory} from './getOrganization';
 import {getPermissionFactory} from './getPermission';
 import {getPermissionsFactory} from './getPermissions';
+import {getRolesFactory} from './getRoles';
 import {getStringFlagFactory} from './getStringFlag';
 import {getUserFactory} from './getUser';
 import {getUserOrganizationsFactory} from './getUserOrganizations';
 import {isAuthenticatedFactory} from './isAuthenticated';
-import {getAccessTokenRawFactory} from './getAccessTokenRaw';
-import {getIdTokenRawFactory} from './getIdTokenRaw';
 import {kindeClient} from './kindeServerClient';
 import {sessionManager} from './sessionManager';
-import {getRolesFactory} from './getRoles';
-import {getClaimFactory} from './getClaim';
-import {config} from '../config/index';
-import {NextApiRequest, NextApiResponse} from 'next';
 
 export default function (req?: NextApiRequest, res?: NextApiResponse) {
   return {

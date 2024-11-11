@@ -198,13 +198,13 @@ export type KindeOrganization = {
   orgCode: string | null;
   orgName?: string | null;
   properties?: {
-    org_city?: string;
-    org_country?: string;
-    org_industry?: string;
-    org_postcode?: string;
-    org_state_region?: string;
-    org_street_address?: string;
-    org_street_address_2?: string;
+    city?: string;
+    country?: string;
+    industry?: string;
+    postcode?: string;
+    state_region?: string;
+    street_address?: string;
+    street_address_2?: string;
   };
 };
 
@@ -351,7 +351,10 @@ export type KindeState = {
 export type KindeSetupResponse = {
   accessToken: KindeAccessToken;
   accessTokenEncoded: string;
+  accessTokenRaw: string;
   idToken: KindeIdToken;
+  idTokenEncoded: string;
+  idTokenRaw: string;
   user: KindeUser<Record<string, string>>;
   permissions: KindePermissions;
   organization: KindeOrganization;

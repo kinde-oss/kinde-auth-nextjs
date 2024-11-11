@@ -1,5 +1,5 @@
 import {jwtDecoder, TokenPart} from '@kinde/jwt-decoder';
-import {config} from '../../config/index';
+import {config} from '../config/index';
 
 const isTokenValid = (token) => {
   const accessToken = token?.access_token ?? token;
@@ -9,9 +9,13 @@ const isTokenValid = (token) => {
   const accessTokenPayload = jwtDecoder(accessToken);
   let isAudienceValid = true;
   if (config.audience)
-    isAudienceValid =
-      accessTokenPayload.aud &&
-      accessTokenPayload.aud.includes(...config.audience);
+    if (Array.isArray(config.audience)) {
+      isAudienceValid =
+        accessTokenPayload.aud &&
+        config.audience.some((aud) => accessTokenPayload.aud.includes(aud));
+    } else if (typeof config.audience === 'string') {
+      isAudienceValid = accessTokenPayload.aud.includes(config.audience);
+    }
 
   if (
     accessTokenPayload.iss == config.issuerURL &&
