@@ -43,14 +43,8 @@ export const getAccessTokenWithRefresh = async (
     (decodedToken.exp * 1000 < Date.now() && refreshToken) ||
     (forceRefresh && refreshToken)
   ) {
-    console.log('refreshing token');
     const {access_token} = await kindeClient.refreshTokens(
       await sessionManager(req, res)
-    );
-
-    console.log(
-      'new access token expires in',
-      jwtDecoder(access_token).exp * 1000 - Date.now()
     );
 
     return jwtDecoder(access_token) as KindeAccessToken;
