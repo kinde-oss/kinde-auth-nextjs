@@ -303,7 +303,7 @@ export type KindeState = {
   isAuthenticated: boolean | null;
   isLoading: boolean | null;
   organization: KindeOrganization;
-  permissions: KindePermissions | [];
+  permissions: KindePermissions | {permissions: []; orgCode: null};
   user: {
     id: string;
     email: string | null;
@@ -337,7 +337,7 @@ export type KindeState = {
   getPermission: (
     key: string
   ) => {isGranted: boolean; orgCode: string | null} | null;
-  getPermissions: () => KindePermissions | [];
+  getPermissions: () => KindePermissions | {permissions: []; orgCode: null};
   getStringFlag: (
     code: string,
     defaultValue: string
