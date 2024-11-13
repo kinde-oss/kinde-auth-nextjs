@@ -15,7 +15,7 @@ import {config} from '../config/index';
 export const getRolesFactory = (req, res) => async () => {
   try {
     const roles = await kindeClient.getClaimValue(
-      sessionManager(req, res),
+      await sessionManager(req, res),
       'roles'
     );
     return roles;
