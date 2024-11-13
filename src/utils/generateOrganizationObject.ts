@@ -1,41 +1,39 @@
-import {KindeAccessToken, KindeIdToken} from '../../types';
+import {KindeAccessToken, KindeIdToken, KindeOrganization} from '../../types';
+import {getClaim} from './getClaim';
 
 export const generateOrganizationObject = (
   idToken: KindeIdToken,
   accessToken: KindeAccessToken
-) => {
+): KindeOrganization | null => {
   if (!idToken || !accessToken) {
     throw new Error('Both idToken and accessToken must be provided');
   }
 
   if (
-    typeof accessToken.org_code !== 'string' ||
-    typeof accessToken.org_name !== 'string'
+    (typeof accessToken.org_code !== 'string' ||
+      typeof accessToken.org_name !== 'string') &&
+    (typeof accessToken['x-hasura-org-code'] !== 'string' ||
+      typeof accessToken['x-hasura-org-name'] !== 'string')
   ) {
     throw new Error('Invalid accessToken structure');
   }
+
+  const orgProperties = getClaim({
+    accessToken,
+    idToken,
+    claim: 'organization_properties'
+  });
+
   return {
-    orgCode: accessToken.org_code,
-    orgName: accessToken.org_name,
+    orgCode: getClaim({accessToken, idToken, claim: 'org_code'}) as string,
+    orgName: getClaim({accessToken, idToken, claim: 'org_name'}) as string,
     properties: {
-      city:
-        idToken.organization_properties?.kp_org_city?.v ||
-        accessToken.organization_properties?.kp_org_city?.v,
-      industry:
-        idToken.organization_properties?.kp_org_industry?.v ||
-        accessToken.organization_properties?.kp_org_industry?.v,
-      postcode:
-        idToken.organization_properties?.kp_org_postcode?.v ||
-        accessToken.organization_properties?.kp_org_postcode?.v,
-      state_region:
-        idToken.organization_properties?.kp_org_state_region?.v ||
-        accessToken.organization_properties?.kp_org_state_region?.v,
-      street_address:
-        idToken.organization_properties?.kp_org_street_address?.v ||
-        accessToken.organization_properties?.kp_org_street_address?.v,
-      street_address_2:
-        idToken.organization_properties?.kp_org_street_address_2?.v ||
-        accessToken.organization_properties?.kp_org_street_address_2?.v
+      city: orgProperties?.kp_org_city?.v,
+      industry: orgProperties?.kp_org_industry?.v,
+      postcode: orgProperties?.kp_org_postcode?.v,
+      state_region: orgProperties?.state_region?.v,
+      street_address: orgProperties?.street_address?.v,
+      street_address_2: orgProperties?.street_address_2?.v
     }
   };
 };
