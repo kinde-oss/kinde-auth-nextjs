@@ -3,6 +3,7 @@ import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
 import {generateOrganizationObject} from '../utils/generateOrganizationObject';
+import {generateUserOrganizationsObject} from '../utils/generateUserOrganizationsObject';
 
 /**
  *
@@ -40,28 +41,6 @@ export const setup = async (routerClient) => {
       'feature_flags'
     );
 
-    const userOrganizations = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'org_codes',
-      'id_token'
-    );
-
-    const orgName = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'org_name'
-    );
-
-    const orgProperties = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'organization_properties'
-    );
-
-    const orgNames = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'organizations',
-      'id_token'
-    );
-
     return routerClient.json({
       accessToken,
       accessTokenEncoded,
@@ -80,13 +59,7 @@ export const setup = async (routerClient) => {
       needsRefresh: false,
       organization: generateOrganizationObject(idToken, accessToken),
       featureFlags,
-      userOrganizations: {
-        orgCodes: userOrganizations,
-        orgs: orgNames?.map((org) => ({
-          code: org?.id,
-          name: org?.name
-        }))
-      }
+      userOrganizations: generateUserOrganizationsObject(idToken, accessToken)
     });
   } catch (error) {
     if (config.isDebugMode) {
