@@ -53,7 +53,6 @@ export const sessionManager = async (req, res) => {
       return pageRouterSessionManager(req, res);
     }
   } catch (error) {
-    console.error('Failed to initialize session manager:', error);
     throw error;
   }
 };

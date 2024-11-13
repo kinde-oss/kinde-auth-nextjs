@@ -18,7 +18,7 @@ import {jwtDecoder} from '@kinde/jwt-decoder';
 export const getIdTokenFactory = (req, res) => async () => {
   try {
     return jwtDecoder(
-      await sessionManager(req, res).getSessionItem('id_token')
+      await (await sessionManager(req, res)).getSessionItem('id_token')
     );
   } catch (err) {
     if (config.isDebugMode) {
