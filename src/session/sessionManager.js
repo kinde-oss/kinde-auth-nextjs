@@ -100,9 +100,7 @@ export const appRouterSessionManager = (cookieStore) => ({
    * @returns {Promise<void>}
    */
   setSessionItem: (itemKey, itemValue) => {
-    if (cookieStore.has(itemKey)) {
-      cookieStore.delete(itemKey);
-    }
+    this.removeSessionItem(itemKey)
     if (itemValue !== undefined) {
       const itemValueString =
         typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue;
@@ -121,19 +119,12 @@ export const appRouterSessionManager = (cookieStore) => ({
    * @returns {Promise<void>}
    */
   removeSessionItem: (itemKey) => {
-    if (cookieStore.has(itemKey)) {
-      cookieStore.delete(itemKey);
-    }
     cookieStore
       .getAll()
       .map((c) => c.name)
       .forEach((key) => {
         if (key.startsWith(`${String(itemKey)}`)) {
-          cookieStore.set(key, '', {
-            domain: config.cookieDomain ? config.cookieDomain : undefined,
-            maxAge: 0,
-            ...GLOBAL_COOKIE_OPTIONS
-          });
+          cookieStore.delete(key);
         }
       });
   },
