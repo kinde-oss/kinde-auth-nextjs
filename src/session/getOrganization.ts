@@ -1,44 +1,38 @@
 import {jwtDecoder} from '@kinde/jwt-decoder';
-import {KindeAccessToken, KindeIdToken} from '../../types';
+import {KindeAccessToken, KindeIdToken, KindeOrganization} from '../../types';
 import {config} from '../config/index';
 import {generateOrganizationObject} from '../utils/generateOrganizationObject';
 import {sessionManager} from './sessionManager';
-/**
- * @callback getOrganization
- * @returns {Promise<import('../../types').KindeOrganization | null>}
- */
+import {NextApiRequest, NextApiResponse} from 'next';
 
-/**
- *
- * @param {import('next').NextApiRequest} [req]
- * @param {import('next').NextApiResponse} [res]
- * @returns {getOrganization}
- */
-export const getOrganizationFactory = (req, res) => async () => {
-  try {
-    const idTokenString = await sessionManager(req, res).getSessionItem(
-      'id_token'
-    );
-    if (!idTokenString) {
-      throw new Error('ID token is missing');
-    }
-    const idToken = jwtDecoder<KindeIdToken>(idTokenString as string);
+export const getOrganizationFactory =
+  (
+    req?: NextApiRequest,
+    res?: NextApiResponse
+  ): (() => Promise<KindeOrganization | null>) =>
+  async () => {
+    try {
+      const session = await sessionManager(req, res);
 
-    const accessTokenString = await sessionManager(req, res).getSessionItem(
-      'access_token'
-    );
-    if (!accessTokenString) {
-      throw new Error('Access token is missing');
-    }
-    const accessToken = jwtDecoder<KindeAccessToken>(
-      accessTokenString as string
-    );
+      const idTokenString = await session.getSessionItem('id_token');
+      if (!idTokenString) {
+        throw new Error('ID token is missing');
+      }
+      const idToken = jwtDecoder<KindeIdToken>(idTokenString as string);
 
-    return generateOrganizationObject(idToken, accessToken);
-  } catch (error) {
-    if (config.isDebugMode) {
-      console.error(error);
+      const accessTokenString = await session.getSessionItem('access_token');
+      if (!accessTokenString) {
+        throw new Error('Access token is missing');
+      }
+      const accessToken = jwtDecoder<KindeAccessToken>(
+        accessTokenString as string
+      );
+
+      return generateOrganizationObject(idToken, accessToken);
+    } catch (error) {
+      if (config.isDebugMode) {
+        console.error(error);
+      }
+      return null;
     }
-    return null;
-  }
-};
+  };
