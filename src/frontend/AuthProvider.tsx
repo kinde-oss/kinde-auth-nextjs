@@ -171,9 +171,9 @@ export const KindeProvider = ({children}) => {
         user: kindeData?.user
       }));
 
-      const delay = kindeData?.accessToken.exp * 1000 - Date.now();
-      if (delay > 0) {
-        const t = setTimeout(checkSession, delay);
+      const tokenExpiresIn = kindeData?.accessToken.exp * 1000 - Date.now();
+      if (tokenExpiresIn > 0) {
+        const t = setTimeout(checkSession, tokenExpiresIn);
         setTimer(t);
       } else {
         await checkSession();

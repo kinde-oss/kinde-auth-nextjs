@@ -111,7 +111,7 @@ export const setup = async (routerClient: RouterClient) => {
     return routerClient.json(res, {status: 200});
   } catch (error) {
     if (config.isDebugMode) {
-      console.debug('look here', error);
+      console.debug(error);
     }
 
     if (error.code == 'ERR_JWT_EXPIRED') {
