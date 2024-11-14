@@ -1,15 +1,19 @@
 import {jwtDecoder} from '@kinde/jwt-decoder';
-import {NextApiRequest, NextApiResponse} from 'next';
-import {KindeAccessToken, KindeIdToken, KindeOrganizations} from '../../types';
+import {KindeAccessToken, KindeIdToken, KindeOrganization} from '../../types';
 import {config} from '../config/index';
-import {generateUserOrganizationsObject} from '../utils/generateUserOrganizationsObject';
+import {generateOrganizationObject} from '../utils/generateOrganizationObject';
 import {sessionManager} from './sessionManager';
+import {NextApiRequest, NextApiResponse} from 'next';
 
-export const getUserOrganizationsFactory =
-  (req?: NextApiRequest, res?: NextApiResponse) =>
-  async (): Promise<KindeOrganizations | null> => {
+export const getOrganizationFactory =
+  (
+    req?: NextApiRequest,
+    res?: NextApiResponse
+  ): (() => Promise<KindeOrganization | null>) =>
+  async () => {
     try {
       const session = await sessionManager(req, res);
+
       const idTokenString = await session.getSessionItem('id_token');
       if (!idTokenString) {
         throw new Error('ID token is missing');
@@ -24,10 +28,10 @@ export const getUserOrganizationsFactory =
         accessTokenString as string
       );
 
-      return generateUserOrganizationsObject(idToken, accessToken);
+      return generateOrganizationObject(idToken, accessToken);
     } catch (error) {
       if (config.isDebugMode) {
-        console.debug('getUserOrganization error:', error);
+        console.error(error);
       }
       return null;
     }

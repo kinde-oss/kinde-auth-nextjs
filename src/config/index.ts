@@ -1,18 +1,16 @@
 import {version} from '../utils/version';
 import {removeTrailingSlash} from '../utils/removeTrailingSlash';
+import {KindeState} from '../../types';
 
-/**
- * @type {import('../../types').KindeState}
- */
-const initialState = {
+const initialState: KindeState = {
   accessToken: null,
   idToken: null,
   isAuthenticated: false,
   isLoading: true,
   organization: null,
-  permissions: [],
+  permissions: null,
   user: null,
-  userOrganizations: [],
+  userOrganizations: null,
   getAccessToken: () => null,
   getBooleanFlag: () => null,
   getClaim: () => null,
@@ -21,12 +19,18 @@ const initialState = {
   getIntegerFlag: () => null,
   getOrganization: () => null,
   getPermission: () => null,
-  getPermissions: () => [],
+  getPermissions: () => null,
   getStringFlag: () => null,
   getToken: () => null,
   getUser: () => null,
   getUserOrganizations: () => null,
-  refreshData: () => null
+  refreshData: () => null,
+  accessTokenEncoded: null,
+  accessTokenRaw: null,
+  idTokenRaw: null,
+  idTokenEncoded: null,
+  getAccessTokenRaw: () => null,
+  getIdTokenRaw: () => null
 };
 
 const SESSION_PREFIX = 'pkce-verifier';

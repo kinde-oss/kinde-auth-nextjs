@@ -198,13 +198,13 @@ export type KindeOrganization = {
   orgCode: string | null;
   orgName?: string | null;
   properties?: {
-    org_city?: string;
-    org_country?: string;
-    org_industry?: string;
-    org_postcode?: string;
-    org_state_region?: string;
-    org_street_address?: string;
-    org_street_address_2?: string;
+    city?: string;
+    country?: string;
+    industry?: string;
+    postcode?: string;
+    state_region?: string;
+    street_address?: string;
+    street_address_2?: string;
   };
 };
 
@@ -303,7 +303,7 @@ export type KindeState = {
   isAuthenticated: boolean | null;
   isLoading: boolean | null;
   organization: KindeOrganization;
-  permissions: KindePermissions;
+  permissions: KindePermissions | {permissions: []; orgCode: null};
   user: {
     id: string;
     email: string | null;
@@ -337,7 +337,7 @@ export type KindeState = {
   getPermission: (
     key: string
   ) => {isGranted: boolean; orgCode: string | null} | null;
-  getPermissions: () => KindePermissions;
+  getPermissions: () => KindePermissions | {permissions: []; orgCode: null};
   getStringFlag: (
     code: string,
     defaultValue: string

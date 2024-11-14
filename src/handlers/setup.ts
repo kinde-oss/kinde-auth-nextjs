@@ -2,6 +2,8 @@ import {jwtDecoder} from '@kinde/jwt-decoder';
 import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
+import {generateOrganizationObject} from '../utils/generateOrganizationObject';
+import {generateUserOrganizationsObject} from '../utils/generateUserOrganizationsObject';
 
 /**
  *
@@ -39,28 +41,6 @@ export const setup = async (routerClient) => {
       'feature_flags'
     );
 
-    const userOrganizations = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'org_codes',
-      'id_token'
-    );
-
-    const orgName = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'org_name'
-    );
-
-    const orgProperties = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'organization_properties'
-    );
-
-    const orgNames = await routerClient.kindeClient.getClaimValue(
-      routerClient.sessionManager,
-      'organizations',
-      'id_token'
-    );
-
     return routerClient.json({
       accessToken,
       accessTokenEncoded,
@@ -77,26 +57,9 @@ export const setup = async (routerClient) => {
         orgCode: organization
       },
       needsRefresh: false,
-      organization: {
-        orgCode: organization,
-        orgName,
-        properties: {
-          city: orgProperties?.kp_org_city?.v,
-          industry: orgProperties?.kp_org_industry?.v,
-          postcode: orgProperties?.kp_org_postcode?.v,
-          state_region: orgProperties?.kp_org_state_region?.v,
-          street_address: orgProperties?.kp_org_street_address?.v,
-          street_address_2: orgProperties?.kp_org_street_address_2?.v
-        }
-      },
+      organization: generateOrganizationObject(idToken, accessToken),
       featureFlags,
-      userOrganizations: {
-        orgCodes: userOrganizations,
-        orgs: orgNames?.map((org) => ({
-          code: org?.id,
-          name: org?.name
-        }))
-      }
+      userOrganizations: generateUserOrganizationsObject(idToken, accessToken)
     });
   } catch (error) {
     if (config.isDebugMode) {
