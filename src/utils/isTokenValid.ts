@@ -11,10 +11,12 @@ const isTokenValid = (token) => {
   if (config.audience)
     if (Array.isArray(config.audience)) {
       isAudienceValid =
-        accessTokenPayload.aud &&
-        config.audience.some((aud) => accessTokenPayload.aud.includes(aud));
+        Array.isArray(accessTokenPayload.aud) &&
+        config.audience.some((aud) => accessTokenPayload.aud?.includes(aud));
     } else if (typeof config.audience === 'string') {
-      isAudienceValid = accessTokenPayload.aud.includes(config.audience);
+      isAudienceValid =
+        Array.isArray(accessTokenPayload.aud) &&
+        accessTokenPayload.aud.includes(config.audience);
     }
 
   if (
