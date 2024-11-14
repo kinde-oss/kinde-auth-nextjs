@@ -4,20 +4,44 @@ import {getClaim} from './getClaim';
 export const generateUserOrganizationsObject = (
   idToken: KindeIdToken,
   accessToken: KindeAccessToken
-): KindeOrganizations | null => {
-  if (!idToken || !accessToken) {
-    throw new Error('Both idToken and accessToken must be provided');
+): KindeOrganizations => {
+  if (!idToken) {
+    throw new Error('idToken must be provided');
   }
+  if (!accessToken) {
+    throw new Error('accessToken must be provided');
+  }
+
   const orgCodes = getClaim({
     accessToken,
     idToken,
     claim: 'org_codes'
-  }) as string[];
+  });
 
-  const orgs = getClaim({accessToken, idToken, claim: 'organizations'}) as {
-    id: string;
-    name: string;
-  }[];
+  if (!Array.isArray(orgCodes)) {
+    throw new Error('org_codes claim must be an array of strings');
+  }
+
+  const orgs = getClaim({accessToken, idToken, claim: 'organizations'}) as
+    | {
+        id: string;
+        name: string;
+      }[]
+    | undefined;
+
+  if (!Array.isArray(orgs)) {
+    throw new Error('organizations claim must be an array of objects');
+  }
+
+  if (
+    !orgs.every(
+      (org) => typeof org?.id === 'string' && typeof org?.name === 'string'
+    )
+  ) {
+    throw new Error(
+      'Each organization must have string id and name properties'
+    );
+  }
 
   return {
     orgCodes,

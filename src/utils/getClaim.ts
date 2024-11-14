@@ -7,30 +7,27 @@ interface GetClaimParams {
 }
 
 export const getClaim = ({accessToken, claim, idToken}: GetClaimParams) => {
-  let hasuraClaim = 'x-hasura-' + claim;
-  if (claim === 'org_name') {
-    hasuraClaim = 'x-hasura-org-name';
-  }
-  if (claim === 'org_code') {
-    hasuraClaim = 'x-hasura-org-code';
-  }
-  if (claim === 'org_codes') {
-    hasuraClaim = 'x-hasura-org-codes';
-  }
+  const claimMappings = {
+    org_name: 'x-hasura-org-name',
+    org_code: 'x-hasura-org-code',
+    org_codes: 'x-hasura-org-codes'
+  };
 
-  if (idToken[claim]) {
+  const hasuraClaim = claimMappings[claim] || `x-hasura-${claim}`;
+
+  if (claim in idToken && idToken[claim] !== undefined) {
     return idToken[claim];
   }
 
-  if (idToken[hasuraClaim]) {
+  if (hasuraClaim in idToken && idToken[hasuraClaim] !== undefined) {
     return idToken[hasuraClaim];
   }
 
-  if (accessToken[claim]) {
+  if (claim in accessToken && accessToken[claim] !== undefined) {
     return accessToken[claim];
   }
 
-  if (accessToken[hasuraClaim]) {
+  if (hasuraClaim in accessToken && accessToken[hasuraClaim] !== undefined) {
     return accessToken[hasuraClaim];
   }
 
