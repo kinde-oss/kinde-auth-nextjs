@@ -171,11 +171,13 @@ export const KindeProvider = ({children}) => {
         user: kindeData?.user
       }));
 
-      const t = setTimeout(
-        checkSession,
-        kindeData?.accessToken.exp * 1000 - Date.now()
-      );
-      setTimer(t);
+      const delay = kindeData?.accessToken.exp * 1000 - Date.now();
+      if (delay > 0) {
+        const t = setTimeout(checkSession, delay);
+        setTimer(t);
+      } else {
+        await checkSession();
+      }
     } catch (error) {
       setState((previous) => ({...previous, error, isAuthenticated: false}));
     }
