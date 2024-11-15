@@ -15,9 +15,7 @@ export const getUserFactory =
       const idToken = jwtDecoder<KindeIdToken>(rawToken);
 
       const accessToken = jwtDecoder<KindeAccessToken>(
-        (await session.getSessionItem(
-          'access_token'
-        )) as string
+        (await session.getSessionItem('access_token')) as string
       );
       return generateUserObject(idToken, accessToken) as KindeUser<T>;
     } catch (error) {

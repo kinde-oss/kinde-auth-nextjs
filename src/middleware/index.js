@@ -1,1 +1,1 @@
-export {authMiddleware, withAuth} from '../authMiddleware/authMiddleware';
+export {withAuth} from '../authMiddleware/authMiddleware';

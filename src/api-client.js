@@ -18,7 +18,6 @@ import {
 } from '@kinde-oss/kinde-typescript-sdk';
 import {config} from './config/index';
 import {sessionManager} from './session/sessionManager';
-import {isTokenValid} from './utils/pageRouter/isTokenValid';
 
 /**
  * Create the Kinde Management API client
@@ -30,7 +29,7 @@ export const createKindeManagementAPIClient = async (req, res) => {
 
   const store = await sessionManager(req, res);
   store.removeSessionItem('kinde_api_access_token');
-  
+
   const response = await fetch(`${config.issuerURL}/oauth2/token`, {
     method: 'POST',
     headers: {

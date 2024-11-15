@@ -6,7 +6,7 @@ import tsPlugin from '@rollup/plugin-typescript';
 
 export default {
   plugins: [babel({babelHelpers: 'bundled'}), terser(), tsPlugin()],
-  input: './src/index.js',
+  input: './src/index.ts',
   output: [
     {
       file: packageJson.module,
