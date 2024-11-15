@@ -11,9 +11,8 @@ export const getUserFactory =
     try {
       const session = await sessionManager(req, res);
 
-      const idToken = jwtDecoder<KindeIdToken>(
-        (await session.getSessionItem('id_token')) as string
-      );
+      const rawToken = await session.getSessionItem('id_token') as string;
+      const idToken = jwtDecoder<KindeIdToken>(rawToken);
 
       const accessToken = jwtDecoder<KindeAccessToken>(
         (await session.getSessionItem(

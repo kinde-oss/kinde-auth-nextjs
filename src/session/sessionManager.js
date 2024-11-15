@@ -14,6 +14,7 @@ export const GLOBAL_COOKIE_OPTIONS = {
 };
 
 const COOKIE_LIST = [
+  'ac-state-key',
   'id_token_payload',
   'id_token',
   'access_token_payload',
@@ -23,6 +24,15 @@ const COOKIE_LIST = [
   'post_login_redirect_url'
 ];
 
+const MAX_LENGTH = 3000;
+
+const splitString = (str, length) => {
+  if (length <= 0) {
+    return [];
+  }
+  return str.match(new RegExp(`.{1,${length}}`, 'g')) || [];  
+};
+
 /**
  *
  * @param {import('next').NextApiRequest} [req]
@@ -31,11 +41,17 @@ const COOKIE_LIST = [
  */
 export const sessionManager = async (req, res) => {
   try {
-    const cookieStore = await cookies();
-    if (!req) return appRouterSessionManager(cookieStore);
-    return isAppRouter(req)
-      ? appRouterSessionManager(cookieStore)
-      : pageRouterSessionManager(req, res);
+    if (!req) {
+      const cookieStore = await cookies();
+      return appRouterSessionManager(cookieStore);
+    }
+
+    if (isAppRouter(req)) {
+      const cookieStore = await cookies(req, res);
+      return appRouterSessionManager(cookieStore);
+    } else {
+      return pageRouterSessionManager(req, res);
+    }
   } catch (error) {
     throw error;
   }
@@ -54,18 +70,28 @@ export const appRouterSessionManager = (cookieStore) => ({
    */
   getSessionItem: (itemKey) => {
     const item = cookieStore.get(itemKey);
-    if (item) {
+    if (!item) return null;
+    try {
+      let itemValue = '';
+      let index = 0;
+      let key = `${String(itemKey)}${index === 0 ? '' : index}`;
+      while (cookieStore.has(key)) {
+        itemValue += cookieStore.get(key).value;
+        index++;
+        key = `${String(itemKey)}${index === 0 ? '' : index}`;
+      }
       try {
-        const jsonValue = JSON.parse(item.value);
+        const jsonValue = JSON.parse(itemValue);
         if (typeof jsonValue === 'object') {
           return jsonValue;
         }
-        return item.value;
-      } catch (error) {
-        return item.value;
-      }
+      } catch (err) {}
+      return itemValue;
+    } catch (error) {
+      if (config.isDebugMode)
+        console.error('Failed to parse session item:', error);
+      return item.value;
     }
-    return null;
   },
   /**
    *
@@ -74,16 +100,17 @@ export const appRouterSessionManager = (cookieStore) => ({
    * @returns {Promise<void>}
    */
   setSessionItem: (itemKey, itemValue) => {
+    this.removeSessionItem(itemKey)
     if (itemValue !== undefined) {
-      cookieStore.set(
-        itemKey,
-        typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
-        {
+      const itemValueString =
+        typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue;
+      splitString(itemValueString, MAX_LENGTH).forEach((value, index) => {
+        cookieStore.set(itemKey + (index === 0 ? '' : index), value, {
           maxAge: TWENTY_NINE_DAYS,
           domain: config.cookieDomain ? config.cookieDomain : undefined,
           ...GLOBAL_COOKIE_OPTIONS
-        }
-      );
+        });
+      });
     }
   },
   /**
@@ -92,23 +119,31 @@ export const appRouterSessionManager = (cookieStore) => ({
    * @returns {Promise<void>}
    */
   removeSessionItem: (itemKey) => {
-    cookieStore.set(itemKey, '', {
-      domain: config.cookieDomain ? config.cookieDomain : undefined,
-      maxAge: 0,
-      ...GLOBAL_COOKIE_OPTIONS
-    });
+    cookieStore
+      .getAll()
+      .map((c) => c.name)
+      .forEach((key) => {
+        if (key.startsWith(`${String(itemKey)}`)) {
+          cookieStore.delete(key);
+        }
+      });
   },
   /**
    * @returns {Promise<void>}
    */
   destroySession: () => {
-    COOKIE_LIST.forEach((name) =>
-      cookieStore.set(name, '', {
-        domain: config.cookieDomain ? config.cookieDomain : undefined,
-        maxAge: 0,
-        ...GLOBAL_COOKIE_OPTIONS
-      })
-    );
+    cookieStore
+      .getAll()
+      .map((c) => c.name)
+      .forEach((key) => {
+        if (COOKIE_LIST.some((substr) => key.startsWith(substr))) {
+          cookieStore.set(key, '', {
+            domain: config.cookieDomain ? config.cookieDomain : undefined,
+            maxAge: 0,
+            ...GLOBAL_COOKIE_OPTIONS
+          });
+        }
+      });
   }
 });
 
@@ -127,18 +162,33 @@ export const pageRouterSessionManager = (req, res) => {
      */
     getSessionItem: (itemKey) => {
       const itemValue = req.cookies[itemKey];
-      if (itemValue) {
+      if (!itemValue) return undefined;
+      try {
+        let itemValueString = '';
+        let index = 0;
+        let key = `${String(itemKey)}${index === 0 ? '' : index}`;
+        while (req.cookies[key]) {
+          itemValueString += req.cookies[key];
+          index++;
+          key = `${String(itemKey)}${index === 0 ? '' : index}`;
+        }
         try {
-          const jsonValue = JSON.parse(itemValue);
+          const jsonValue = JSON.parse(itemValueString);
           if (typeof jsonValue === 'object') {
             return jsonValue;
           }
-          return itemValue;
-        } catch (error) {
-          return itemValue;
+        } catch (err) {
+          if (config.isDebugMode)
+            console.error('Failed to parse session item:', err);
         }
+        return itemValueString;
+      } catch (error) {
+        if (config.isDebugMode)
+          console.error('Failed to parse session item:', error);
+        return itemValue;
       }
     },
+
     /**
      *
      * @param {string} itemKey
@@ -152,18 +202,44 @@ export const pageRouterSessionManager = (req, res) => {
         cookies = [cookies.toString()];
       }
 
-      res?.setHeader('Set-Cookie', [
-        ...cookies.filter((cookie) => !cookie.startsWith(`${itemKey}=`)),
-        cookie.serialize(
-          itemKey,
-          typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue,
+      if (req.cookies[itemKey] !== undefined) {
+        cookies.push(
+          cookie.serialize(itemKey, '', {
+            domain: config.cookieDomain ? config.cookieDomain : undefined,
+            maxAge: -1,
+            ...GLOBAL_COOKIE_OPTIONS
+          })
+        );
+      }
+
+      if (itemValue !== undefined) {
+        const itemValueString =
+          typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue;
+
+        res?.setHeader(
+          'Set-Cookie',
+          [
+            ...(cookies.filter((cookie) => !cookie.startsWith(`${itemKey}`)) ||
+              []),
+            ...splitString(itemValueString, MAX_LENGTH).map((value, index) => {
+              return cookie.serialize(
+                itemKey + (index === 0 ? '' : index),
+                value,
+                {
+                  domain: config.cookieDomain ? config.cookieDomain : undefined,
+                  ...GLOBAL_COOKIE_OPTIONS,
+                  maxAge: TWENTY_NINE_DAYS
+                }
+              );
+            })
+          ],
           {
             domain: config.cookieDomain ? config.cookieDomain : undefined,
             ...GLOBAL_COOKIE_OPTIONS,
             maxAge: TWENTY_NINE_DAYS
           }
-        )
-      ]);
+        );
+      }
     },
     /**
      *
@@ -171,23 +247,52 @@ export const pageRouterSessionManager = (req, res) => {
      * @returns {Promise<void>}
      */
     removeSessionItem: (itemKey) => {
-      res?.setHeader('Set-Cookie', [
-        cookie.serialize(itemKey, '', {
-          domain: config.cookieDomain ? config.cookieDomain : undefined,
-          maxAge: -1,
-          ...GLOBAL_COOKIE_OPTIONS
-        })
-      ]);
-    },
-    destroySession: () => {
-      res?.setHeader('Set-Cookie', [
-        ...COOKIE_LIST.map((name) =>
-          cookie.serialize(name, '', {
+      let cookies = res?.getHeader('Set-Cookie') || [];
+      if (!Array.isArray(cookies)) {
+        cookies = [cookies.toString()];
+      }
+
+      if (req.cookies[itemKey] !== undefined) {
+        cookies.push(
+          cookie.serialize(itemKey, '', {
             domain: config.cookieDomain ? config.cookieDomain : undefined,
             maxAge: -1,
             ...GLOBAL_COOKIE_OPTIONS
           })
-        )
+        );
+      }
+
+      res?.setHeader('Set-Cookie', [
+        ...cookies.map((c) => {
+          if (c.startsWith(`${itemKey}`)) {
+            return cookie.serialize(c.split('=')[0], '', {
+              domain: config.cookieDomain ? config.cookieDomain : undefined,
+              maxAge: -1,
+              ...GLOBAL_COOKIE_OPTIONS
+            });
+          } else {
+            return c;
+          }
+        })
+      ]);
+    },
+
+    destroySession: () => {
+      let cookies = res?.getHeader('Set-Cookie') || [];
+      if (!Array.isArray(cookies)) {
+        cookies = [cookies.toString()];
+      }
+
+      res?.setHeader('Set-Cookie', [
+        ...Object.keys(req.cookies).map((c) => {
+          if (COOKIE_LIST.some((substr) => c.startsWith(substr))) {
+            return cookie.serialize(c.split('=')[0], '', {
+              domain: config.cookieDomain ? config.cookieDomain : undefined,
+              maxAge: -1,
+              ...GLOBAL_COOKIE_OPTIONS
+            });
+          }
+        })
       ]);
     }
   };
