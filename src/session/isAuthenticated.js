@@ -10,7 +10,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
  * @param {import('next').NextApiResponse} [res]
  * @returns {() => Promise<boolean>}
  */
-export const isAuthenticatedFactory = (req: NextApiRequest, res: NextApiResponse) => async (): Promise<boolean> => {
+export const isAuthenticatedFactory = (req, res) => async () => {
   const accessToken = await (
     await sessionManager(req, res)
   ).getSessionItem('access_token');
