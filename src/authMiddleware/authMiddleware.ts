@@ -48,8 +48,6 @@ const handleMiddleware = async (req, options, onSuccess) => {
     domain: config.issuerURL
   });
 
-  console.log('validateTokenResponse', validateTokenResponse);
-
   const customValidationValid = options?.isAuthorized
     ? options.isAuthorized({req, token: accessTokenValue})
     : true;

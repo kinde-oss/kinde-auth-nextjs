@@ -11,9 +11,13 @@ import { NextApiRequest, NextApiResponse } from 'next';
  * @returns {() => Promise<boolean>}
  */
 export const isAuthenticatedFactory = (req: NextApiRequest, res: NextApiResponse) => async (): Promise<boolean> => {
-  const accessToken = (await (
+  const accessToken = await (
     await sessionManager(req, res)
-  ).getSessionItem('access_token')) as string;
+  ).getSessionItem('access_token');
+  
+  if (!accessToken || typeof accessToken !== 'string') {
+    return false;
+  }
 
   const validToken = await validateToken({
     token: accessToken,
