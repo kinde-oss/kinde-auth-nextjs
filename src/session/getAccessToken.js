@@ -14,12 +14,10 @@ import {jwtDecoder} from '@kinde/jwt-decoder';
  *
  * @returns {getAccessToken}
  */
-// @ts-ignore
 export const getAccessTokenFactory = (req, res) => async () => {
   try {
-    return jwtDecoder(
-      await (await sessionManager(req, res)).getSessionItem('access_token')
-    );
+    const accessToken = await getAccessToken(req, res);
+    return jwtDecoder<KindeAccessToken>(accessToken) 
   } catch (err) {
     if (config.isDebugMode) {
       console.error(err);

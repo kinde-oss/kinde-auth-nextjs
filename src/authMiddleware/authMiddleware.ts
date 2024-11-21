@@ -26,6 +26,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   const kindeToken = req.cookies.get('access_token');
 
+  
+
   if (!kindeToken) {
     const response = NextResponse.redirect(
       new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)

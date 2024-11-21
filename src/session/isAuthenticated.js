@@ -1,8 +1,5 @@
-import {validateToken} from '@kinde/jwt-validator';
 import {getUserFactory} from './getUser';
-import {sessionManager} from './sessionManager';
-import {config} from '../config';
-import { NextApiRequest, NextApiResponse } from 'next';
+import { getAccessToken } from '../utils/getAccessToken';
 
 /**
  *
@@ -11,19 +8,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
  * @returns {() => Promise<boolean>}
  */
 export const isAuthenticatedFactory = (req, res) => async () => {
-  const accessToken = await (
-    await sessionManager(req, res)
-  ).getSessionItem('access_token');
-  
-  if (!accessToken || typeof accessToken !== 'string') {
-    return false;
-  }
-
-  const validToken = await validateToken({
-    token: accessToken,
-    domain: config.issuerURL
-  });
+  const token = getAccessToken(req, res);
 
   const user = await getUserFactory(req, res)();
-  return validToken.valid && Boolean(user);
+  return token && Boolean(user);
 };
