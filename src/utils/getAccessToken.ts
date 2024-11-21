@@ -1,8 +1,9 @@
 import { validateToken } from "@kinde/jwt-validator";
 import {config} from '../config';
 import {sessionManager} from '../session/sessionManager';
+import { NextApiRequest, NextApiResponse } from "next";
 
-export const getAccessToken = async(req, res) => {
+export const getAccessToken = async(req: NextApiRequest, res: NextApiResponse) => {
     try {
         const session = await sessionManager(req, res);
         const token = await session.getSessionItem('access_token');
@@ -20,6 +21,10 @@ export const getAccessToken = async(req, res) => {
           });
 
         if (!validationResult.valid) {
+            // look for refresh token
+
+
+
             if (config.isDebugMode) {
                 console.error('getAccessToken: invalid token');
             }

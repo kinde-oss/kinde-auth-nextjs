@@ -1,8 +1,9 @@
 import { validateToken } from "@kinde/jwt-validator";
 import {config} from '../config';
 import {sessionManager} from '../session/sessionManager';
+import { NextApiRequest, NextApiResponse } from "next";
 
-export const getIdToken = async(req, res) => {
+export const getIdToken = async(req: NextApiRequest, res: NextApiResponse) => {
     try {
         const session = await sessionManager(req, res);
         const token = await session.getSessionItem('id_token');
