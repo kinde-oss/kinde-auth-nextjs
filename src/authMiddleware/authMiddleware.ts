@@ -32,8 +32,6 @@ const handleMiddleware = async (req, options, onSuccess) => {
     );
     return response;
   }
-  console.log('here');
-  
 
   const accessTokenValue = jwtDecoder<KindeAccessToken>(
     req.cookies.get('access_token')?.value
