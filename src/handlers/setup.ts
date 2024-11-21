@@ -2,7 +2,8 @@ import {jwtDecoder} from '@kinde/jwt-decoder';
 import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
-import { validateToken } from '../utils/validateToken';
+import { validateToken } from '@kinde/jwt-validator';
+import { refreshTokens } from '../utils/refreshTokens';
 
 /**
  *
@@ -18,8 +19,10 @@ export const setup = async (routerClient) => {
       token: accessTokenEncoded
     })
 
-    if (!isAccessTokenValid) {
-      throw new Error('Invalid access token');
+    if (!accessTokenValidation.valid) {
+      if (!await refreshTokens(routerClient.sessionManager)) {
+        throw new Error('Invalid access token and refrehs failed');
+      }
     }
 
     const idTokenEncoded =

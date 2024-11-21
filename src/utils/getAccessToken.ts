@@ -1,6 +1,7 @@
 import {config} from '../config';
 import {sessionManager} from '../session/sessionManager';
 import { NextApiRequest, NextApiResponse } from "next";
+import { kindeClient } from "../session/kindeServerClient";
 import { validateToken } from './validateToken';
 
 export const getAccessToken = async(req: NextApiRequest, res: NextApiResponse) => {
@@ -20,12 +21,16 @@ export const getAccessToken = async(req: NextApiRequest, res: NextApiResponse) =
           });
 
         if (!isTokenValid) {
-            if (config.isDebugMode) {
+			// look for refresh token
+            if (await kindeClient.refreshTokens(session)) {
+                return await session.getSessionItem('access_token');
+            }             
+			
+			if (config.isDebugMode) {
                 console.error('getAccessToken: invalid token');
             }
             return null;
         }
-
         return token
     } catch (error) {
         if (config.isDebugMode) {
