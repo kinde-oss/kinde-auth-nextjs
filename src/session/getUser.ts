@@ -12,9 +12,15 @@ export const getUserFactory =
   async <T = Record<string, any>>(): Promise<KindeUser<T>> => {
     try {
       const rawToken = await getIdToken(req, res);
+      if (!rawToken) {
+        return null;
+      }
       const idToken = jwtDecoder<KindeIdToken>(rawToken);
 
       const accessToken = await getAccessToken(req, res);
+      if (!accessToken) {
+        return null;
+      }
       const decodedToken = jwtDecoder<KindeAccessToken>(accessToken) 
 
       return generateUserObject(idToken, decodedToken) as KindeUser<T>;

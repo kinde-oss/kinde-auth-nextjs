@@ -1,7 +1,7 @@
-import { validateToken } from "@kinde/jwt-validator";
 import {config} from '../config';
 import {sessionManager} from '../session/sessionManager';
 import { NextApiRequest, NextApiResponse } from "next";
+import { validateToken } from './validateToken';
 
 export const getIdToken = async(req: NextApiRequest, res: NextApiResponse) => {
     try {
@@ -15,12 +15,11 @@ export const getIdToken = async(req: NextApiRequest, res: NextApiResponse) => {
             return null;
         }
 
-        const validationResult = await validateToken({
-            token,
-            domain: config.issuerURL
+        const isTokenValid = await validateToken({
+            token
           });
 
-        if (!validationResult.valid) {
+        if (!isTokenValid) {
             if (config.isDebugMode) {
                 console.error('getIdToken: invalid token');
             }

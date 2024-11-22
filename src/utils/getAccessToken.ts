@@ -1,7 +1,7 @@
-import { validateToken } from "@kinde/jwt-validator";
 import {config} from '../config';
 import {sessionManager} from '../session/sessionManager';
 import { NextApiRequest, NextApiResponse } from "next";
+import { validateToken } from './validateToken';
 
 export const getAccessToken = async(req: NextApiRequest, res: NextApiResponse) => {
     try {
@@ -15,16 +15,11 @@ export const getAccessToken = async(req: NextApiRequest, res: NextApiResponse) =
             return null;
         }
 
-        const validationResult = await validateToken({
-            token,
-            domain: config.issuerURL
+        const isTokenValid = await validateToken({
+            token
           });
 
-        if (!validationResult.valid) {
-            // look for refresh token
-
-
-
+        if (!isTokenValid) {
             if (config.isDebugMode) {
                 console.error('getAccessToken: invalid token');
             }

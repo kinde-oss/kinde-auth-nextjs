@@ -2,7 +2,7 @@ import {jwtDecoder} from '@kinde/jwt-decoder';
 import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
-import { validateToken } from '@kinde/jwt-validator';
+import { validateToken } from '../utils/validateToken';
 
 /**
  *
@@ -14,12 +14,11 @@ export const setup = async (routerClient) => {
     const accessTokenEncoded =
       await routerClient.sessionManager.getSessionItem('access_token');
 
-    const accessTokenValidation = await validateToken({
-      token: accessTokenEncoded,
-      domain: config.issuerURL
+    const isAccessTokenValid = await validateToken({
+      token: accessTokenEncoded
     })
 
-    if (!accessTokenValidation.valid) {
+    if (!isAccessTokenValid) {
       throw new Error('Invalid access token');
     }
 
@@ -27,12 +26,11 @@ export const setup = async (routerClient) => {
       await routerClient.sessionManager.getSessionItem('id_token');
 
 
-    const idTokenValidation = await validateToken({
-      token: idTokenEncoded,
-      domain: config.issuerURL
+    const isIdTokenValid = await validateToken({
+      token: idTokenEncoded
     })
 
-    if (!idTokenValidation.valid) {
+    if (!isIdTokenValid) {
       throw new Error('Invalid id token');
     }
 

@@ -1,8 +1,8 @@
-import {NextRequest, NextResponse} from 'next/server';
+import {NextResponse} from 'next/server';
 import {config} from '../config/index';
 import {type KindeAccessToken, KindeIdToken} from '../../types';
 import {jwtDecoder} from '@kinde/jwt-decoder';
-import {validateToken} from '@kinde/jwt-validator';
+import { validateToken } from '../utils/validateToken';
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const {pathname} = req.nextUrl;
@@ -24,9 +24,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   if (loginPage == pathname || publicPaths.some((p) => pathname.startsWith(p)))
     return;
 
-  const kindeToken = req.cookies.get('access_token');
-
-  
+  const {value: kindeToken} = req.cookies.get('access_token');
 
   if (!kindeToken) {
     const response = NextResponse.redirect(
@@ -43,16 +41,15 @@ const handleMiddleware = async (req, options, onSuccess) => {
   );
 
   // check token is valid
-  const validateTokenResponse = await validateToken({
-    token: kindeToken.value,
-    domain: config.issuerURL
+  const isTokenValid = await validateToken({
+    token: kindeToken
   });
 
   const customValidationValid = options?.isAuthorized
     ? options.isAuthorized({req, token: accessTokenValue})
     : true;
 
-  if (validateTokenResponse.valid && customValidationValid && onSuccess) {
+  if (isTokenValid && customValidationValid && onSuccess) {
     return await onSuccess({
       token: accessTokenValue,
       user: {
@@ -65,7 +62,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
     });
   }
 
-  if (validateTokenResponse.valid && customValidationValid) {
+
+  if (isTokenValid && customValidationValid) {
     return;
   }
 
