@@ -25,7 +25,7 @@ export const getOrganizationFactory = (req, res) => async () => {
     }
     const idToken = jwtDecoder<KindeIdToken>(idTokenString as string);
 
-    const accessToken = await getAccessToken(req, res);
+    const accessToken = await getAccessToken(req, res) as string;
     const decodedToken = jwtDecoder<KindeAccessToken>(accessToken) 
 
     return generateOrganizationObject(idToken, decodedToken);

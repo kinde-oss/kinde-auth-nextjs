@@ -12,7 +12,7 @@ import { refreshTokens } from '../utils/refreshTokens';
  */
 export const setup = async (routerClient) => {
   try {
-    const accessTokenEncoded =
+    let accessTokenEncoded =
       await routerClient.sessionManager.getSessionItem('access_token');
 
     const isAccessTokenValid = await validateToken({
@@ -21,11 +21,12 @@ export const setup = async (routerClient) => {
 
     if (!accessTokenValidation.valid) {
       if (!await refreshTokens(routerClient.sessionManager)) {
-        throw new Error('Invalid access token and refrehs failed');
+        throw new Error('Invalid access token and refresh');
       }
+      accessTokenEncoded = await routerClient.sessionManager.getSessionItem('access_token');
     }
 
-    const idTokenEncoded =
+    let idTokenEncoded =
       await routerClient.sessionManager.getSessionItem('id_token');
 
 
@@ -33,8 +34,11 @@ export const setup = async (routerClient) => {
       token: idTokenEncoded
     })
 
-    if (!isIdTokenValid) {
-      throw new Error('Invalid id token');
+    if (!idTokenValidation.valid) {
+      if (!await refreshTokens(routerClient.sessionManager)) {
+        throw new Error('Invalid access token and refresh');
+      }
+      idTokenEncoded = await routerClient.sessionManager.getSessionItem('id_token');
     }
 
     const accessToken = jwtDecoder<KindeAccessToken>(accessTokenEncoded);
