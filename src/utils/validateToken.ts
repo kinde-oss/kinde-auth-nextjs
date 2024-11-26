@@ -45,7 +45,7 @@ export const validateToken = async ({
     return true;
   } catch (error) {
     if (config.isDebugMode) {
-      console.error('getAccessToken', error);
+      console.error('validateToken', error);
     }
     return false;
   }
