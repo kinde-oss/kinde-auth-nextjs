@@ -64,7 +64,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
 
   if (isTokenValid && customValidationValid) {
-    return;
+    return NextResponse.next();;
   }
 
   return NextResponse.redirect(

@@ -2,7 +2,7 @@ import { validateToken as jwtValidator } from "@kinde/jwt-validator";
 import {config} from '../config';
 import { jwtDecoder } from "@kinde/jwt-decoder";
 
-export const validateToken = async({token}): Promise<boolean> => {
+export const validateToken = async({token}: {token: string}): Promise<boolean> => {
     if (!token || typeof token !== 'string') {
         if (config.isDebugMode) {
             console.error('validateToken: invalid token or token is missing');
@@ -24,7 +24,7 @@ export const validateToken = async({token}): Promise<boolean> => {
         }
 
         const decodedToken = jwtDecoder(token);
-        if (decodedToken.exp < Date.now() / 1000) {
+        if (decodedToken.exp && decodedToken.exp < Date.now() / 1000) {
             if (config.isDebugMode) {
                 console.error('validateToken: token expired');
             }
@@ -44,6 +44,6 @@ export const validateToken = async({token}): Promise<boolean> => {
         if (config.isDebugMode) {
             console.error('getAccessToken', error);
         }
-        return null;
+        return false;
     }
 }
