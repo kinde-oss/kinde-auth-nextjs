@@ -3,7 +3,7 @@ import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateOrganizationObject} from '../utils/generateOrganizationObject';
 import {sessionManager} from './sessionManager';
-import { getAccessToken } from '../utils/getAccessToken';
+import {getAccessToken} from '../utils/getAccessToken';
 /**
  * @callback getOrganization
  * @returns {Promise<import('../../types').KindeOrganization | null>}
@@ -17,16 +17,16 @@ import { getAccessToken } from '../utils/getAccessToken';
  */
 export const getOrganizationFactory = (req, res) => async () => {
   try {
-    const idTokenString = await (await sessionManager(req, res)).getSessionItem(
-      'id_token'
-    );
+    const idTokenString = await (
+      await sessionManager(req, res)
+    ).getSessionItem('id_token');
     if (!idTokenString) {
       throw new Error('ID token is missing');
     }
     const idToken = jwtDecoder<KindeIdToken>(idTokenString as string);
 
-    const accessToken = await getAccessToken(req, res) as string;
-    const decodedToken = jwtDecoder<KindeAccessToken>(accessToken) 
+    const accessToken = (await getAccessToken(req, res)) as string;
+    const decodedToken = jwtDecoder<KindeAccessToken>(accessToken);
 
     return generateOrganizationObject(idToken, decodedToken);
   } catch (error) {

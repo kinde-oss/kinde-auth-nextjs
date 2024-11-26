@@ -1,7 +1,7 @@
 import {sessionManager} from './sessionManager';
 import {config} from '../config/index';
 import {jwtDecoder} from '@kinde/jwt-decoder';
-import { getIdToken } from '../utils/getIdToken';
+import {getIdToken} from '../utils/getIdToken';
 
 /**
  * @callback getIdToken

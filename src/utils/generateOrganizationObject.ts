@@ -22,10 +22,10 @@ export const generateOrganizationObject = (
   idToken: KindeIdToken,
   accessToken: KindeAccessToken
 ) => {
-  if (!accessToken.org_code || !accessToken.org_name) {  
-    throw new Error('Missing required organization fields in access token');  
-  }  
-  
+  if (!accessToken.org_code || !accessToken.org_name) {
+    throw new Error('Missing required organization fields in access token');
+  }
+
   return {
     orgCode: accessToken.org_code,
     orgName: accessToken.org_name,

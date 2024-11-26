@@ -2,8 +2,8 @@ import {jwtDecoder} from '@kinde/jwt-decoder';
 import {KindeAccessToken, KindeIdToken} from '../../types';
 import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
-import { validateToken } from '@kinde/jwt-validator';
-import { refreshTokens } from '../utils/refreshTokens';
+import {validateToken} from '@kinde/jwt-validator';
+import {refreshTokens} from '../utils/refreshTokens';
 
 /**
  *
@@ -17,28 +17,29 @@ export const setup = async (routerClient) => {
 
     const isAccessTokenValid = await validateToken({
       token: accessTokenEncoded
-    })
+    });
 
     if (!isAccessTokenValid) {
-      if (!await refreshTokens(routerClient.sessionManager)) {
+      if (!(await refreshTokens(routerClient.sessionManager))) {
         throw new Error('Invalid access token and refresh');
       }
-      accessTokenEncoded = await routerClient.sessionManager.getSessionItem('access_token');
+      accessTokenEncoded =
+        await routerClient.sessionManager.getSessionItem('access_token');
     }
 
     let idTokenEncoded =
       await routerClient.sessionManager.getSessionItem('id_token');
 
-
     const isIdTokenValid = await validateToken({
       token: idTokenEncoded
-    })
+    });
 
     if (!isIdTokenValid) {
-      if (!await refreshTokens(routerClient.sessionManager)) {
+      if (!(await refreshTokens(routerClient.sessionManager))) {
         throw new Error('Invalid access token and refresh');
       }
-      idTokenEncoded = await routerClient.sessionManager.getSessionItem('id_token');
+      idTokenEncoded =
+        await routerClient.sessionManager.getSessionItem('id_token');
     }
 
     const accessToken = jwtDecoder<KindeAccessToken>(accessTokenEncoded);
