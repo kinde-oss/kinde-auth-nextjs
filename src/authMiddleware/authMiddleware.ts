@@ -2,7 +2,7 @@ import {NextResponse} from 'next/server';
 import {config} from '../config/index';
 import {type KindeAccessToken, KindeIdToken} from '../../types';
 import {jwtDecoder} from '@kinde/jwt-decoder';
-import { validateToken } from '../utils/validateToken';
+import {validateToken} from '../utils/validateToken';
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const {pathname} = req.nextUrl;
@@ -62,9 +62,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
     });
   }
 
-
   if (isTokenValid && customValidationValid) {
-    return NextResponse.next();;
+    return NextResponse.next();
   }
 
   return NextResponse.redirect(

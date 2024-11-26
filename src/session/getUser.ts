@@ -4,8 +4,8 @@ import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
 import {sessionManager} from './sessionManager';
 import {jwtDecoder} from '@kinde/jwt-decoder';
-import { getAccessToken } from '../utils/getAccessToken';
-import { getIdToken } from '../utils/getIdToken';
+import {getAccessToken} from '../utils/getAccessToken';
+import {getIdToken} from '../utils/getIdToken';
 
 export const getUserFactory =
   (req: NextApiRequest, res: NextApiResponse) =>
@@ -15,13 +15,13 @@ export const getUserFactory =
       if (!rawToken) {
         return null;
       }
-      const idToken = jwtDecoder<KindeIdToken>(rawToken);
+      const idToken = jwtDecoder<KindeIdToken>(rawToken as string);
 
       const accessToken = await getAccessToken(req, res);
       if (!accessToken) {
         return null;
       }
-      const decodedToken = jwtDecoder<KindeAccessToken>(accessToken) 
+      const decodedToken = jwtDecoder<KindeAccessToken>(accessToken as string);
 
       return generateUserObject(idToken, decodedToken) as KindeUser<T>;
     } catch (error) {
