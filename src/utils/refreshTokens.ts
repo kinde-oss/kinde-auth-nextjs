@@ -5,7 +5,10 @@ import { SessionManager } from "@kinde-oss/kinde-typescript-sdk";
 
 export const refreshTokens = async(session: SessionManager): Promise<boolean> => {
     try {
-        await kindeClient.refreshTokens (session);
+        const refreshResult = await kindeClient.refreshTokens(session);
+        if (!refreshResult) {
+            return false;
+        }
 
         const token = await session.getSessionItem('access_token');
 
