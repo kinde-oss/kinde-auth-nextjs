@@ -19,7 +19,7 @@ export const setup = async (routerClient) => {
       token: accessTokenEncoded
     })
 
-    if (!accessTokenValidation.valid) {
+    if (!isAccessTokenValid) {
       if (!await refreshTokens(routerClient.sessionManager)) {
         throw new Error('Invalid access token and refresh');
       }
@@ -34,7 +34,7 @@ export const setup = async (routerClient) => {
       token: idTokenEncoded
     })
 
-    if (!idTokenValidation.valid) {
+    if (!isIdTokenValid) {
       if (!await refreshTokens(routerClient.sessionManager)) {
         throw new Error('Invalid access token and refresh');
       }
