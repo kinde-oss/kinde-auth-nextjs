@@ -11,17 +11,17 @@ export const getUserFactory =
   (req: NextApiRequest, res: NextApiResponse) =>
   async <T = Record<string, any>>(): Promise<KindeUser<T>> => {
     try {
-      const rawToken = (await getIdToken(req, res)) as string;
+      const rawToken = await getIdToken(req, res);
       if (!rawToken) {
         return null;
       }
-      const idToken = jwtDecoder<KindeIdToken>(rawToken);
+      const idToken = jwtDecoder<KindeIdToken>(rawToken as string);
 
-      const accessToken = (await getAccessToken(req, res)) as string;
+      const accessToken = await getAccessToken(req, res);
       if (!accessToken) {
         return null;
       }
-      const decodedToken = jwtDecoder<KindeAccessToken>(accessToken);
+      const decodedToken = jwtDecoder<KindeAccessToken>(accessToken as string);
 
       return generateUserObject(idToken, decodedToken) as KindeUser<T>;
     } catch (error) {

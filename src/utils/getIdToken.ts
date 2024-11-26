@@ -22,8 +22,22 @@ export const getIdToken = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     if (!isTokenValid) {
-      if (await kindeClient.refreshTokens(session)) {
-        return await session.getSessionItem(tokenKey);
+      try {
+        const refreshSuccess = await kindeClient.refreshTokens(session);
+        if (refreshSuccess) {
+          const newToken = await session.getSessionItem(tokenKey);
+          const isNewTokenValid = await validateToken({token: newToken as string});
+          if (isNewTokenValid) {
+            return newToken;
+          }
+        }
+        if (config.isDebugMode) {
+          console.error('getIdToken: token refresh failed');
+        }
+      } catch (error) {
+        if (config.isDebugMode) {
+          console.error('getIdToken: error during token refresh', error);
+        }
       }
 
       if (config.isDebugMode) {
