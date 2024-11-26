@@ -3,7 +3,9 @@ import RouterClient from '../routerClients/RouterClient';
 
 export const callback = async (routerClient: RouterClient) => {
   const postLoginRedirectURLFromMemory =
-    await routerClient.sessionManager.getSessionItem('post_login_redirect_url');
+    (await routerClient.sessionManager.getSessionItem(
+      'post_login_redirect_url'
+    )) as string;
 
   if (postLoginRedirectURLFromMemory) {
     await routerClient.sessionManager.removeSessionItem(

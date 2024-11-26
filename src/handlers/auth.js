@@ -92,13 +92,12 @@ const appRouterHandler = async (req, res, options) => {
   const route = getRoute(endpoint);
 
   if (route) {
-    const routerClient = new AppRouterClient(req, res, options)
+    const routerClient = new AppRouterClient(req, res, options);
     await routerClient.createStore();
     return await route(routerClient);
   } else {
     return new Response('This page could not be found.', {status: 404});
   }
-
 };
 
 /**

@@ -4,22 +4,26 @@ import {config} from '../config/index';
 import {generateUserObject} from '../utils/generateUserObject';
 import {sessionManager} from './sessionManager';
 import {jwtDecoder} from '@kinde/jwt-decoder';
+import { getAccessToken } from '../utils/getAccessToken';
+import { getIdToken } from '../utils/getIdToken';
 
 export const getUserFactory =
   (req: NextApiRequest, res: NextApiResponse) =>
   async <T = Record<string, any>>(): Promise<KindeUser<T>> => {
     try {
-      const session = await sessionManager(req, res);
-
-      const rawToken = await session.getSessionItem('id_token') as string;
+      const rawToken = await getIdToken(req, res);
+      if (!rawToken) {
+        return null;
+      }
       const idToken = jwtDecoder<KindeIdToken>(rawToken);
 
-      const accessToken = jwtDecoder<KindeAccessToken>(
-        (await session.getSessionItem(
-          'access_token'
-        )) as string
-      );
-      return generateUserObject(idToken, accessToken) as KindeUser<T>;
+      const accessToken = await getAccessToken(req, res);
+      if (!accessToken) {
+        return null;
+      }
+      const decodedToken = jwtDecoder<KindeAccessToken>(accessToken) 
+
+      return generateUserObject(idToken, decodedToken) as KindeUser<T>;
     } catch (error) {
       if (config.isDebugMode) {
         console.debug('getUser', error);

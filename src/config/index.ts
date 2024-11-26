@@ -57,7 +57,45 @@ const KINDE_SCOPE = process.env.KINDE_SCOPE || 'openid profile email offline';
 
 const isDebugMode = process.env.KINDE_DEBUG_MODE === 'true';
 
-export const config = {
+type Config = {
+  isDebugMode: boolean;
+  apiPath: string;
+  initialState: any; // TODO: Fix this type
+  SESSION_PREFIX: string;
+  redirectURL: string;
+  postLoginRedirectURL: string;
+  issuerURL: string;
+  clientID: string;
+  clientSecret: string;
+  postLogoutRedirectURL: string;
+  audience: string[] | '';
+  cookieDomain: string;
+  responseType: 'code';
+  codeChallengeMethod: 'S256';
+  redirectRoutes: {
+    callback: string;
+  };
+  issuerRoutes: {
+    logout: '/logout';
+    login: '/oauth2/auth';
+    register: '/oauth2/auth';
+    token: '/oauth2/token';
+    profile: '/oauth2/v2/user_profile';
+  };
+  clientOptions: {
+    audience: string[] | '';
+    authDomain: string;
+    clientId: string;
+    clientSecret: string;
+    logoutRedirectURL: string;
+    redirectURL: string;
+    frameworkVersion: string;
+    scope: string;
+  };
+  grantType: 'AUTHORIZATION_CODE';
+};
+
+export const config: Config = {
   isDebugMode,
   apiPath: KINDE_AUTH_API_PATH,
   initialState,

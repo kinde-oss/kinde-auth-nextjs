@@ -100,7 +100,14 @@ export const appRouterSessionManager = (cookieStore) => ({
    * @returns {Promise<void>}
    */
   setSessionItem: (itemKey, itemValue) => {
-    this.removeSessionItem(itemKey)
+    cookieStore
+      .getAll()
+      .map((c) => c.name)
+      .forEach((key) => {
+        if (key.startsWith(`${String(itemKey)}`)) {
+          cookieStore.delete(key);
+        }
+      });
     if (itemValue !== undefined) {
       const itemValueString =
         typeof itemValue === 'object' ? JSON.stringify(itemValue) : itemValue;

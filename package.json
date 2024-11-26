@@ -83,8 +83,8 @@
     "@testing-library/react": "^14.2.1",
     "@types/cookie": "^0.5.3",
     "@types/jest": "^29.5.12",
-    "@types/react": "^18.2.22",
-    "@types/react-dom": "^18.2.10",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "changelogen": "^0.5.5",
     "eslint": "^8.39.0",
     "eslint-config-prettier": "^8.8.0",
@@ -107,6 +107,7 @@
     "@babel/preset-env": "^7.26.0",
     "@kinde-oss/kinde-typescript-sdk": "2.9.1",
     "@kinde/jwt-decoder": "^0.2.0",
+    "@kinde/jwt-validator": "^0.4.0",
     "cookie": "^1.0.1",
     "crypto-js": "^4.1.1",
     "uncrypto": "^0.1.3"
@@ -121,5 +122,6 @@
     "components",
     "middleware",
     "types.d.ts"
-  ]
+  ],
+  "packageManager": "pnpm@8.15.9+sha512.499434c9d8fdd1a2794ebf4552b3b25c0a633abcee5bb15e7b5de90f32f47b513aca98cd5cfd001c31f0db454bc3804edccd578501e4ca293a6816166bbd9f81"
 }

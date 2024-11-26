@@ -1,32 +1,8 @@
 import {NextResponse} from 'next/server';
 import {config} from '../config/index';
-import {isTokenValid} from '../utils/pageRouter/isTokenValid';
 import {type KindeAccessToken, KindeIdToken} from '../../types';
 import {jwtDecoder} from '@kinde/jwt-decoder';
-
-const trimTrailingSlash = (str) =>
-  str && str.charAt(str.length - 1) === '/' ? str.slice(0, -1) : str;
-
-export function authMiddleware(request) {
-  const nextUrl = trimTrailingSlash(request.nextUrl.href);
-  const logoutUrl = trimTrailingSlash(config.postLogoutRedirectURL);
-  const kinde_token = request.cookies.get('kinde_token');
-  const isLogoutUrl = nextUrl === logoutUrl;
-
-  const isAuthenticated = isTokenValid(kinde_token?.value);
-
-  if (!isAuthenticated && !isLogoutUrl) {
-    return NextResponse.redirect(
-      new URL(config.postLogoutRedirectURL, request.url)
-    );
-  }
-
-  if (isAuthenticated && isLogoutUrl) {
-    return NextResponse.redirect(new URL(config.postLoginRedirectURL));
-  }
-
-  return NextResponse.next();
-}
+import { validateToken } from '../utils/validateToken';
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const {pathname} = req.nextUrl;
@@ -48,7 +24,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   if (loginPage == pathname || publicPaths.some((p) => pathname.startsWith(p)))
     return;
 
-  const kindeToken = req.cookies.get('access_token');
+  const {value: kindeToken} = req.cookies.get('access_token');
 
   if (!kindeToken) {
     const response = NextResponse.redirect(
@@ -64,11 +40,16 @@ const handleMiddleware = async (req, options, onSuccess) => {
     req.cookies.get('id_token')?.value
   );
 
-  const isAuthorized = options?.isAuthorized
-    ? options.isAuthorized({req, token: accessTokenValue})
-    : isTokenValid(kindeToken.value);
+  // check token is valid
+  const isTokenValid = await validateToken({
+    token: kindeToken
+  });
 
-  if (isAuthorized && onSuccess) {
+  const customValidationValid = options?.isAuthorized
+    ? options.isAuthorized({req, token: accessTokenValue})
+    : true;
+
+  if (isTokenValid && customValidationValid && onSuccess) {
     return await onSuccess({
       token: accessTokenValue,
       user: {
@@ -81,8 +62,9 @@ const handleMiddleware = async (req, options, onSuccess) => {
     });
   }
 
-  if (isAuthorized) {
-    return;
+
+  if (isTokenValid && customValidationValid) {
+    return NextResponse.next();;
   }
 
   return NextResponse.redirect(

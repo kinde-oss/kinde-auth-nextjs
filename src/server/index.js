@@ -1,5 +1,5 @@
 export {default as getKindeServerSession} from '../session/index.ts';
-export {authMiddleware, withAuth} from '../authMiddleware/authMiddleware';
+export {withAuth} from '../authMiddleware/authMiddleware';
 export {
   LoginLink,
   CreateOrgLink,
