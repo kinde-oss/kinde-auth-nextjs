@@ -94,9 +94,9 @@ const appRouterHandler = async (req, res, options) => {
   if (route) {
     const routerClient = new AppRouterClient(req, res, options);
     await routerClient.createStore();
-    return await route(routerClient);
+    return void await route(routerClient);
   } else {
-    return new Response('This page could not be found.', {status: 404});
+    return void new Response('This page could not be found.', {status: 404});
   }
 };
 
@@ -118,6 +118,6 @@ const pagesRouterHandler = async (req, res, clientOptions) => {
   const route = getRoute(endpoint);
   return route
     ? // @ts-ignore
-      await route(new PagesRouterClient(req, res, clientOptions))
-    : res.status(404).end();
+    void await route(new PagesRouterClient(req, res, clientOptions))
+    : void res.status(404).end();
 };
