@@ -1,5 +1,6 @@
 import {generateUserObject} from '../../src/utils/generateUserObject'; // Assuming the function is exported from utils file
 import {KindeAccessToken, KindeIdToken} from '../../types';
+import {describe, expect, it, beforeEach, afterEach, vi} from 'vitest';
 
 describe('generateUserObject', () => {
   const accessToken: KindeAccessToken = {
@@ -284,7 +285,8 @@ describe('generateUserObject', () => {
     sub: 'kp:3b1b9e1c1a5a46bfae4e46c969065381',
     updated_at: 1724286328
   };
-  test('should generate user object', () => {
+
+  it('should generate user object', () => {
     expect(generateUserObject(idToken, accessToken)).toEqual({
       id: 'kp:3b1b9e1c1a5a46bfae4e46c969065381',
       email: 'peter@kinde.com',
@@ -303,7 +305,8 @@ describe('generateUserObject', () => {
       }
     });
   });
-  test('should generate user object when there are no properties in idtoken', () => {
+
+  it('should generate user object when there are no properties in idtoken', () => {
     expect(generateUserObject(idTokenWithoutProperties, accessToken)).toEqual({
       id: 'kp:3b1b9e1c1a5a46bfae4e46c969065381',
       email: 'peter@kinde.com',
@@ -327,7 +330,8 @@ describe('generateUserObject', () => {
       }
     });
   });
-  test('should generate user object when there are no properties in access token', () => {
+
+  it('should generate user object when there are no properties in access token', () => {
     expect(generateUserObject(idToken, accessTokenWithoutProperties)).toEqual({
       id: 'kp:3b1b9e1c1a5a46bfae4e46c969065381',
       email: 'peter@kinde.com',
@@ -347,7 +351,7 @@ describe('generateUserObject', () => {
     });
   });
 
-  test('should generate user object with no properties when not properties in access token or id token', () => {
+  it('should generate user object with no properties when not properties in access token or id token', () => {
     expect(
       generateUserObject(idTokenWithoutProperties, accessTokenWithoutProperties)
     ).toEqual({
