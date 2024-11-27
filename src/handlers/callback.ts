@@ -37,16 +37,16 @@ export const callback = async (routerClient: RouterClient) => {
       );
     }
 
-    return routerClient.json({error: error.message}, {status: 500});
+    return void routerClient.json({error: error.message}, {status: 500});
   }
   if (postLoginRedirectURL) {
     if (postLoginRedirectURL.startsWith('http')) {
-      return routerClient.redirect(postLoginRedirectURL);
+      return void routerClient.redirect(postLoginRedirectURL);
     }
-    return routerClient.redirect(
+    return void routerClient.redirect(
       `${routerClient.clientConfig.siteUrl}${postLoginRedirectURL}`
     );
   }
 
-  return routerClient.redirect(routerClient.clientConfig.siteUrl);
+  return void routerClient.redirect(routerClient.clientConfig.siteUrl);
 };

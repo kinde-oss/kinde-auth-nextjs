@@ -23,5 +23,5 @@ export const login = async (routerClient) => {
     );
   }
 
-  return routerClient.redirect(authUrl.toString());
+  return void routerClient.redirect(authUrl.toString());
 };
