@@ -58,12 +58,10 @@ export const useKindeBrowserClient = (
    * @returns {import('../../types.js').KindeFlag}
    */
   const getFlag = (code, defaultValue, flagType) => {
-    // @ts-ignore
     const flags = state.featureFlags || [];
-    // @ts-ignore
-    const flag = flags && flags[code] ? flags[code] : {};
+    const flag = flags && flags[code] ? flags[code] : null;
 
-    if (flag == {} && defaultValue == undefined) {
+    if (!flag && defaultValue == undefined) {
       throw Error(
         `Flag ${code} was not found, and no default value has been provided`
       );
@@ -71,7 +69,6 @@ export const useKindeBrowserClient = (
 
     if (flagType && flag.t && flagType !== flag.t) {
       throw Error(
-        // @ts-ignore
         `Flag ${code} is of type ${flagDataTypeMap[flag.t]} - requested type ${
           flagDataTypeMap[flagType]
         }`
@@ -79,7 +76,6 @@ export const useKindeBrowserClient = (
     }
     return {
       code,
-      // @ts-ignore
       type: flagDataTypeMap[flag.t || flagType],
       value: flag.v == null ? defaultValue : flag.v,
       is_default: flag.v == null,
@@ -93,7 +89,7 @@ export const useKindeBrowserClient = (
    * @param {boolean} defaultValue
    * @returns {boolean | undefined}
    */
-  const getBooleanFlag = (code, defaultValue) => {
+  const getBooleanFlag = (code: string, defaultValue: boolean): boolean | undefined => {
     try {
       const flag = getFlag(code, defaultValue, 'b');
       return flag.value;
@@ -110,7 +106,7 @@ export const useKindeBrowserClient = (
    * @param {string} defaultValue
    * @returns {string | undefined}
    */
-  const getStringFlag = (code, defaultValue) => {
+  const getStringFlag = (code: string, defaultValue: string): string | undefined => {
     try {
       const flag = getFlag(code, defaultValue, 's');
       return flag.value;
@@ -128,7 +124,7 @@ export const useKindeBrowserClient = (
    * @param {number} defaultValue
    * @returns {number | undefined}
    */
-  const getIntegerFlag = (code, defaultValue) => {
+  const getIntegerFlag = (code: string, defaultValue: number): number | undefined => {
     try {
       const flag = getFlag(code, defaultValue, 'i');
       return flag.value;
@@ -162,6 +158,7 @@ export const useKindeBrowserClient = (
    * @returns {string | null}
    */
   const getToken = () => {
+    //@ts-ignore
     return state.accessTokenEncoded;
   };
 
@@ -169,6 +166,7 @@ export const useKindeBrowserClient = (
    * @returns {string | null}
    */
   const getAccessTokenRaw = () => {
+    //@ts-ignore
     return state.accessTokenEncoded;
   };
 
@@ -211,6 +209,7 @@ export const useKindeBrowserClient = (
     if (!state.permissions) return {isGranted: false, orgCode: null};
 
     return {
+      //@ts-ignore
       isGranted: state.permissions.permissions?.some((p) => p === key),
       orgCode: state.organization?.orgCode
     };

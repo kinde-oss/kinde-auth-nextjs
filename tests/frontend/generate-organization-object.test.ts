@@ -1,5 +1,6 @@
 import {generateOrganizationObject} from '../../src/utils/generateOrganizationObject'; // Assuming the function is exported from utils file
 import {KindeAccessToken, KindeIdToken} from '../../types';
+import {describe, expect, it} from 'vitest';
 
 describe('generateOrganizationObject', () => {
   const orgProperties = {
@@ -135,7 +136,7 @@ describe('generateOrganizationObject', () => {
     organization_properties: orgProperties
   };
 
-  test('should generate org object', () => {
+  it('should generate org object', () => {
     expect(generateOrganizationObject(idToken, accessToken)).toEqual({
       orgCode: 'org_95755120efb',
       orgName: 'Peter Phanouvong',
@@ -147,7 +148,7 @@ describe('generateOrganizationObject', () => {
       }
     });
   });
-  test('should generate org object when there are no properties in idtoken', () => {
+  it('should generate org object when there are no properties in idtoken', () => {
     expect(
       generateOrganizationObject(idTokenWithoutProperties, accessToken)
     ).toEqual({
@@ -161,7 +162,7 @@ describe('generateOrganizationObject', () => {
       }
     });
   });
-  test('should generate org object when there are no properties in access token', () => {
+  it('should generate org object when there are no properties in access token', () => {
     expect(
       generateOrganizationObject(idToken, accessTokenWithoutProperties)
     ).toEqual({
@@ -176,7 +177,7 @@ describe('generateOrganizationObject', () => {
     });
   });
 
-  test('should generate org object with no properties when not properties in access token or id token', () => {
+  it('should generate org object with no properties when not properties in access token or id token', () => {
     expect(
       generateOrganizationObject(
         idTokenWithoutProperties,
