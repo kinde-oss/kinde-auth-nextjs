@@ -1,5 +1,5 @@
-import {getFlagFactory} from './getFlag';
-import {config} from '../config/index';
+import { getFlagFactory } from "./getFlag";
+import { config } from "../config/index";
 
 /**
  * @callback getIntegerFlag
@@ -17,7 +17,7 @@ import {config} from '../config/index';
 export const getIntegerFlagFactory =
   (req, res) => async (code, defaultValue) => {
     try {
-      const flag = await getFlagFactory(req, res)(code, defaultValue, 'i');
+      const flag = await getFlagFactory(req, res)(code, defaultValue, "i");
       return flag.value;
     } catch (err) {
       if (config.isDebugMode) {

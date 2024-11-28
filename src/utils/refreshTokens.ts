@@ -1,10 +1,10 @@
-import {validateToken} from '@kinde/jwt-validator';
-import {config} from '../config';
-import {kindeClient} from '../session/kindeServerClient';
-import {SessionManager} from '@kinde-oss/kinde-typescript-sdk';
+import { validateToken } from "@kinde/jwt-validator";
+import { config } from "../config";
+import { kindeClient } from "../session/kindeServerClient";
+import { SessionManager } from "@kinde-oss/kinde-typescript-sdk";
 
 export const refreshTokens = async (
-  session: SessionManager
+  session: SessionManager,
 ): Promise<boolean> => {
   try {
     const refreshResult = await kindeClient.refreshTokens(session);
@@ -12,12 +12,12 @@ export const refreshTokens = async (
       return false;
     }
 
-    const token = await session.getSessionItem('access_token');
+    const token = await session.getSessionItem("access_token");
 
-    if (token && typeof token === 'string') {
+    if (token && typeof token === "string") {
       const validationResult = await validateToken({
         token,
-        domain: config.issuerURL
+        domain: config.issuerURL,
       });
 
       return validationResult.valid;
@@ -25,7 +25,7 @@ export const refreshTokens = async (
     return false;
   } catch (error) {
     if (config.isDebugMode) {
-      console.error('refreshTokens', error);
+      console.error("refreshTokens", error);
     }
     return false;
   }

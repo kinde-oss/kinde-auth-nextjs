@@ -1,4 +1,4 @@
-import {sessionManager} from './sessionManager';
+import { sessionManager } from "./sessionManager";
 
 /**
  * @callback getIdTokenRaw
@@ -14,5 +14,5 @@ import {sessionManager} from './sessionManager';
 
 // @ts-ignore
 export const getIdTokenRawFactory = (req, res) => async () => {
-  return await (await sessionManager(req, res)).getSessionItem('id_token');
+  return await (await sessionManager(req, res)).getSessionItem("id_token");
 };

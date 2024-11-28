@@ -1,23 +1,23 @@
-import {getAccessTokenFactory} from './getAccessToken';
-import {getBooleanFlagFactory} from './getBooleanFlag';
-import {getFlagFactory} from './getFlag';
-import {getIdTokenFactory} from './getIdToken';
-import {getIntegerFlagFactory} from './getIntegerFlag';
-import {getOrganizationFactory} from './getOrganization';
-import {getPermissionFactory} from './getPermission';
-import {getPermissionsFactory} from './getPermissions';
-import {getStringFlagFactory} from './getStringFlag';
-import {getUserFactory} from './getUser';
-import {getUserOrganizationsFactory} from './getUserOrganizations';
-import {isAuthenticatedFactory} from './isAuthenticated';
-import {getAccessTokenRawFactory} from './getAccessTokenRaw';
-import {getIdTokenRawFactory} from './getIdTokenRaw';
-import {kindeClient} from './kindeServerClient';
-import {sessionManager} from './sessionManager';
-import {getRolesFactory} from './getRoles';
-import {getClaimFactory} from './getClaim';
-import {config} from '../config/index';
-import {NextApiRequest, NextApiResponse} from 'next';
+import { getAccessTokenFactory } from "./getAccessToken";
+import { getBooleanFlagFactory } from "./getBooleanFlag";
+import { getFlagFactory } from "./getFlag";
+import { getIdTokenFactory } from "./getIdToken";
+import { getIntegerFlagFactory } from "./getIntegerFlag";
+import { getOrganizationFactory } from "./getOrganization";
+import { getPermissionFactory } from "./getPermission";
+import { getPermissionsFactory } from "./getPermissions";
+import { getStringFlagFactory } from "./getStringFlag";
+import { getUserFactory } from "./getUser";
+import { getUserOrganizationsFactory } from "./getUserOrganizations";
+import { isAuthenticatedFactory } from "./isAuthenticated";
+import { getAccessTokenRawFactory } from "./getAccessTokenRaw";
+import { getIdTokenRawFactory } from "./getIdTokenRaw";
+import { kindeClient } from "./kindeServerClient";
+import { sessionManager } from "./sessionManager";
+import { getRolesFactory } from "./getRoles";
+import { getClaimFactory } from "./getClaim";
+import { config } from "../config/index";
+import { NextApiRequest, NextApiResponse } from "next";
 
 export default function (req?: NextApiRequest, res?: NextApiResponse) {
   return {
@@ -25,7 +25,7 @@ export default function (req?: NextApiRequest, res?: NextApiResponse) {
       try {
         // @ts-ignore
         const response = await kindeClient.refreshTokens(
-          await sessionManager(req, res)
+          await sessionManager(req, res),
         );
         return response;
       } catch (error) {
@@ -50,6 +50,6 @@ export default function (req?: NextApiRequest, res?: NextApiResponse) {
     getUserOrganizations: getUserOrganizationsFactory(req, res),
     isAuthenticated: isAuthenticatedFactory(req, res),
     getRoles: getRolesFactory(req, res),
-    getClaim: getClaimFactory(req, res)
+    getClaim: getClaimFactory(req, res),
   };
 }

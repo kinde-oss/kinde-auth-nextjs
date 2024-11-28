@@ -1,6 +1,6 @@
-import {config} from '../config/index';
-import {jwtDecoder} from '@kinde/jwt-decoder';
-import {getAccessToken} from '../utils/getAccessToken';
+import { config } from "../config/index";
+import { jwtDecoder } from "@kinde/jwt-decoder";
+import { getAccessToken } from "../utils/getAccessToken";
 
 /**
  * @callback getAccessToken

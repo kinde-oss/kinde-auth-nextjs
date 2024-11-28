@@ -1,6 +1,6 @@
-import {sessionManager} from './sessionManager';
-import {kindeClient} from './kindeServerClient';
-import {config} from '../config/index';
+import { sessionManager } from "./sessionManager";
+import { kindeClient } from "./kindeServerClient";
+import { config } from "../config/index";
 /**
  * @callback getRoles
  * @returns {Promise<import('../../types').KindeRoles | null>}
@@ -16,7 +16,7 @@ export const getRolesFactory = (req, res) => async () => {
   try {
     const roles = await kindeClient.getClaimValue(
       await sessionManager(req, res),
-      'roles'
+      "roles",
     );
     return roles;
   } catch (error) {

@@ -1,6 +1,6 @@
-import {sessionManager} from './sessionManager';
-import {kindeClient} from './kindeServerClient';
-import {config} from '../config/index';
+import { sessionManager } from "./sessionManager";
+import { kindeClient } from "./kindeServerClient";
+import { config } from "../config/index";
 
 /**
  * @callback getPermission
@@ -18,7 +18,7 @@ export const getPermissionFactory = (req, res) => async (name) => {
   try {
     const permission = await kindeClient.getPermission(
       await sessionManager(req, res),
-      name
+      name,
     );
     return permission;
   } catch (error) {

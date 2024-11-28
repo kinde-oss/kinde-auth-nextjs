@@ -14,10 +14,10 @@ import {
   RolesApi,
   SubscribersApi,
   TimezonesApi,
-  UsersApi
-} from '@kinde-oss/kinde-typescript-sdk';
-import {config} from './config/index';
-import {sessionManager} from './session/sessionManager';
+  UsersApi,
+} from "@kinde-oss/kinde-typescript-sdk";
+import { config } from "./config/index";
+import { sessionManager } from "./session/sessionManager";
 
 /**
  * Create the Kinde Management API client
@@ -28,26 +28,26 @@ export const createKindeManagementAPIClient = async (req, res) => {
   let apiToken = null;
 
   const store = await sessionManager(req, res);
-  store.removeSessionItem('kinde_api_access_token');
+  store.removeSessionItem("kinde_api_access_token");
 
   const response = await fetch(`${config.issuerURL}/oauth2/token`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'content-type': 'application/x-www-form-urlencoded'
+      "content-type": "application/x-www-form-urlencoded",
     },
     body: new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: config.clientID || '',
-      client_secret: config.clientSecret || '',
-      audience: config.issuerURL + '/api'
-    })
+      grant_type: "client_credentials",
+      client_id: config.clientID || "",
+      client_secret: config.clientSecret || "",
+      audience: config.issuerURL + "/api",
+    }),
   });
   apiToken = (await response.json()).access_token;
 
   const cfg = new Configuration({
     basePath: config.issuerURL,
     accessToken: apiToken,
-    headers: {Accept: 'application/json'}
+    headers: { Accept: "application/json" },
   });
 
   const usersApi = new UsersApi(cfg);
@@ -81,6 +81,6 @@ export const createKindeManagementAPIClient = async (req, res) => {
     timezonesApi,
     applicationsApi,
     callbacksApi,
-    apisApi
+    apisApi,
   };
 };

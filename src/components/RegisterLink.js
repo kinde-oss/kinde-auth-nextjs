@@ -1,5 +1,5 @@
-import React from 'react';
-import {config} from '../config/index';
+import React from "react";
+import { config } from "../config/index";
 
 /**
  * @typedef {Object} PropsType
@@ -28,13 +28,13 @@ export function RegisterLink({
   if (postLoginRedirectURL != null)
     paramsObj.post_login_redirect_url = postLoginRedirectURL;
 
-  paramsObj = {...authUrlParams, ...paramsObj};
+  paramsObj = { ...authUrlParams, ...paramsObj };
 
   for (const key in paramsObj) params.append(key, paramsObj[key]);
   return (
     <a
       href={`${config.apiPath}/register${
-        params ? `?${params.toString()}` : ''
+        params ? `?${params.toString()}` : ""
       }`}
       {...props}
     >

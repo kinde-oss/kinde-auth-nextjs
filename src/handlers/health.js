@@ -1,6 +1,6 @@
-import {config} from '../config/index';
-import {NextResponse} from 'next/server';
-import {validateClientSecret} from '@kinde-oss/kinde-typescript-sdk';
+import { config } from "../config/index";
+import { NextResponse } from "next/server";
+import { validateClientSecret } from "@kinde-oss/kinde-typescript-sdk";
 
 /**
  *
@@ -14,11 +14,11 @@ export const health = async () => {
     issuerURL: config.issuerURL,
     clientID: config.clientID,
     clientSecret: validateClientSecret(config.clientSecret)
-      ? 'Set correctly'
-      : 'Not set correctly',
+      ? "Set correctly"
+      : "Not set correctly",
     postLogoutRedirectURL: config.postLogoutRedirectURL,
     audience: config.audience,
     cookieDomain: config.cookieDomain,
-    logoutRedirectURL: config.clientOptions.logoutRedirectURL
+    logoutRedirectURL: config.clientOptions.logoutRedirectURL,
   });
 };

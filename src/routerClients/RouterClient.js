@@ -1,4 +1,4 @@
-import {NextResponse} from 'next/server';
+import { NextResponse } from "next/server";
 
 export default class RouterClient {
   /** @type {import('../../types').KindeClientConfig} */

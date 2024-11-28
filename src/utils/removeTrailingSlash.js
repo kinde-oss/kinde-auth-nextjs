@@ -3,7 +3,7 @@ export function removeTrailingSlash(url) {
 
   url = url.trim();
 
-  if (url.endsWith('/')) {
+  if (url.endsWith("/")) {
     url = url.slice(0, -1);
   }
 

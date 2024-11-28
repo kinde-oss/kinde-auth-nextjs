@@ -1,11 +1,11 @@
-import {NextApiRequest, NextApiResponse} from 'next';
-import {KindeAccessToken, KindeIdToken, KindeUser} from '../../types';
-import {config} from '../config/index';
-import {generateUserObject} from '../utils/generateUserObject';
-import {sessionManager} from './sessionManager';
-import {jwtDecoder} from '@kinde/jwt-decoder';
-import {getAccessToken} from '../utils/getAccessToken';
-import {getIdToken} from '../utils/getIdToken';
+import { NextApiRequest, NextApiResponse } from "next";
+import { KindeAccessToken, KindeIdToken, KindeUser } from "../../types";
+import { config } from "../config/index";
+import { generateUserObject } from "../utils/generateUserObject";
+import { sessionManager } from "./sessionManager";
+import { jwtDecoder } from "@kinde/jwt-decoder";
+import { getAccessToken } from "../utils/getAccessToken";
+import { getIdToken } from "../utils/getIdToken";
 
 export const getUserFactory =
   (req: NextApiRequest, res: NextApiResponse) =>
@@ -26,7 +26,7 @@ export const getUserFactory =
       return generateUserObject(idToken, decodedToken) as KindeUser<T>;
     } catch (error) {
       if (config.isDebugMode) {
-        console.debug('getUser', error);
+        console.debug("getUser", error);
       }
       return null;
     }

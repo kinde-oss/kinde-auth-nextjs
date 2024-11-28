@@ -1,6 +1,6 @@
-export {default as getKindeServerSession} from '../session/index';
-import {redirect} from 'next/navigation';
-import {NextResponse} from 'next/server';
+export { default as getKindeServerSession } from "../session/index";
+import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 
 /**
  * A higher-order function that wraps a page component and adds protection logic.
@@ -13,9 +13,10 @@ import {NextResponse} from 'next/server';
  */
 
 export const protectPage =
-  (Page, config = {redirect: '/api/auth/login'}) =>
+  (Page, config = { redirect: "/api/auth/login" }) =>
   async (props) => {
-    const {isAuthenticated, getPermission, getPermissions, getRoles} = kinde();
+    const { isAuthenticated, getPermission, getPermissions, getRoles } =
+      kinde();
     try {
       const isSignedIn = await isAuthenticated();
 
@@ -32,7 +33,7 @@ export const protectPage =
         }
       }
 
-      if (typeof config.permissions === 'string') {
+      if (typeof config.permissions === "string") {
         const hasPermission = await getPermission(config.permissions);
         if (!hasPermission) {
           return redirect(config.redirect);
@@ -43,14 +44,14 @@ export const protectPage =
         const permissions = await getPermissions();
         if (
           !config.permissions.some((permission) =>
-            permissions.includes(permission)
+            permissions.includes(permission),
           )
         ) {
           return redirect(config.redirect);
         }
       }
     } catch (error) {
-      console.error('Error protecting page', error);
+      console.error("Error protecting page", error);
       return null;
     }
 
@@ -67,28 +68,28 @@ export const protectPage =
  */
 
 export const protectApi = (handler, config) => async (req) => {
-  const {isAuthenticated, getPermission, getPermissions, getRoles} = kinde();
+  const { isAuthenticated, getPermission, getPermissions, getRoles } = kinde();
   try {
     const isSignedIn = await isAuthenticated();
 
     if (!isSignedIn) {
-      return NextResponse.json({statusCode: 401, message: 'Unauthorized'});
+      return NextResponse.json({ statusCode: 401, message: "Unauthorized" });
     }
 
     if (config.roles) {
       const roles = await getRoles();
       if (!roles)
-        return NextResponse.json({statusCode: 401, message: 'Unauthorized'});
+        return NextResponse.json({ statusCode: 401, message: "Unauthorized" });
       const roleNames = new Set(roles.map((r) => r.name));
       if (!config.roles.some((role) => roleNames.has(role))) {
-        return NextResponse.json({statusCode: 401, message: 'Unauthorized'});
+        return NextResponse.json({ statusCode: 401, message: "Unauthorized" });
       }
     }
 
-    if (typeof config.permissions === 'string') {
+    if (typeof config.permissions === "string") {
       const hasPermission = await getPermission(config.permissions);
       if (!hasPermission) {
-        return NextResponse.json({statusCode: 403, message: 'Forbidden'});
+        return NextResponse.json({ statusCode: 403, message: "Forbidden" });
       }
     }
 
@@ -96,14 +97,14 @@ export const protectApi = (handler, config) => async (req) => {
       const permissions = await getPermissions();
       if (
         !config.permissions.some((permission) =>
-          permissions.includes(permission)
+          permissions.includes(permission),
         )
       ) {
-        return NextResponse.json({statusCode: 403, message: 'Forbidden'});
+        return NextResponse.json({ statusCode: 403, message: "Forbidden" });
       }
     }
   } catch (error) {
-    console.error('Error protecting page', error);
+    console.error("Error protecting page", error);
     return null;
   }
 

@@ -1,9 +1,9 @@
-import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
-import {cookies} from 'next/headers';
-import {NextResponse} from 'next/server';
-import {config} from '../config/index';
-import {appRouterSessionManager} from '../session/sessionManager';
-import RouterClient from './RouterClient';
+import { createKindeServerClient } from "@kinde-oss/kinde-typescript-sdk";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
+import { config } from "../config/index";
+import { appRouterSessionManager } from "../session/sessionManager";
+import RouterClient from "./RouterClient";
 
 export default class AppRouterClient extends RouterClient {
   /**
@@ -16,7 +16,7 @@ export default class AppRouterClient extends RouterClient {
     super();
     this.clientConfig = {
       ...config.clientOptions,
-      framework: 'Next.js:App',
+      framework: "Next.js:App",
       audience: options?.config?.audience || config.clientOptions.audience,
       authDomain: options?.config?.issuerURL || config.clientOptions.authDomain,
       clientId: options?.config?.clientId || config.clientOptions.clientId,
@@ -29,11 +29,11 @@ export default class AppRouterClient extends RouterClient {
         ? `${options?.config?.siteUrl}/api/auth/kinde_callback`
         : config.clientOptions.redirectURL,
       siteUrl: config.redirectURL || options.config.siteUrl,
-      scope: options?.config?.scope || config.clientOptions.scope
+      scope: options?.config?.scope || config.clientOptions.scope,
     };
     this.kindeClient = createKindeServerClient(
       config.grantType,
-      this.clientConfig
+      this.clientConfig,
     );
     this.url = new URL(req.url);
 
@@ -69,7 +69,7 @@ export default class AppRouterClient extends RouterClient {
    * @param {{status: number}} status
    * @returns
    */
-  json(data, status = {status: 200}) {
+  json(data, status = { status: 200 }) {
     return NextResponse.json(data, status);
   }
 

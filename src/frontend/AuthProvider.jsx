@@ -1,21 +1,21 @@
-import {config} from '../config/index';
+import { config } from "../config/index";
 import {
   createContext,
   useContext,
   useState,
   useCallback,
-  useEffect
-} from 'react';
-import React from 'react';
+  useEffect,
+} from "react";
+import React from "react";
 /** @type {Record<import('../../types').KindeFlagTypeCode, import('../../types').KindeFlagTypeValue>} */
 export const flagDataTypeMap = {
-  s: 'string',
-  i: 'integer',
-  b: 'boolean'
+  s: "string",
+  i: "integer",
+  b: "boolean",
 };
 
 const AuthContext = createContext({
-  ...config.initialState
+  ...config.initialState,
 });
 
 /**
@@ -34,13 +34,13 @@ const tokenFetcher = async (url) => {
   try {
     response = await fetch(url);
   } catch {
-    throw new Error('Failed to fetch token');
+    throw new Error("Failed to fetch token");
   }
 
   if (response.ok) {
     return await response.json();
   } else if (response.status === 401) {
-    throw new Error('Failed to fetch token');
+    throw new Error("Failed to fetch token");
   }
 };
 
@@ -49,12 +49,12 @@ const tokenFetcher = async (url) => {
  * @param {children: import('react').ReactNode, options?: {apiPath: string} | undefined} props
  * @returns
  */
-export const KindeProvider = ({children}) => {
+export const KindeProvider = ({ children }) => {
   const setupUrl = `${config.apiPath}/setup`;
 
   const refreshData = useCallback(() => {
     checkSession();
-  }, ['checkSession']);
+  }, ["checkSession"]);
 
   const checkSession = useCallback(async () => {
     try {
@@ -70,7 +70,7 @@ export const KindeProvider = ({children}) => {
         organization,
         permissions,
         user,
-        userOrganizations
+        userOrganizations,
       } = tokens;
 
       const getAccessToken = () => accessToken;
@@ -89,11 +89,11 @@ export const KindeProvider = ({children}) => {
        * @param {string} claim
        * @param {"access_token" | "id_token"} tokenKey
        */
-      const getClaim = (claim, tokenKey = 'access_token') => {
+      const getClaim = (claim, tokenKey = "access_token") => {
         const token =
-          tokenKey === 'access_token' ? tokens.accessToken : tokens.idToken;
+          tokenKey === "access_token" ? tokens.accessToken : tokens.idToken;
         // @ts-ignore
-        return token ? {name: claim, value: token[claim]} : null;
+        return token ? { name: claim, value: token[claim] } : null;
       };
 
       /**
@@ -109,7 +109,7 @@ export const KindeProvider = ({children}) => {
 
         if (Object.keys(flag).length === 0 && defaultValue == undefined) {
           throw Error(
-            `Flag ${code} was not found, and no default value has been provided`
+            `Flag ${code} was not found, and no default value has been provided`,
           );
         }
 
@@ -119,7 +119,7 @@ export const KindeProvider = ({children}) => {
             `Flag ${code} is of type ${
               // @ts-ignore
               flagDataTypeMap[flag.t]
-            } - requested type ${flagDataTypeMap[flagType]}`
+            } - requested type ${flagDataTypeMap[flagType]}`,
           );
         }
         return {
@@ -131,7 +131,7 @@ export const KindeProvider = ({children}) => {
           value: flag.v == null ? defaultValue : flag.v,
           // @ts-ignore
           is_default: flag.v == null,
-          defaultValue: defaultValue
+          defaultValue: defaultValue,
         };
       };
 
@@ -143,7 +143,7 @@ export const KindeProvider = ({children}) => {
        */
       const getBooleanFlag = (code, defaultValue) => {
         try {
-          const flag = getFlag(code, defaultValue, 'b');
+          const flag = getFlag(code, defaultValue, "b");
           return flag.value;
         } catch (err) {
           if (config.isDebugMode) {
@@ -160,7 +160,7 @@ export const KindeProvider = ({children}) => {
        */
       const getStringFlag = (code, defaultValue) => {
         try {
-          const flag = getFlag(code, defaultValue, 's');
+          const flag = getFlag(code, defaultValue, "s");
           return flag.value;
         } catch (err) {
           if (config.isDebugMode) {
@@ -177,7 +177,7 @@ export const KindeProvider = ({children}) => {
        */
       const getIntegerFlag = (code, defaultValue) => {
         try {
-          const flag = getFlag(code, defaultValue, 'i');
+          const flag = getFlag(code, defaultValue, "i");
           return flag.value;
         } catch (err) {
           if (config.isDebugMode) {
@@ -194,7 +194,7 @@ export const KindeProvider = ({children}) => {
       const getPermission = (key) => {
         return {
           isGranted: permissions.permissions.some((p) => p === key),
-          orgCode: organization.orgCode
+          orgCode: organization.orgCode,
         };
       };
 
@@ -227,19 +227,19 @@ export const KindeProvider = ({children}) => {
         getToken,
         getUser,
         getUserOrganizations,
-        refreshData
+        refreshData,
       }));
     } catch (error) {
       if (config.isDebugMode) {
         console.error(error);
       }
       // @ts-ignore
-      setState((previous) => ({...previous, isLoading: false, error: error}));
+      setState((previous) => ({ ...previous, isLoading: false, error: error }));
     }
   }, [setupUrl]);
 
   const [state, setState] = useState({
-    ...config.initialState
+    ...config.initialState,
   });
 
   // if you get the user set loading false
@@ -248,7 +248,7 @@ export const KindeProvider = ({children}) => {
       await checkSession();
       setState((previous) => ({
         ...previous,
-        isLoading: false
+        isLoading: false,
       }));
     };
     if (!state.user) {
@@ -284,7 +284,7 @@ export const KindeProvider = ({children}) => {
     organization,
     userOrganizations,
     error,
-    isLoading
+    isLoading,
   } = state;
 
   return (
@@ -318,7 +318,7 @@ export const KindeProvider = ({children}) => {
         userOrganizations,
         isLoading,
         isAuthenticated: !!user,
-        refreshData
+        refreshData,
       }}
     >
       {children}

@@ -1,16 +1,16 @@
-import {NextResponse} from 'next/server';
-import {config} from '../config/index';
-import {type KindeAccessToken, KindeIdToken} from '../../types';
-import {jwtDecoder} from '@kinde/jwt-decoder';
-import {validateToken} from '../utils/validateToken';
+import { NextResponse } from "next/server";
+import { config } from "../config/index";
+import { type KindeAccessToken, KindeIdToken } from "../../types";
+import { jwtDecoder } from "@kinde/jwt-decoder";
+import { validateToken } from "../utils/validateToken";
 
 const handleMiddleware = async (req, options, onSuccess) => {
-  const {pathname} = req.nextUrl;
+  const { pathname } = req.nextUrl;
 
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
-  const loginPage = options?.loginPage || '/api/auth/login';
+  const loginPage = options?.loginPage || "/api/auth/login";
 
-  let publicPaths = ['/_next', '/favicon.ico'];
+  let publicPaths = ["/_next", "/favicon.ico"];
   if (options?.publicPaths !== undefined) {
     if (Array.isArray(options?.publicPaths)) {
       publicPaths = options.publicPaths;
@@ -24,29 +24,29 @@ const handleMiddleware = async (req, options, onSuccess) => {
   if (loginPage == pathname || publicPaths.some((p) => pathname.startsWith(p)))
     return;
 
-  const {value: kindeToken} = req.cookies.get('access_token');
+  const { value: kindeToken } = req.cookies.get("access_token");
 
   if (!kindeToken) {
     const response = NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)
+      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
     );
     return response;
   }
 
   const accessTokenValue = jwtDecoder<KindeAccessToken>(
-    req.cookies.get('access_token')?.value
+    req.cookies.get("access_token")?.value,
   );
   const idTokenValue = jwtDecoder<KindeIdToken>(
-    req.cookies.get('id_token')?.value
+    req.cookies.get("id_token")?.value,
   );
 
   // check token is valid
   const isTokenValid = await validateToken({
-    token: kindeToken
+    token: kindeToken,
   });
 
   const customValidationValid = options?.isAuthorized
-    ? options.isAuthorized({req, token: accessTokenValue})
+    ? options.isAuthorized({ req, token: accessTokenValue })
     : true;
 
   if (isTokenValid && customValidationValid && onSuccess) {
@@ -57,8 +57,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
         given_name: idTokenValue.given_name,
         email: idTokenValue.email,
         id: idTokenValue.sub,
-        picture: idTokenValue.picture
-      }
+        picture: idTokenValue.picture,
+      },
     });
   }
 
@@ -67,7 +67,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   }
 
   return NextResponse.redirect(
-    new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)
+    new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
   );
 };
 
@@ -83,12 +83,12 @@ export function withAuth(...args) {
   }
 
   // passing through the kindeAuth data to the middleware function
-  if (typeof args[0] === 'function') {
+  if (typeof args[0] === "function") {
     const middleware = args[0];
     const options = args[1];
     return async (...args) =>
-      await handleMiddleware(args[0], options, async ({token, user}) => {
-        args[0].kindeAuth = {token, user};
+      await handleMiddleware(args[0], options, async ({ token, user }) => {
+        args[0].kindeAuth = { token, user };
         return await middleware(...args);
       });
   }
