@@ -1,6 +1,6 @@
-import {sessionManager} from './sessionManager';
-import {kindeClient} from './kindeServerClient';
-import {config} from '../config/index';
+import { sessionManager } from "./sessionManager";
+import { kindeClient } from "./kindeServerClient";
+import { config } from "../config/index";
 
 /**
  * @callback getClaim
@@ -20,7 +20,7 @@ export const getClaimFactory = (req, res) => async (claim, type) => {
     const kindeClaim = await kindeClient.getClaim(
       await sessionManager(req, res),
       claim,
-      type
+      type,
     );
     return kindeClaim;
   } catch (error) {

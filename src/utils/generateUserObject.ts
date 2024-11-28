@@ -1,9 +1,9 @@
-import {KindeAccessToken, KindeIdToken, KindeUser} from '../../types';
+import { KindeAccessToken, KindeIdToken, KindeUser } from "../../types";
 
 type CustomPropertyType = Record<string, any>;
 export const generateUserObject = (
   idToken: KindeIdToken,
-  accessToken: KindeAccessToken
+  accessToken: KindeAccessToken,
 ) => {
   const user: KindeUser<CustomPropertyType> = {
     id: idToken.sub,
@@ -12,7 +12,7 @@ export const generateUserObject = (
     given_name: idToken.given_name,
     picture: idToken.picture,
     username: idToken.preferred_username,
-    phone_number: idToken.phone_number
+    phone_number: idToken.phone_number,
   };
   let res = user;
 
@@ -38,7 +38,7 @@ export const generateUserObject = (
         acc[key] = rest[key]?.v;
         return acc;
       },
-      {}
+      {},
     );
     res = {
       ...user,
@@ -53,8 +53,8 @@ export const generateUserObject = (
         state_region: stateRegionObj?.v,
         street_address: streetAddressObj?.v,
         street_address_2: streetAddress2Obj?.v,
-        ...sanitizedRest
-      }
+        ...sanitizedRest,
+      },
     };
   }
   return res;

@@ -1,5 +1,5 @@
-import {config} from '../config/index';
-import RouterClient from '../routerClients/RouterClient';
+import { config } from "../config/index";
+import RouterClient from "../routerClients/RouterClient";
 
 /**
  *
@@ -7,17 +7,17 @@ import RouterClient from '../routerClients/RouterClient';
  */
 export const logout = async (routerClient) => {
   const authUrl = await routerClient.kindeClient.logout(
-    routerClient.sessionManager
+    routerClient.sessionManager,
   );
 
   let postLogoutRedirectURL =
-    routerClient.getSearchParam('post_logout_redirect_url') ||
+    routerClient.getSearchParam("post_logout_redirect_url") ||
     config.postLogoutRedirectURL;
-  if (postLogoutRedirectURL?.startsWith('/')) {
+  if (postLogoutRedirectURL?.startsWith("/")) {
     postLogoutRedirectURL = config.redirectURL + postLogoutRedirectURL;
   }
   if (postLogoutRedirectURL) {
-    authUrl.searchParams.set('redirect', postLogoutRedirectURL);
+    authUrl.searchParams.set("redirect", postLogoutRedirectURL);
   }
 
   return void routerClient.redirect(authUrl.toString());

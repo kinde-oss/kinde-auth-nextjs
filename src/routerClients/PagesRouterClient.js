@@ -1,10 +1,10 @@
-import {createKindeServerClient} from '@kinde-oss/kinde-typescript-sdk';
-import {config} from '../config/index';
+import { createKindeServerClient } from "@kinde-oss/kinde-typescript-sdk";
+import { config } from "../config/index";
 import {
   pageRouterSessionManager,
-  sessionManager
-} from '../session/sessionManager';
-import RouterClient from './RouterClient';
+  sessionManager,
+} from "../session/sessionManager";
+import RouterClient from "./RouterClient";
 
 // @ts-ignore
 export default class PagesRouterClient extends RouterClient {
@@ -16,11 +16,11 @@ export default class PagesRouterClient extends RouterClient {
    */
   constructor(req, res, options) {
     super();
-    const url = req.url.split('/');
+    const url = req.url.split("/");
     url.pop();
     this.clientConfig = {
       ...config.clientOptions,
-      framework: 'Next.js:Pages',
+      framework: "Next.js:Pages",
       audience: options?.config?.audience || config.clientOptions.audience,
       authDomain: options?.config?.issuerURL || config.clientOptions.authDomain,
       clientId: options?.config?.clientId || config.clientOptions.clientId,
@@ -32,11 +32,11 @@ export default class PagesRouterClient extends RouterClient {
       redirectURL: options?.config?.siteUrl
         ? `${options?.config?.siteUrl}/api/auth/kinde_callback`
         : config.clientOptions.redirectURL,
-      siteUrl: config.redirectURL || options.config.siteUrl
+      siteUrl: config.redirectURL || options.config.siteUrl,
     };
     this.kindeClient = createKindeServerClient(
       config.grantType,
-      this.clientConfig
+      this.clientConfig,
     );
     // @ts-ignore
     this.url = new URL(this.clientConfig.siteUrl + req.url);
@@ -64,7 +64,7 @@ export default class PagesRouterClient extends RouterClient {
    * @param {{status: number}} status
    * @returns
    */
-  json(data, status = {status: 200}) {
+  json(data, status = { status: 200 }) {
     return this.res.status(status.status).json(data);
   }
 

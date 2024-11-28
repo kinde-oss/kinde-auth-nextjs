@@ -1,5 +1,5 @@
-import {getFlagFactory} from './getFlag';
-import {config} from '../config/index';
+import { getFlagFactory } from "./getFlag";
+import { config } from "../config/index";
 
 /**
  * @callback getBooleanFlag
@@ -17,7 +17,7 @@ import {config} from '../config/index';
 export const getBooleanFlagFactory =
   (req, res) => async (code, defaultValue) => {
     try {
-      const flag = await getFlagFactory(req, res)(code, defaultValue, 'b');
+      const flag = await getFlagFactory(req, res)(code, defaultValue, "b");
       return flag.value;
     } catch (err) {
       if (config.isDebugMode) {

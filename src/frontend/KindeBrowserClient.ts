@@ -1,6 +1,6 @@
-import {useEffect, useState} from 'react';
-import {flagDataTypeMap} from './AuthProvider.jsx';
-import {config} from '../config/index.js';
+import { useEffect, useState } from "react";
+import { flagDataTypeMap } from "./AuthProvider.jsx";
+import { config } from "../config/index.js";
 
 /**
  *
@@ -9,7 +9,7 @@ import {config} from '../config/index.js';
 export const useKindeBrowserClient = (
   apiPath = process.env.NEXT_PUBLIC_KINDE_AUTH_API_PATH ||
     process.env.KINDE_AUTH_API_PATH ||
-    '/api/auth'
+    "/api/auth",
 ) => {
   const [state, setState] = useState({
     accessToken: null,
@@ -23,7 +23,7 @@ export const useKindeBrowserClient = (
     organization: null,
     permissions: [],
     user: null,
-    userOrganizations: null
+    userOrganizations: null,
   });
 
   useEffect(() => {
@@ -36,16 +36,16 @@ export const useKindeBrowserClient = (
     const kindeData = await res.json();
     if (res.status == 200) {
       setState({
-        ...kindeData
+        ...kindeData,
       });
     }
     if (res.ok) {
-      setState({...kindeData, isLoading: false});
+      setState({ ...kindeData, isLoading: false });
     } else {
       setState((prev) => ({
         ...prev,
         isLoading: false,
-        error: res.statusText || 'An error occurred'
+        error: res.statusText || "An error occurred",
       }));
     }
   };
@@ -63,7 +63,7 @@ export const useKindeBrowserClient = (
 
     if (!flag && defaultValue == undefined) {
       throw Error(
-        `Flag ${code} was not found, and no default value has been provided`
+        `Flag ${code} was not found, and no default value has been provided`,
       );
     }
 
@@ -71,7 +71,7 @@ export const useKindeBrowserClient = (
       throw Error(
         `Flag ${code} is of type ${flagDataTypeMap[flag.t]} - requested type ${
           flagDataTypeMap[flagType]
-        }`
+        }`,
       );
     }
     return {
@@ -79,7 +79,7 @@ export const useKindeBrowserClient = (
       type: flagDataTypeMap[flag.t || flagType],
       value: flag.v == null ? defaultValue : flag.v,
       is_default: flag.v == null,
-      defaultValue: defaultValue
+      defaultValue: defaultValue,
     };
   };
 
@@ -89,9 +89,12 @@ export const useKindeBrowserClient = (
    * @param {boolean} defaultValue
    * @returns {boolean | undefined}
    */
-  const getBooleanFlag = (code: string, defaultValue: boolean): boolean | undefined => {
+  const getBooleanFlag = (
+    code: string,
+    defaultValue: boolean,
+  ): boolean | undefined => {
     try {
-      const flag = getFlag(code, defaultValue, 'b');
+      const flag = getFlag(code, defaultValue, "b");
       return flag.value;
     } catch (err) {
       if (config.isDebugMode) {
@@ -106,9 +109,12 @@ export const useKindeBrowserClient = (
    * @param {string} defaultValue
    * @returns {string | undefined}
    */
-  const getStringFlag = (code: string, defaultValue: string): string | undefined => {
+  const getStringFlag = (
+    code: string,
+    defaultValue: string,
+  ): string | undefined => {
     try {
-      const flag = getFlag(code, defaultValue, 's');
+      const flag = getFlag(code, defaultValue, "s");
       return flag.value;
     } catch (err) {
       if (config.isDebugMode) {
@@ -124,9 +130,12 @@ export const useKindeBrowserClient = (
    * @param {number} defaultValue
    * @returns {number | undefined}
    */
-  const getIntegerFlag = (code: string, defaultValue: number): number | undefined => {
+  const getIntegerFlag = (
+    code: string,
+    defaultValue: number,
+  ): number | undefined => {
     try {
-      const flag = getFlag(code, defaultValue, 'i');
+      const flag = getFlag(code, defaultValue, "i");
       return flag.value;
     } catch (err) {
       if (config.isDebugMode) {
@@ -142,10 +151,10 @@ export const useKindeBrowserClient = (
    * @param {"access_token" | "id_token"} tokenKey
    * @returns
    */
-  const getClaim = (claim, tokenKey = 'access_token') => {
+  const getClaim = (claim, tokenKey = "access_token") => {
     const token =
-      tokenKey === 'access_token' ? state.accessToken : state.idToken;
-    return token ? {name: claim, value: token[claim]} : null;
+      tokenKey === "access_token" ? state.accessToken : state.idToken;
+    return token ? { name: claim, value: token[claim] } : null;
   };
 
   /**
@@ -206,12 +215,12 @@ export const useKindeBrowserClient = (
    * @returns {import('../../types.js').KindePermission}
    */
   const getPermission = (key) => {
-    if (!state.permissions) return {isGranted: false, orgCode: null};
+    if (!state.permissions) return { isGranted: false, orgCode: null };
 
     return {
       //@ts-ignore
       isGranted: state.permissions.permissions?.some((p) => p === key),
-      orgCode: state.organization?.orgCode
+      orgCode: state.organization?.orgCode,
     };
   };
 
@@ -233,6 +242,6 @@ export const useKindeBrowserClient = (
     getOrganization,
     getPermissions,
     getUserOrganizations,
-    refreshData
+    refreshData,
   };
 };

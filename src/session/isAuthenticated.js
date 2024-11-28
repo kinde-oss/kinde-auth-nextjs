@@ -1,5 +1,5 @@
-import {getUserFactory} from './getUser';
-import {getAccessToken} from '../utils/getAccessToken';
+import { getUserFactory } from "./getUser";
+import { getAccessToken } from "../utils/getAccessToken";
 
 /**
  *

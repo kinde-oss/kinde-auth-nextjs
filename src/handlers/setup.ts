@@ -1,9 +1,9 @@
-import {jwtDecoder} from '@kinde/jwt-decoder';
-import {KindeAccessToken, KindeIdToken} from '../../types';
-import {config} from '../config/index';
-import {generateUserObject} from '../utils/generateUserObject';
-import {validateToken} from '@kinde/jwt-validator';
-import {refreshTokens} from '../utils/refreshTokens';
+import { jwtDecoder } from "@kinde/jwt-decoder";
+import { KindeAccessToken, KindeIdToken } from "../../types";
+import { config } from "../config/index";
+import { generateUserObject } from "../utils/generateUserObject";
+import { validateToken } from "@kinde/jwt-validator";
+import { refreshTokens } from "../utils/refreshTokens";
 
 /**
  *
@@ -13,33 +13,33 @@ import {refreshTokens} from '../utils/refreshTokens';
 export const setup = async (routerClient) => {
   try {
     let accessTokenEncoded =
-      await routerClient.sessionManager.getSessionItem('access_token');
+      await routerClient.sessionManager.getSessionItem("access_token");
 
     const isAccessTokenValid = await validateToken({
-      token: accessTokenEncoded
+      token: accessTokenEncoded,
     });
 
     if (!isAccessTokenValid) {
       if (!(await refreshTokens(routerClient.sessionManager))) {
-        throw new Error('Invalid access token and refresh');
+        throw new Error("Invalid access token and refresh");
       }
       accessTokenEncoded =
-        await routerClient.sessionManager.getSessionItem('access_token');
+        await routerClient.sessionManager.getSessionItem("access_token");
     }
 
     let idTokenEncoded =
-      await routerClient.sessionManager.getSessionItem('id_token');
+      await routerClient.sessionManager.getSessionItem("id_token");
 
     const isIdTokenValid = await validateToken({
-      token: idTokenEncoded
+      token: idTokenEncoded,
     });
 
     if (!isIdTokenValid) {
       if (!(await refreshTokens(routerClient.sessionManager))) {
-        throw new Error('Invalid access token and refresh');
+        throw new Error("Invalid access token and refresh");
       }
       idTokenEncoded =
-        await routerClient.sessionManager.getSessionItem('id_token');
+        await routerClient.sessionManager.getSessionItem("id_token");
     }
 
     const accessToken = jwtDecoder<KindeAccessToken>(accessTokenEncoded);
@@ -55,7 +55,7 @@ export const setup = async (routerClient) => {
     const orgNames = idToken.organizations;
 
     if (!accessToken.permissions || !idToken.org_codes) {
-      throw new Error('Missing required claims in tokens');
+      throw new Error("Missing required claims in tokens");
     }
 
     return routerClient.json({
@@ -67,11 +67,11 @@ export const setup = async (routerClient) => {
       idTokenEncoded,
       user: generateUserObject(
         idToken as KindeIdToken,
-        accessToken as KindeAccessToken
+        accessToken as KindeAccessToken,
       ),
       permissions: {
         permissions,
-        orgCode: organization
+        orgCode: organization,
       },
       needsRefresh: false,
       organization: {
@@ -83,36 +83,36 @@ export const setup = async (routerClient) => {
           postcode: orgProperties?.kp_org_postcode?.v,
           state_region: orgProperties?.kp_org_state_region?.v,
           street_address: orgProperties?.kp_org_street_address?.v,
-          street_address_2: orgProperties?.kp_org_street_address_2?.v
-        }
+          street_address_2: orgProperties?.kp_org_street_address_2?.v,
+        },
       },
       featureFlags,
       userOrganizations: {
         orgCodes: userOrganizations,
         orgs: orgNames?.map((org) => ({
           code: org?.id,
-          name: org?.name
-        }))
-      }
+          name: org?.name,
+        })),
+      },
     });
   } catch (error) {
     if (config.isDebugMode) {
       console.debug(error);
     }
 
-    if (error.code == 'ERR_JWT_EXPIRED') {
+    if (error.code == "ERR_JWT_EXPIRED") {
       return routerClient.json(
         {
-          needsRefresh: true
+          needsRefresh: true,
         },
-        {status: 200}
+        { status: 200 },
       );
     }
     return routerClient.json(
       {
-        error
+        error,
       },
-      {status: 500}
+      { status: 500 },
     );
   }
 };

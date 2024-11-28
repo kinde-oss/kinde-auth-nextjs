@@ -1,5 +1,5 @@
-import {sessionManager} from './sessionManager';
-import {kindeClient} from './kindeServerClient';
+import { sessionManager } from "./sessionManager";
+import { kindeClient } from "./kindeServerClient";
 
 /**
  * @callback getFlag
@@ -22,15 +22,15 @@ export const getFlagFactory =
         await sessionManager(req, res),
         code,
         defaultValue,
-        flagType
+        flagType,
       );
 
       return flag;
     } catch (error) {
       // @ts-ignore
-      if (error.message.includes('no default value has been provided')) {
+      if (error.message.includes("no default value has been provided")) {
         throw error;
       }
-      return {value: defaultValue};
+      return { value: defaultValue };
     }
   };

@@ -6,8 +6,8 @@ import {
   LoginURLOptions,
   RegisterURLOptions,
   SessionManager,
-  UserType
-} from '@kinde-oss/kinde-typescript-sdk';
+  UserType,
+} from "@kinde-oss/kinde-typescript-sdk";
 
 export type KindeAccessToken = {
   aud: string[];
@@ -124,7 +124,7 @@ export type KindeIdToken = {
   name: string;
   organization_properties?: KindeTokenOrganizationProperties;
   org_codes: string[];
-  organizations?: {id: string; name: string}[];
+  organizations?: { id: string; name: string }[];
   picture: string;
   phone_number?: string;
   preferred_username?: string;
@@ -182,9 +182,9 @@ export type KindeFlagRaw = {
   v?: string | number | boolean | object;
 };
 
-export type KindeFlagTypeCode = 'b' | 'i' | 's' | 'j';
+export type KindeFlagTypeCode = "b" | "i" | "s" | "j";
 
-export type KindeFlagTypeValue = 'boolean' | 'integer' | 'string' | 'json';
+export type KindeFlagTypeValue = "boolean" | "integer" | "string" | "json";
 
 export type KindeFlag = {
   code: string;
@@ -219,40 +219,40 @@ export type KindeOrganizations = {
 export type KindeClient = {
   handleRedirectToApp: (
     sessionManager: SessionManager,
-    callbackURL: URL
+    callbackURL: URL,
   ) => Promise<void>;
   isAuthenticated: (sessionManager: SessionManager) => Promise<boolean>;
   getUserProfile: (sessionManager: SessionManager) => Promise<UserType>;
   createOrg: (
     sessionManager: SessionManager,
-    options?: CreateOrgURLOptions
+    options?: CreateOrgURLOptions,
   ) => Promise<URL>;
   getToken: (sessionManager: SessionManager) => Promise<string>;
   register: (
     sessionManager: SessionManager,
-    options?: RegisterURLOptions
+    options?: RegisterURLOptions,
   ) => Promise<URL>;
   getUser: (sessionManager: SessionManager) => Promise<UserType>;
   logout: (sessionManager: SessionManager) => Promise<URL>;
   login: (
     sessionManager: SessionManager,
-    options?: LoginURLOptions
+    options?: LoginURLOptions,
   ) => Promise<URL>;
   getUserOrganizations: (sessionManager: SessionManager) => Promise<{
     orgCodes: string[];
   }>;
   getOrganization: (
-    sessionManager: SessionManager
+    sessionManager: SessionManager,
   ) => Promise<KindeOrganization>;
   getBooleanFlag: (
     sessionManager: SessionManager,
     code: string,
-    defaultValue?: boolean | undefined
+    defaultValue?: boolean | undefined,
   ) => Promise<boolean>;
   getIntegerFlag: (
     sessionManager: SessionManager,
     code: string,
-    defaultValue?: number | undefined
+    defaultValue?: number | undefined,
   ) => Promise<number>;
   getPermissions: (sessionManager: SessionManager) => Promise<{
     permissions: string[];
@@ -260,7 +260,7 @@ export type KindeClient = {
   }>;
   getPermission: (
     sessionManager: SessionManager,
-    name: string
+    name: string,
   ) => Promise<{
     orgCode: string | null;
     isGranted: boolean;
@@ -268,17 +268,17 @@ export type KindeClient = {
   getClaimValue: (
     sessionManager: SessionManager,
     claim: string,
-    type?: ClaimTokenType
+    type?: ClaimTokenType,
   ) => Promise<unknown>;
   getStringFlag: (
     sessionManager: SessionManager,
     code: string,
-    defaultValue?: string | undefined
+    defaultValue?: string | undefined,
   ) => Promise<string>;
   getClaim: (
     sessionManager: SessionManager,
     claim: string,
-    type?: ClaimTokenType
+    type?: ClaimTokenType,
   ) => Promise<{
     name: string;
     value: unknown;
@@ -287,7 +287,7 @@ export type KindeClient = {
     sessionManager: SessionManager,
     code: string,
     defaultValue?: string | number | boolean | undefined,
-    type?: keyof FlagType | undefined
+    type?: keyof FlagType | undefined,
   ) => Promise<GetFlagType>;
   refreshTokens: (sessionManager: SessionManager) => Promise<void>;
 };
@@ -317,30 +317,30 @@ export type KindeState = {
   getIdTokenRaw: () => string | null;
   getBooleanFlag: (
     code: string,
-    defaultValue: boolean
+    defaultValue: boolean,
   ) => boolean | null | undefined;
   getClaim: (
     claim: string,
-    tokenKey?: 'access_token' | 'id_token'
-  ) => {name: string; value: string} | null;
+    tokenKey?: "access_token" | "id_token",
+  ) => { name: string; value: string } | null;
   getFlag: (
     code: string,
     defaultValue: string | number | boolean,
-    flagType: KindeFlagTypeCode
+    flagType: KindeFlagTypeCode,
   ) => KindeFlag | null;
   getIdToken: () => KindeIdToken | null;
   getIntegerFlag: (
     code: string,
-    defaultValue: number
+    defaultValue: number,
   ) => number | null | undefined;
   getOrganization: () => KindeOrganization;
   getPermission: (
-    key: string
-  ) => {isGranted: boolean; orgCode: string | null} | null;
+    key: string,
+  ) => { isGranted: boolean; orgCode: string | null } | null;
   getPermissions: () => KindePermissions;
   getStringFlag: (
     code: string,
-    defaultValue: string
+    defaultValue: string,
   ) => string | null | undefined;
   getToken: () => string | null;
   getUser: () => KindeUser<Record<string, string>> | null;
