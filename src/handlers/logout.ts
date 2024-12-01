@@ -8,7 +8,6 @@ import { isPreFetch } from "../utils/isPreFetch";
  */
 export const logout = async (routerClient: RouterClient) => {
   if (isPreFetch(routerClient.req)) {
-    console.log("isPreFetch");
     return null
   }
   
