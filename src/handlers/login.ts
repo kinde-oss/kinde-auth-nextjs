@@ -1,11 +1,16 @@
 import RouterClient from "../routerClients/RouterClient";
+import { isPreFetch } from "../utils/isPreFetch";
 
 /**
  *
  * @param {RouterClient} routerClient
  */
-export const register = async (routerClient) => {
-  const authUrl = await routerClient.kindeClient.register(
+export const login = async (routerClient: RouterClient) => {
+  if (isPreFetch(routerClient.req)) {
+    return null;
+  }
+  
+  const authUrl = await routerClient.kindeClient.login(
     routerClient.sessionManager,
     {
       authUrlParams: Object.fromEntries(routerClient.searchParams),
@@ -23,5 +28,5 @@ export const register = async (routerClient) => {
     );
   }
 
-  return void routerClient.redirect(authUrl.toString());
+  return routerClient.redirect(authUrl.toString());
 };
