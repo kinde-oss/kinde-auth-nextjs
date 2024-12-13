@@ -17,36 +17,36 @@ export const getIdToken = async (req: NextApiRequest, res: NextApiResponse) => {
       return null;
     }
 
-    const isTokenValid = await validateToken({
-      token,
-    });
+    // const isTokenValid = await validateToken({
+    //   token,
+    // });
 
-    if (!isTokenValid) {
-      try {
-        const refreshSuccess = await kindeClient.refreshTokens(session);
-        if (refreshSuccess) {
-          const newToken = await session.getSessionItem(tokenKey);
-          const isNewTokenValid = await validateToken({
-            token: newToken as string,
-          });
-          if (isNewTokenValid) {
-            return newToken;
-          }
-        }
-        if (config.isDebugMode) {
-          console.error("getIdToken: token refresh failed");
-        }
-      } catch (error) {
-        if (config.isDebugMode) {
-          console.error("getIdToken: error during token refresh", error);
-        }
-      }
+    // if (!isTokenValid) {
+    //   try {
+    //     const refreshSuccess = await kindeClient.refreshTokens(session);
+    //     if (refreshSuccess) {
+    //       const newToken = await session.getSessionItem(tokenKey);
+    //       const isNewTokenValid = await validateToken({
+    //         token: newToken as string,
+    //       });
+    //       if (isNewTokenValid) {
+    //         return newToken;
+    //       }
+    //     }
+    //     if (config.isDebugMode) {
+    //       console.error("getIdToken: token refresh failed");
+    //     }
+    //   } catch (error) {
+    //     if (config.isDebugMode) {
+    //       console.error("getIdToken: error during token refresh", error);
+    //     }
+    //   }
 
-      if (config.isDebugMode) {
-        console.error("getIdToken: invalid token");
-      }
-      return null;
-    }
+    //   if (config.isDebugMode) {
+    //     console.error("getIdToken: invalid token");
+    //   }
+    //   return null;
+    // }
 
     return token;
   } catch (error) {

@@ -3,9 +3,12 @@ import { config } from "../config/index";
 import { type KindeAccessToken, KindeIdToken } from "../../types";
 import { jwtDecoder } from "@kinde/jwt-decoder";
 import { validateToken } from "../utils/validateToken";
+import { getAccessToken } from "../utils/getAccessToken";
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname } = req.nextUrl;
+
+  console.log("in middleware");
 
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
   const loginPage = options?.loginPage || "/api/auth/login";
@@ -24,7 +27,9 @@ const handleMiddleware = async (req, options, onSuccess) => {
   if (loginPage == pathname || publicPaths.some((p) => pathname.startsWith(p)))
     return;
 
-  const { value: kindeToken } = req.cookies.get("access_token");
+  const response = NextResponse.next();
+
+  const { value: kindeToken } = getAccessToken(req, response) || req.cookies.get("access_token");
 
   if (!kindeToken) {
     const response = NextResponse.redirect(
@@ -33,6 +38,9 @@ const handleMiddleware = async (req, options, onSuccess) => {
     return response;
   }
 
+
+getAccessToken(req, response);
+
   const accessTokenValue = jwtDecoder<KindeAccessToken>(
     req.cookies.get("access_token")?.value,
   );
@@ -40,6 +48,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     req.cookies.get("id_token")?.value,
   );
 
+  console.log("accessTokenValue - handlemiddleware", accessTokenValue);
   // check token is valid
   const isTokenValid = await validateToken({
     token: kindeToken,

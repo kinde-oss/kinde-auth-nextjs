@@ -36,7 +36,7 @@ const splitString = (str, length) => {
 /**
  *
  * @param {import('next').NextApiRequest} [req]
- * @param {import('next').NextApiResponse} [res]
+ * @param {import('next').NextApiResponse | import('next').NextResponse} [res]
  * @returns {Promise<import('@kinde-oss/kinde-typescript-sdk').SessionManager>}
  */
 export const sessionManager = async (req, res) => {
@@ -89,7 +89,7 @@ export const appRouterSessionManager = (cookieStore) => ({
       return itemValue;
     } catch (error) {
       if (config.isDebugMode)
-        console.error("Failed to parse session item:", error);
+        console.error("Failed to parse session item app router:", error);
       return item.value;
     }
   },
@@ -191,7 +191,7 @@ export const pageRouterSessionManager = (req, res) => {
         return itemValueString;
       } catch (error) {
         if (config.isDebugMode)
-          console.error("Failed to parse session item:", error);
+          console.error("Failed to read session item:", error);
         return itemValue;
       }
     },

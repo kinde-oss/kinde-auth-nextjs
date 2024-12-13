@@ -8,8 +8,8 @@ import { getAccessToken } from "../utils/getAccessToken";
  * @returns {() => Promise<boolean>}
  */
 export const isAuthenticatedFactory = (req, res) => async () => {
-  const token = getAccessToken(req, res);
-
+  const token = await getAccessToken(req, res);
+  console.log('isAuthenticatedFactory token', token)
   const user = await getUserFactory(req, res)();
   return token && Boolean(user);
 };

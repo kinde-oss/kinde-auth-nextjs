@@ -28,12 +28,17 @@ export const validateToken = async ({
     }
 
     const decodedToken = jwtDecoder(token);
+    console.log("token is valid", decodedToken.exp);
+
+    // console.log("decoded token", decodedToken);
     if (decodedToken.exp && decodedToken.exp < Date.now() / 1000) {
       if (config.isDebugMode) {
-        console.error("validateToken: token expired");
+        console.warn("validateToken: token expired", decodedToken.exp < Date.now() / 1000, Date.now() / 1000);
       }
       return false;
     }
+    console.log("token has not expired", decodedToken.exp, decodedToken.exp < Date.now() / 1000, Date.now() / 1000);
+
 
     if (decodedToken.iss !== config.issuerURL) {
       if (config.isDebugMode) {

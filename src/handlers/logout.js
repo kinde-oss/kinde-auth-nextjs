@@ -20,5 +20,5 @@ export const logout = async (routerClient) => {
     authUrl.searchParams.set("redirect", postLogoutRedirectURL);
   }
 
-  return void routerClient.redirect(authUrl.toString());
+  return routerClient.redirect(authUrl.toString());
 };

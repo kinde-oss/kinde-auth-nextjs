@@ -23,5 +23,5 @@ export const register = async (routerClient) => {
     );
   }
 
-  return void routerClient.redirect(authUrl.toString());
+  return routerClient.redirect(authUrl.toString());
 };
