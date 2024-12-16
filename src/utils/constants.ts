@@ -1,8 +1,8 @@
-import { SerializeOptions } from "cookie";
+import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 export const TWENTY_NINE_DAYS = 2505600;
 
-export const GLOBAL_COOKIE_OPTIONS: SerializeOptions = {
+export const GLOBAL_COOKIE_OPTIONS: Partial<ResponseCookie> = {
   sameSite: "lax",
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
