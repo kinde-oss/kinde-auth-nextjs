@@ -12,9 +12,7 @@ import { redirect } from "next/navigation";
  */
 export const isAuthenticatedFactory = (req, res) => async () => {
   const token = await getAccessToken(req, res);
-  console.log('isAuthenticatedFactory: token', token)
   if(isTokenExpired(token)) {
-    console.log('isAuthenticatedFactory: token is expired, redirecting to login')
     redirect('/api/auth/login')
   }
   const user = await getUserFactory(req, res)();
