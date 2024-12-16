@@ -1,8 +1,6 @@
 import { validateToken as jwtValidator } from "@kinde/jwt-validator";
 import { config } from "../../config";
 import { jwtDecoder } from "@kinde/jwt-decoder";
-import { isServerContext } from "../isServer";
-import { redirect } from "next/navigation";
 
 // TODO: currently assumes that the token is valid
 export const isTokenExpired = (token: string) => {
