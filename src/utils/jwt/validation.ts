@@ -32,7 +32,10 @@ export const validateToken = async ({
     }
 
     const decodedToken = jwtDecoder(token);
-    console.log(`token is valid - exp is ${decodedToken.exp} and now is ${Date.now() / 1000}. It will expire in ${decodedToken.exp - Date.now() / 1000} seconds`);
+
+    if(config.isDebugMode) {
+      console.log(`validateToken: token is valid - it will expire in ${decodedToken.exp - Date.now() / 1000} seconds`);
+    }
 
     if (decodedToken.iss !== config.issuerURL) {
       if (config.isDebugMode) {

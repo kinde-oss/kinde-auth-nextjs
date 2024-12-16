@@ -47,9 +47,11 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   // if accessToken is expired, refresh it
   if(isTokenExpired(kindeAccessToken)) {
-    console.log('access token expired, refreshing')    
+    if(config.isDebugMode) {
+      console.log('authMiddleware: access token expired, refreshing')
+    }
+
     try {
-      console.log('middleware: refreshing access token')
       refreshResponse = await kindeClient.refreshTokens(session);
       await session.setSessionItem("access_token", refreshResponse.access_token)
 
@@ -59,9 +61,15 @@ const handleMiddleware = async (req, options, onSuccess) => {
       splitSerializedCookies.forEach((cookie) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       })
+
+      if(config.isDebugMode) {
+        console.log('authMiddleware: access token refreshed')
+      }
     } catch(error) {
       // token is expired and refresh failed, redirect to login
-      console.error('middleware: access token refresh failed, redirecting to login')
+      if(config.isDebugMode) {
+        console.error('authMiddleware: access token refresh failed, redirecting to login')
+      }
       return NextResponse.redirect(
         new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
       );
@@ -80,10 +88,11 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   // if idToken is expired, refresh it
   if(isTokenExpired(kindeIdToken)) {
-    console.log('id token expired, refreshing')
+    if(config.isDebugMode) {
+      console.log('authMiddleware: id token expired, refreshing')
+    }
 
     try {
-      console.log('middleware: refreshing id token')
       // if we have a refresh response from an access token refresh, we'll use the id_token from that
       if(!refreshResponse) {
         refreshResponse = await kindeClient.refreshTokens(session);
@@ -98,9 +107,15 @@ const handleMiddleware = async (req, options, onSuccess) => {
       splitSerializedCookies.forEach((cookie) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       })
+
+      if(config.isDebugMode) {
+        console.log('authMiddleware: id token refreshed')
+      }
     } catch(error) {
       // token is expired and refresh failed, redirect to login
-      console.error('middleware: id token refresh failed, redirecting to login')
+      if(config.isDebugMode) {
+        console.error('authMiddleware: id token refresh failed, redirecting to login')
+      }
       return NextResponse.redirect(
         new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
       );

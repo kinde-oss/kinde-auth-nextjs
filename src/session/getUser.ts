@@ -11,7 +11,6 @@ export const getUserFactory =
   (req: NextApiRequest, res: NextApiResponse) =>
   async <T = Record<string, any>>(): Promise<KindeUser<T>> => {
     try {
-      console.log("getUserFactory");
       const rawToken = await getIdToken(req, res);
       if (!rawToken) {
         return null;
