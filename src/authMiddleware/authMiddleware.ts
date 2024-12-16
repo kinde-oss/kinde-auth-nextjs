@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import { config } from "../config/index";
-import { type KindeAccessToken, KindeIdToken } from "../../types";
+import { KindeAccessToken, KindeIdToken } from "../../types";
 import { jwtDecoder } from "@kinde/jwt-decoder";
-import { validateToken } from "../utils/validateToken";
+import { isTokenExpired } from "../utils/jwt/validation";
 import { getAccessToken } from "../utils/getAccessToken";
+import { kindeClient } from "../session/kindeServerClient";
+import { sessionManager } from "../session/sessionManager";
+import { getSplitCookies } from "../utils/cookies/getSplitSerializedCookies";
+import { getIdToken } from "../utils/getIdToken";
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname } = req.nextUrl;
-
-  console.log("in middleware");
 
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
   const loginPage = options?.loginPage || "/api/auth/login";
@@ -27,38 +29,87 @@ const handleMiddleware = async (req, options, onSuccess) => {
   if (loginPage == pathname || publicPaths.some((p) => pathname.startsWith(p)))
     return;
 
-  const response = NextResponse.next();
+  const resp = NextResponse.next();
 
-  const { value: kindeToken } = getAccessToken(req, response) || req.cookies.get("access_token");
+  // getAccessToken will validate the token
+  const kindeAccessToken = await getAccessToken(req);
 
-  if (!kindeToken) {
-    const response = NextResponse.redirect(
+  // if no access token, redirect to login
+  if (!kindeAccessToken) {
+    return NextResponse.redirect(
       new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
     );
-    return response;
   }
 
+  // if accessToken is expired, refresh it
+  if(isTokenExpired(kindeAccessToken)) {
+    console.log('access token expired, refreshing')
+    const session = await sessionManager(req)
+    
+    try {
+      const refreshedToken = await kindeClient.refreshTokens(session);
+      await session.setSessionItem("access_token", refreshedToken.access_token)
 
-getAccessToken(req, response);
+      // if we want layouts/pages to get immediate access to the new token,
+      // we need to set the cookie on the request object here, and override the request object in the middleware response.
+      const splitSerializedCookies = getSplitCookies("access_token", refreshedToken.access_token)
+      splitSerializedCookies.forEach((cookie) => {
+        resp.cookies.set(cookie.name, cookie.value, cookie.options);
+      })
+    } catch(error) {
+      // token is expired and refresh failed, redirect to login
+      return NextResponse.redirect(
+        new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+      );
+    }
+  }
+
+  // getIdToken will validate the token
+  const kindeIdToken = await getIdToken(req);
+
+  // if no id token, redirect to login
+  if(!kindeIdToken) {
+    return NextResponse.redirect(
+      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+    );
+  }
+
+  // if idToken is expired, refresh it
+  if(isTokenExpired(kindeIdToken)) {
+    console.log('id token expired, refreshing')
+    const session = await sessionManager(req)
+
+    try {
+      const refreshedToken = await kindeClient.refreshTokens(session);
+      await session.setSessionItem("id_token", refreshedToken.id_token)
+
+      // as above, if we want layouts/pages to get immediate access to the new token,
+      // we need to set the cookie on the request object here, and override the request object in the middleware response.
+      const splitSerializedCookies = getSplitCookies("id_token", refreshedToken.id_token)
+      splitSerializedCookies.forEach((cookie) => {
+        resp.cookies.set(cookie.name, cookie.value, cookie.options);
+      })
+    } catch(error) {
+      // token is expired and refresh failed, redirect to login
+      return NextResponse.redirect(
+        new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+      );
+    }
+  }
 
   const accessTokenValue = jwtDecoder<KindeAccessToken>(
-    req.cookies.get("access_token")?.value,
+    kindeAccessToken,
   );
   const idTokenValue = jwtDecoder<KindeIdToken>(
-    req.cookies.get("id_token")?.value,
+    kindeIdToken,
   );
 
-  console.log("accessTokenValue - handlemiddleware", accessTokenValue);
-  // check token is valid
-  const isTokenValid = await validateToken({
-    token: kindeToken,
-  });
 
   const customValidationValid = options?.isAuthorized
     ? options.isAuthorized({ req, token: accessTokenValue })
     : true;
 
-  if (isTokenValid && customValidationValid && onSuccess) {
+  if (customValidationValid && onSuccess) {
     return await onSuccess({
       token: accessTokenValue,
       user: {
@@ -71,8 +122,8 @@ getAccessToken(req, response);
     });
   }
 
-  if (isTokenValid && customValidationValid) {
-    return NextResponse.next();
+  if (customValidationValid) {
+    return resp;
   }
 
   return NextResponse.redirect(
