@@ -1,6 +1,14 @@
 import { validateToken as jwtValidator } from "@kinde/jwt-validator";
-import { config } from "../config";
+import { config } from "../../config";
 import { jwtDecoder } from "@kinde/jwt-decoder";
+import { isServerContext } from "../isServer";
+import { redirect } from "next/navigation";
+
+// TODO: currently assumes that the token is valid
+export const isTokenExpired = (token: string) => {
+  const decodedToken = jwtDecoder(token);
+  return decodedToken.exp && decodedToken.exp < Date.now() / 1000;
+}
 
 export const validateToken = async ({
   token,
@@ -13,8 +21,6 @@ export const validateToken = async ({
     }
     return false;
   }
-  try {
-    console.log("attempting to validate token");
     const validationResult = await jwtValidator({
       token,
       domain: config.issuerURL,
@@ -28,17 +34,7 @@ export const validateToken = async ({
     }
 
     const decodedToken = jwtDecoder(token);
-    console.log("token is valid", decodedToken.exp);
-
-    // console.log("decoded token", decodedToken);
-    if (decodedToken.exp && decodedToken.exp < Date.now() / 1000) {
-      if (config.isDebugMode) {
-        console.warn("validateToken: token expired", decodedToken.exp < Date.now() / 1000, Date.now() / 1000);
-      }
-      return false;
-    }
-    console.log("token has not expired", decodedToken.exp, decodedToken.exp < Date.now() / 1000, Date.now() / 1000);
-
+    console.log(`token is valid - exp is ${decodedToken.exp} and now is ${Date.now() / 1000}. It will expire in ${decodedToken.exp - Date.now() / 1000} seconds`);
 
     if (decodedToken.iss !== config.issuerURL) {
       if (config.isDebugMode) {
@@ -48,10 +44,4 @@ export const validateToken = async ({
     }
 
     return true;
-  } catch (error) {
-    if (config.isDebugMode) {
-      console.error("validateToken", error);
-    }
-    return false;
-  }
 };
