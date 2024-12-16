@@ -1,10 +1,8 @@
 import { config } from "../config";
 import { sessionManager } from "../session/sessionManager";
 import { NextApiRequest, NextApiResponse } from "next";
-import { kindeClient } from "../session/kindeServerClient";
 import { validateToken } from "./jwt/validation";
 import { NextResponse } from "next/server";
-import { isServerContext } from "./isServer";
 
 export const getAccessToken = async (
   req: NextApiRequest,
