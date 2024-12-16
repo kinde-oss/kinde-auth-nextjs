@@ -18,7 +18,7 @@ import { getIdToken } from "../utils/getIdToken";
 // @ts-ignore
 export const getIdTokenFactory = (req, res) => async () => {
   try {
-    const token = getIdToken(req, res);
+    const token = await getIdToken(req, res);
     return jwtDecoder(token);
   } catch (err) {
     if (config.isDebugMode) {
