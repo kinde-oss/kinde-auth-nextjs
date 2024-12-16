@@ -8,6 +8,7 @@ import { kindeClient } from "../session/kindeServerClient";
 import { sessionManager } from "../session/sessionManager";
 import { getSplitCookies } from "../utils/cookies/getSplitSerializedCookies";
 import { getIdToken } from "../utils/getIdToken";
+import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname } = req.nextUrl;
@@ -41,23 +42,26 @@ const handleMiddleware = async (req, options, onSuccess) => {
     );
   }
 
+  const session = await sessionManager(req)
+  let refreshResponse: OAuth2CodeExchangeResponse | null = null
+
   // if accessToken is expired, refresh it
   if(isTokenExpired(kindeAccessToken)) {
-    console.log('access token expired, refreshing')
-    const session = await sessionManager(req)
-    
+    console.log('access token expired, refreshing')    
     try {
-      const refreshedToken = await kindeClient.refreshTokens(session);
-      await session.setSessionItem("access_token", refreshedToken.access_token)
+      console.log('middleware: refreshing access token')
+      refreshResponse = await kindeClient.refreshTokens(session);
+      await session.setSessionItem("access_token", refreshResponse.access_token)
 
       // if we want layouts/pages to get immediate access to the new token,
       // we need to set the cookie on the response here
-      const splitSerializedCookies = getSplitCookies("access_token", refreshedToken.access_token)
+      const splitSerializedCookies = getSplitCookies("access_token", refreshResponse.access_token)
       splitSerializedCookies.forEach((cookie) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       })
     } catch(error) {
       // token is expired and refresh failed, redirect to login
+      console.error('middleware: access token refresh failed, redirecting to login')
       return NextResponse.redirect(
         new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
       );
@@ -77,20 +81,26 @@ const handleMiddleware = async (req, options, onSuccess) => {
   // if idToken is expired, refresh it
   if(isTokenExpired(kindeIdToken)) {
     console.log('id token expired, refreshing')
-    const session = await sessionManager(req)
 
     try {
-      const refreshedToken = await kindeClient.refreshTokens(session);
-      await session.setSessionItem("id_token", refreshedToken.id_token)
+      console.log('middleware: refreshing id token')
+      // if we have a refresh response from an access token refresh, we'll use the id_token from that
+      if(!refreshResponse) {
+        refreshResponse = await kindeClient.refreshTokens(session);
+      }
+
+      
+      await session.setSessionItem("id_token", refreshResponse.id_token)
 
       // as above, if we want layouts/pages to get immediate access to the new token,
       // we need to set the cookie on the response here
-      const splitSerializedCookies = getSplitCookies("id_token", refreshedToken.id_token)
+      const splitSerializedCookies = getSplitCookies("id_token", refreshResponse.id_token)
       splitSerializedCookies.forEach((cookie) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       })
     } catch(error) {
       // token is expired and refresh failed, redirect to login
+      console.error('middleware: id token refresh failed, redirecting to login')
       return NextResponse.redirect(
         new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
       );
@@ -100,10 +110,10 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const accessTokenValue = jwtDecoder<KindeAccessToken>(
     kindeAccessToken,
   );
+
   const idTokenValue = jwtDecoder<KindeIdToken>(
     kindeIdToken,
   );
-
 
   const customValidationValid = options?.isAuthorized
     ? options.isAuthorized({ req, token: accessTokenValue })
