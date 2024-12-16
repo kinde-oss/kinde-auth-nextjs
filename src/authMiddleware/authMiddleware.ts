@@ -51,7 +51,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       await session.setSessionItem("access_token", refreshedToken.access_token)
 
       // if we want layouts/pages to get immediate access to the new token,
-      // we need to set the cookie on the request object here, and override the request object in the middleware response.
+      // we need to set the cookie on the response here
       const splitSerializedCookies = getSplitCookies("access_token", refreshedToken.access_token)
       splitSerializedCookies.forEach((cookie) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
@@ -84,7 +84,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       await session.setSessionItem("id_token", refreshedToken.id_token)
 
       // as above, if we want layouts/pages to get immediate access to the new token,
-      // we need to set the cookie on the request object here, and override the request object in the middleware response.
+      // we need to set the cookie on the response here
       const splitSerializedCookies = getSplitCookies("id_token", refreshedToken.id_token)
       splitSerializedCookies.forEach((cookie) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
