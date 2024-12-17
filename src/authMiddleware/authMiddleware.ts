@@ -57,8 +57,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
       // if we want layouts/pages to get immediate access to the new token,
       // we need to set the cookie on the response here
-      const splitSerializedCookies = getSplitCookies("access_token", refreshResponse.access_token)
-      splitSerializedCookies.forEach((cookie) => {
+      const splitCookies = getSplitCookies("access_token", refreshResponse.access_token)
+      splitCookies.forEach((cookie) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       })
 
@@ -103,8 +103,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
       // as above, if we want layouts/pages to get immediate access to the new token,
       // we need to set the cookie on the response here
-      const splitSerializedCookies = getSplitCookies("id_token", refreshResponse.id_token)
-      splitSerializedCookies.forEach((cookie) => {
+      const splitCookies = getSplitCookies("id_token", refreshResponse.id_token)
+      splitCookies.forEach((cookie) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       })
 
