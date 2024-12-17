@@ -33,7 +33,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const resp = NextResponse.next();
 
   // getAccessToken will validate the token
-  const kindeAccessToken = await getAccessToken(req);
+  let kindeAccessToken = await getAccessToken(req);
 
   // if no access token, redirect to login
   if (!kindeAccessToken) {
@@ -54,6 +54,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     try {
       refreshResponse = await kindeClient.refreshTokens(session);
       await session.setSessionItem("access_token", refreshResponse.access_token)
+      kindeAccessToken = refreshResponse.access_token
 
       // if we want layouts/pages to get immediate access to the new token,
       // we need to set the cookie on the response here
@@ -77,7 +78,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   }
 
   // getIdToken will validate the token
-  const kindeIdToken = await getIdToken(req);
+  let kindeIdToken = await getIdToken(req);
 
   // if no id token, redirect to login
   if(!kindeIdToken) {
@@ -98,9 +99,9 @@ const handleMiddleware = async (req, options, onSuccess) => {
         refreshResponse = await kindeClient.refreshTokens(session);
       }
 
-      
       await session.setSessionItem("id_token", refreshResponse.id_token)
-
+      kindeIdToken = refreshResponse.id_token
+      
       // as above, if we want layouts/pages to get immediate access to the new token,
       // we need to set the cookie on the response here
       const splitCookies = getSplitCookies("id_token", refreshResponse.id_token)
