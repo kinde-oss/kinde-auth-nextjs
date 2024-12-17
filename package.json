@@ -108,7 +108,7 @@
     "@kinde-oss/kinde-typescript-sdk": "2.9.1",
     "@kinde/jwt-decoder": "^0.2.0",
     "@kinde/jwt-validator": "^0.4.0",
-    "cookie": "^1.0.1",
+    "cookie": "^1.0.2",
     "crypto-js": "^4.1.1",
     "uncrypto": "^0.1.3"
   },
