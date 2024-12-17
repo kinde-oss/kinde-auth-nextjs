@@ -5,6 +5,11 @@ import { jwtDecoder } from "@kinde/jwt-decoder";
 // TODO: currently assumes that the token is valid
 export const isTokenExpired = (token: string) => {
   const decodedToken = jwtDecoder(token);
+
+  if(!decodedToken?.exp) {
+    return true;
+  }
+
   return decodedToken.exp && decodedToken.exp < Date.now() / 1000;
 }
 
