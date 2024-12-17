@@ -1,11 +1,16 @@
 import { config } from "../config/index";
 import RouterClient from "../routerClients/RouterClient";
+import { isPreFetch } from "../utils/isPreFetch";
 
 /**
  *
  * @param {RouterClient} routerClient
  */
-export const logout = async (routerClient) => {
+export const logout = async (routerClient: RouterClient) => {
+  if (isPreFetch(routerClient.req)) {
+    return null
+  }
+  
   const authUrl = await routerClient.kindeClient.logout(
     routerClient.sessionManager,
   );
@@ -20,5 +25,5 @@ export const logout = async (routerClient) => {
     authUrl.searchParams.set("redirect", postLogoutRedirectURL);
   }
 
-  return void routerClient.redirect(authUrl.toString());
+  return routerClient.redirect(authUrl.toString());
 };
