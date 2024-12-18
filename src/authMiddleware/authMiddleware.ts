@@ -154,13 +154,34 @@ const handleMiddleware = async (req, options, onSuccess) => {
     }
   }
 
-  const accessTokenValue = jwtDecoder<KindeAccessToken>(
-    kindeAccessToken,
-  );
+  let accessTokenValue: KindeAccessToken | null = null
+  let idTokenValue: KindeIdToken | null = null
 
-  const idTokenValue = jwtDecoder<KindeIdToken>(
-    kindeIdToken,
-  );
+  try {
+    accessTokenValue = jwtDecoder<KindeAccessToken>(
+      kindeAccessToken,
+    );
+  } catch(error) {
+    if(config.isDebugMode) {
+      console.error('authMiddleware: access token decode failed, redirecting to login')
+    }
+    return NextResponse.redirect(
+      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+    );
+  }
+
+  try {
+    idTokenValue = jwtDecoder<KindeIdToken>(
+      kindeIdToken,
+    );
+  } catch(error) {
+    if(config.isDebugMode) {
+      console.error('authMiddleware: id token decode failed, redirecting to login')
+    }
+    return NextResponse.redirect(
+      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+    );
+  }
 
   const customValidationValid = options?.isAuthorized
     ? options.isAuthorized({ req, token: accessTokenValue })
