@@ -37,6 +37,9 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   // if no access token, redirect to login
   if (!kindeAccessToken) {
+    if(config.isDebugMode) {
+      console.log('authMiddleware: no id token, redirecting to login')
+    }
     return NextResponse.redirect(
       new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
     );
@@ -82,6 +85,9 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   // if no id token, redirect to login
   if(!kindeIdToken) {
+    if(config.isDebugMode) {
+      console.log('authMiddleware: no id token, redirecting to login')
+    }
     return NextResponse.redirect(
       new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
     );
@@ -136,6 +142,9 @@ const handleMiddleware = async (req, options, onSuccess) => {
     : true;
 
   if (customValidationValid && onSuccess) {
+    if(config.isDebugMode) {
+      console.log('authMiddleware: invoking onSuccess callback')
+    }
     return await onSuccess({
       token: accessTokenValue,
       user: {
@@ -149,7 +158,14 @@ const handleMiddleware = async (req, options, onSuccess) => {
   }
 
   if (customValidationValid) {
+    if(config.isDebugMode) {
+      console.log('authMiddleware: customValidationValid is true, returning response')
+    }
     return resp;
+  }
+
+  if(config.isDebugMode) {
+    console.log('authMiddleware: default behaviour, redirecting to login')
   }
 
   return NextResponse.redirect(
