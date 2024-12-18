@@ -183,7 +183,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     if(config.isDebugMode) {
       console.log('authMiddleware: invoking onSuccess callback')
     }
-    return await onSuccess({
+    const callbackResult = await onSuccess({
       token: accessTokenValue,
       user: {
         family_name: idTokenValue.family_name,
@@ -193,6 +193,33 @@ const handleMiddleware = async (req, options, onSuccess) => {
         picture: idTokenValue.picture,
       },
     });
+
+    // If a user returned a response from their onSuccess callback, copy our refreshed tokens to it
+    if (callbackResult instanceof NextResponse) {
+        if(config.isDebugMode) {
+          console.log('authMiddleware: onSuccess callback returned a response, copying our cookies to it')
+        }
+        // Copy our cookies to their response
+        resp.cookies.getAll().forEach(cookie => {
+            callbackResult.cookies.set(cookie.name, cookie.value, {
+              ...cookie
+            });
+        });
+
+        // Copy any headers we set (if any) to their response
+        resp.headers.forEach((value, key) => {
+            callbackResult.headers.set(key, value);
+        });
+
+        return callbackResult;
+    }
+
+    // If they didn't return a response, return our response with the refreshed tokens
+    if(config.isDebugMode) {
+      console.log('authMiddleware: onSuccess callback did not return a response, returning our response')
+    }
+
+    return resp;
   }
 
   if (customValidationValid) {
