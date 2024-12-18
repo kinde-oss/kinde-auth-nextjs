@@ -14,7 +14,7 @@ export const getAccessToken = async (
 
     if (!token || typeof token !== "string") {
       if (config.isDebugMode) {
-        console.error("getAccessToken: invalid token or token is missing");
+        console.warn("getAccessToken: invalid token or token is missing (are you logged in?)");
       }
       return null;
     }

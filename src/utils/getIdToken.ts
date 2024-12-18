@@ -12,7 +12,7 @@ export const getIdToken = async (req: NextApiRequest, res?: NextApiResponse) => 
 
     if (!token || typeof token !== "string") {
       if (config.isDebugMode) {
-        console.error("getIdToken: invalid token or token is missing");
+        console.warn("getIdToken: invalid token or token is missing (are you logged in?)");
       }
       return null;
     }
