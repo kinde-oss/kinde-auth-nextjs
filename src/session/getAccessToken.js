@@ -1,6 +1,7 @@
 import { config } from "../config/index";
 import { jwtDecoder } from "@kinde/jwt-decoder";
 import { getAccessToken } from "../utils/getAccessToken";
+import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
 
 /**
  * @callback getAccessToken
@@ -17,6 +18,7 @@ import { getAccessToken } from "../utils/getAccessToken";
 export const getAccessTokenFactory = (req, res) => async () => {
   try {
     const accessToken = await getAccessToken(req, res);
+    redirectOnExpiredToken(accessToken);
     return jwtDecoder(accessToken);
   } catch (err) {
     if (config.isDebugMode) {
