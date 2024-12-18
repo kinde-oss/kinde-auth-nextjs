@@ -2,7 +2,8 @@ import { validateToken as jwtValidator } from "@kinde/jwt-validator";
 import { config } from "../../config";
 import { jwtDecoder } from "@kinde/jwt-decoder";
 
-// TODO: currently assumes that the token is valid
+// currently assumes that the token is valid
+// .. should we revalidate here as well? seems redundant
 export const isTokenExpired = (token: string) => {
   const decodedToken = jwtDecoder(token);
 
