@@ -20,6 +20,9 @@ import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
 export const getIdTokenFactory = (req, res) => async () => {
   try {
     const token = await getIdToken(req, res);
+    if(config.isDebugMode) {
+      console.log('getIdTokenFactory: running redirectOnExpiredToken check');
+    }
     redirectOnExpiredToken(token);
     return jwtDecoder(token);
   } catch (err) {

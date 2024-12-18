@@ -3,7 +3,7 @@ import { getAccessToken } from "../utils/getAccessToken";
 import { isTokenExpired } from "../utils/jwt/validation";
 import { redirect } from "next/navigation";
 import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
-
+import { config } from "../config/index";
 
 /**
  *
@@ -13,6 +13,9 @@ import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
  */
 export const isAuthenticatedFactory = (req, res) => async () => {
   const token = await getAccessToken(req, res);
+  if(config.isDebugMode) {
+    console.log('isAuthenticatedFactory: running redirectOnExpiredToken check');
+  }
   redirectOnExpiredToken(token);
   const user = await getUserFactory(req, res)();
   return token && Boolean(user);
