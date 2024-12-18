@@ -46,16 +46,14 @@ const handleMiddleware = async (req, options, onSuccess) => {
     ? `${loginPage}?post_login_redirect_url=${pathname}`
     : loginPage;
 
-  if (loginPage == pathname || publicPaths.some((p) => pathname.startsWith(p)))
-    return;
-
+  const isPublicPath = loginPage == pathname || publicPaths.some((p) => pathname.startsWith(p));
   const resp = NextResponse.next();
 
   // getAccessToken will validate the token
   let kindeAccessToken = await getAccessToken(req);
 
   // if no access token, redirect to login
-  if (!kindeAccessToken) {
+  if (!kindeAccessToken && !isPublicPath) {
     if(config.isDebugMode) {
       console.log('authMiddleware: no id token, redirecting to login')
     }
@@ -98,9 +96,12 @@ const handleMiddleware = async (req, options, onSuccess) => {
       if(config.isDebugMode) {
         console.error('authMiddleware: access token refresh failed, redirecting to login')
       }
-      return NextResponse.redirect(
-        new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
-      );
+
+      if(!isPublicPath) {
+        return NextResponse.redirect(
+          new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+        );
+      }
     }
   }
 
@@ -108,7 +109,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   let kindeIdToken = await getIdToken(req);
 
   // if no id token, redirect to login
-  if(!kindeIdToken) {
+  if(!kindeIdToken && !isPublicPath) {
     if(config.isDebugMode) {
       console.log('authMiddleware: no id token, redirecting to login')
     }
@@ -148,10 +149,19 @@ const handleMiddleware = async (req, options, onSuccess) => {
       if(config.isDebugMode) {
         console.error('authMiddleware: id token refresh failed, redirecting to login')
       }
-      return NextResponse.redirect(
-        new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
-      );
+      
+      if(!isPublicPath) {
+        return NextResponse.redirect(
+          new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+        );
+      }
     }
+  }
+
+  // we don't bail out earlier than here because we want to refresh the tokens
+  // if they are expired, even if the path is public
+  if(isPublicPath) {
+    return resp;
   }
 
   let accessTokenValue: KindeAccessToken | null = null
