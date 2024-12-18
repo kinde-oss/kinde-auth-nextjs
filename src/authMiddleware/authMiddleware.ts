@@ -11,24 +11,6 @@ import { getIdToken } from "../utils/getIdToken";
 import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
 
-/**
- * Standard middleware matcher pattern for Next.js applications
- * 
- * This regex pattern matches all routes except:
- * - Next.js internal routes (_next/*)
- * - Static files with common extensions:
- *   - HTML/CSS: .html, .css
- *   - Scripts: .js (but not .json)
- *   - Images: .jpg, .jpeg, .webp, .png, .gif, .svg 
- *   - Fonts: .ttf, .woff, .woff2
- *   - Documents: .csv, .doc, .docx, .xls, .xlsx
- *   - Other: .ico, .zip, .webmanifest
- * 
- * Use this as the matcher config in Next.js middleware to protect all routes
- * except static assets and Next.js internals.
- */
-export const kindeStandardMiddlewareMatcher = '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)'
-
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname } = req.nextUrl;
 
