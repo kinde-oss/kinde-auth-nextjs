@@ -1,10 +1,15 @@
 import RouterClient from "../routerClients/RouterClient";
+import { isPreFetch } from "../utils/isPreFetch";
 
 /**
  *
  * @param {RouterClient} routerClient
  */
-export const register = async (routerClient) => {
+export const register = async (routerClient: RouterClient) => {
+  if (isPreFetch(routerClient.req)) {
+    return null
+  }
+  
   const authUrl = await routerClient.kindeClient.register(
     routerClient.sessionManager,
     {
