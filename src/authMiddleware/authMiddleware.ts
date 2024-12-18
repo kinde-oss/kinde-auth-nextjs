@@ -9,6 +9,7 @@ import { sessionManager } from "../session/sessionManager";
 import { getSplitCookies } from "../utils/cookies/getSplitSerializedCookies";
 import { getIdToken } from "../utils/getIdToken";
 import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
+import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname } = req.nextUrl;
@@ -56,7 +57,6 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
     try {
       refreshResponse = await kindeClient.refreshTokens(session);
-      await session.setSessionItem("access_token", refreshResponse.access_token)
       kindeAccessToken = refreshResponse.access_token
 
       // if we want layouts/pages to get immediate access to the new token,
@@ -65,6 +65,12 @@ const handleMiddleware = async (req, options, onSuccess) => {
       splitCookies.forEach((cookie) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       })
+
+      // copy the cookies from the response to the request
+      // in Next versions prior to 14.2.8, the cookies function
+      // reads the Set-Cookie header from the *request* object, not the *response* object
+      // in order to get the new cookies to the request, we need to copy them over
+      copyCookiesToRequest(req, resp)
 
       if(config.isDebugMode) {
         console.log('authMiddleware: access token refreshed')
@@ -105,7 +111,6 @@ const handleMiddleware = async (req, options, onSuccess) => {
         refreshResponse = await kindeClient.refreshTokens(session);
       }
 
-      await session.setSessionItem("id_token", refreshResponse.id_token)
       kindeIdToken = refreshResponse.id_token
       
       // as above, if we want layouts/pages to get immediate access to the new token,
@@ -114,6 +119,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
       splitCookies.forEach((cookie) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       })
+
+      copyCookiesToRequest(req, resp)
 
       if(config.isDebugMode) {
         console.log('authMiddleware: id token refreshed')
