@@ -29,15 +29,17 @@ const handleMiddleware = async (req, options, onSuccess) => {
     : loginPage;
 
   const isPublicPath = loginPage == pathname || publicPaths.some((p) => pathname.startsWith(p));
-  const resp = NextResponse.next();
 
   // getAccessToken will validate the token
   let kindeAccessToken = await getAccessToken(req);
+  // getIdToken will validate the token
+  let kindeIdToken = await getIdToken(req);
+
 
   // if no access token, redirect to login
-  if (!kindeAccessToken && !isPublicPath) {
+  if ((!kindeAccessToken || !kindeIdToken) && !isPublicPath) {
     if(config.isDebugMode) {
-      console.log('authMiddleware: no id token, redirecting to login')
+      console.log('authMiddleware: no access or id token, redirecting to login')
     }
     return NextResponse.redirect(
       new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
@@ -46,9 +48,10 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   const session = await sessionManager(req)
   let refreshResponse: OAuth2CodeExchangeResponse | null = null
+  const resp = NextResponse.next();
 
   // if accessToken is expired, refresh it
-  if(isTokenExpired(kindeAccessToken)) {
+  if(isTokenExpired(kindeAccessToken) || isTokenExpired(kindeIdToken)) {
     if(config.isDebugMode) {
       console.log('authMiddleware: access token expired, refreshing')
     }
@@ -56,11 +59,17 @@ const handleMiddleware = async (req, options, onSuccess) => {
     try {
       refreshResponse = await kindeClient.refreshTokens(session);
       kindeAccessToken = refreshResponse.access_token
+      kindeIdToken = refreshResponse.id_token
 
       // if we want layouts/pages to get immediate access to the new token,
       // we need to set the cookie on the response here
-      const splitCookies = getSplitCookies("access_token", refreshResponse.access_token)
-      splitCookies.forEach((cookie) => {
+      const splitAccessTokenCookies = getSplitCookies("access_token", refreshResponse.access_token)
+      splitAccessTokenCookies.forEach((cookie) => {
+        resp.cookies.set(cookie.name, cookie.value, cookie.options);
+      })
+
+      const splitIdTokenCookies = getSplitCookies("id_token", refreshResponse.id_token)
+      splitIdTokenCookies.forEach((cookie) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       })
 
@@ -71,67 +80,14 @@ const handleMiddleware = async (req, options, onSuccess) => {
       copyCookiesToRequest(req, resp)
 
       if(config.isDebugMode) {
-        console.log('authMiddleware: access token refreshed')
+        console.log('authMiddleware: tokens refreshed')
       }
     } catch(error) {
       // token is expired and refresh failed, redirect to login
       if(config.isDebugMode) {
-        console.error('authMiddleware: access token refresh failed, redirecting to login')
+        console.error('authMiddleware: token refresh failed, redirecting to login')
       }
 
-      if(!isPublicPath) {
-        return NextResponse.redirect(
-          new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
-        );
-      }
-    }
-  }
-
-  // getIdToken will validate the token
-  let kindeIdToken = await getIdToken(req);
-
-  // if no id token, redirect to login
-  if(!kindeIdToken && !isPublicPath) {
-    if(config.isDebugMode) {
-      console.log('authMiddleware: no id token, redirecting to login')
-    }
-    return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
-    );
-  }
-
-  // if idToken is expired, refresh it
-  if(isTokenExpired(kindeIdToken)) {
-    if(config.isDebugMode) {
-      console.log('authMiddleware: id token expired, refreshing')
-    }
-
-    try {
-      // if we have a refresh response from an access token refresh, we'll use the id_token from that
-      if(!refreshResponse) {
-        refreshResponse = await kindeClient.refreshTokens(session);
-      }
-
-      kindeIdToken = refreshResponse.id_token
-      
-      // as above, if we want layouts/pages to get immediate access to the new token,
-      // we need to set the cookie on the response here
-      const splitCookies = getSplitCookies("id_token", refreshResponse.id_token)
-      splitCookies.forEach((cookie) => {
-        resp.cookies.set(cookie.name, cookie.value, cookie.options);
-      })
-
-      copyCookiesToRequest(req, resp)
-
-      if(config.isDebugMode) {
-        console.log('authMiddleware: id token refreshed')
-      }
-    } catch(error) {
-      // token is expired and refresh failed, redirect to login
-      if(config.isDebugMode) {
-        console.error('authMiddleware: id token refresh failed, redirecting to login')
-      }
-      
       if(!isPublicPath) {
         return NextResponse.redirect(
           new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
