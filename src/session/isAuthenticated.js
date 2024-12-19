@@ -1,5 +1,9 @@
 import { getUserFactory } from "./getUser";
 import { getAccessToken } from "../utils/getAccessToken";
+import { isTokenExpired } from "../utils/jwt/validation";
+import { redirect } from "next/navigation";
+import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
+import { config } from "../config/index";
 
 /**
  *
@@ -8,8 +12,11 @@ import { getAccessToken } from "../utils/getAccessToken";
  * @returns {() => Promise<boolean>}
  */
 export const isAuthenticatedFactory = (req, res) => async () => {
-  const token = getAccessToken(req, res);
-
+  const token = await getAccessToken(req, res);
+  if(config.isDebugMode) {
+    console.log('isAuthenticatedFactory: running redirectOnExpiredToken check');
+  }
+  redirectOnExpiredToken(token);
   const user = await getUserFactory(req, res)();
   return token && Boolean(user);
 };

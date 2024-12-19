@@ -1,42 +1,17 @@
 import { cookies } from "next/headers";
 import { isAppRouter } from "../utils/isAppRouter";
 import { config } from "../config/index";
+import { TWENTY_NINE_DAYS, MAX_COOKIE_LENGTH, GLOBAL_COOKIE_OPTIONS, COOKIE_LIST } from "../utils/constants";
+import { splitString } from "../utils/splitString";
 
 var cookie = require("cookie");
 
-const TWENTY_NINE_DAYS = 2505600;
 
-export const GLOBAL_COOKIE_OPTIONS = {
-  sameSite: "lax",
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  path: "/",
-};
-
-const COOKIE_LIST = [
-  "ac-state-key",
-  "id_token_payload",
-  "id_token",
-  "access_token_payload",
-  "access_token",
-  "user",
-  "refresh_token",
-  "post_login_redirect_url",
-];
-
-const MAX_LENGTH = 3000;
-
-const splitString = (str, length) => {
-  if (length <= 0) {
-    return [];
-  }
-  return str.match(new RegExp(`.{1,${length}}`, "g")) || [];
-};
 
 /**
  *
  * @param {import('next').NextApiRequest} [req]
- * @param {import('next').NextApiResponse} [res]
+ * @param {import('next').NextApiResponse | import('next').NextResponse} [res]
  * @returns {Promise<import('@kinde-oss/kinde-typescript-sdk').SessionManager>}
  */
 export const sessionManager = async (req, res) => {
@@ -89,7 +64,7 @@ export const appRouterSessionManager = (cookieStore) => ({
       return itemValue;
     } catch (error) {
       if (config.isDebugMode)
-        console.error("Failed to parse session item:", error);
+        console.error("Failed to parse session item app router:", error);
       return item.value;
     }
   },
@@ -111,7 +86,7 @@ export const appRouterSessionManager = (cookieStore) => ({
     if (itemValue !== undefined) {
       const itemValueString =
         typeof itemValue === "object" ? JSON.stringify(itemValue) : itemValue;
-      splitString(itemValueString, MAX_LENGTH).forEach((value, index) => {
+      splitString(itemValueString, MAX_COOKIE_LENGTH).forEach((value, index) => {
         cookieStore.set(itemKey + (index === 0 ? "" : index), value, {
           maxAge: TWENTY_NINE_DAYS,
           domain: config.cookieDomain ? config.cookieDomain : undefined,
@@ -191,7 +166,7 @@ export const pageRouterSessionManager = (req, res) => {
         return itemValueString;
       } catch (error) {
         if (config.isDebugMode)
-          console.error("Failed to parse session item:", error);
+          console.error("Failed to read session item:", error);
         return itemValue;
       }
     },
@@ -228,7 +203,7 @@ export const pageRouterSessionManager = (req, res) => {
           [
             ...(cookies.filter((cookie) => !cookie.startsWith(`${itemKey}`)) ||
               []),
-            ...splitString(itemValueString, MAX_LENGTH).map((value, index) => {
+            ...splitString(itemValueString, MAX_COOKIE_LENGTH).map((value, index) => {
               return cookie.serialize(
                 itemKey + (index === 0 ? "" : index),
                 value,

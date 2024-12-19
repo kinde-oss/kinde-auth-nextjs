@@ -18,6 +18,7 @@ export const protectPage =
     const { isAuthenticated, getPermission, getPermissions, getRoles } =
       kinde();
     try {
+      console.log('protectPage', config)  
       const isSignedIn = await isAuthenticated();
 
       if (!isSignedIn) {

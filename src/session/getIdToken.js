@@ -2,6 +2,7 @@ import { sessionManager } from "./sessionManager";
 import { config } from "../config/index";
 import { jwtDecoder } from "@kinde/jwt-decoder";
 import { getIdToken } from "../utils/getIdToken";
+import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
 
 /**
  * @callback getIdToken
@@ -18,7 +19,11 @@ import { getIdToken } from "../utils/getIdToken";
 // @ts-ignore
 export const getIdTokenFactory = (req, res) => async () => {
   try {
-    const token = getIdToken(req, res);
+    const token = await getIdToken(req, res);
+    if(config.isDebugMode) {
+      console.log('getIdTokenFactory: running redirectOnExpiredToken check');
+    }
+    redirectOnExpiredToken(token);
     return jwtDecoder(token);
   } catch (err) {
     if (config.isDebugMode) {

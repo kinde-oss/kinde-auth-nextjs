@@ -1,6 +1,18 @@
 import { validateToken as jwtValidator } from "@kinde/jwt-validator";
-import { config } from "../config";
+import { config } from "../../config";
 import { jwtDecoder } from "@kinde/jwt-decoder";
+
+// currently assumes that the token is valid
+// .. should we revalidate here as well? seems redundant
+export const isTokenExpired = (token: string) => {
+  const decodedToken = jwtDecoder(token);
+
+  if(!decodedToken?.exp) {
+    return true;
+  }
+
+  return decodedToken.exp && decodedToken.exp < Date.now() / 1000;
+}
 
 export const validateToken = async ({
   token,
@@ -13,8 +25,6 @@ export const validateToken = async ({
     }
     return false;
   }
-  try {
-    console.log("attempting to validate token");
     const validationResult = await jwtValidator({
       token,
       domain: config.issuerURL,
@@ -28,11 +38,9 @@ export const validateToken = async ({
     }
 
     const decodedToken = jwtDecoder(token);
-    if (decodedToken.exp && decodedToken.exp < Date.now() / 1000) {
-      if (config.isDebugMode) {
-        console.error("validateToken: token expired");
-      }
-      return false;
+
+    if(config.isDebugMode) {
+      console.log(`validateToken: token is valid - it will expire in ${decodedToken.exp - Date.now() / 1000} seconds`);
     }
 
     if (decodedToken.iss !== config.issuerURL) {
@@ -43,10 +51,4 @@ export const validateToken = async ({
     }
 
     return true;
-  } catch (error) {
-    if (config.isDebugMode) {
-      console.error("validateToken", error);
-    }
-    return false;
-  }
 };
