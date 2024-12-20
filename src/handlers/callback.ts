@@ -39,7 +39,15 @@ export const callback = async (routerClient: RouterClient) => {
 
     return void routerClient.json({ error: error.message }, { status: 500 });
   }
-  if (postLoginRedirectURL) {
+
+  const isRedirectAllowed = (url: string) => {
+    if (!config.postLoginAllowedURLRegex) {
+      return true;
+    }
+    return new RegExp(config.postLoginAllowedURLRegex).test(url);
+  };
+
+  if (postLoginRedirectURL && isRedirectAllowed(postLoginRedirectURL)) {
     if (postLoginRedirectURL.startsWith("http")) {
       return void routerClient.redirect(postLoginRedirectURL);
     }
