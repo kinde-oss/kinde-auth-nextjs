@@ -23,12 +23,16 @@ export default function (req?: NextApiRequest, res?: NextApiResponse) {
   return {
     refreshTokens: async () => {
       try {
-        // @ts-ignore
+        // this will ALWAYS fail in an RSC as Cookies cannot be modified there.
+        // refreshTokens is technically available in an RSC via getKindeServerSession,
+        // but it won't work.
+        // Maybe we should provide user feedback on this?
         const response = await kindeClient.refreshTokens(
           await sessionManager(req, res),
         );
         return response;
       } catch (error) {
+        
         if (config.isDebugMode) {
           console.error(error);
         }

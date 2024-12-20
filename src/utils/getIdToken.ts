@@ -1,10 +1,10 @@
 import { config } from "../config";
 import { sessionManager } from "../session/sessionManager";
 import { NextApiRequest, NextApiResponse } from "next";
-import { validateToken } from "./validateToken";
+import { validateToken } from "./jwt/validation";
 import { kindeClient } from "../session/kindeServerClient";
 
-export const getIdToken = async (req: NextApiRequest, res: NextApiResponse) => {
+export const getIdToken = async (req: NextApiRequest, res?: NextApiResponse) => {
   const tokenKey = "id_token";
   try {
     const session = await sessionManager(req, res);
@@ -12,7 +12,7 @@ export const getIdToken = async (req: NextApiRequest, res: NextApiResponse) => {
 
     if (!token || typeof token !== "string") {
       if (config.isDebugMode) {
-        console.error("getIdToken: invalid token or token is missing");
+        console.warn("getIdToken: invalid token or token is missing (are you logged in?)");
       }
       return null;
     }
@@ -22,26 +22,6 @@ export const getIdToken = async (req: NextApiRequest, res: NextApiResponse) => {
     });
 
     if (!isTokenValid) {
-      try {
-        const refreshSuccess = await kindeClient.refreshTokens(session);
-        if (refreshSuccess) {
-          const newToken = await session.getSessionItem(tokenKey);
-          const isNewTokenValid = await validateToken({
-            token: newToken as string,
-          });
-          if (isNewTokenValid) {
-            return newToken;
-          }
-        }
-        if (config.isDebugMode) {
-          console.error("getIdToken: token refresh failed");
-        }
-      } catch (error) {
-        if (config.isDebugMode) {
-          console.error("getIdToken: error during token refresh", error);
-        }
-      }
-
       if (config.isDebugMode) {
         console.error("getIdToken: invalid token");
       }
