@@ -8,8 +8,8 @@ export async function GET() {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const user = await getUser();
-  const data = { message: "Hello User", id: user?.given_name };
-
-  return NextResponse.json({ data });
+  // const user = await getUser();
+  // const data = { message: "Hello User", id: user?.given_name };
+  console.log('I AM BEING CALLED');
+  return NextResponse.json({  });
 }
