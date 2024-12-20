@@ -49,7 +49,9 @@ export const callback = async (routerClient: RouterClient) => {
       return new RegExp(config.postLoginAllowedURLRegex);
     } catch (error) {
       console.error("Invalid postLoginAllowedURLRegex pattern:", error);
-      process.exit(1); // Fail fast if regex is invalid
+      throw new Error(
+        `Invalid postLoginAllowedURLRegex pattern: ${error.message}`,
+      );
     }
   })();
 
