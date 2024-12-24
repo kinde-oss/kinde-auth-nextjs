@@ -32,6 +32,8 @@ const initialState = {
 const SESSION_PREFIX = 'pkce-verifier';
 
 const KINDE_SITE_URL = removeTrailingSlash(process.env.KINDE_SITE_URL);
+const KINDE_POST_LOGIN_ALLOWED_URL_REGEX =
+  process.env.KINDE_POST_LOGIN_ALLOWED_URL_REGEX;
 
 // We need to use NEXT_PUBLIC for frontend vars
 const KINDE_AUTH_API_PATH =
@@ -64,6 +66,7 @@ export const config = {
   SESSION_PREFIX,
   redirectURL: KINDE_SITE_URL,
   postLoginRedirectURL: KINDE_POST_LOGIN_REDIRECT_URL,
+  postLoginAllowedURLRegex: KINDE_POST_LOGIN_ALLOWED_URL_REGEX,
   issuerURL: KINDE_ISSUER_URL,
   clientID: KINDE_CLIENT_ID,
   clientSecret: KINDE_CLIENT_SECRET,

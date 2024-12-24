@@ -37,7 +37,29 @@ export const callback = async (routerClient: RouterClient) => {
 
     return routerClient.json({error: error.message}, {status: 500});
   }
-  if (postLoginRedirectURL) {
+
+  const compiledRegex = (() => {
+    if (!config.postLoginAllowedURLRegex) {
+      return null;
+    }
+    try {
+      return new RegExp(config.postLoginAllowedURLRegex);
+    } catch (error) {
+      console.error('Invalid postLoginAllowedURLRegex pattern:', error);
+      throw new Error(
+        `Invalid postLoginAllowedURLRegex pattern: ${error.message}`
+      );
+    }
+  })();
+
+  const isRedirectAllowed = (url: string) => {
+    if (!config.postLoginAllowedURLRegex) {
+      return true;
+    }
+    return compiledRegex!.test(url);
+  };
+
+  if (postLoginRedirectURL && isRedirectAllowed(postLoginRedirectURL)) {
     if (postLoginRedirectURL.startsWith('http')) {
       return routerClient.redirect(postLoginRedirectURL);
     }
