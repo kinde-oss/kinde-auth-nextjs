@@ -2,17 +2,39 @@ import kinde from "../session/index";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 
+/**
+ * Redirects to the authentication URL with optional parameters.
+ * @param {Object} params - The redirect parameters
+ * @param {string} [params.postLoginRedirectURL] - The URL to redirect to after login
+ * @param {string} [params.orgCode] - The organization code
+ * @throws {Error} If KINDE_SITE_URL is not configured
+ */
 const redirectToAuth = ({ postLoginRedirectURL, orgCode }) => {
+  // Validate inputs
+  if (postLoginRedirectURL && typeof postLoginRedirectURL !== 'string') {
+    throw new TypeError('postLoginRedirectURL must be a string');
+  }
+  if (orgCode && typeof orgCode !== 'string') {
+    throw new TypeError('orgCode must be a string');
+  }
+
   const params = new URLSearchParams();
   let paramsObj = {};
   const kindeSiteUrl = process.env.KINDE_SITE_URL;
   if (!kindeSiteUrl) {
     throw new Error("KINDE_SITE_URL environment variable is not configured");
   }
+
   if (orgCode != null) paramsObj.org_code = orgCode;
   if (postLoginRedirectURL != null) {
     if (postLoginRedirectURL?.startsWith("/")) {
       postLoginRedirectURL = `${kindeSiteUrl}${postLoginRedirectURL}`;
+    }
+    try {
+      // Validate URL construction
+      new URL(postLoginRedirectURL);
+    } catch (e) {
+      throw new Error(`Invalid postLoginRedirectURL: ${postLoginRedirectURL}`);
     }
     paramsObj.post_login_redirect_url = postLoginRedirectURL;
   }
