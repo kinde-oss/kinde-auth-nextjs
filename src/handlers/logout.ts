@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { config } from "../config/index";
 import RouterClient from "../routerClients/RouterClient";
 import { isPreFetch } from "../utils/isPreFetch";
@@ -7,7 +8,8 @@ import { isPreFetch } from "../utils/isPreFetch";
  * @param {RouterClient} routerClient
  */
 export const logout = async (routerClient: RouterClient) => {
-  if (isPreFetch(routerClient.req)) {
+  const heads = await headers();
+  if (isPreFetch(heads)) {
     return null
   }
   
