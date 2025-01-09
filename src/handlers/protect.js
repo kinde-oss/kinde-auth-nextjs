@@ -39,7 +39,7 @@ const redirectToAuth = ({ postLoginRedirectURL, orgCode }) => {
  */
 
 export const protectPage =
-  (Page, config = { redirect: "/api/auth/login" }) =>
+  (Page, config = {}) =>
   async (props) => {
     const { isAuthenticated, getPermission, getPermissions, getRoles } =
       kinde();
