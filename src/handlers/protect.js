@@ -5,10 +5,14 @@ import { NextResponse } from "next/server";
 const redirectToAuth = ({ postLoginRedirectURL, orgCode }) => {
   const params = new URLSearchParams();
   let paramsObj = {};
+  const kindeSiteUrl = process.env.KINDE_SITE_URL;
+  if (!kindeSiteUrl) {
+    throw new Error("KINDE_SITE_URL environment variable is not configured");
+  }
   if (orgCode != null) paramsObj.org_code = orgCode;
   if (postLoginRedirectURL != null) {
     if (postLoginRedirectURL?.startsWith("/")) {
-      postLoginRedirectURL = `${process.env.KINDE_SITE_URL}${postLoginRedirectURL}`;
+      postLoginRedirectURL = `${kindeSiteUrl}${postLoginRedirectURL}`;
     }
     paramsObj.post_login_redirect_url = postLoginRedirectURL;
   }
@@ -16,7 +20,7 @@ const redirectToAuth = ({ postLoginRedirectURL, orgCode }) => {
   for (const key in paramsObj) params.append(key, paramsObj[key]);
 
   const authUrl = new URL(
-    process.env.KINDE_SITE_URL + "/api/auth/login" + "?" + params.toString()
+    `${kindeSiteUrl}/api/auth/login?${params.toString()}`
   );
 
   redirect(authUrl.toString());
