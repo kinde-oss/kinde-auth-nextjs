@@ -11,11 +11,11 @@ import { NextResponse } from "next/server";
  */
 const redirectToAuth = ({ postLoginRedirectURL, orgCode }) => {
   // Validate inputs
-  if (postLoginRedirectURL && typeof postLoginRedirectURL !== 'string') {
-    throw new TypeError('postLoginRedirectURL must be a string');
+  if (postLoginRedirectURL && typeof postLoginRedirectURL !== "string") {
+    throw new TypeError("postLoginRedirectURL must be a string");
   }
-  if (orgCode && typeof orgCode !== 'string') {
-    throw new TypeError('orgCode must be a string');
+  if (orgCode && typeof orgCode !== "string") {
+    throw new TypeError("orgCode must be a string");
   }
 
   const params = new URLSearchParams();
@@ -53,7 +53,7 @@ const redirectToAuth = ({ postLoginRedirectURL, orgCode }) => {
  * @param {import('react').ReactNode} page - The page component to be protected.
  * @param {Object} config - The configuration options for the protection logic.
  * @param {string} config.postLoginRedirectURL - The redirect URL after the user logs in.
- * @param {string} config.orgCode - The redirect URL after the user logs in.
+ * @param {string} config.orgCode - The organization code for multi-tenant applications.
  * @param {string[]} config.roles - The required role(s) for accessing the protected page.
  * @param {string|string[]} config.permissions - The required permission(s) for accessing the protected page.
 
