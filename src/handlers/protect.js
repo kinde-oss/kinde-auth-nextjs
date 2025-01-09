@@ -1,14 +1,37 @@
-export { default as getKindeServerSession } from "../session/index";
+import kinde from "../session/index";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
+
+const redirectToAuth = ({ postLoginRedirectURL, orgCode }) => {
+  const params = new URLSearchParams();
+  let paramsObj = {};
+  if (orgCode != null) paramsObj.org_code = orgCode;
+  if (postLoginRedirectURL != null) {
+    if (postLoginRedirectURL?.startsWith("/")) {
+      postLoginRedirectURL = `${process.env.KINDE_SITE_URL}${postLoginRedirectURL}`;
+    }
+    paramsObj.post_login_redirect_url = postLoginRedirectURL;
+  }
+
+  for (const key in paramsObj) params.append(key, paramsObj[key]);
+
+  console.log(params.toString());
+  const authUrl = new URL(
+    process.env.KINDE_SITE_URL + "/api/auth/login" + "?" + params.toString()
+  );
+
+  redirect(authUrl.toString());
+};
 
 /**
  * A higher-order function that wraps a page component and adds protection logic.
  * @param {import('react').ReactNode} page - The page component to be protected.
  * @param {Object} config - The configuration options for the protection logic.
- * @param {string} config.redirect - The redirect path if the user is not authenticated or does not have the required role or permissions.
+ * @param {string} config.postLoginRedirectURL - The redirect URL after the user logs in.
+ * @param {string} config.orgCode - The redirect URL after the user logs in.
  * @param {string[]} config.roles - The required role(s) for accessing the protected page.
  * @param {string|string[]} config.permissions - The required permission(s) for accessing the protected page.
+
  * @returns {Function} - The protected page component.
  */
 
@@ -17,46 +40,41 @@ export const protectPage =
   async (props) => {
     const { isAuthenticated, getPermission, getPermissions, getRoles } =
       kinde();
-    try {
-      console.log('protectPage', config)  
-      const isSignedIn = await isAuthenticated();
 
-      if (!isSignedIn) {
-        return redirect(config.redirect);
-      }
+    const isSignedIn = await isAuthenticated();
 
-      if (config.roles) {
-        const roles = await getRoles();
-        if (!roles) return redirect(config.redirect);
-        const roleNames = new Set(roles.map((r) => r.name));
-        if (!config.roles.some((role) => roleNames.has(role))) {
-          return redirect(config.redirect);
-        }
-      }
-
-      if (typeof config.permissions === "string") {
-        const hasPermission = await getPermission(config.permissions);
-        if (!hasPermission) {
-          return redirect(config.redirect);
-        }
-      }
-
-      if (Array.isArray(config.permissions)) {
-        const permissions = await getPermissions();
-        if (
-          !config.permissions.some((permission) =>
-            permissions.includes(permission),
-          )
-        ) {
-          return redirect(config.redirect);
-        }
-      }
-    } catch (error) {
-      console.error("Error protecting page", error);
-      return null;
+    if (!isSignedIn) {
+      redirectToAuth(config);
     }
 
-    return <Page {...props} />;
+    if (config.roles) {
+      const roles = await getRoles();
+      if (!roles) redirectToAuth(config);
+      const roleNames = new Set(roles.map((r) => r.name));
+      if (!config.roles.some((role) => roleNames.has(role))) {
+        redirectToAuth(config);
+      }
+    }
+
+    if (typeof config.permissions === "string") {
+      const hasPermission = await getPermission(config.permissions);
+      if (!hasPermission) {
+        redirectToAuth(config);
+      }
+    }
+
+    if (Array.isArray(config.permissions)) {
+      const permissions = await getPermissions();
+      if (
+        !config.permissions.some((permission) =>
+          permissions.includes(permission)
+        )
+      ) {
+        redirectToAuth(config);
+      }
+    }
+
+    return Page(props);
   };
 
 /**
@@ -98,7 +116,7 @@ export const protectApi = (handler, config) => async (req) => {
       const permissions = await getPermissions();
       if (
         !config.permissions.some((permission) =>
-          permissions.includes(permission),
+          permissions.includes(permission)
         )
       ) {
         return NextResponse.json({ statusCode: 403, message: "Forbidden" });
