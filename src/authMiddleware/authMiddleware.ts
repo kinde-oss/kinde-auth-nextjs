@@ -16,6 +16,12 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
   const loginPage = options?.loginPage || "/api/auth/login";
+  const callbackPage = "/api/auth/kinde_callback";
+  const registerPage = "/api/auth/register";
+
+  if(loginPage == pathname || callbackPage == pathname || registerPage == pathname) {
+    return NextResponse.next();
+  }
 
   let publicPaths = ["/_next", "/favicon.ico"];
   if (options?.publicPaths !== undefined) {
@@ -28,7 +34,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     ? `${loginPage}?post_login_redirect_url=${pathname}`
     : loginPage;
 
-  const isPublicPath = loginPage == pathname || publicPaths.some((p) => pathname.startsWith(p));
+  const isPublicPath = publicPaths.some((p) => pathname.startsWith(p));
 
   // getAccessToken will validate the token
   let kindeAccessToken = await getAccessToken(req);
