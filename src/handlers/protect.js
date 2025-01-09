@@ -15,7 +15,6 @@ const redirectToAuth = ({ postLoginRedirectURL, orgCode }) => {
 
   for (const key in paramsObj) params.append(key, paramsObj[key]);
 
-  console.log(params.toString());
   const authUrl = new URL(
     process.env.KINDE_SITE_URL + "/api/auth/login" + "?" + params.toString()
   );
