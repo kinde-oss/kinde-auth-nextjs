@@ -18,8 +18,10 @@ import { getRolesFactory } from "./getRoles";
 import { getClaimFactory } from "./getClaim";
 import { config } from "../config/index";
 import { NextApiRequest, NextApiResponse } from "next";
+import { headers } from "next/headers";
 
-export default function (req?: NextApiRequest, res?: NextApiResponse) {
+export default async function (req?: NextApiRequest, res?: NextApiResponse) {
+  await headers();
   return {
     refreshTokens: async () => {
       try {
@@ -28,11 +30,10 @@ export default function (req?: NextApiRequest, res?: NextApiResponse) {
         // but it won't work.
         // Maybe we should provide user feedback on this?
         const response = await kindeClient.refreshTokens(
-          await sessionManager(req, res),
+          await sessionManager(req, res)
         );
         return response;
       } catch (error) {
-        
         if (config.isDebugMode) {
           console.error(error);
         }
