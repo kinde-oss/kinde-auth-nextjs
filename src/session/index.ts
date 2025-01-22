@@ -18,10 +18,10 @@ import { getRolesFactory } from "./getRoles";
 import { getClaimFactory } from "./getClaim";
 import { config } from "../config/index";
 import { NextApiRequest, NextApiResponse } from "next";
-import { headers } from "next/headers";
+import { connection } from "next/server";
 
 export default async function (req?: NextApiRequest, res?: NextApiResponse) {
-  await headers();
+  await connection();
   return {
     refreshTokens: async () => {
       try {
