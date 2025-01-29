@@ -33,7 +33,7 @@ export function RegisterLink({
   for (const key in paramsObj) params.append(key, paramsObj[key]);
   return (
     <a
-      href={`${config.apiPath}/register${
+      href={`${config.apiPath}/${process.env.KINDE_AUTH_REGISTER_ROUTE || 'register'}${
         params ? `?${params.toString()}` : ""
       }`}
       {...props}

@@ -39,7 +39,7 @@ export function LoginLink({
 
   for (const key in paramsObj) params.append(key, paramsObj[key]);
 
-  const authUrl = `${config.apiPath}/login${
+  const authUrl = `${config.apiPath}/${process.env.KINDE_AUTH_LOGIN_ROUTE || 'login'}${
     params ? `?${params.toString()}` : ""
   }`;
   return (

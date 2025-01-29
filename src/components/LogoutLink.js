@@ -15,7 +15,7 @@ import { config } from "../config/index";
 export function LogoutLink({ children, postLogoutRedirectURL, ...props }) {
   return (
     <a
-      href={`${config.apiPath}/logout${
+      href={`${config.apiPath}/${process.env.KINDE_AUTH_LOGOUT_ROUTE || 'logout'}${
         postLogoutRedirectURL
           ? `?post_logout_redirect_url=${postLogoutRedirectURL}`
           : ""

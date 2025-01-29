@@ -8,19 +8,18 @@ import { health } from "./health";
 import { register } from "./register";
 import AppRouterClient from "../routerClients/AppRouterClient";
 import PagesRouterClient from "../routerClients/PagesRouterClient";
-import RouterClient from "../routerClients/RouterClient";
 import { config } from "../config/index";
 
 /**
  * @type {Record<string,(routerClient: RouterClient) => Promise<void>>}
  */
 const routeMap = {
-  create_org: createOrg,
-  register,
-  setup,
-  login,
-  logout,
-  health,
+  [process.env.KINDE_AUTH_CREATEORG_ROUTE || 'create_org']: createOrg,
+  [process.env.KINDE_AUTH_REGISTER_ROUTE || 'register']: register,
+  [process.env.KINDE_AUTH_SETUP_ROUTE || 'health']: setup,
+  [process.env.KINDE_AUTH_LOGIN_ROUTE || 'login']: login,
+  [process.env.KINDE_AUTH_LOGOUT_ROUTE || 'logout']: logout,
+  [process.env.KINDE_AUTH_HEALTH_ROUTE || 'health']: health,
   kinde_callback: callback,
 };
 
