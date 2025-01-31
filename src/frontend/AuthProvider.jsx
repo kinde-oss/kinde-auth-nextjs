@@ -13,6 +13,7 @@ export const flagDataTypeMap = {
   i: "integer",
   b: "boolean",
 };
+import { routes } from "../config/index";
 
 const AuthContext = createContext({
   ...config.initialState,
@@ -50,7 +51,7 @@ const tokenFetcher = async (url) => {
  * @returns
  */
 export const KindeProvider = ({ children }) => {
-  const setupUrl = `${config.apiPath}/setup`;
+  const setupUrl = `${config.apiPath}/${routes.setup}`;
 
   const refreshData = useCallback(() => {
     checkSession();

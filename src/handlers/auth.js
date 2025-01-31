@@ -8,19 +8,18 @@ import { health } from "./health";
 import { register } from "./register";
 import AppRouterClient from "../routerClients/AppRouterClient";
 import PagesRouterClient from "../routerClients/PagesRouterClient";
-import RouterClient from "../routerClients/RouterClient";
-import { config } from "../config/index";
+import { config, routes } from "../config/index";
 
 /**
  * @type {Record<string,(routerClient: RouterClient) => Promise<void>>}
  */
 const routeMap = {
-  create_org: createOrg,
-  register,
-  setup,
-  login,
-  logout,
-  health,
+  [routes.createOrg]: createOrg,
+  [routes.register]: register,
+  [routes.setup]: setup,
+  [routes.login]: login,
+  [routes.logout]: logout,
+  [routes.health]: health,
   kinde_callback: callback,
 };
 

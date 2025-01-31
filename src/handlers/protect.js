@@ -1,6 +1,7 @@
 import kinde from "../session/index";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
+import { routes } from "../config";
 
 /**
  * Redirects to the authentication URL with optional parameters.
@@ -42,7 +43,7 @@ const redirectToAuth = ({ postLoginRedirectURL, orgCode }) => {
   for (const key in paramsObj) params.append(key, paramsObj[key]);
 
   const authUrl = new URL(
-    `${kindeSiteUrl}/api/auth/login?${params.toString()}`
+    `${kindeSiteUrl}/api/auth/${routes.login}?${params.toString()}`
   );
 
   redirect(authUrl.toString());

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { flagDataTypeMap } from "./AuthProvider.jsx";
 import { config } from "../config/index.js";
+import { routes } from "../config/index.js";
 
 /**
  *
@@ -31,7 +32,7 @@ export const useKindeBrowserClient = (
   }, []);
 
   const refreshData = async () => {
-    const setupUrl = `${apiPath}/setup`;
+    const setupUrl = `${apiPath}/${routes.setup}`;
     const res = await fetch(setupUrl);
     const kindeData = await res.json();
     if (res.status == 200) {
