@@ -1,5 +1,5 @@
-import { headers } from "next/headers";
 import RouterClient from "../routerClients/RouterClient";
+import { getHeaders } from "../utils/getHeaders";
 import { isPreFetch } from "../utils/isPreFetch";
 
 /**
@@ -7,8 +7,8 @@ import { isPreFetch } from "../utils/isPreFetch";
  * @param {RouterClient} routerClient
  */
 export const register = async (routerClient: RouterClient) => {
-  const heads = await headers();
-  if (isPreFetch(heads)) {
+  const headers = await getHeaders(routerClient.req);
+  if (isPreFetch(headers)) {
     return null
   }
   
