@@ -1,6 +1,6 @@
 import React from "react";
 
-import { config } from "../config/index";
+import { config, routes } from "../config/index";
 /**
  * @typedef {Object} PropsType
  * @prop {React.ReactNode} children
@@ -15,12 +15,11 @@ import { config } from "../config/index";
 export function LogoutLink({ children, postLogoutRedirectURL, ...props }) {
   return (
     <a
-      href={`${config.apiPath}/${process.env.KINDE_AUTH_LOGOUT_ROUTE || 'logout'}${
+      href={`${config.apiPath}/${routes.logout}${
         postLogoutRedirectURL
           ? `?post_logout_redirect_url=${postLogoutRedirectURL}`
           : ""
-      }
-      `}
+      }`}
       {...props}
     >
       {children}

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { isTokenExpired } from './jwt/validation';
-import { config } from '../config';
+import { config, routes } from '../config';
 
 // This exists solely to solve an edge case where users
 // who may have an expired token are viewing a page that uses
@@ -32,5 +32,5 @@ export const redirectOnExpiredToken = (token: string | null) => {
 	if(config.isDebugMode) {
 		console.log('redirectOnExpiredToken: token is defined and expired, redirecting')
 	}
-	redirect('/api/auth/login');
+	redirect(`/api/auth/${routes.login}`);
 };

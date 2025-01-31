@@ -1,5 +1,6 @@
 import React from "react";
 import { config } from "../config/index";
+import { routes } from '../config';
 
 /**
  * @typedef {Object} PropsType
@@ -39,7 +40,7 @@ export function LoginLink({
 
   for (const key in paramsObj) params.append(key, paramsObj[key]);
 
-  const authUrl = `${config.apiPath}/${process.env.KINDE_AUTH_LOGIN_ROUTE || 'login'}${
+  const authUrl = `${config.apiPath}/${routes.login}${
     params ? `?${params.toString()}` : ""
   }`;
   return (

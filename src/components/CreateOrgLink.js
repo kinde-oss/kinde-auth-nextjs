@@ -1,6 +1,6 @@
 import React from "react";
+import { config, routes } from "../config/index";
 
-import { config } from "../config/index";
 /**
  * @typedef {Object} PropsType
  * @prop {React.ReactNode} children
@@ -15,7 +15,7 @@ import { config } from "../config/index";
 export function CreateOrgLink({ children, orgName, ...props }) {
   return (
     <a
-      href={`${config.apiPath}/${process.env.KINDE_AUTH_CREATEORG_ROUTE || 'createorg'}${
+      href={`${config.apiPath}/${routes.createOrg}${
         orgName ? `?org_name=${orgName}` : ""
       }`}
       {...props}

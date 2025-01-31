@@ -1,6 +1,6 @@
 import React from "react";
 import { config } from "../config/index";
-
+import { routes } from "../config/index";
 /**
  * @typedef {Object} PropsType
  * @prop {React.ReactNode} children
@@ -32,8 +32,7 @@ export function RegisterLink({
 
   for (const key in paramsObj) params.append(key, paramsObj[key]);
   return (
-    <a
-      href={`${config.apiPath}/${process.env.KINDE_AUTH_REGISTER_ROUTE || 'register'}${
+    <a href={`${config.apiPath}/${routes.register}${
         params ? `?${params.toString()}` : ""
       }`}
       {...props}

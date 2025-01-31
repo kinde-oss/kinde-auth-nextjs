@@ -10,14 +10,16 @@ import { getSplitCookies } from "../utils/cookies/getSplitSerializedCookies";
 import { getIdToken } from "../utils/getIdToken";
 import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
-
+import { routes
+  
+ } from "../config/index";
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname } = req.nextUrl;
 
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
-  const loginPage = options?.loginPage || "/api/auth/login";
-  const callbackPage = "/api/auth/kinde_callback";
-  const registerPage = "/api/auth/register";
+  const loginPage = options?.loginPage || `/api/auth/${routes.login}`;
+  const callbackPage = `/api/auth/kinde_callback`;
+  const registerPage = `/api/auth/${routes.register}`;
 
   if(loginPage == pathname || callbackPage == pathname || registerPage == pathname) {
     return NextResponse.next();

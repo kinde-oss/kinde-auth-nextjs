@@ -137,3 +137,23 @@ export const config: Config = {
   },
   grantType: "AUTHORIZATION_CODE",
 };
+
+const validateRoute = (route: string): string | null => {
+  return route && /^[a-zA-Z0-9_-]+$/.test(route) ? route : null;
+};
+
+export const routes: {
+  login: string;
+  logout: string;
+  register: string;
+  createOrg: string;
+  health: string;
+  setup: string;
+} = {
+  login: validateRoute(process.env.KINDE_AUTH_LOGIN_ROUTE) || 'login',
+  logout: validateRoute(process.env.KINDE_AUTH_LOGOUT_ROUTE) || 'logout',
+  register: validateRoute(process.env.KINDE_AUTH_REGISTER_ROUTE) || 'register',
+  createOrg: validateRoute(process.env.KINDE_AUTH_CREATEORG_ROUTE) || 'create_org',
+  health: validateRoute(process.env.KINDE_AUTH_HEALTH_ROUTE) || 'health',
+  setup : validateRoute(process.env.KINDE_AUTH_SETUP_ROUTE) || 'setup',
+};
