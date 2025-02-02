@@ -11,7 +11,6 @@ import { getIdToken } from "../utils/getIdToken";
 import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
 import { routes
-  
  } from "../config/index";
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname } = req.nextUrl;
@@ -36,7 +35,13 @@ const handleMiddleware = async (req, options, onSuccess) => {
     ? `${loginPage}?post_login_redirect_url=${pathname}`
     : loginPage;
 
-  const isPublicPath = publicPaths.some((p) => pathname.startsWith(p));
+  const isPublicPath = publicPaths.some((p) => {
+    // explicit root path handling
+    // if we use startsWith and "/" is provided as a publicPath,
+    // we inadvertently match all paths because they all start with "/"
+    if(p === "/") return pathname === "/";
+    return pathname.startsWith(p);
+  });
 
   // getAccessToken will validate the token
   let kindeAccessToken = await getAccessToken(req);
