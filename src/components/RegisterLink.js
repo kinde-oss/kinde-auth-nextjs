@@ -32,7 +32,8 @@ export function RegisterLink({
 
   for (const key in paramsObj) params.append(key, paramsObj[key]);
   return (
-    <a href={`${config.apiPath}/${routes.register}${
+    <a
+      href={`${config.apiPath}/${routes.register}${
         params ? `?${params.toString()}` : ""
       }`}
       {...props}

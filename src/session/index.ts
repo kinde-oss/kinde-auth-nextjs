@@ -32,7 +32,6 @@ export default function (req?: NextApiRequest, res?: NextApiResponse) {
         );
         return response;
       } catch (error) {
-        
         if (config.isDebugMode) {
           console.error(error);
         }

@@ -1,12 +1,15 @@
 import { cookies } from "next/headers";
 import { isAppRouter } from "../utils/isAppRouter";
 import { config } from "../config/index";
-import { TWENTY_NINE_DAYS, MAX_COOKIE_LENGTH, GLOBAL_COOKIE_OPTIONS, COOKIE_LIST } from "../utils/constants";
+import {
+  TWENTY_NINE_DAYS,
+  MAX_COOKIE_LENGTH,
+  GLOBAL_COOKIE_OPTIONS,
+  COOKIE_LIST,
+} from "../utils/constants";
 import { splitString } from "../utils/splitString";
 
 var cookie = require("cookie");
-
-
 
 /**
  *
@@ -86,13 +89,15 @@ export const appRouterSessionManager = (cookieStore) => ({
     if (itemValue !== undefined) {
       const itemValueString =
         typeof itemValue === "object" ? JSON.stringify(itemValue) : itemValue;
-      splitString(itemValueString, MAX_COOKIE_LENGTH).forEach((value, index) => {
-        cookieStore.set(itemKey + (index === 0 ? "" : index), value, {
-          maxAge: TWENTY_NINE_DAYS,
-          domain: config.cookieDomain ? config.cookieDomain : undefined,
-          ...GLOBAL_COOKIE_OPTIONS,
-        });
-      });
+      splitString(itemValueString, MAX_COOKIE_LENGTH).forEach(
+        (value, index) => {
+          cookieStore.set(itemKey + (index === 0 ? "" : index), value, {
+            maxAge: TWENTY_NINE_DAYS,
+            domain: config.cookieDomain ? config.cookieDomain : undefined,
+            ...GLOBAL_COOKIE_OPTIONS,
+          });
+        },
+      );
     }
   },
   /**
@@ -203,17 +208,21 @@ export const pageRouterSessionManager = (req, res) => {
           [
             ...(cookies.filter((cookie) => !cookie.startsWith(`${itemKey}`)) ||
               []),
-            ...splitString(itemValueString, MAX_COOKIE_LENGTH).map((value, index) => {
-              return cookie.serialize(
-                itemKey + (index === 0 ? "" : index),
-                value,
-                {
-                  domain: config.cookieDomain ? config.cookieDomain : undefined,
-                  ...GLOBAL_COOKIE_OPTIONS,
-                  maxAge: TWENTY_NINE_DAYS,
-                },
-              );
-            }),
+            ...splitString(itemValueString, MAX_COOKIE_LENGTH).map(
+              (value, index) => {
+                return cookie.serialize(
+                  itemKey + (index === 0 ? "" : index),
+                  value,
+                  {
+                    domain: config.cookieDomain
+                      ? config.cookieDomain
+                      : undefined,
+                    ...GLOBAL_COOKIE_OPTIONS,
+                    maxAge: TWENTY_NINE_DAYS,
+                  },
+                );
+              },
+            ),
           ],
           {
             domain: config.cookieDomain ? config.cookieDomain : undefined,

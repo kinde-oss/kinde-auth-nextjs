@@ -43,7 +43,7 @@ const redirectToAuth = ({ postLoginRedirectURL, orgCode }) => {
   for (const key in paramsObj) params.append(key, paramsObj[key]);
 
   const authUrl = new URL(
-    `${kindeSiteUrl}/api/auth/${routes.login}?${params.toString()}`
+    `${kindeSiteUrl}/api/auth/${routes.login}?${params.toString()}`,
   );
 
   redirect(authUrl.toString());
@@ -93,7 +93,7 @@ export const protectPage =
       const permissions = await getPermissions();
       if (
         !config.permissions.some((permission) =>
-          permissions.includes(permission)
+          permissions.includes(permission),
         )
       ) {
         redirectToAuth(config);
@@ -142,7 +142,7 @@ export const protectApi = (handler, config) => async (req) => {
       const permissions = await getPermissions();
       if (
         !config.permissions.some((permission) =>
-          permissions.includes(permission)
+          permissions.includes(permission),
         )
       ) {
         return NextResponse.json({ statusCode: 403, message: "Forbidden" });
