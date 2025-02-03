@@ -30,7 +30,7 @@ export default class PagesRouterClient extends RouterClient {
         options?.config?.postLogoutRedirectUrl ||
         config.clientOptions.logoutRedirectURL,
       redirectURL: options?.config?.siteUrl
-        ? `${options?.config?.siteUrl}/api/auth/kinde_callback`
+        ? `${options?.config?.siteUrl}${config.apiPath}/kinde_callback`
         : config.clientOptions.redirectURL,
       siteUrl: config.redirectURL || options.config.siteUrl,
     };
