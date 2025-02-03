@@ -11,7 +11,7 @@ export const login = async (routerClient: RouterClient) => {
   if (isPreFetch(headers)) {
     return null;
   }
-  
+
   const authUrl = await routerClient.kindeClient.login(
     routerClient.sessionManager,
     {

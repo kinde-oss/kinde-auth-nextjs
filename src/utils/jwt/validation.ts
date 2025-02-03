@@ -7,12 +7,12 @@ import { jwtDecoder } from "@kinde/jwt-decoder";
 export const isTokenExpired = (token: string) => {
   const decodedToken = jwtDecoder(token);
 
-  if(!decodedToken?.exp) {
+  if (!decodedToken?.exp) {
     return true;
   }
 
   return decodedToken.exp && decodedToken.exp < Date.now() / 1000;
-}
+};
 
 export const validateToken = async ({
   token,
@@ -25,30 +25,32 @@ export const validateToken = async ({
     }
     return false;
   }
-    const validationResult = await jwtValidator({
-      token,
-      domain: config.issuerURL,
-    });
+  const validationResult = await jwtValidator({
+    token,
+    domain: config.issuerURL,
+  });
 
-    if (!validationResult.valid) {
-      if (config.isDebugMode) {
-        console.error("validateToken: invalid token");
-      }
-      return false;
+  if (!validationResult.valid) {
+    if (config.isDebugMode) {
+      console.error("validateToken: invalid token");
     }
+    return false;
+  }
 
-    const decodedToken = jwtDecoder(token);
+  const decodedToken = jwtDecoder(token);
 
-    if(config.isDebugMode) {
-      console.log(`validateToken: token is valid - it will expire in ${decodedToken.exp - Date.now() / 1000} seconds`);
+  if (config.isDebugMode) {
+    console.log(
+      `validateToken: token is valid - it will expire in ${decodedToken.exp - Date.now() / 1000} seconds`,
+    );
+  }
+
+  if (decodedToken.iss !== config.issuerURL) {
+    if (config.isDebugMode) {
+      console.error("validateToken: invalid issuer");
     }
+    return false;
+  }
 
-    if (decodedToken.iss !== config.issuerURL) {
-      if (config.isDebugMode) {
-        console.error("validateToken: invalid issuer");
-      }
-      return false;
-    }
-
-    return true;
+  return true;
 };

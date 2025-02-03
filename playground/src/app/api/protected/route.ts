@@ -10,6 +10,6 @@ export async function GET() {
 
   // const user = await getUser();
   // const data = { message: "Hello User", id: user?.given_name };
-  console.log('I AM BEING CALLED');
-  return NextResponse.json({  });
+  console.log("I AM BEING CALLED");
+  return NextResponse.json({});
 }

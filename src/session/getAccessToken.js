@@ -18,8 +18,10 @@ import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
 export const getAccessTokenFactory = (req, res) => async () => {
   try {
     const accessToken = await getAccessToken(req, res);
-    if(config.isDebugMode) {
-      console.log('getAccessTokenFactory: running redirectOnExpiredToken check');
+    if (config.isDebugMode) {
+      console.log(
+        "getAccessTokenFactory: running redirectOnExpiredToken check",
+      );
     }
     redirectOnExpiredToken(accessToken);
     return jwtDecoder(accessToken);

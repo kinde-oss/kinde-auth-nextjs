@@ -4,7 +4,10 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { validateToken } from "./jwt/validation";
 import { kindeClient } from "../session/kindeServerClient";
 
-export const getIdToken = async (req: NextApiRequest, res?: NextApiResponse) => {
+export const getIdToken = async (
+  req: NextApiRequest,
+  res?: NextApiResponse,
+) => {
   const tokenKey = "id_token";
   try {
     const session = await sessionManager(req, res);
@@ -12,7 +15,9 @@ export const getIdToken = async (req: NextApiRequest, res?: NextApiResponse) => 
 
     if (!token || typeof token !== "string") {
       if (config.isDebugMode) {
-        console.warn("getIdToken: invalid token or token is missing (are you logged in?)");
+        console.warn(
+          "getIdToken: invalid token or token is missing (are you logged in?)",
+        );
       }
       return null;
     }

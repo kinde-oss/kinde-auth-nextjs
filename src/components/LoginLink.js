@@ -1,6 +1,6 @@
 import React from "react";
 import { config } from "../config/index";
-import { routes } from '../config';
+import { routes } from "../config";
 
 /**
  * @typedef {Object} PropsType

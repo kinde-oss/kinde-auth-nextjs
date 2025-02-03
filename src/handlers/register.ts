@@ -9,9 +9,9 @@ import { isPreFetch } from "../utils/isPreFetch";
 export const register = async (routerClient: RouterClient) => {
   const headers = await getHeaders(routerClient.req);
   if (isPreFetch(headers)) {
-    return null
+    return null;
   }
-  
+
   const authUrl = await routerClient.kindeClient.register(
     routerClient.sessionManager,
     {
