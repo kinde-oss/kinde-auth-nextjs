@@ -15,10 +15,10 @@ import { routes } from '../config/index';
 const handleMiddleware = async (req, options, onSuccess) => {
 	const { pathname } = req.nextUrl;
 
-	const isReturnToCurrentPage = options?.isReturnToCurrentPage;
-	const loginPage = options?.loginPage || `/api/auth/${routes.login}`;
-	const callbackPage = `/api/auth/kinde_callback`;
-	const registerPage = `/api/auth/${routes.register}`;
+  const isReturnToCurrentPage = options?.isReturnToCurrentPage;
+  const loginPage = options?.loginPage || `${config.apiPath}/${routes.login}`;
+  const callbackPage = `${config.apiPath}/kinde_callback`;
+  const registerPage = `${config.apiPath}/${routes.register}`;
 
 	if (loginPage == pathname || callbackPage == pathname || registerPage == pathname) {
 		return NextResponse.next();

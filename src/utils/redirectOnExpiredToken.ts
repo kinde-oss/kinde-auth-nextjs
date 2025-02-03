@@ -32,5 +32,5 @@ export const redirectOnExpiredToken = (token: string | null) => {
 	if(config.isDebugMode) {
 		console.log('redirectOnExpiredToken: token is defined and expired, redirecting')
 	}
-	redirect(`/api/auth/${routes.login}`);
+	redirect(`${config.apiPath}/${routes.login}`);
 };

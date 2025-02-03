@@ -131,7 +131,7 @@ export const config: Config = {
     clientId: KINDE_CLIENT_ID || "",
     clientSecret: KINDE_CLIENT_SECRET || "",
     logoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL || "",
-    redirectURL: `${KINDE_SITE_URL}/api/auth/kinde_callback`,
+    redirectURL: `${KINDE_SITE_URL}${KINDE_AUTH_API_PATH}/kinde_callback`,
     frameworkVersion: version,
     scope: KINDE_SCOPE,
   },
