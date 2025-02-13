@@ -1,7 +1,6 @@
 import { config } from "../../config/index";
 import { GLOBAL_COOKIE_OPTIONS } from "../../session/sessionManager";
-
-const cookie = require("cookie");
+import cookie from "cookie";
 
 export const setVerifierCookie = (state, code_verifier, res, options) => {
   const jsonCookieValue = JSON.stringify({

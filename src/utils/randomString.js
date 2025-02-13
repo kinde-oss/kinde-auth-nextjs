@@ -1,4 +1,4 @@
-const { getRandomValues } = require("uncrypto");
+import { getRandomValues } from "uncrypto";
 
 export const randomString = () => {
   const buffer = new Uint8Array(28);
