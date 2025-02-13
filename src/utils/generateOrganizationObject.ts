@@ -11,7 +11,7 @@ type OrgPropertyKey =
 const getOrgProperty = (
   key: OrgPropertyKey,
   idToken: KindeIdToken,
-  accessToken: KindeAccessToken,
+  accessToken: KindeAccessToken
 ): string | undefined => {
   const idValue = idToken.organization_properties?.[`kp_org_${key}`]?.v;
   const accessValue = accessToken.organization_properties?.[`kp_org_${key}`]?.v;
@@ -20,9 +20,9 @@ const getOrgProperty = (
 
 export const generateOrganizationObject = (
   idToken: KindeIdToken,
-  accessToken: KindeAccessToken,
+  accessToken: KindeAccessToken
 ) => {
-  if (!accessToken.org_code || !accessToken.org_name) {
+  if (!accessToken.org_code) {
     throw new Error("Missing required organization fields in access token");
   }
 
@@ -38,7 +38,7 @@ export const generateOrganizationObject = (
       street_address_2: getOrgProperty(
         "street_address_2",
         idToken,
-        accessToken,
+        accessToken
       ),
     },
   };
