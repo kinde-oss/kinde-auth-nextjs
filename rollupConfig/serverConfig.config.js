@@ -3,17 +3,20 @@ import { terser } from "rollup-plugin-terser";
 import tsPlugin from "@rollup/plugin-typescript";
 
 export default {
-  plugins: [babel({ babelHelpers: "bundled" }), terser(), tsPlugin()],
+  plugins: [babel({ babelHelpers: "bundled" }), terser(), tsPlugin({
+    tsconfig: "./tsconfig.json",
+    declarationDir: "./dist/server" // Align with outDir
+  })],
   input: "src/server/index.js",
   output: [
     {
-      file: "dist/server/cjs/index.js",
+      file: "./dist/server/index.cjs.js",
       format: "cjs",
       sourcemap: true,
       exports: "named",
     },
     {
-      file: `dist/server/index.js`,
+      file: `./dist/server/index.js`,
       sourcemap: true,
       exports: "named",
       format: "esm",
@@ -26,5 +29,8 @@ export default {
     "react",
     "@kinde-oss/kinde-typescript-sdk",
     "@kinde/jwt-decoder",
+    "@kinde/jwt-validator",
+    "next/dist/server/web/spec-extension/cookies",
+    "cookie",
   ],
 };

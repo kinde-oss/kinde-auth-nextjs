@@ -1,6 +1,11 @@
-import clientConfig from "./clientConfig/rollup.config.js";
-import serverConfig from "./serverConfig/rollup.config.js";
-import componentConfig from "./componentConfig/rollup.config.js";
-import middlewareConfig from "./middlewareConfig/rollup.config.js";
+import clientConfig from "./rollupConfig/clientConfig.config.js";
+import serverConfig from "./rollupConfig/serverConfig.config.js";
+import componentConfig from "./rollupConfig/componentConfig.config.js";
+import middlewareConfig from "./rollupConfig/middlewearConfig.config.js";
 
-export default [clientConfig, serverConfig, componentConfig, middlewareConfig];
+export default [
+    clientConfig,
+    serverConfig,
+    componentConfig,
+    middlewareConfig
+];

@@ -1,27 +1,29 @@
+import packageJson from "../package.json" with { type: "json" };
 import babel from "@rollup/plugin-babel";
 import { terser } from "rollup-plugin-terser";
 import tsPlugin from "@rollup/plugin-typescript";
 
 export default {
   plugins: [babel({ babelHelpers: "bundled" }), terser(), tsPlugin()],
-  input: "src/middleware/index.js",
+  input: "./src/index.ts",
   output: [
     {
-      file: "dist/middleware/cjs/index.js",
+      file: './dist/index.js',
+      format: "esm",
+      sourcemap: true,
+      exports: "named",
+    },
+    {
+      file: './dist/index.cjs.js',
       format: "cjs",
       sourcemap: true,
       exports: "named",
     },
-    {
-      file: `dist/middleware/index.js`,
-      sourcemap: true,
-      exports: "named",
-      format: "esm",
-    },
   ],
   external: [
+    "react",
+    "react-dom",
     "@kinde-oss/kinde-typescript-sdk",
-    "next/server",
     "@kinde/jwt-decoder",
   ],
 };
