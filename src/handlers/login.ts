@@ -12,6 +12,11 @@ export const login = async (routerClient: RouterClient) => {
     return null;
   }
 
+  const passedState = routerClient.searchParams.get('state');
+  if (passedState) {
+    routerClient.sessionManager.setSessionItem('state', passedState);
+  }
+
   const authUrl = await routerClient.kindeClient.login(
     routerClient.sessionManager,
     {

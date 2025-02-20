@@ -30,5 +30,10 @@ export const register = async (routerClient: RouterClient) => {
     );
   }
 
+  const passedState = routerClient.searchParams.get('state');
+  if (passedState) {
+    routerClient.sessionManager.setSessionItem('state', passedState);
+  }
+
   return routerClient.redirect(authUrl.toString());
 };

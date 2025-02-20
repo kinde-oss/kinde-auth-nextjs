@@ -15,6 +15,11 @@ export const createOrg = async (routerClient) => {
     routerClient.sessionManager,
     options,
   );
+  
+  const passedState = routerClient.searchParams.get('state');
+  if (passedState) {
+    routerClient.sessionManager.setSessionItem('state', passedState);
+  }
 
   return routerClient.redirect(authUrl.toString());
 };
