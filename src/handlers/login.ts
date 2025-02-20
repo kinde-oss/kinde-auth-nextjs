@@ -1,6 +1,7 @@
 import RouterClient from "../routerClients/RouterClient";
 import { isPreFetch } from "../utils/isPreFetch";
 import { getHeaders } from "../utils/getHeaders";
+import validateState from "../utils/validateState";
 
 /**
  *
@@ -12,9 +13,14 @@ export const login = async (routerClient: RouterClient) => {
     return null;
   }
 
-  const passedState = routerClient.searchParams.get('state');
+  const passedState = routerClient.searchParams.get("state");
+
+  if (validateState(passedState)) {
+    throw new Error("Invalid state supplied");
+  }
+
   if (passedState) {
-    routerClient.sessionManager.setSessionItem('state', passedState);
+    routerClient.sessionManager.setSessionItem("state", passedState);
   }
 
   const authUrl = await routerClient.kindeClient.login(

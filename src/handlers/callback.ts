@@ -62,16 +62,22 @@ export const callback = async (routerClient: RouterClient) => {
     return compiledRegex!.test(url);
   };
 
-  const state = await routerClient.sessionManager.getSessionItem("state") as string;
+  const state = (await routerClient.sessionManager.getSessionItem(
+    "state",
+  )) as string;
   await routerClient.sessionManager.removeSessionItem("state");
   if (postLoginRedirectURL && isRedirectAllowed(postLoginRedirectURL)) {
     if (postLoginRedirectURL.startsWith("http")) {
-      return routerClient.redirect(`${postLoginRedirectURL}${state ? '?state=' + state : ''}`);
+      return routerClient.redirect(
+        `${postLoginRedirectURL}${state ? "?state=" + state : ""}`,
+      );
     }
     return routerClient.redirect(
-      `${routerClient.clientConfig.siteUrl}${postLoginRedirectURL}${state ? '?state=' + state : ''}`,
+      `${routerClient.clientConfig.siteUrl}${postLoginRedirectURL}${state ? "?state=" + state : ""}`,
     );
   }
 
-  return routerClient.redirect(`${routerClient.clientConfig.siteUrl}${state ? '?state=' + state : ''}`);
+  return routerClient.redirect(
+    `${routerClient.clientConfig.siteUrl}${state ? "?state=" + state : ""}`,
+  );
 };
