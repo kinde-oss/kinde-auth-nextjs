@@ -14,11 +14,11 @@ export const createOrg = async (routerClient) => {
 
   const passedState = routerClient.searchParams.get("state");
 
-  if (validateState(passedState)) {
-    throw new Error("Invalid state supplied");
-  }
-
   if (passedState) {
+    if (!validateState(passedState)) {
+      throw new Error("Invalid state supplied");
+    }
+    
     routerClient.sessionManager.setSessionItem("state", passedState);
   }
 
