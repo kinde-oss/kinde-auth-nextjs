@@ -1,4 +1,5 @@
 import RouterClient from "../routerClients/RouterClient";
+import validateState from "../utils/validateState";
 
 /**
  *
@@ -10,6 +11,16 @@ export const createOrg = async (routerClient) => {
     org_name: org_name ?? undefined,
     is_create_org: true,
   };
+
+  const passedState = routerClient.searchParams.get("state");
+
+  if (passedState) {
+    if (!validateState(passedState)) {
+      throw new Error("Invalid state supplied");
+    }
+
+    routerClient.sessionManager.setSessionItem("state", passedState);
+  }
 
   const authUrl = await routerClient.kindeClient.createOrg(
     routerClient.sessionManager,
