@@ -18,6 +18,16 @@ export const getRolesFactory = (req, res) => async () => {
       await sessionManager(req, res),
       "roles",
     );
+
+    if (!roles) {
+      const hasuraRoles = await kindeClient.getClaimValue(
+        await sessionManager(req, res),
+        "x-hasura-roles",
+      );
+
+      return hasuraRoles;
+    }
+
     return roles;
   } catch (error) {
     if (config.isDebugMode) {

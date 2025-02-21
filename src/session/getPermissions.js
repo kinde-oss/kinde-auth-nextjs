@@ -17,6 +17,21 @@ export const getPermissionsFactory = (req, res) => async () => {
     const permissions = await kindeClient.getPermissions(
       await sessionManager(req, res),
     );
+    if (!permissions.permissions) {
+      const hasuraPermissions = await kindeClient.getClaimValue(
+        await sessionManager(req, res),
+        "x-hasura-permissions",
+      );
+
+      return {
+        permissions: hasuraPermissions,
+        orgCode: await kindeClient.getClaimValue(
+          await sessionManager(req, res),
+          "x-hasura-org-code",
+        ),
+      };
+    }
+
     return permissions;
   } catch (error) {
     if (config.isDebugMode) {
