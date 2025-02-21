@@ -1,5 +1,6 @@
 import { sessionManager } from "./sessionManager";
 import { kindeClient } from "./kindeServerClient";
+import { FlagDataType } from "@kinde-oss/kinde-typescript-sdk";
 
 /**
  * @callback getFlag
@@ -18,12 +19,44 @@ import { kindeClient } from "./kindeServerClient";
 export const getFlagFactory =
   (req, res) => async (code, defaultValue, flagType) => {
     try {
-      const flag = await kindeClient.getFlag(
-        await sessionManager(req, res),
+      const flags = {
+        ...(await getClaimValue(
+          sessionManager,
+          "feature_flags",
+          "access_token",
+        )),
+        ...(await getClaimValue(
+          sessionManager,
+          "x-hasura-feature-flags",
+          "access_token",
+        )),
+      };
+
+      const flag = featureFlags[code];
+
+      if (!flag && defaultValue === undefined) {
+        throw new Error(
+          `Flag ${code} was not found, and no default value has been provided`,
+        );
+      }
+
+      if (flag?.t && type && type !== flag?.t) {
+        throw new Error(
+          `Flag ${code} is of type ${FlagDataType[flag.t]}, expected type is ${
+            FlagDataType[type]
+          }`,
+        );
+      }
+
+      const response = {
+        is_default: flag?.v === undefined,
+        value: flag?.v ?? defaultValue,
         code,
-        defaultValue,
-        flagType,
-      );
+      };
+
+      if (!response.is_default) {
+        response.type = FlagDataType[flag?.t ?? type];
+      }
 
       return flag;
     } catch (error) {
