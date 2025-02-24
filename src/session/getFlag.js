@@ -1,6 +1,6 @@
 import { sessionManager } from "./sessionManager";
-import { kindeClient } from "./kindeServerClient";
 import { FlagDataType } from "@kinde-oss/kinde-typescript-sdk";
+import { kindeClient } from "./kindeServerClient";
 
 /**
  * @callback getFlag
@@ -19,17 +19,21 @@ import { FlagDataType } from "@kinde-oss/kinde-typescript-sdk";
 export const getFlagFactory =
   (req, res) => async (code, defaultValue, flagType) => {
     try {
-      const flags = {
-        ...(await getClaimValue(
-          sessionManager,
-          "feature_flags",
-          "access_token",
-        )),
-        ...(await getClaimValue(
-          sessionManager,
-          "x-hasura-feature-flags",
-          "access_token",
-        )),
+      const tokenFeatureFlags = await kindeClient.getClaimValue(
+        sessionManager,
+        "feature_flags",
+        "access_token",
+      );
+
+      const tokenHasuraFeatureFlags = await kindeClient.getClaimValue(
+        sessionManager,
+        "x-hasura-feature-flags",
+        "access_token",
+      );
+
+      const featureFlags = {
+        ...tokenFeatureFlags,
+        ...tokenHasuraFeatureFlags,
       };
 
       const flag = featureFlags[code];
@@ -40,25 +44,24 @@ export const getFlagFactory =
         );
       }
 
-      if (flag?.t && type && type !== flag?.t) {
+      if (flag?.t && flagType && flagType !== flag?.t) {
         throw new Error(
           `Flag ${code} is of type ${FlagDataType[flag.t]}, expected type is ${
-            FlagDataType[type]
+            FlagDataType[flagType]
           }`,
         );
       }
 
+      const isDefault = flag?.v === undefined;
       const response = {
-        is_default: flag?.v === undefined,
+        is_default: isDefault,
         value: flag?.v ?? defaultValue,
         code,
+        type: isDefault ? FlagDataType[flag?.t ?? flagType] : false,
+        defaultValue
       };
 
-      if (!response.is_default) {
-        response.type = FlagDataType[flag?.t ?? type];
-      }
-
-      return flag;
+      return response;
     } catch (error) {
       // @ts-ignore
       if (error.message.includes("no default value has been provided")) {

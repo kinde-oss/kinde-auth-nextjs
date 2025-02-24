@@ -1,6 +1,7 @@
 import { sessionManager } from "./sessionManager";
 import { kindeClient } from "./kindeServerClient";
 import { config } from "../config/index";
+
 /**
  * @callback getPermissions
  * @returns {Promise<import('../../types').KindePermissions | null>}
@@ -17,6 +18,7 @@ export const getPermissionsFactory = (req, res) => async () => {
     const permissions = await kindeClient.getPermissions(
       await sessionManager(req, res),
     );
+
     if (!permissions.permissions) {
       const hasuraPermissions = await kindeClient.getClaimValue(
         await sessionManager(req, res),
