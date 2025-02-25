@@ -10,11 +10,12 @@ export const getUserOrganizationsFactory =
     try {
       const session = await sessionManager(req, res);
       const userOrgs = await kindeClient.getUserOrganizations(session);
-      const orgNames = (await kindeClient.getClaimValue(
-        session,
-        "organizations",
-        "id_token",
-      )) as { id: string; name: string }[];
+      const orgNames =
+        ((await kindeClient.getClaimValue(
+          session,
+          "organizations",
+          "id_token",
+        )) as { id: string; name: string }[]) ?? [];
 
       const hasuraOrgCodes =
         ((await kindeClient.getClaimValue(
@@ -29,7 +30,6 @@ export const getUserOrganizationsFactory =
           "x-hasura-organizations",
           "id_token",
         )) as { id: string; name: string }[]) ?? [];
-
       return {
         orgCodes: [...userOrgs.orgCodes, ...hasuraOrgCodes],
         orgs: [...orgNames, ...hasuraOrganizations].map((org) => ({

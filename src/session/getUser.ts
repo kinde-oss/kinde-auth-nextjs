@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { KindeAccessToken, KindeIdToken, KindeUser } from "../../types";
 import { config } from "../config/index";
 import { generateUserObject } from "../utils/generateUserObject";
-import { sessionManager } from "./sessionManager";
 import { jwtDecoder } from "@kinde/jwt-decoder";
 import { getAccessToken } from "../utils/getAccessToken";
 import { getIdToken } from "../utils/getIdToken";

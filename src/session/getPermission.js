@@ -20,6 +20,16 @@ export const getPermissionFactory = (req, res) => async (name) => {
       await sessionManager(req, res),
       name,
     );
+
+    if (!permission.isGranted) {
+      const hasuraPermissions = await kindeClient.getClaimValue(
+        await sessionManager(req, res),
+        "x-hasura-permissions",
+      );
+      if (hasuraPermissions.includes(name)) {
+        return { isGranted: true, orgCode: permission.orgCode };
+      }
+    }
     return permission;
   } catch (error) {
     if (config.isDebugMode) {
