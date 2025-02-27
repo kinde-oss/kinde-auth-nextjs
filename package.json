@@ -49,8 +49,8 @@
     },
     "./types": {
       "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/types.js"
+        "types": "./dist/types.d.ts",
+        "default": "./dist/index.js"
       }
     }
   },
