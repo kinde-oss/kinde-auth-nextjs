@@ -3,7 +3,7 @@ import { kindeClient } from "./kindeServerClient";
 import { config } from "../config/index";
 /**
  * @callback getRoles
- * @returns {Promise<import('../../types').KindeRoles | null>}
+ * @returns {Promise<import('../types').KindeRoles | null>}
  */
 
 /**

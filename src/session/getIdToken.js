@@ -6,7 +6,7 @@ import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
 
 /**
  * @callback getIdToken
- * @returns {Promise<import('../../types').KindeIdToken>}
+ * @returns {Promise<import('../types').KindeIdToken>}
  */
 
 /**

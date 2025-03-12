@@ -9,3 +9,5 @@ export {
   LogoutLink,
   RegisterLink,
 } from "./components/index";
+
+export * from "./types";

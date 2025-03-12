@@ -2,7 +2,7 @@ import { sessionManager } from "./sessionManager";
 import { kindeClient } from "./kindeServerClient";
 import { config } from "../config/index";
 import { NextApiRequest, NextApiResponse } from "next";
-import { KindeOrganizations } from "../../types";
+import { KindeOrganizations } from "../types";
 
 export const getUserOrganizationsFactory =
   (req?: NextApiRequest, res?: NextApiResponse) =>

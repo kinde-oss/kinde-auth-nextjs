@@ -1,4 +1,4 @@
-import { KindeAccessToken, KindeIdToken, KindeUser } from "../../types";
+import { KindeAccessToken, KindeIdToken, KindeUser } from "../types";
 
 type CustomPropertyType = Record<string, any>;
 export const generateUserObject = (
