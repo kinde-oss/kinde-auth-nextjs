@@ -68,10 +68,9 @@ export const callback = async (routerClient: RouterClient) => {
   await routerClient.sessionManager.removeSessionItem("state");
 
   if (postLoginRedirectURL && isRedirectAllowed(postLoginRedirectURL)) {
-    const url = new URL(
-      `${postLoginRedirectURL.startsWith("http") ? "" : routerClient.clientConfig.siteUrl}`,
-      postLoginRedirectURL,
-    );
+    const url = postLoginRedirectURL.startsWith('http')
+			? new URL(postLoginRedirectURL)
+			: new URL(postLoginRedirectURL, routerClient.clientConfig.siteUrl);
     state && url.searchParams.set("state", state);
     return routerClient.redirect(url.toString());
   }
