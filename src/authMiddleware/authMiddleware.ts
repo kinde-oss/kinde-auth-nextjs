@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { config } from "../config/index";
-import { KindeAccessToken, KindeIdToken } from "../../types";
+import { KindeAccessToken, KindeIdToken } from "../types";
 import { jwtDecoder } from "@kinde/jwt-decoder";
 import { isTokenExpired } from "../utils/jwt/validation";
 import { getAccessToken } from "../utils/getAccessToken";

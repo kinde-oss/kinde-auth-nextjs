@@ -1,5 +1,5 @@
 import { jwtDecoder } from "@kinde/jwt-decoder";
-import { KindeAccessToken, KindeIdToken } from "../../types";
+import { KindeAccessToken, KindeIdToken } from "../types";
 import { config } from "../config/index";
 import { generateUserObject } from "../utils/generateUserObject";
 import { validateToken } from "@kinde/jwt-validator";

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { KindeAccessToken, KindeIdToken, KindeUser } from "../../types";
+import { KindeAccessToken, KindeIdToken, KindeUser } from "../types";
 import { config } from "../config/index";
 import { generateUserObject } from "../utils/generateUserObject";
 import { jwtDecoder } from "@kinde/jwt-decoder";
