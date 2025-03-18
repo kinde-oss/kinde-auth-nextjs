@@ -1,3 +1,4 @@
+// Keep .js extension - upstream issue, see https://github.com/vercel/next.js/pull/64529
 import { NextResponse } from "next/server.js";
 
 export default class RouterClient {

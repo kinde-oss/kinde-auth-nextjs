@@ -1,4 +1,5 @@
 import { config } from "../../config/index";
+// Keep .js extension - upstream issue, see https://github.com/vercel/next.js/pull/64529
 import { cookies } from "next/headers.js";
 import { GLOBAL_COOKIE_OPTIONS } from "../../session/sessionManager";
 

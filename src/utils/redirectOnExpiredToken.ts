@@ -1,3 +1,4 @@
+// Keep .js extension - upstream issue, see https://github.com/vercel/next.js/pull/64529
 import { redirect } from "next/navigation.js";
 import { isTokenExpired } from "./jwt/validation";
 import { config, routes } from "../config";
