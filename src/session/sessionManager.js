@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies } from "next/headers.js";
 import { isAppRouter } from "../utils/isAppRouter";
 import { config } from "../config/index";
 import {

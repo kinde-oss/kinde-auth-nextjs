@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getHeaders } from "./getHeaders";
-import { NextRequest } from "next/server";
+import { NextRequest } from "next/server.js";
 import { NextApiRequest } from "next";
 
 // Default mock for next/headers
 const defaultHeadersMock = vi.fn(() => new Headers({ "x-test": "test-value" }));
 
-vi.mock("next/headers", () => ({
+vi.mock("next/headers.js", () => ({
   headers: defaultHeadersMock,
 }));
 

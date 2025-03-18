@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server.js";
 import { config } from "../config/index";
 import { KindeAccessToken, KindeIdToken } from "../../types";
 import { jwtDecoder } from "@kinde/jwt-decoder";

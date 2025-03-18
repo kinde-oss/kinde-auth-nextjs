@@ -2,7 +2,7 @@ import {
   RequestCookies,
   ResponseCookies,
 } from "next/dist/server/web/spec-extension/cookies";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server.js";
 
 export const copyCookiesToRequest = (req: NextRequest, res: NextResponse) => {
   const setCookies = new ResponseCookies(res.headers);

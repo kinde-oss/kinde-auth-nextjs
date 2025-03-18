@@ -2,7 +2,7 @@ import { config } from "../config";
 import { sessionManager } from "../session/sessionManager";
 import { NextApiRequest, NextApiResponse } from "next";
 import { validateToken } from "./jwt/validation";
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server.js";
 
 export const getAccessToken = async (
   req: NextApiRequest,

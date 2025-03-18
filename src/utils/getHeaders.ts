@@ -1,6 +1,6 @@
 import { NextApiRequest } from "next";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
-import { NextRequest } from "next/server";
+import { NextRequest } from "next/server.js";
 
 export const getHeaders = async (req?: NextRequest | NextApiRequest) => {
   if (req) {
@@ -9,7 +9,7 @@ export const getHeaders = async (req?: NextRequest | NextApiRequest) => {
   } else {
     try {
       // dynamically import headers on app router environments in Next >=13 (it didn't exist prior to 13)
-      const { headers } = await import("next/headers");
+      const { headers } = await import("next/headers.js");
       const heads = await headers();
       return heads;
     } catch (error) {

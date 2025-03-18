@@ -1,5 +1,5 @@
 import { config } from "../config/index";
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server.js";
 import { validateClientSecret } from "@kinde-oss/kinde-typescript-sdk";
 
 /**

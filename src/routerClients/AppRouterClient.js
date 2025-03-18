@@ -1,6 +1,6 @@
 import { createKindeServerClient } from "@kinde-oss/kinde-typescript-sdk";
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { cookies } from "next/headers.js";
+import { NextResponse } from "next/server.js";
 import { config } from "../config/index";
 import { appRouterSessionManager } from "../session/sessionManager";
 import RouterClient from "./RouterClient";

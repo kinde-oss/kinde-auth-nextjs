@@ -1,6 +1,6 @@
 import kinde from "../session/index";
-import { redirect } from "next/navigation";
-import { NextResponse } from "next/server";
+import { redirect } from "next/navigation.js";
+import { NextResponse } from "next/server.js";
 import { routes } from "../config";
 
 /**

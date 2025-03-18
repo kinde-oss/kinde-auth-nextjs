@@ -1,5 +1,5 @@
 import { config } from "../../config/index";
-import { cookies } from "next/headers";
+import { cookies } from "next/headers.js";
 import { GLOBAL_COOKIE_OPTIONS } from "../../session/sessionManager";
 
 export const setVerifierCookie = async (state, code_verifier, options) => {

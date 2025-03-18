@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { redirect } from "next/navigation.js";
 import { isTokenExpired } from "./jwt/validation";
 import { config, routes } from "../config";
 

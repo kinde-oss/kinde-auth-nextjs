@@ -1,7 +1,7 @@
 import { getUserFactory } from "./getUser";
 import { getAccessToken } from "../utils/getAccessToken";
 import { isTokenExpired } from "../utils/jwt/validation";
-import { redirect } from "next/navigation";
+import { redirect } from "next/navigation.js";
 import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
 import { config } from "../config/index";
 
