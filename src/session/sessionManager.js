@@ -37,7 +37,7 @@ export const sessionManager = async (req, res) => {
 
 /**
  *
- * @param {import("next/dist/server/web/spec-extension/adapters/request-cookies").ReadonlyRequestCookies} cookieStore
+ * @param {import("next/dist/server/web/spec-extension/adapters/request-cookies.js").ReadonlyRequestCookies} cookieStore
  * @returns {import('@kinde-oss/kinde-typescript-sdk').SessionManager}
  */
 export const appRouterSessionManager = (cookieStore) => ({

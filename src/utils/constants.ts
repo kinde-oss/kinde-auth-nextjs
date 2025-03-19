@@ -1,4 +1,4 @@
-import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import type { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 export const TWENTY_NINE_DAYS = 2505600;
 
