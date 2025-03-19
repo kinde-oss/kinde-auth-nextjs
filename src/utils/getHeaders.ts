@@ -1,5 +1,4 @@
 import { NextApiRequest } from "next";
-import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 // Keep .js extension - upstream issue, see https://github.com/vercel/next.js/pull/64529
 import { NextRequest } from "next/server.js";
 
