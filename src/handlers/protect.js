@@ -1,6 +1,7 @@
 import kinde from "../session/index";
-import { redirect } from "next/navigation";
-import { NextResponse } from "next/server";
+// Keep .js extensions - upstream issue, see https://github.com/vercel/next.js/pull/64529
+import { redirect } from "next/navigation.js";
+import { NextResponse } from "next/server.js";
 import { routes } from "../config";
 
 /**

@@ -2,7 +2,8 @@ import {
   RequestCookies,
   ResponseCookies,
 } from "next/dist/server/web/spec-extension/cookies";
-import { NextRequest, NextResponse } from "next/server";
+// Keep .js extension - upstream issue, see https://github.com/vercel/next.js/pull/64529
+import { NextRequest, NextResponse } from "next/server.js";
 
 export const copyCookiesToRequest = (req: NextRequest, res: NextResponse) => {
   const setCookies = new ResponseCookies(res.headers);

@@ -2,7 +2,8 @@ import { config } from "../config";
 import { sessionManager } from "../session/sessionManager";
 import { NextApiRequest, NextApiResponse } from "next";
 import { validateToken } from "./jwt/validation";
-import { NextResponse } from "next/server";
+// Keep .js extension - upstream issue, see https://github.com/vercel/next.js/pull/64529
+import { NextResponse } from "next/server.js";
 
 export const getAccessToken = async (
   req: NextApiRequest,

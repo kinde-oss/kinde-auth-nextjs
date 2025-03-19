@@ -23,9 +23,9 @@ export default {
     },
   ],
   external: [
-    "next/server",
-    "next/navigation",
-    "next/headers",
+    "next/server.js",
+    "next/navigation.js",
+    "next/headers.js",
     "react",
     "@kinde-oss/kinde-typescript-sdk",
     "@kinde/jwt-decoder",

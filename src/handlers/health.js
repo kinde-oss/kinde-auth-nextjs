@@ -1,5 +1,6 @@
 import { config } from "../config/index";
-import { NextResponse } from "next/server";
+// Keep .js extension - upstream issue, see https://github.com/vercel/next.js/pull/64529
+import { NextResponse } from "next/server.js";
 import { validateClientSecret } from "@kinde-oss/kinde-typescript-sdk";
 
 /**

@@ -1,4 +1,5 @@
-import { cookies } from "next/headers";
+// Keep .js extension - upstream issue, see https://github.com/vercel/next.js/pull/64529
+import { cookies } from "next/headers.js";
 import { isAppRouter } from "../utils/isAppRouter";
 import { config } from "../config/index";
 import {

@@ -1,6 +1,7 @@
 import { createKindeServerClient } from "@kinde-oss/kinde-typescript-sdk";
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+// Keep .js extensions - upstream issue, see https://github.com/vercel/next.js/pull/64529
+import { cookies } from "next/headers.js";
+import { NextResponse } from "next/server.js";
 import { config } from "../config/index";
 import { appRouterSessionManager } from "../session/sessionManager";
 import RouterClient from "./RouterClient";
