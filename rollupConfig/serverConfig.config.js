@@ -30,7 +30,7 @@ export default {
     "@kinde-oss/kinde-typescript-sdk",
     "@kinde/jwt-decoder",
     "@kinde/jwt-validator",
-    "next/dist/server/web/spec-extension/cookies",
+    "next/dist/server/web/spec-extension/cookies.js",
     "cookie",
   ],
 };

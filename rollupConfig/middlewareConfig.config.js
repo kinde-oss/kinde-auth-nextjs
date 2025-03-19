@@ -30,6 +30,6 @@ export default {
     "@kinde/jwt-validator",
     "cookie",
     "next/headers.js",
-    "next/dist/server/web/spec-extension/cookies"
+    "next/dist/server/web/spec-extension/cookies.js"
   ],
 };
