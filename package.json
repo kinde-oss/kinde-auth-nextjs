@@ -60,7 +60,7 @@
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "release": "release-it",
-    "lint": "eslint --ignore-path .eslintignore",
+    "lint": "eslint",
     "lint:fix": "prettier --write .",
     "dev": "cd playground && pnpm run dev"
   },
