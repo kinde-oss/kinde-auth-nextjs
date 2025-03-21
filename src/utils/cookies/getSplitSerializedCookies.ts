@@ -1,4 +1,3 @@
-import { serialize, SerializeOptions } from "cookie";
 import {
   GLOBAL_COOKIE_OPTIONS,
   MAX_COOKIE_LENGTH,
