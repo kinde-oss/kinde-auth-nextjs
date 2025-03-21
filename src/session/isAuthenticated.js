@@ -1,8 +1,7 @@
 import { getUserFactory } from "./getUser";
 import { getAccessToken } from "../utils/getAccessToken";
 import { isTokenExpired } from "../utils/jwt/validation";
-// Keep .js extension - upstream issue, see https://github.com/vercel/next.js/pull/64529
-import { redirect } from "next/navigation.js";
+import { redirect } from "next/navigation";
 import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
 import { config } from "../config/index";
 

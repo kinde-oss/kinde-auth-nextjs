@@ -1,5 +1,4 @@
-// Keep .js extension - upstream issue, see https://github.com/vercel/next.js/pull/64529
-import { cookies } from "next/headers.js";
+import { cookies } from "next/headers";
 import { isAppRouter } from "../utils/isAppRouter";
 import { config } from "../config/index";
 import {
@@ -9,7 +8,7 @@ import {
   COOKIE_LIST,
 } from "../utils/constants";
 import { splitString } from "../utils/splitString";
-import cookie from "cookie";
+import * as cookie from "cookie";
 
 /**
  *

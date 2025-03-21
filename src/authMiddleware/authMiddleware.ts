@@ -1,5 +1,4 @@
-// Keep .js extension - upstream issue, see https://github.com/vercel/next.js/pull/64529
-import { NextResponse } from "next/server.js";
+import { NextResponse } from "next/server";
 import { config } from "../config/index";
 import { KindeAccessToken, KindeIdToken } from "../../types";
 import { jwtDecoder } from "@kinde/jwt-decoder";
