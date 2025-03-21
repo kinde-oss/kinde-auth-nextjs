@@ -8,7 +8,7 @@ import {
   COOKIE_LIST,
 } from "../utils/constants";
 import { splitString } from "../utils/splitString";
-import cookie from "cookie";
+import * as cookie from "cookie";
 
 /**
  *
