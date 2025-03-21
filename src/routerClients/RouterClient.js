@@ -1,5 +1,4 @@
-// Keep .js extension - upstream issue, see https://github.com/vercel/next.js/pull/64529
-import { NextResponse } from "next/server.js";
+import { NextResponse } from "next/server";
 
 export default class RouterClient {
   /** @type {import('../../types').KindeClientConfig} */

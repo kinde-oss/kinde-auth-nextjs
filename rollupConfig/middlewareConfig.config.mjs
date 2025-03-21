@@ -25,11 +25,11 @@ export default {
   ],
   external: [
     "@kinde-oss/kinde-typescript-sdk",
-    "next/server.js",
+    "next/server",
     "@kinde/jwt-decoder",
     "@kinde/jwt-validator",
     "cookie",
-    "next/headers.js",
+    "next/headers",
     "next/dist/server/web/spec-extension/cookies"
   ],
 };
