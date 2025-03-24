@@ -20,13 +20,12 @@ export const getFlagFactory =
   (req, res) => async (code, defaultValue, flagType) => {
     try {
       const tokenFeatureFlags = await kindeClient.getClaimValue(
-        sessionManager,
+        await sessionManager(req, res),
         "feature_flags",
         "access_token",
       );
-
       const tokenHasuraFeatureFlags = await kindeClient.getClaimValue(
-        sessionManager,
+        await sessionManager(req, res),
         "x-hasura-feature-flags",
         "access_token",
       );
@@ -55,7 +54,7 @@ export const getFlagFactory =
       const isDefault = flag?.v === undefined;
       const response = {
         is_default: isDefault,
-        value: flag?.v ?? defaultValue,
+        value: flag?.v === undefined ? defaultValue : flag?.v,
         code,
         type: isDefault ? FlagDataType[flag?.t ?? flagType] : false,
         defaultValue
