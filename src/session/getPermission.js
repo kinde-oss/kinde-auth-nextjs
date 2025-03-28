@@ -5,7 +5,7 @@ import { config } from "../config/index";
 /**
  * @callback getPermission
  *  @param {string} name
- * @returns {Promise<import('../../types').KindePermission | null>}
+ * @returns {Promise<import('../types').KindePermission | null>}
  */
 
 /**

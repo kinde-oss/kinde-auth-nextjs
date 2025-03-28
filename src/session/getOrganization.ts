@@ -1,21 +1,17 @@
 import { jwtDecoder } from "@kinde/jwt-decoder";
-import { KindeAccessToken, KindeIdToken } from "../../types";
+import { KindeAccessToken, KindeIdToken, KindeOrganization } from "../types";
 import { config } from "../config/index";
 import { generateOrganizationObject } from "../utils/generateOrganizationObject";
 import { sessionManager } from "./sessionManager";
 import { getAccessToken } from "../utils/getAccessToken";
-/**
- * @callback getOrganization
- * @returns {Promise<import('../../types').KindeOrganization | null>}
- */
 
 /**
  *
  * @param {import('next').NextApiRequest} [req]
  * @param {import('next').NextApiResponse} [res]
- * @returns {getOrganization}
+ * @returns {KindeOrganization}
  */
-export const getOrganizationFactory = (req, res) => async () => {
+export const getOrganizationFactory = (req, res) => async (): Promise<KindeOrganization> => {
   try {
     const idTokenString = await (
       await sessionManager(req, res)

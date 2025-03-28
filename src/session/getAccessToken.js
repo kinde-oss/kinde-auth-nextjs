@@ -5,7 +5,7 @@ import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
 
 /**
  * @callback getAccessToken
- * @returns {Promise<import('../../types.js').KindeAccessToken | undefined>}
+ * @returns {Promise<import('../types.js').KindeAccessToken | undefined>}
  */
 
 /**

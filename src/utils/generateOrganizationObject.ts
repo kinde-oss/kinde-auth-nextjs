@@ -1,4 +1,4 @@
-import { KindeAccessToken, KindeIdToken } from "../../types";
+import { KindeAccessToken, KindeIdToken, KindeOrganization } from "../types";
 
 type OrgPropertyKey =
   | "city"
@@ -29,7 +29,7 @@ const getOrgProperty = (
 export const generateOrganizationObject = (
   idToken: KindeIdToken,
   accessToken: KindeAccessToken,
-) => {
+): KindeOrganization => {
   const orgCode = accessToken.org_code || accessToken["x-hasura-org-code"];
   const orgName = accessToken.org_name || accessToken["x-hasura-org-name"];
   if (!orgCode) {
@@ -40,12 +40,12 @@ export const generateOrganizationObject = (
     orgCode,
     orgName,
     properties: {
-      city: getOrgProperty("city", idToken, accessToken),
-      industry: getOrgProperty("industry", idToken, accessToken),
-      postcode: getOrgProperty("postcode", idToken, accessToken),
-      state_region: getOrgProperty("state_region", idToken, accessToken),
-      street_address: getOrgProperty("street_address", idToken, accessToken),
-      street_address_2: getOrgProperty(
+      org_city: getOrgProperty("city", idToken, accessToken),
+      org_industry: getOrgProperty("industry", idToken, accessToken),
+      org_postcode: getOrgProperty("postcode", idToken, accessToken),
+      org_state_region: getOrgProperty("state_region", idToken, accessToken),
+      org_street_address: getOrgProperty("street_address", idToken, accessToken),
+      org_street_address_2: getOrgProperty(
         "street_address_2",
         idToken,
         accessToken,
