@@ -9,7 +9,7 @@
     ".": {
       "import": {
         "types": "./dist/types/index.d.ts",
-        "default": "./dist/index.js"
+        "default": "./dist/index.es.js"
       },
       "require": {
         "types": "./dist/types/index.d.ts",
@@ -19,31 +19,31 @@
     "./server": {
       "import": {
         "types": "./dist/types/server/index.d.ts",
-        "default": "./dist/server/index.js"
+        "default": "./dist/server.es.js"
       },
       "require": {
         "types": "./dist/types/server/index.d.ts",
-        "default": "./dist/server/index.cjs.js"
+        "default": "./dist/server.cjs.js"
       }
     },
     "./components": {
       "import": {
         "types": "./dist/types/components/index.d.ts",
-        "default": "./dist/components/index.js"
+        "default": "./dist/components.es.js"
       },
       "require": {
         "types": "./dist/types/components/index.d.ts",
-        "default": "./dist/components/index.cjs.js"
+        "default": "./dist/components.cjs.js"
       }
     },
     "./middleware": {
       "import": {
         "types": "./dist/types/middleware/index.d.ts",
-        "default": "./dist/middleware/index.js"
+        "default": "./dist/middleware.es.js"
       },
       "require": {
         "types": "./dist/types/middleware/index.d.ts",
-        "default": "./dist/middleware/index.cjs.js"
+        "default": "./dist/middleware.cjs.js"
       }
     },
     "./types": {
