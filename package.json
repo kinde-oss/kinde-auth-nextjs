@@ -54,9 +54,9 @@
     }
   },
   "scripts": {
-    "build": "npx tsc && cp types.d.ts dist/types.d.ts && genversion --es6 src/utils/version.js && rollup -c",
-    "prepare": "genversion --es6 src/utils/version.js && rollup -c",
-    "build:watch": "genversion --es6 src/utils/version.js && rollup -c -w",
+    "build": "genversion --es6 src/utils/version.js && vite build && cp types.d.ts dist/types.d.ts",
+    "prepare": "genversion --es6 src/utils/version.js && vite build",
+    "build:watch": "genversion --es6 src/utils/version.js && vite build --watch",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "release": "release-it",
