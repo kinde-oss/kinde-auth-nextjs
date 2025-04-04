@@ -75,7 +75,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     }
 
     try {
-      refreshResponse = await kindeClient.refreshTokens(session);
+      refreshResponse = await kindeClient.refreshTokens(session, false);
       kindeAccessToken = refreshResponse.access_token;
       kindeIdToken = refreshResponse.id_token;
 
