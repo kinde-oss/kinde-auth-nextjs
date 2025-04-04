@@ -97,6 +97,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       });
 
+      resp.cookies.set('refresh_token', refreshResponse.refresh_token)
+
       // copy the cookies from the response to the request
       // in Next versions prior to 14.2.8, the cookies function
       // reads the Set-Cookie header from the *request* object, not the *response* object
