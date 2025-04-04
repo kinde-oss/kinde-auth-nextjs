@@ -45,6 +45,13 @@ export default defineConfig({
         dir: 'dist',
       },
       plugins: [preserveDirectives()],
+      onwarn: ({code, message}) => {
+        // See https://github.com/Ephem/rollup-plugin-preserve-directives?tab=readme-ov-file#rollup-warning
+        if(code === 'MODULE_LEVEL_DIRECTIVE') {
+          return;
+        }
+        console.warn(message);
+      }
     },
   },
   resolve: {
