@@ -21,14 +21,12 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 export default function (req?: NextApiRequest, res?: NextApiResponse) {
   return {
-    /**
-     * This method is designed to work exclusively with the Pages Router in Next.js.
-     * It is not compatible with the App Router.
-     *
-     * App Router users should use the `refreshData` method in `useKindeBrowserClient` instead.
-     */
     refreshTokens: async () => {
       try {
+        // this will ALWAYS fail in an RSC as Cookies cannot be modified there.
+        // refreshTokens is technically available in an RSC via getKindeServerSession,
+        // but it won't work.
+        // Maybe we should provide user feedback on this?
         const response = await kindeClient.refreshTokens(
           await sessionManager(req, res),
         );
