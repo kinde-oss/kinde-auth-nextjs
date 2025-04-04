@@ -30,10 +30,15 @@ export const useKindeBrowserClient = (
   });
 
   useEffect(() => {
-    refreshData();
+    fetchKindeState();
   }, []);
 
   const refreshData = async () => {
+    await refreshTokensServerAction();
+    await fetchKindeState();
+  }
+
+  const fetchKindeState = async () => {
     const setupUrl = `${apiPath}/${routes.setup}`;
     const res = await fetch(setupUrl);
     const { message, error, ...kindeData } = await res.json();
