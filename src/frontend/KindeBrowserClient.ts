@@ -212,7 +212,7 @@ export const useKindeBrowserClient = (
    */
   const getAccessTokenRaw = () => {
     //@ts-ignore
-    return state.accessTokenEncoded;
+    return getState().accessTokenEncoded;
   };
 
   /**
