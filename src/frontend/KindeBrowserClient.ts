@@ -3,7 +3,15 @@ import { flagDataTypeMap } from "./AuthProvider.jsx";
 import { config } from "../config/index.js";
 import { routes } from "../config/index.js";
 import { useSyncState } from "./hooks/use-sync-state.js";
-import { refreshTokensServerAction } from "../session/refreshTokensServerAction.js";
+
+const getRefreshTokensServerAction = async () => {
+  try {
+    const { refreshTokensServerAction } = await import("../session/refreshTokensServerAction.js");
+    return refreshTokensServerAction;
+  } catch (error) {
+    return null;
+  }
+};
 
 /**
  *
@@ -34,8 +42,13 @@ export const useKindeBrowserClient = (
   }, []);
 
   const refreshData = async () => {
-    await refreshTokensServerAction();
-    await fetchKindeState();
+    const refreshTokens = await getRefreshTokensServerAction();
+    if(refreshTokens) {
+      await refreshTokens();
+      await fetchKindeState();
+    } else {
+        console.warn("[Kinde] refreshData is only available in Next.js App Router environments, version 14 or higher.");
+    }
   }
 
   const fetchKindeState = async () => {
