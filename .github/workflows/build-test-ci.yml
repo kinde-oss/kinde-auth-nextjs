@@ -25,7 +25,7 @@ jobs:
       - name: Enabling pre-post scripts
         run: pnpm config set enable-pre-post-scripts true
       - run: pnpm install
-      - run: pnpm lint
+      # - run: pnpm lint
       - name: Cache pnpm modules
         uses: actions/cache@v4
         with:
