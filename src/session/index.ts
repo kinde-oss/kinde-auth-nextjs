@@ -52,7 +52,7 @@ const sessionHandler = (
     code: string,
     defaultValue: number,
   ) => Promise<number> | null | undefined;
-  getOrganization: () => Promise<KindeOrganization>;
+  getOrganization: <T>() => Promise<KindeOrganization<T>>;
   getPermission: (key: string) => Promise<KindePermission> | null;
   getPermissions: () => Promise<KindePermissions | null>;
   getStringFlag: (

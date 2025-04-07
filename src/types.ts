@@ -194,19 +194,15 @@ export type KindeFlag = {
   is_default: boolean;
 };
 
-export type KindeOrganization = {
+export type KindeProperties = {
+  [key: string]: string | number | boolean;
+};
+
+export type KindeOrganization<T = KindeFlagTypeValue> = {
   orgCode: string | null;
   orgName?: string | null;
-  properties?: {
-    org_city?: string;
-    org_country?: string;
-    org_industry?: string;
-    org_postcode?: string;
-    org_state_region?: string;
-    org_street_address?: string;
-    org_street_address_2?: string;
-  };
-};
+  properties?: T;
+}
 
 export type KindeOrganizations = {
   orgCodes: string[];
@@ -333,7 +329,7 @@ export type KindeState = {
     code: string,
     defaultValue: number,
   ) => number | null | undefined;
-  getOrganization: () => KindeOrganization;
+  getOrganization: <T>() => KindeOrganization<T>;
   getPermission: (
     key: string,
   ) => { isGranted: boolean; orgCode: string | null } | null;

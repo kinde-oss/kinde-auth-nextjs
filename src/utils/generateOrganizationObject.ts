@@ -1,4 +1,9 @@
-import { KindeAccessToken, KindeIdToken, KindeOrganization } from "../types";
+import {
+  KindeAccessToken,
+  KindeIdToken,
+  KindeOrganization,
+  KindeProperties,
+} from "../types";
 
 type OrgPropertyKey =
   | "city"
@@ -13,6 +18,15 @@ const getOrgProperty = (
   idToken: KindeIdToken,
   accessToken: KindeAccessToken,
 ): string | undefined => {
+  const properties = getOrgProperties(idToken, accessToken);
+
+  return (properties[`kp_org_${key}`] || properties[`kp_org_${key}`]) as string;
+};
+
+const getOrgProperties = <T = KindeProperties>(
+  idToken: KindeIdToken,
+  accessToken: KindeAccessToken,
+): T | undefined => {
   const orgIdTokenProperties =
     idToken.organization_properties ||
     idToken["x-hasura-organization_properties"] ||
@@ -21,15 +35,39 @@ const getOrgProperty = (
     accessToken.organization_properties ||
     accessToken["x-hasura-organization_properties"] ||
     {};
-  const idValue = orgIdTokenProperties[`kp_org_${key}`]?.v;
-  const accessValue = orgAccessTokenProperties[`kp_org_${key}`]?.v;
-  return idValue || accessValue;
+
+  const combined: { t: "b" | "s" | "i"; value: unknown } = {
+    ...orgIdTokenProperties,
+    ...orgAccessTokenProperties,
+  };
+
+  const result: T = {} as T;
+  Object.keys(combined).forEach((key) => {
+    // console.log("key", key);
+    if (combined[key].t === "b") {
+      result[key] = combined[key].v as boolean;
+    } else if (combined[key].t === "s") {
+      result[key] = combined[key].v as string;
+    } else {
+      result[key] = combined[key].v as number;
+    }
+  });
+
+  return {
+    org_city: result['kp_org_city'],
+    org_industry: result["industry"],
+    org_postcode: result["postcode"],
+    org_state_region: result["state_region"],
+    org_street_address: result["street_address"],
+    org_street_address_2: result["street_address_2"],
+    ...result,
+  };
 };
 
-export const generateOrganizationObject = (
+export const generateOrganizationObject = <T = KindeProperties>(
   idToken: KindeIdToken,
   accessToken: KindeAccessToken,
-): KindeOrganization => {
+): KindeOrganization<T> => {
   const orgCode = accessToken.org_code || accessToken["x-hasura-org-code"];
   const orgName = accessToken.org_name || accessToken["x-hasura-org-name"];
   if (!orgCode) {
@@ -39,17 +77,7 @@ export const generateOrganizationObject = (
   return {
     orgCode,
     orgName,
-    properties: {
-      org_city: getOrgProperty("city", idToken, accessToken),
-      org_industry: getOrgProperty("industry", idToken, accessToken),
-      org_postcode: getOrgProperty("postcode", idToken, accessToken),
-      org_state_region: getOrgProperty("state_region", idToken, accessToken),
-      org_street_address: getOrgProperty("street_address", idToken, accessToken),
-      org_street_address_2: getOrgProperty(
-        "street_address_2",
-        idToken,
-        accessToken,
-      ),
-    },
+    properties: getOrgProperties<T>(idToken, accessToken),
   };
+
 };
