@@ -6,7 +6,6 @@ import {
   useCallback,
   useEffect,
 } from "react";
-import React from "react";
 /** @type {Record<import('../types').KindeFlagTypeCode, import('../types').KindeFlagTypeValue>} */
 export const flagDataTypeMap = {
   s: "string",
