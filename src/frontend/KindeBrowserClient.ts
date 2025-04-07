@@ -2,6 +2,16 @@ import { useEffect, useState } from "react";
 import { flagDataTypeMap } from "./AuthProvider.jsx";
 import { config } from "../config/index.js";
 import { routes } from "../config/index.js";
+import { useSyncState } from "./hooks/use-sync-state.js";
+
+const getRefreshTokensServerAction = async () => {
+  try {
+    const { refreshTokensServerAction } = await import("../session/refreshTokensServerAction.js");
+    return refreshTokensServerAction;
+  } catch (error) {
+    return null;
+  }
+};
 
 /**
  *
@@ -12,7 +22,7 @@ export const useKindeBrowserClient = (
     process.env.KINDE_AUTH_API_PATH ||
     "/api/auth",
 ) => {
-  const [state, setState] = useState({
+  const [getState, setState] = useSyncState({
     accessToken: null,
     accessTokenRaw: null,
     error: null,
@@ -28,19 +38,29 @@ export const useKindeBrowserClient = (
   });
 
   useEffect(() => {
-    refreshData();
+    fetchKindeState();
   }, []);
 
   const refreshData = async () => {
+    const refreshTokens = await getRefreshTokensServerAction();
+    if(refreshTokens) {
+      await refreshTokens();
+      await fetchKindeState();
+    } else {
+        console.warn("[Kinde] refreshData is only available in Next.js App Router environments, version 14 or higher.");
+    }
+  }
+
+  const fetchKindeState = async () => {
     const setupUrl = `${apiPath}/${routes.setup}`;
     const res = await fetch(setupUrl);
     const { message, error, ...kindeData } = await res.json();
     if (!res.ok) {
-      setState((prev) => ({
-        ...prev,
+      setState({
+        ...getState(),
         isLoading: false,
         error: `${message}: ${error || "An error occurred"}`,
-      }));
+      });
       return;
     }
 
@@ -52,17 +72,17 @@ export const useKindeBrowserClient = (
         });
         break;
       case "NOT_LOGGED_IN":
-        setState((prev) => ({
-          ...prev,
+        setState({
+          ...getState(),
           isLoading: false,
-        }));
+        });
         break;
       default:
-        setState((prev) => ({
-          ...prev,
+        setState({
+          ...getState(),
           isLoading: false,
           error: `${message}: ${error || "An error occurred"}`,
-        }));
+        });
     }
   };
 
@@ -74,7 +94,7 @@ export const useKindeBrowserClient = (
    * @returns {import('../../types.js').KindeFlag}
    */
   const getFlag = (code, defaultValue, flagType) => {
-    const flags = state.featureFlags || [];
+    const flags = getState().featureFlags || [];
     const flag = flags && flags[code] ? flags[code] : null;
 
     if (!flag && defaultValue == undefined) {
@@ -169,7 +189,7 @@ export const useKindeBrowserClient = (
    */
   const getClaim = (claim, tokenKey = "access_token") => {
     const token =
-      tokenKey === "access_token" ? state.accessToken : state.idToken;
+      tokenKey === "access_token" ? getState().accessToken : getState().idToken;
     return token ? { name: claim, value: token[claim] } : null;
   };
 
@@ -177,14 +197,14 @@ export const useKindeBrowserClient = (
    * @returns {import('../../types.js').KindeAccessToken | null}
    */
   const getAccessToken = () => {
-    return state.accessToken;
+    return getState().accessToken;
   };
   /**
    * @returns {string | null}
    */
   const getToken = () => {
     //@ts-ignore
-    return state.accessTokenEncoded;
+    return getState().accessTokenEncoded;
   };
 
   /**
@@ -192,38 +212,38 @@ export const useKindeBrowserClient = (
    */
   const getAccessTokenRaw = () => {
     //@ts-ignore
-    return state.accessTokenEncoded;
+    return getState().accessTokenEncoded;
   };
 
   /**
    * @returns {string | null}
    */
   const getIdTokenRaw = () => {
-    return state.idTokenRaw;
+    return getState().idTokenRaw;
   };
   /**
    * @returns {import('../../types.js').KindeIdToken | null}
    */
   const getIdToken = () => {
-    return state.idToken;
+    return getState().idToken;
   };
   /**
    * @returns {import('../../types.js').KindeOrganization | null}
    */
   const getOrganization = () => {
-    return state.organization;
+    return getState().organization;
   };
   /**
    * @returns {import('../../types.js').KindePermissions | never[]}
    */
   const getPermissions = () => {
-    return state.permissions;
+    return getState().permissions;
   };
   /**
    * @returns {import('../../types.js').KindeOrganizations | never[]}
    */
   const getUserOrganizations = () => {
-    return state.userOrganizations;
+    return getState().userOrganizations;
   };
   /**
    *
@@ -231,19 +251,19 @@ export const useKindeBrowserClient = (
    * @returns {import('../../types.js').KindePermission}
    */
   const getPermission = (key) => {
-    if (!state.permissions) return { isGranted: false, orgCode: null };
+    if (!getState().permissions) return { isGranted: false, orgCode: null };
 
     return {
       //@ts-ignore
-      isGranted: state.permissions.permissions?.some((p) => p === key),
-      orgCode: state.organization?.orgCode,
+      isGranted: getState().permissions.permissions?.some((p) => p === key),
+      orgCode: getState().organization?.orgCode,
     };
   };
 
   return {
-    ...state,
-    isAuthenticated: !!state.user,
-    getUser: () => state.user,
+    ...getState(),
+    isAuthenticated: !!getState().user,
+    getUser: () => getState().user,
     getIdTokenRaw,
     getPermission,
     getBooleanFlag,
