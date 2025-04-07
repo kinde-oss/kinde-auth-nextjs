@@ -18,8 +18,11 @@ import { getRolesFactory } from "./getRoles";
 import { getClaimFactory } from "./getClaim";
 import { config } from "../config/index";
 import { NextApiRequest, NextApiResponse } from "next";
+import { connection } from "next/server";
 
-export default function (req?: NextApiRequest, res?: NextApiResponse) {
+export default async function (req?: NextApiRequest, res?: NextApiResponse) {
+  // This will prevent NextJS generating a static page where this function is called if no other Dynamic APIs are used.
+  await connection();
   return {
     refreshTokens: async () => {
       try {
@@ -28,7 +31,7 @@ export default function (req?: NextApiRequest, res?: NextApiResponse) {
         // but it won't work.
         // Maybe we should provide user feedback on this?
         const response = await kindeClient.refreshTokens(
-          await sessionManager(req, res),
+          await sessionManager(req, res)
         );
         return response;
       } catch (error) {
