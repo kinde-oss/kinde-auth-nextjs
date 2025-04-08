@@ -4,6 +4,7 @@ import {
   KindeOrganization,
   KindeProperties,
 } from "../types";
+import removeUndefined from "./removeUndefined";
 
 type OrgPropertyKey =
   | "city"
@@ -53,8 +54,8 @@ const getOrgProperties = <T = KindeProperties>(
     }
   });
 
-  return {
-    org_city: result['kp_org_city'],
+  const orgProperties = {
+    org_city: result["kp_org_city"],
     org_industry: result["industry"],
     org_postcode: result["postcode"],
     org_state_region: result["state_region"],
@@ -62,6 +63,8 @@ const getOrgProperties = <T = KindeProperties>(
     org_street_address_2: result["street_address_2"],
     ...result,
   };
+
+  return removeUndefined<T>(orgProperties);
 };
 
 export const generateOrganizationObject = <T = KindeProperties>(
@@ -79,5 +82,4 @@ export const generateOrganizationObject = <T = KindeProperties>(
     orgName,
     properties: getOrgProperties<T>(idToken, accessToken),
   };
-
 };
