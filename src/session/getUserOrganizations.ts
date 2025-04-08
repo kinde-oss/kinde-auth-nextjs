@@ -10,13 +10,20 @@ export const getUserOrganizationsFactory =
     try {
       const session = await sessionManager(req, res);
       const userOrgs = await kindeClient.getUserOrganizations(session);
-      const orgNames =
-        ((await kindeClient.getClaimValue(
-          session,
-          "organizations",
-          "id_token",
-        )) as { id: string; name: string }[]) ?? [];
+      console.log('here')
+      const idTokenOrgs = await kindeClient.getClaimValue(
+        session,
+        "organizations",
+        "id_token",
+      ) as { id: string; name: string }[] ?? []
+      const idTokenHasuraOrgs = await kindeClient.getClaimValue(
+        session,
+        "x-hasura-organizations",
+        "id_token",
+      ) as { id: string; name: string }[] ?? []
 
+      const orgNames = [...idTokenOrgs, ...idTokenHasuraOrgs]
+        
       const hasuraOrgCodes =
         ((await kindeClient.getClaimValue(
           session,
@@ -24,19 +31,21 @@ export const getUserOrganizationsFactory =
           "id_token",
         )) as string[]) ?? [];
 
-      const hasuraOrganizations =
-        ((await kindeClient.getClaimValue(
-          session,
-          "x-hasura-organizations",
-          "id_token",
-        )) as { id: string; name: string }[]) ?? [];
-      return {
+      const mappedOrgs = [...orgNames].map((org) => ({
+        code: org?.id,
+        name: org?.name,
+      }))
+
+      const result: KindeOrganizations = {
         orgCodes: [...userOrgs.orgCodes, ...hasuraOrgCodes],
-        orgs: [...orgNames, ...hasuraOrganizations].map((org) => ({
-          code: org?.id,
-          name: org?.name,
-        })),
-      };
+        orgs: mappedOrgs,
+      }
+
+      if (mappedOrgs.length > 0) {
+        console.warn("Warning: organizations are not in ID token so names are missing.");
+      }
+
+      return result;
     } catch (error) {
       if (config.isDebugMode) {
         console.debug("getUserOrganization error:", error);
