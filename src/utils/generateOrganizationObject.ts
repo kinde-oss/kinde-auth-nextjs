@@ -14,16 +14,6 @@ type OrgPropertyKey =
   | "street_address"
   | "street_address_2";
 
-const getOrgProperty = (
-  key: OrgPropertyKey,
-  idToken: KindeIdToken,
-  accessToken: KindeAccessToken,
-): string | undefined => {
-  const properties = getOrgProperties(idToken, accessToken);
-
-  return (properties[`kp_org_${key}`] || properties[`kp_org_${key}`]) as string;
-};
-
 const getOrgProperties = <T = KindeProperties>(
   idToken: KindeIdToken,
   accessToken: KindeAccessToken,
