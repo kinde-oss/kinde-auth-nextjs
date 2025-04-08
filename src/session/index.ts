@@ -59,7 +59,7 @@ const sessionHandler = (
     code: string,
     defaultValue: string,
   ) => Promise<string> | null | undefined;
-  getUser: <T = Record<string, any>>() => Promise<KindeUser<T>>;
+  getUser: <T = Record<string, any>>() => Promise<KindeUser<T> | null>;
   getUserOrganizations: () => Promise<KindeOrganizations | null>;
   isAuthenticated: () => Promise<boolean> | null;
   getRoles: () => Promise<KindeRoles | null>;
