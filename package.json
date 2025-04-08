@@ -48,7 +48,7 @@
     },
     "./types": {
       "import": {
-        "types": "./dist/types.d.ts",
+        "types": "./dist/types/types.d.ts",
         "default": "./dist/index.js"
       }
     }
