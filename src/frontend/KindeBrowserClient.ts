@@ -14,8 +14,8 @@ import {
   KindePermissions,
   KindeState,
   KindeUser,
-} from "src/types.js";
-import { generateOrganizationObject } from "src/utils/generateOrganizationObject.js";
+} from "../types.js";
+import { generateOrganizationObject } from "../utils/generateOrganizationObject.js";
 
 const getRefreshTokensServerAction = async () => {
   try {
