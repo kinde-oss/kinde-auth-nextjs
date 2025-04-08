@@ -30,7 +30,7 @@ const getRefreshTokensServerAction = async () => {
 
 /**
  *
- * @returns {import('src/types.js').KindeState}
+ * @returns {KindeState}
  */
 export const useKindeBrowserClient = (
   apiPath = process.env.NEXT_PUBLIC_KINDE_AUTH_API_PATH ||
@@ -231,7 +231,7 @@ export const useKindeBrowserClient = (
   };
 
   /**
-   * @returns {import('src/types.js').KindeAccessToken | null}
+   * @returns {KindeAccessToken | null}
    */
   const getAccessToken = (): KindeAccessToken | null => {
     return getState().accessToken;
@@ -257,13 +257,13 @@ export const useKindeBrowserClient = (
     return getState().idTokenRaw;
   };
   /**
-   * @returns {import('src/types.js').KindeIdToken | null}
+   * @returns {KindeIdToken | null}
    */
   const getIdToken = (): KindeIdToken | null => {
     return getState().idToken;
   };
   /**
-   * @returns {import('src/types.js').KindeOrganization | null}
+   * @returns {KindeOrganization | null}
    */
   const getOrganization = <T>(): KindeOrganization<T> | null => {
     return generateOrganizationObject<T>(
@@ -272,13 +272,13 @@ export const useKindeBrowserClient = (
     );
   };
   /**
-   * @returns {import('src/types.js').KindePermissions | null}
+   * @returns {KindePermissions | null}
    */
   const getPermissions = (): KindePermissions | null => {
     return getState().permissions;
   };
   /**
-   * @returns {import('src/types.js').KindeOrganizations | null}
+   * @returns {KindeOrganizations | null}
    */
   const getUserOrganizations = (): KindeOrganizations | null => {
     return getState().userOrganizations;
@@ -286,7 +286,7 @@ export const useKindeBrowserClient = (
   /**
    *
    * @param {string} key
-   * @returns {import('src/types.js').KindePermission}
+   * @returns {KindePermission}
    */
   const getPermission = (key): KindePermission => {
     if (!getState().permissions) return { isGranted: false, orgCode: null };
