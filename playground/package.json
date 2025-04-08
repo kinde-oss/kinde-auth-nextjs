@@ -8,7 +8,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@kinde-oss/kinde-auth-nextjs": "latest",
+    "@kinde-oss/kinde-auth-nextjs": "link:..",
     "@types/node": "latest",
     "eslint-config-next": "latest",
     "next": "latest",
