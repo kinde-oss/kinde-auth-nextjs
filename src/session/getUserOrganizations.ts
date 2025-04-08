@@ -10,7 +10,7 @@ export const getUserOrganizationsFactory =
     try {
       const session = await sessionManager(req, res);
       const userOrgs = await kindeClient.getUserOrganizations(session);
-      console.log("here");
+
       const idTokenOrgs =
         ((await kindeClient.getClaimValue(
           session,
