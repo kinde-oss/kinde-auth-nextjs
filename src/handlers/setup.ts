@@ -99,13 +99,6 @@ export const setup = async (routerClient: RouterClient) => {
     const orgProperties = accessToken.organization_properties;
     const orgNames = idToken.organizations;
 
-    if (!accessToken.permissions || !idToken.org_codes) {
-      return routerClient.json(
-        { message: "MISSING_REQUIRED_CLAIMS" },
-        { status: 500 },
-      );
-    }
-
     return routerClient.json({
       accessToken,
       accessTokenEncoded,
