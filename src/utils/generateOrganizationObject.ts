@@ -3,6 +3,7 @@ import {
   KindeIdToken,
   KindeOrganization,
   KindeProperties,
+  KindeProperty,
 } from "../types";
 import removeUndefined from "./removeUndefined";
 
@@ -19,22 +20,22 @@ const getOrgProperties = <T = KindeProperties>(
   accessToken: KindeAccessToken,
 ): T | undefined => {
   const orgIdTokenProperties =
-    idToken.organization_properties ||
+    (idToken.organization_properties ||
     idToken["x-hasura-organization_properties"] ||
-    {};
+    {}) as KindeProperty
   const orgAccessTokenProperties =
-    accessToken.organization_properties ||
+    (accessToken.organization_properties ||
     accessToken["x-hasura-organization_properties"] ||
-    {};
+    {}) as KindeProperty
 
-  const combined: { t: "b" | "s" | "i"; value: unknown } = {
+  const combined: KindeProperty = {
     ...orgIdTokenProperties,
     ...orgAccessTokenProperties,
   };
 
   const result: T = {} as T;
   Object.keys(combined).forEach((key) => {
-    // console.log("key", key);
+
     if (combined[key].t === "b") {
       result[key] = combined[key].v as boolean;
     } else if (combined[key].t === "s") {
