@@ -247,7 +247,7 @@ export const useKindeBrowserClient = (
    * @returns {string | null}
    */
   const getAccessTokenRaw = (): string | null => {
-    return getAccessTokenRaw();
+    return getToken();
   };
 
   /**
