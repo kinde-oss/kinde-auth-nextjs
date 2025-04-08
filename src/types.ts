@@ -202,7 +202,7 @@ export type KindeOrganization<T = KindeFlagTypeValue> = {
   orgCode: string;
   orgName?: string | null;
   properties?: T;
-}
+};
 
 export type KindeOrganizations = {
   orgCodes: string[];

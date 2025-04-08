@@ -3,12 +3,25 @@ import { flagDataTypeMap } from "./AuthProvider.jsx";
 import { config } from "../config/index.js";
 import { routes } from "../config/index.js";
 import { useSyncState } from "./hooks/use-sync-state.js";
-import { KindeAccessToken, KindeFlag, KindeFlagTypeCode, KindeIdToken, KindeOrganization, KindeOrganizations, KindePermission, KindePermissions, KindeState, KindeUser } from "src/types.js";
+import {
+  KindeAccessToken,
+  KindeFlag,
+  KindeFlagTypeCode,
+  KindeIdToken,
+  KindeOrganization,
+  KindeOrganizations,
+  KindePermission,
+  KindePermissions,
+  KindeState,
+  KindeUser,
+} from "src/types.js";
 import { generateOrganizationObject } from "src/utils/generateOrganizationObject.js";
 
 const getRefreshTokensServerAction = async () => {
   try {
-    const { refreshTokensServerAction } = await import("../session/refreshTokensServerAction.js");
+    const { refreshTokensServerAction } = await import(
+      "../session/refreshTokensServerAction.js"
+    );
     return refreshTokensServerAction;
   } catch (error) {
     return null;
@@ -58,13 +71,15 @@ export const useKindeBrowserClient = (
 
   const refreshData = async () => {
     const refreshTokens = await getRefreshTokensServerAction();
-    if(refreshTokens) {
+    if (refreshTokens) {
       await refreshTokens();
       await fetchKindeState();
     } else {
-        console.warn("[Kinde] refreshData is only available in Next.js App Router environments, version 14 or higher.");
+      console.warn(
+        "[Kinde] refreshData is only available in Next.js App Router environments, version 14 or higher.",
+      );
     }
-  }
+  };
 
   const fetchKindeState = async () => {
     const setupUrl = `${apiPath}/${routes.setup}`;
@@ -108,7 +123,11 @@ export const useKindeBrowserClient = (
    * @param {KindeFlagTypeCode} flagType
    * @returns {KindeFlag}
    */
-  const getFlag = (code: string, defaultValue: string | number | boolean, flagType: KindeFlagTypeCode): KindeFlag => {
+  const getFlag = (
+    code: string,
+    defaultValue: string | number | boolean,
+    flagType: KindeFlagTypeCode,
+  ): KindeFlag => {
     const flags = getState().featureFlags || [];
     const flag = flags && flags[code] ? flags[code] : null;
 
@@ -202,7 +221,10 @@ export const useKindeBrowserClient = (
    * @param {"access_token" | "id_token"} tokenKey
    * @returns
    */
-  const getClaim = (claim: string, tokenKey: "access_token" | "id_token" = "access_token") => {
+  const getClaim = (
+    claim: string,
+    tokenKey: "access_token" | "id_token" = "access_token",
+  ) => {
     const token =
       tokenKey === "access_token" ? getState().accessToken : getState().idToken;
     return token ? { name: claim, value: token[claim] } : null;
@@ -246,7 +268,8 @@ export const useKindeBrowserClient = (
   const getOrganization = <T>(): KindeOrganization<T> | null => {
     return generateOrganizationObject<T>(
       getState().idToken,
-      getState().accessToken);
+      getState().accessToken,
+    );
   };
   /**
    * @returns {import('src/types.js').KindePermissions | null}

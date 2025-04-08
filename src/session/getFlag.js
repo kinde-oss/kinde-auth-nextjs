@@ -57,7 +57,7 @@ export const getFlagFactory =
         value: flag?.v === undefined ? defaultValue : flag?.v,
         code,
         type: isDefault ? FlagDataType[flag?.t ?? flagType] : false,
-        defaultValue
+        defaultValue,
       };
 
       return response;
