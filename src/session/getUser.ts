@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { KindeAccessToken, KindeIdToken, KindeUser } from "../types";
+import { KindeAccessToken, KindeIdToken, KindeProperties, KindeUser } from "../types";
 import { config } from "../config/index";
 import { generateUserObject } from "../utils/generateUserObject";
 import { jwtDecoder } from "@kinde/jwt-decoder";
@@ -8,7 +8,7 @@ import { getIdToken } from "../utils/getIdToken";
 
 export const getUserFactory =
   (req: NextApiRequest, res: NextApiResponse) =>
-  async <T = Record<string, any>>(): Promise<KindeUser<T>> => {
+  async <T = KindeProperties>(): Promise<KindeUser<T>> => {
     try {
       const rawToken = await getIdToken(req, res);
       if (!rawToken) {

@@ -1,4 +1,5 @@
 import { KindeAccessToken, KindeIdToken, KindeUser } from "../types";
+import removeUndefined from "./removeUndefined";
 
 type CustomPropertyType = Record<string, any>;
 export const generateUserObject = (
@@ -16,7 +17,16 @@ export const generateUserObject = (
   };
   let res = user;
 
-  const properties = idToken.user_properties || accessToken.user_properties;
+  const orgIdTokenProperties =
+    idToken.user_properties ||
+    idToken["x-hasura-user_properties"] ||
+    {};
+  const orgAccessTokenProperties =
+    accessToken.user_properties ||
+    accessToken["x-hasura-user_properties"] ||
+    {};
+
+  const properties = {...orgIdTokenProperties, ...orgAccessTokenProperties }
 
   if (properties) {
     const {
@@ -30,19 +40,18 @@ export const generateUserObject = (
       kp_usr_state_region: stateRegionObj,
       kp_usr_street_address: streetAddressObj,
       kp_usr_street_address_2: streetAddress2Obj,
-      ...rest
     } = properties;
 
-    const sanitizedRest: Record<string, any> = Object.keys(rest).reduce(
+    const sanitizedRest: Record<string, any> = Object.keys(properties).reduce(
       (acc, key) => {
-        acc[key] = rest[key]?.v;
+        acc[key] = properties[key]?.v;
         return acc;
       },
       {},
     );
     res = {
-      ...user,
-      properties: {
+      ...removeUndefined(user),
+      properties: removeUndefined({
         city: cityObj?.v,
         industry: industryObj?.v,
         is_marketing_opt_in: isMarketingOptInObj?.v,
@@ -54,7 +63,7 @@ export const generateUserObject = (
         street_address: streetAddressObj?.v,
         street_address_2: streetAddress2Obj?.v,
         ...sanitizedRest,
-      },
+      }),
     };
   }
   return res;
