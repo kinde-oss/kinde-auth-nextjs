@@ -70,11 +70,11 @@ const getOrgProperties = <T = KindeProperties>(
 export const generateOrganizationObject = <T = KindeProperties>(
   idToken: KindeIdToken,
   accessToken: KindeAccessToken,
-): KindeOrganization<T> => {
+): KindeOrganization<T> | null => {
   const orgCode = accessToken.org_code || accessToken["x-hasura-org-code"];
   const orgName = accessToken.org_name || accessToken["x-hasura-org-name"];
   if (!orgCode) {
-    throw new Error("Missing required organization fields in access token");
+    return null;
   }
 
   return {

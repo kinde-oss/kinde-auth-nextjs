@@ -19,7 +19,7 @@ interface GetOrganizationFactoryParams {
 export const getOrganizationFactory = <T = KindeProperties>(
   req: GetOrganizationFactoryParams['req'],
   res: GetOrganizationFactoryParams['res']
-) => async (): Promise<KindeOrganization<T>> => {
+) => async (): Promise<KindeOrganization<T> | null> => {
   try {
     const idTokenString = await (
       await sessionManager(req, res)
