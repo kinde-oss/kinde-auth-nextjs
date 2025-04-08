@@ -9,6 +9,8 @@ import {
   UserType,
 } from "@kinde-oss/kinde-typescript-sdk";
 
+export type KindeProperty = { t: "b" | "s" | "i"; value: unknown }
+
 export type KindeAccessToken = {
   aud: string[];
   azp: string;
@@ -198,10 +200,19 @@ export type KindeProperties = {
   [key: string]: string | number | boolean;
 };
 
-export type KindeOrganization<T = KindeFlagTypeValue> = {
+export type KindeOrganizationProperties<T = Record<string, any>> = {
+    kp_org_city?: string
+    kp_org_industr?: string
+    kp_org_postcode?: string
+    kp_org_tate_region?: string
+    kp_org_street_address?: string
+    kp_org_street_address_2?: string
+} & T
+
+export type KindeOrganization<T = void> = {
   orgCode: string;
   orgName?: string | null;
-  properties?: T;
+  properties?: KindeOrganizationProperties<T>;
 };
 
 export type KindeOrganizations = {
