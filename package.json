@@ -54,7 +54,7 @@
     }
   },
   "scripts": {
-    "build": "genversion --es6 src/utils/version.js && vite build && cp types.d.ts dist/types.d.ts",
+    "build": "genversion --es6 src/utils/version.js && vite build",
     "build:watch": "genversion --es6 src/utils/version.js && vite build --watch",
     "test": "vitest",
     "test:coverage": "vitest --coverage",

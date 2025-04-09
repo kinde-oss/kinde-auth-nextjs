@@ -103,7 +103,7 @@ importers:
   playground:
     dependencies:
       '@kinde-oss/kinde-auth-nextjs':
-        specifier: latest
+        specifier: link:..
         version: link:..
       '@types/node':
         specifier: latest
