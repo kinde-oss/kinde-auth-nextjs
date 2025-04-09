@@ -48,12 +48,12 @@ const getOrgProperties = <T = KindeProperties>(
   const orgProperties = {
     // Keep the original keys for backwards compatibility
     // will be deprecated in the future
-    org_city: result["kp_org_city"],
-    org_industry: result["kp_org_industry"],
-    org_postcode: result["kp_org_postcode"],
-    org_state_region: result["kp_org_state_region"],
-    org_street_address: result["kp_org_street_address"],
-    org_street_address_2: result["kp_org_street_address_2"],
+    city: result["kp_org_city"],
+    industry: result["kp_org_industry"],
+    postcode: result["kp_org_postcode"],
+    state_region: result["kp_org_state_region"],
+    street_address: result["kp_org_street_address"],
+    street_address_2: result["kp_org_street_address_2"],
     ...result,
   };
 
