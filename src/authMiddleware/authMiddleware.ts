@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { config } from "../config/index";
+import { config, routes } from "../config/index";
 import { KindeAccessToken, KindeIdToken } from "../types";
 import { jwtDecoder } from "@kinde/jwt-decoder";
 import { isTokenExpired } from "../utils/jwt/validation";
@@ -10,12 +10,12 @@ import { getSplitCookies } from "../utils/cookies/getSplitSerializedCookies";
 import { getIdToken } from "../utils/getIdToken";
 import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
-import { routes } from "../config/index";
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname } = req.nextUrl;
 
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
+  const orgCode: string | undefined = options?.orgCode;
   const loginPage = options?.loginPage || `${config.apiPath}/${routes.login}`;
   const callbackPage = `${config.apiPath}/kinde_callback`;
   const registerPage = `${config.apiPath}/${routes.register}`;
@@ -35,8 +35,19 @@ const handleMiddleware = async (req, options, onSuccess) => {
     }
   }
 
-  const loginRedirectUrl = isReturnToCurrentPage
-    ? `${loginPage}?post_login_redirect_url=${pathname}`
+  const loginRedirectUrlParams = new URLSearchParams();
+
+  if (orgCode) {
+    loginRedirectUrlParams.set("org_code", orgCode);
+  }
+
+  if (isReturnToCurrentPage) {
+    loginRedirectUrlParams.set("post_login_redirect_url", pathname);
+  }
+
+  const queryString = loginRedirectUrlParams.toString();
+  const loginRedirectUrl = queryString
+    ? `${loginPage}?${queryString}`
     : loginPage;
 
   const isPublicPath = publicPaths.some((p) => {
