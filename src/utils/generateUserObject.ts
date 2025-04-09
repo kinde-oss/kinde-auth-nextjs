@@ -18,15 +18,13 @@ export const generateUserObject = (
   let res = user;
 
   const orgIdTokenProperties =
-    idToken.user_properties ||
-    idToken["x-hasura-user_properties"] ||
-    {};
+    idToken.user_properties || idToken["x-hasura-user_properties"] || {};
   const orgAccessTokenProperties =
     accessToken.user_properties ||
     accessToken["x-hasura-user_properties"] ||
     {};
 
-  const properties = {...orgIdTokenProperties, ...orgAccessTokenProperties }
+  const properties = { ...orgIdTokenProperties, ...orgAccessTokenProperties };
 
   if (properties) {
     const {

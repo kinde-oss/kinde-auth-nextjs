@@ -19,14 +19,12 @@ const getOrgProperties = <T = KindeProperties>(
   idToken: KindeIdToken,
   accessToken: KindeAccessToken,
 ): T | undefined => {
-  const orgIdTokenProperties =
-    (idToken.organization_properties ||
+  const orgIdTokenProperties = (idToken.organization_properties ||
     idToken["x-hasura-organization_properties"] ||
-    {}) as KindeProperty
-  const orgAccessTokenProperties =
-    (accessToken.organization_properties ||
+    {}) as KindeProperty;
+  const orgAccessTokenProperties = (accessToken.organization_properties ||
     accessToken["x-hasura-organization_properties"] ||
-    {}) as KindeProperty
+    {}) as KindeProperty;
 
   const combined: KindeProperty = {
     ...orgIdTokenProperties,
@@ -35,7 +33,6 @@ const getOrgProperties = <T = KindeProperties>(
 
   const result: T = {} as T;
   Object.keys(combined).forEach((key) => {
-
     if (combined[key].t === "b") {
       result[key] = combined[key].v as boolean;
     } else if (combined[key].t === "s") {

@@ -368,7 +368,7 @@ describe("generateUserObject", () => {
       picture:
         "https://lh3.googleusercontent.com/a/ACg8ocJy7qVlRTf6YhuE5u6Z1FK30BvfXNK5OoMydpzct5oXFrUDRQ=s96-c",
       username: "peteswah",
-      properties: {}
+      properties: {},
     });
   });
 });

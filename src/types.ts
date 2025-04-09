@@ -9,7 +9,7 @@ import {
   UserType,
 } from "@kinde-oss/kinde-typescript-sdk";
 
-export type KindeProperty = { t: "b" | "s" | "i"; value: unknown }
+export type KindeProperty = { t: "b" | "s" | "i"; value: unknown };
 
 export type KindeAccessToken = {
   aud: string[];
@@ -201,13 +201,13 @@ export type KindeProperties = {
 };
 
 export type KindeOrganizationProperties<T = Record<string, any>> = {
-    kp_org_city?: string
-    kp_org_industr?: string
-    kp_org_postcode?: string
-    kp_org_tate_region?: string
-    kp_org_street_address?: string
-    kp_org_street_address_2?: string
-} & T
+  kp_org_city?: string;
+  kp_org_industr?: string;
+  kp_org_postcode?: string;
+  kp_org_tate_region?: string;
+  kp_org_street_address?: string;
+  kp_org_street_address_2?: string;
+} & T;
 
 export type KindeOrganization<T = void> = {
   orgCode: string;
