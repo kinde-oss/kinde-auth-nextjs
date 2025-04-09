@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [22.x]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
@@ -26,7 +26,7 @@ jobs:
       - name: Enabling pre-post scripts
         run: pnpm config set enable-pre-post-scripts true
       - run: pnpm install
-      # - run: pnpm lint
+      - run: pnpm lint
       - name: Cache pnpm modules
         uses: actions/cache@v4
         with:

@@ -2,11 +2,12 @@
   // Change this to match your project
   "include": ["src/**/*"],
   "compilerOptions": {
-    // "jsx": "react",
-    // Tells TypeScript to read JS files, as
-    // normally they are ignored as source files
     "allowJs": true,
+    "baseUrl": ".",
     "jsx": "react",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": ["es6", "dom"],
     // Generate d.ts files
     "declaration": true,
     // This compiler run should
@@ -22,7 +23,7 @@
     "declarationMap": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "declarationDir": "./dist/types",
+    "declarationDir": "./dist/types"
     // "checkJs": true,
     // "strict": true
   }

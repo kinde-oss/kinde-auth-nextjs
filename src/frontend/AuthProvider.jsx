@@ -6,8 +6,7 @@ import {
   useCallback,
   useEffect,
 } from "react";
-import React from "react";
-/** @type {Record<import('../../types').KindeFlagTypeCode, import('../../types').KindeFlagTypeValue>} */
+/** @type {Record<import('../types').KindeFlagTypeCode, import('../types').KindeFlagTypeValue>} */
 export const flagDataTypeMap = {
   s: "string",
   i: "integer",
@@ -21,14 +20,14 @@ const AuthContext = createContext({
 
 /**
  *
- * @returns {import('../../types').KindeState}
+ * @returns {import('../types').KindeState}
  */
 export const useKindeAuth = () => useContext(AuthContext);
 
 /**
  *
  * @param {string} url
- * @returns {Promise<import('../../types').KindeSetupResponse | undefined>}
+ * @returns {Promise<import('../types').KindeSetupResponse | undefined>}
  */
 const tokenFetcher = async (url) => {
   let response;
@@ -101,8 +100,8 @@ export const KindeProvider = ({ children }) => {
        *
        * @param {string} code
        * @param {number | string | boolean} defaultValue
-       * @param {import('../../types').KindeFlagTypeCode} flagType
-       * @returns {import('../../types').KindeFlag}
+       * @param {import('../types').KindeFlagTypeCode} flagType
+       * @returns {import('../types').KindeFlag}
        */
       const getFlag = (code, defaultValue, flagType) => {
         const flags = featureFlags;
@@ -190,7 +189,7 @@ export const KindeProvider = ({ children }) => {
       /**
        *
        * @param {string} key
-       * @returns {import('../../types').KindePermission}
+       * @returns {import('../types').KindePermission}
        */
       const getPermission = (key) => {
         return {

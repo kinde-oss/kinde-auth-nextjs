@@ -1,16 +1,15 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "2.5.1",
+  "version": "2.6.0",
   "description": "Kinde Auth SDK for NextJS",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
   "typings": "dist/types/index.d.ts",
-  "type": "module",
   "exports": {
     ".": {
       "import": {
         "types": "./dist/types/index.d.ts",
-        "default": "./dist/index.js"
+        "default": "./dist/index.es.js"
       },
       "require": {
         "types": "./dist/types/index.d.ts",
@@ -20,48 +19,47 @@
     "./server": {
       "import": {
         "types": "./dist/types/server/index.d.ts",
-        "default": "./dist/server/index.js"
+        "default": "./dist/server.es.js"
       },
       "require": {
         "types": "./dist/types/server/index.d.ts",
-        "default": "./dist/server/index.cjs.js"
+        "default": "./dist/server.cjs.js"
       }
     },
     "./components": {
       "import": {
         "types": "./dist/types/components/index.d.ts",
-        "default": "./dist/components/index.js"
+        "default": "./dist/components.es.js"
       },
       "require": {
         "types": "./dist/types/components/index.d.ts",
-        "default": "./dist/components/index.cjs.js"
+        "default": "./dist/components.cjs.js"
       }
     },
     "./middleware": {
       "import": {
         "types": "./dist/types/middleware/index.d.ts",
-        "default": "./dist/middleware/index.js"
+        "default": "./dist/middleware.es.js"
       },
       "require": {
         "types": "./dist/types/middleware/index.d.ts",
-        "default": "./dist/middleware/index.cjs.js"
+        "default": "./dist/middleware.cjs.js"
       }
     },
     "./types": {
       "import": {
-        "types": "./dist/types.d.ts",
+        "types": "./dist/types/types.d.ts",
         "default": "./dist/index.js"
       }
     }
   },
   "scripts": {
-    "build": "npx tsc && cp types.d.ts dist/types.d.ts && genversion --es6 src/utils/version.js && rollup -c",
-    "prepare": "genversion --es6 src/utils/version.js && rollup -c",
-    "build:watch": "genversion --es6 src/utils/version.js && rollup -c -w",
+    "build": "genversion --es6 src/utils/version.js && vite build",
+    "build:watch": "genversion --es6 src/utils/version.js && vite build --watch",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "release": "release-it",
-    "lint": "eslint",
+    "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
     "dev": "cd playground && pnpm run dev"
   },
@@ -77,36 +75,35 @@
   "bugs": "https://github.com/kinde-oss/kinde-auth-nextjs",
   "homepage": "https://kinde.com",
   "devDependencies": {
-    "@babel/core": "^7.26.7",
-    "@babel/preset-react": "^7.26.3",
-    "@babel/preset-typescript": "^7.26.0",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-typescript": "^12.1.2",
+    "@eslint/eslintrc": "^3.3.0",
+    "@eslint/js": "^9.22.0",
     "@testing-library/react": "^16.2.0",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "3.0.7",
+    "ajv": "^8.17.1",
     "changelogen": "^0.6.0",
-    "eslint": "^9.20.0",
+    "eslint": "^9.22.0",
     "eslint-config-prettier": "^10.0.1",
     "genversion": "^3.2.0",
+    "globals": "^16.0.0",
     "happy-dom": "^17.0.0",
     "prettier": "^3.4.2",
     "release-it": "^18.1.2",
-    "rollup": "^4.34.6",
-    "rollup-plugin-terser": "^7.0.2",
-    "tslib": "^2.8.1",
+    "rollup-plugin-preserve-directives": "^0.4.0",
     "typescript": "^5.7.3",
+    "vite": "^6.2.5",
+    "vite-plugin-dts": "^4.5.3",
     "vitest": "^3.0.5"
   },
   "peerDependencies": {
-    "next": "^12.2.5 || ^13 || ^14 || ^15",
+    "next": "^12.3.5 || ^13.5.9 || ^14.2.25 || ^15.2.3",
     "react": "^18 || ^19",
     "react-dom": "^18 || ^19"
   },
   "dependencies": {
-    "@babel/preset-env": "^7.26.7",
-    "@kinde-oss/kinde-typescript-sdk": "2.9.1",
+    "@kinde-oss/kinde-typescript-sdk": "2.10.1",
     "@kinde/jwt-decoder": "^0.2.0",
     "@kinde/jwt-validator": "^0.4.0",
     "cookie": "^1.0.2",
@@ -118,11 +115,7 @@
     "package.json",
     "package-lock.json",
     "readme.md",
-    "dist",
-    "server",
-    "components",
-    "middleware",
-    "types.d.ts"
+    "dist"
   ],
   "packageManager": "pnpm@8.15.9+sha512.499434c9d8fdd1a2794ebf4552b3b25c0a633abcee5bb15e7b5de90f32f47b513aca98cd5cfd001c31f0db454bc3804edccd578501e4ca293a6816166bbd9f81"
 }

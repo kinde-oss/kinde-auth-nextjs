@@ -14,7 +14,13 @@ const compat = new FlatCompat({
 });
 
 export default defineConfig([
-  globalIgnores(["**/node_modules", "**/dist", "**/.DS_Store", "**/coverage"]),
+  globalIgnores([
+    "**/node_modules",
+    "**/dist",
+    "**/.DS_Store",
+    "**/coverage",
+    "**/.next",
+  ]),
   {
     extends: compat.extends("eslint:recommended", "prettier"),
 
@@ -26,6 +32,9 @@ export default defineConfig([
       ecmaVersion: 13,
       sourceType: "module",
     },
+
     rules: {},
+
+    ignores: [],
   },
 ]);

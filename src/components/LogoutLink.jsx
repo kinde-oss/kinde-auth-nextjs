@@ -1,10 +1,8 @@
-import React from "react";
 import { config, routes } from "../config/index";
-
 /**
  * @typedef {Object} PropsType
  * @prop {React.ReactNode} children
- * @prop {string} [orgName]
+ * @prop {string} [postLogoutRedirectURL]
  *
  * @typedef {PropsType & React.AnchorHTMLAttributes<HTMLAnchorElement>} Props
  */
@@ -12,11 +10,13 @@ import { config, routes } from "../config/index";
 /**
  * @param {Props} props
  */
-export function CreateOrgLink({ children, orgName, ...props }) {
+export function LogoutLink({ children, postLogoutRedirectURL, ...props }) {
   return (
     <a
-      href={`${config.apiPath}/${routes.createOrg}${
-        orgName ? `?org_name=${orgName}` : ""
+      href={`${config.apiPath}/${routes.logout}${
+        postLogoutRedirectURL
+          ? `?post_logout_redirect_url=${postLogoutRedirectURL}`
+          : ""
       }`}
       {...props}
     >
