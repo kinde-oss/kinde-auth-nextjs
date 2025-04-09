@@ -1,5 +1,5 @@
 import { generateOrganizationObject } from "../../src/utils/generateOrganizationObject"; // Assuming the function is exported from utils file
-import { KindeAccessToken, KindeIdToken } from "../../types";
+import { KindeAccessToken, KindeIdToken } from "../../src/types";
 import { describe, expect, it } from "vitest";
 
 describe("generateOrganizationObject", () => {
@@ -145,6 +145,10 @@ describe("generateOrganizationObject", () => {
         industry: "Software",
         postcode: "2165",
         state_region: "NSW",
+        kp_org_city: "Sydney",
+        kp_org_industry: "Software",
+        kp_org_postcode: "2165",
+        kp_org_state_region: "NSW",
       },
     });
   });
@@ -159,6 +163,10 @@ describe("generateOrganizationObject", () => {
         industry: "Software",
         postcode: "2165",
         state_region: "NSW",
+        kp_org_city: "Sydney",
+        kp_org_industry: "Software",
+        kp_org_postcode: "2165",
+        kp_org_state_region: "NSW",
       },
     });
   });
@@ -173,6 +181,10 @@ describe("generateOrganizationObject", () => {
         industry: "Software",
         postcode: "2165",
         state_region: "NSW",
+        kp_org_city: "Sydney",
+        kp_org_industry: "Software",
+        kp_org_postcode: "2165",
+        kp_org_state_region: "NSW",
       },
     });
   });

@@ -1,4 +1,11 @@
-import { KindeAccessToken, KindeIdToken } from "../../types";
+import {
+  KindeAccessToken,
+  KindeIdToken,
+  KindeOrganization,
+  KindeProperties,
+  KindeProperty,
+} from "../types";
+import removeUndefined from "./removeUndefined";
 
 type OrgPropertyKey =
   | "city"
@@ -8,48 +15,61 @@ type OrgPropertyKey =
   | "street_address"
   | "street_address_2";
 
-const getOrgProperty = (
-  key: OrgPropertyKey,
+const getOrgProperties = <T = KindeProperties>(
   idToken: KindeIdToken,
   accessToken: KindeAccessToken,
-): string | undefined => {
-  const orgIdTokenProperties =
-    idToken.organization_properties ||
+): T | undefined => {
+  const orgIdTokenProperties = (idToken.organization_properties ||
     idToken["x-hasura-organization_properties"] ||
-    {};
-  const orgAccessTokenProperties =
-    accessToken.organization_properties ||
+    {}) as KindeProperty;
+  const orgAccessTokenProperties = (accessToken.organization_properties ||
     accessToken["x-hasura-organization_properties"] ||
-    {};
-  const idValue = orgIdTokenProperties[`kp_org_${key}`]?.v;
-  const accessValue = orgAccessTokenProperties[`kp_org_${key}`]?.v;
-  return idValue || accessValue;
+    {}) as KindeProperty;
+
+  const combined: KindeProperty = {
+    ...orgIdTokenProperties,
+    ...orgAccessTokenProperties,
+  };
+
+  const result: T = {} as T;
+  Object.keys(combined).forEach((key) => {
+    if (combined[key].t === "b") {
+      result[key] = combined[key].v as boolean;
+    } else if (combined[key].t === "s") {
+      result[key] = combined[key].v as string;
+    } else {
+      result[key] = combined[key].v as number;
+    }
+  });
+
+  const orgProperties = {
+    // Keep the original keys for backwards compatibility
+    // will be deprecated in the future
+    city: result["kp_org_city"],
+    industry: result["kp_org_industry"],
+    postcode: result["kp_org_postcode"],
+    state_region: result["kp_org_state_region"],
+    street_address: result["kp_org_street_address"],
+    street_address_2: result["kp_org_street_address_2"],
+    ...result,
+  };
+
+  return removeUndefined<T>(orgProperties);
 };
 
-export const generateOrganizationObject = (
+export const generateOrganizationObject = <T = KindeProperties>(
   idToken: KindeIdToken,
   accessToken: KindeAccessToken,
-) => {
+): KindeOrganization<T> | null => {
   const orgCode = accessToken.org_code || accessToken["x-hasura-org-code"];
   const orgName = accessToken.org_name || accessToken["x-hasura-org-name"];
   if (!orgCode) {
-    throw new Error("Missing required organization fields in access token");
+    return null;
   }
 
   return {
     orgCode,
     orgName,
-    properties: {
-      city: getOrgProperty("city", idToken, accessToken),
-      industry: getOrgProperty("industry", idToken, accessToken),
-      postcode: getOrgProperty("postcode", idToken, accessToken),
-      state_region: getOrgProperty("state_region", idToken, accessToken),
-      street_address: getOrgProperty("street_address", idToken, accessToken),
-      street_address_2: getOrgProperty(
-        "street_address_2",
-        idToken,
-        accessToken,
-      ),
-    },
+    properties: getOrgProperties<T>(idToken, accessToken),
   };
 };

@@ -48,19 +48,18 @@
     },
     "./types": {
       "import": {
-        "types": "./dist/types.d.ts",
+        "types": "./dist/types/types.d.ts",
         "default": "./dist/index.js"
       }
     }
   },
   "scripts": {
     "build": "genversion --es6 src/utils/version.js && vite build && cp types.d.ts dist/types.d.ts",
-    "prepare": "genversion --es6 src/utils/version.js && vite build",
     "build:watch": "genversion --es6 src/utils/version.js && vite build --watch",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "release": "release-it",
-    "lint": "eslint",
+    "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
     "dev": "cd playground && pnpm run dev"
   },

@@ -1,5 +1,5 @@
 import { jwtDecoder } from "@kinde/jwt-decoder";
-import { KindeAccessToken, KindeIdToken } from "../../types";
+import { KindeAccessToken, KindeIdToken } from "../types";
 import { config } from "../config/index";
 import { generateUserObject } from "../utils/generateUserObject";
 import { validateToken } from "@kinde/jwt-validator";
@@ -98,13 +98,6 @@ export const setup = async (routerClient: RouterClient) => {
     const orgName = accessToken.org_name;
     const orgProperties = accessToken.organization_properties;
     const orgNames = idToken.organizations;
-
-    if (!accessToken.permissions || !idToken.org_codes) {
-      return routerClient.json(
-        { message: "MISSING_REQUIRED_CLAIMS" },
-        { status: 500 },
-      );
-    }
 
     return routerClient.json({
       accessToken,

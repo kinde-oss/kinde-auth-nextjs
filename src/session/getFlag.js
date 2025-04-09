@@ -6,8 +6,8 @@ import { kindeClient } from "./kindeServerClient";
  * @callback getFlag
  * @param {string} code
  * @param {boolean | number | string} defaultValue
- * @param {import('../../types').KindeFlagTypeCode} flagType
- * @returns {Promise<import('../../types').KindeFlag | {value: boolean | number | string}>}
+ * @param {import('../types').KindeFlagTypeCode} flagType
+ * @returns {Promise<import('../types').KindeFlag | {value: boolean | number | string}>}
  */
 
 /**
@@ -57,7 +57,7 @@ export const getFlagFactory =
         value: flag?.v === undefined ? defaultValue : flag?.v,
         code,
         type: isDefault ? FlagDataType[flag?.t ?? flagType] : false,
-        defaultValue
+        defaultValue,
       };
 
       return response;

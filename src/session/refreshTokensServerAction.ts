@@ -1,9 +1,9 @@
-'use server';
+"use server";
 
-import { kindeClient } from './kindeServerClient';
-import { sessionManager } from './sessionManager';
+import { kindeClient } from "./kindeServerClient";
+import { sessionManager } from "./sessionManager";
 
 export async function refreshTokensServerAction() {
-	const session = await sessionManager();
-	await kindeClient.refreshTokens(session);
+  const session = await sessionManager();
+  await kindeClient.refreshTokens(session);
 }

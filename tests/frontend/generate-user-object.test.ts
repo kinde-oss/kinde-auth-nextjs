@@ -1,5 +1,5 @@
 import { generateUserObject } from "../../src/utils/generateUserObject"; // Assuming the function is exported from utils file
-import { KindeAccessToken, KindeIdToken } from "../../types";
+import { KindeAccessToken, KindeIdToken } from "../../src/types";
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 
 describe("generateUserObject", () => {
@@ -302,6 +302,10 @@ describe("generateUserObject", () => {
         middle_name: "Sabichay",
         custom_prop: "hello world",
         test: "fafdsafdsa",
+        kp_usr_city: "Sydney",
+        kp_usr_industry: "Software",
+        kp_usr_job_title: "Engineer",
+        kp_usr_middle_name: "Sabichay",
       },
     });
   });
@@ -315,18 +319,13 @@ describe("generateUserObject", () => {
       picture:
         "https://lh3.googleusercontent.com/a/ACg8ocJy7qVlRTf6YhuE5u6Z1FK30BvfXNK5OoMydpzct5oXFrUDRQ=s96-c",
       username: "peteswah",
-      phone_number: undefined,
       properties: {
-        city: undefined,
         industry: "Software",
-        is_marketing_opt_in: undefined,
         job_title: "Engineer",
         middle_name: "Sabichay",
-        postcode: undefined,
-        salutation: undefined,
-        state_region: undefined,
-        street_address: undefined,
-        street_address_2: undefined,
+        kp_usr_industry: "Software",
+        kp_usr_job_title: "Engineer",
+        kp_usr_middle_name: "Sabichay",
       },
     });
   });
@@ -347,6 +346,10 @@ describe("generateUserObject", () => {
         middle_name: "Sabichay",
         custom_prop: "hello world",
         test: "fafdsafdsa",
+        kp_usr_city: "Sydney",
+        kp_usr_industry: "Software",
+        kp_usr_job_title: "Engineer",
+        kp_usr_middle_name: "Sabichay",
       },
     });
   });
@@ -365,6 +368,7 @@ describe("generateUserObject", () => {
       picture:
         "https://lh3.googleusercontent.com/a/ACg8ocJy7qVlRTf6YhuE5u6Z1FK30BvfXNK5OoMydpzct5oXFrUDRQ=s96-c",
       username: "peteswah",
+      properties: {},
     });
   });
 });

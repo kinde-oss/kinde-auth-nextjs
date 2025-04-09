@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { config } from "../config/index";
-import { KindeAccessToken, KindeIdToken } from "../../types";
+import { KindeAccessToken, KindeIdToken } from "../types";
 import { jwtDecoder } from "@kinde/jwt-decoder";
 import { isTokenExpired } from "../utils/jwt/validation";
 import { getAccessToken } from "../utils/getAccessToken";
@@ -97,7 +97,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       });
 
-      resp.cookies.set('refresh_token', refreshResponse.refresh_token)
+      resp.cookies.set("refresh_token", refreshResponse.refresh_token);
 
       // copy the cookies from the response to the request
       // in Next versions prior to 14.2.8, the cookies function

@@ -9,7 +9,6 @@ export const getHeaders = async (req?: NextRequest | NextApiRequest) => {
   } else {
     try {
       // dynamically import headers on app router environments in Next >=13 (it didn't exist prior to 13)
-      // @ts-expect-error: Cannot find module 'next/headers' or its corresponding type declarations.ts(2307)
       const { headers } = await import("next/headers");
       const heads = await headers();
       return heads;

@@ -9,6 +9,8 @@ import {
   UserType,
 } from "@kinde-oss/kinde-typescript-sdk";
 
+export type KindeProperty = { t: "b" | "s" | "i"; value: unknown };
+
 export type KindeAccessToken = {
   aud: string[];
   azp: string;
@@ -194,18 +196,23 @@ export type KindeFlag = {
   is_default: boolean;
 };
 
-export type KindeOrganization = {
-  orgCode: string | null;
+export type KindeProperties = {
+  [key: string]: string | number | boolean;
+};
+
+export type KindeOrganizationProperties<T = Record<string, any>> = {
+  kp_org_city?: string;
+  kp_org_industr?: string;
+  kp_org_postcode?: string;
+  kp_org_tate_region?: string;
+  kp_org_street_address?: string;
+  kp_org_street_address_2?: string;
+} & T;
+
+export type KindeOrganization<T = void> = {
+  orgCode: string;
   orgName?: string | null;
-  properties?: {
-    org_city?: string;
-    org_country?: string;
-    org_industry?: string;
-    org_postcode?: string;
-    org_state_region?: string;
-    org_street_address?: string;
-    org_street_address_2?: string;
-  };
+  properties?: KindeOrganizationProperties<T>;
 };
 
 export type KindeOrganizations = {
@@ -333,7 +340,7 @@ export type KindeState = {
     code: string,
     defaultValue: number,
   ) => number | null | undefined;
-  getOrganization: () => KindeOrganization;
+  getOrganization: <T>() => KindeOrganization<T>;
   getPermission: (
     key: string,
   ) => { isGranted: boolean; orgCode: string | null } | null;

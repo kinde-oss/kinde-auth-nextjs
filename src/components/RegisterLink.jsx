@@ -1,4 +1,3 @@
-import React from "react";
 import { config } from "../config/index";
 import { routes } from "../config/index";
 /**

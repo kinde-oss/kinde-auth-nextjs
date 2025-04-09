@@ -7,8 +7,9 @@
   --g-color-grey-700: #434851;
   --g-color-grey-900: #121417;
 
-  --g-box-shadow: 0px 6px 12px rgba(18, 20, 23, 0.06),
-    0px 15px 24px rgba(18, 20, 23, 0.07), 0px -4px 12px rgba(18, 20, 23, 0.05);
+  --g-box-shadow:
+    0px 6px 12px rgba(18, 20, 23, 0.06), 0px 15px 24px rgba(18, 20, 23, 0.07),
+    0px -4px 12px rgba(18, 20, 23, 0.05);
 
   --g-font-family: "Helvetica";
 
