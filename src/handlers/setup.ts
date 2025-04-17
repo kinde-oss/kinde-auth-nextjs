@@ -34,7 +34,7 @@ export const setup = async (routerClient: RouterClient) => {
     }
 
     const session = await sessionManager(routerClient.req);
-
+    console.log('refresh token', session.getSessionItem("refresh_token"))
     if (isTokenExpired(accessTokenEncoded) || isTokenExpired(idTokenEncoded)) {
       if (config.isDebugMode) {
         console.log("setup: access or id token expired - attempting refresh");
@@ -45,7 +45,10 @@ export const setup = async (routerClient: RouterClient) => {
         idTokenEncoded = refreshResponse.id_token;
       } catch (error) {
         if (config.isDebugMode) {
-          console.error("setup: refresh tokens failed - returning error");
+          console.error(
+            "setup: refresh tokens failed - returning error",
+            error,
+          );
         }
         return routerClient.json(
           { message: "REFRESH_FAILED", error },

@@ -1,8 +1,8 @@
 import { SHA256, enc } from "crypto-js";
-import { randomString } from "./randomString";
+import { generateRandomString } from "@kinde-oss/kinde-auth-react/utils";
 
 export function generateVerifier() {
-  return randomString();
+  return generateRandomString();
 }
 
 export function generateChallenge(code_verifier) {
