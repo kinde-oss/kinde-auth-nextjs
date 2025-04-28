@@ -19,11 +19,13 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const loginPage = options?.loginPage || `${config.apiPath}/${routes.login}`;
   const callbackPage = `${config.apiPath}/kinde_callback`;
   const registerPage = `${config.apiPath}/${routes.register}`;
+  const setupPage = `${config.apiPath}/${routes.setup}`;
 
   if (
     loginPage == pathname ||
     callbackPage == pathname ||
-    registerPage == pathname
+    registerPage == pathname ||
+    setupPage == pathname
   ) {
     return NextResponse.next();
   }
@@ -85,11 +87,36 @@ const handleMiddleware = async (req, options, onSuccess) => {
       console.log("authMiddleware: access token expired, refreshing");
     }
 
+    const sendResult = (debugMessage: string) => {
+      if (config.isDebugMode) {
+        console.error(debugMessage);
+      }
+      if (!isPublicPath) {
+        return NextResponse.redirect(
+          new URL(
+            loginRedirectUrl,
+            options?.redirectURLBase || config.redirectURL,
+          ),
+        );
+      }
+    };
+
     try {
       refreshResponse = await kindeClient.refreshTokens(session, false);
       kindeAccessToken = refreshResponse.access_token;
       kindeIdToken = refreshResponse.id_token;
+      if (config.isDebugMode) {
+        console.log(
+          "authMiddleware: tokens refreshed",
+          !!refreshResponse.access_token,
+          !!refreshResponse.id_token,
+        );
+      }
+    } catch (error) {
+      return sendResult("authMiddleware: error refreshing tokens");
+    }
 
+    try {
       // if we want layouts/pages to get immediate access to the new token,
       // we need to set the cookie on the response here
       const splitAccessTokenCookies = getSplitCookies(
@@ -117,24 +144,10 @@ const handleMiddleware = async (req, options, onSuccess) => {
       copyCookiesToRequest(req, resp);
 
       if (config.isDebugMode) {
-        console.log("authMiddleware: tokens refreshed");
+        console.log("authMiddleware: tokens refreshed and cookies updated");
       }
     } catch (error) {
-      // token is expired and refresh failed, redirect to login
-      if (config.isDebugMode) {
-        console.error(
-          "authMiddleware: token refresh failed, redirecting to login",
-        );
-      }
-
-      if (!isPublicPath) {
-        return NextResponse.redirect(
-          new URL(
-            loginRedirectUrl,
-            options?.redirectURLBase || config.redirectURL,
-          ),
-        );
-      }
+      sendResult("authMiddleware: error settings new token in cookie");
     }
   }
 
