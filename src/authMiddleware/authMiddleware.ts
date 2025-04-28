@@ -10,6 +10,7 @@ import { getSplitCookies } from "../utils/cookies/getSplitSerializedCookies";
 import { getIdToken } from "../utils/getIdToken";
 import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
+import { getStandardCookieOptions } from "src/utils/cookies/getStandardCookieOptions";
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname } = req.nextUrl;
@@ -135,7 +136,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       });
 
-      resp.cookies.set("refresh_token", refreshResponse.refresh_token);
+      resp.cookies.set("refresh_token", refreshResponse.refresh_token, getStandardCookieOptions());
 
       // copy the cookies from the response to the request
       // in Next versions prior to 14.2.8, the cookies function
