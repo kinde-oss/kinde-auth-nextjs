@@ -26,7 +26,10 @@ export const login = async (routerClient: RouterClient) => {
   const authUrl = await routerClient.kindeClient.login(
     routerClient.sessionManager,
     {
-      authUrlParams: Object.fromEntries(routerClient.searchParams),
+      authUrlParams: {
+        ...Object.fromEntries(routerClient.searchParams),
+        supports_reauth: "true",
+      },
     },
   );
 

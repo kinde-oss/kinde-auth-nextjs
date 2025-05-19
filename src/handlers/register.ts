@@ -16,7 +16,10 @@ export const register = async (routerClient: RouterClient) => {
   const authUrl = await routerClient.kindeClient.register(
     routerClient.sessionManager,
     {
-      authUrlParams: Object.fromEntries(routerClient.searchParams),
+      authUrlParams: {
+        ...Object.fromEntries(routerClient.searchParams),
+        supports_reauth: "true",
+      },
     },
   );
 

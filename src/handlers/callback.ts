@@ -1,7 +1,36 @@
-import { config } from "../config/index";
+import { config, routes } from "../config/index";
 import RouterClient from "../routerClients/RouterClient";
 
 export const callback = async (routerClient: RouterClient) => {
+  const errorParam = routerClient.getSearchParam("error");
+  if (errorParam) {
+    if (errorParam?.toLowerCase() === "login_link_expired") {
+      const reauthState = routerClient.getSearchParam("reauth_state");
+      if (reauthState) {
+        const decodedAuthState = atob(reauthState);
+        try {
+          const reauthState = JSON.parse(decodedAuthState);
+          if (reauthState) {
+            const urlParams = new URLSearchParams(reauthState);
+            const loginRoute = new URL(
+              `${config.redirectURL}${config.apiPath}/${routes.login}`,
+            );
+            loginRoute.search = urlParams.toString();
+            return routerClient.redirect(loginRoute.toString());
+          }
+        } catch (ex) {
+          throw new Error(
+            ex instanceof Error
+              ? ex.message
+              : "Unknown Error parsing reauth state",
+          );
+        }
+      }
+      return;
+    }
+    return;
+  }
+
   const postLoginRedirectURLFromMemory =
     (await routerClient.sessionManager.getSessionItem(
       "post_login_redirect_url",
