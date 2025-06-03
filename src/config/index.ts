@@ -149,6 +149,7 @@ export const routes: {
   createOrg: string;
   health: string;
   setup: string;
+  portal: string;
 } = {
   login: validateRoute(process.env.KINDE_AUTH_LOGIN_ROUTE) || "login",
   logout: validateRoute(process.env.KINDE_AUTH_LOGOUT_ROUTE) || "logout",
@@ -157,4 +158,5 @@ export const routes: {
     validateRoute(process.env.KINDE_AUTH_CREATEORG_ROUTE) || "create_org",
   health: validateRoute(process.env.KINDE_AUTH_HEALTH_ROUTE) || "health",
   setup: validateRoute(process.env.KINDE_AUTH_SETUP_ROUTE) || "setup",
+  portal: validateRoute(process.env.KINDE_AUTH_PORTAL_ROUTE) || "portal",
 };
