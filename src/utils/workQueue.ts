@@ -20,7 +20,7 @@ export class RequestQueueManager {
 
   async enqueue<T>(task: () => Promise<T>): Promise<T> {
     return new Promise((resolve, reject) => {
-        console.debug("enqueue: task added to queue");
+      console.debug("enqueue: task added to queue");
       this.queue.push({
         execute: task,
         resolve,
@@ -41,7 +41,7 @@ export class RequestQueueManager {
       console.debug("processQueue: task executed successfully");
       item.resolve(result);
     } catch (error) {
-        console.debug("processQueue: task execution failed", error);
+      console.debug("processQueue: task execution failed", error);
       item.reject(error);
     } finally {
       this.isProcessing = false;
