@@ -17,7 +17,7 @@ import { config, routes } from "../config";
 export const portal = async (routerClient: RouterClient) => {
   const headers = await getHeaders(routerClient.req);
   if (isPreFetch(headers)) {
-    return null;
+    return routerClient.json({ message: "Prefetch skipped" }, { status: 200 });
   }
 
   const storage = new MemoryStorage();

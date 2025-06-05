@@ -1,11 +1,18 @@
+import { getHeaders } from "src/utils/getHeaders";
 import RouterClient from "../routerClients/RouterClient";
 import validateState from "../utils/validateState";
+import { isPreFetch } from "src/utils/isPreFetch";
 
 /**
  *
  * @param {RouterClient} routerClient
  */
 export const createOrg = async (routerClient) => {
+  const headers = await getHeaders(routerClient.req);
+  if (isPreFetch(headers)) {
+    return routerClient.json({ message: "Prefetch skipped" }, { status: 200 });
+  }
+
   const org_name = routerClient.getSearchParam("org_name");
   const options = {
     org_name: org_name ?? undefined,

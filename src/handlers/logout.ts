@@ -10,7 +10,7 @@ import { getHeaders } from "../utils/getHeaders";
 export const logout = async (routerClient: RouterClient) => {
   const headers = await getHeaders(routerClient.req);
   if (isPreFetch(headers)) {
-    return null;
+    return routerClient.json({ message: "Prefetch skipped" }, { status: 200 });
   }
 
   const authUrl = await routerClient.kindeClient.logout(
