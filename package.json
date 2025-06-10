@@ -103,7 +103,7 @@
     "react-dom": "^18 || ^19"
   },
   "dependencies": {
-    "@kinde-oss/kinde-typescript-sdk": "2.10.1",
+    "@kinde-oss/kinde-typescript-sdk": "2.11.0",
     "@kinde/js-utils": "^0.18.1",
     "@kinde/jwt-decoder": "^0.2.0",
     "@kinde/jwt-validator": "^0.4.0",
