@@ -50,12 +50,33 @@ const handleMiddleware = async (req, options, onSuccess) => {
     ? `${loginPage}?${queryString}`
     : loginPage;
 
-  const isPublicPath = publicPaths.some((p) => {
-    // explicit root path handling
-    // if we use startsWith and "/" is provided as a publicPath,
-    // we inadvertently match all paths because they all start with "/"
-    if (p === "/") return pathname === "/";
-    return pathname.startsWith(p);
+  const isPublicPath = publicPaths.some((p: string | RegExp) => {
+    try {
+      // Handle RegExp objects
+      if (p instanceof RegExp) {
+        // Reset lastIndex to avoid global/sticky flag state issues
+        if (p.global || p.sticky) {
+          p.lastIndex = 0;
+        }
+        return p.test(pathname);
+      }
+
+      // Handle string patterns (existing logic)
+      // explicit root path handling
+      // if we use startsWith and "/" is provided as a publicPath,
+      // we inadvertently match all paths because they all start with "/"
+      if (p === "/") return pathname === "/";
+      return pathname.startsWith(p);
+    } catch (error) {
+      // Handle regex evaluation errors gracefully
+      if (config.isDebugMode) {
+        console.error(
+          `authMiddleware: error evaluating publicPath pattern:`,
+          error,
+        );
+      }
+      return false;
+    }
   });
 
   // getAccessToken will validate the token
