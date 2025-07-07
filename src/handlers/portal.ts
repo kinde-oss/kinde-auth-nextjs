@@ -8,6 +8,7 @@ import {
   setActiveStorage,
   StorageKeys,
 } from "@kinde/js-utils";
+import { isValidEnumValue } from "../utils/isValidEnumValue";
 import { config, routes } from "../config";
 
 /**
@@ -34,8 +35,10 @@ export const portal = async (routerClient: RouterClient) => {
   const returnUrl =
     routerClient.searchParams.get("returnUrl") || config.redirectURL;
   try {
+    const subNavParam = routerClient.searchParams.get("subNav");
+    const subNav = isValidEnumValue(PortalPage, subNavParam) ? (subNavParam as PortalPage) : undefined;
     const generateResult = await generatePortalUrl({
-      subNav: routerClient.searchParams.get("subNav") as PortalPage,
+      subNav,
       returnUrl,
       domain: config.issuerURL,
     });
