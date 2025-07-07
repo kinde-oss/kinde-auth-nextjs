@@ -10,13 +10,16 @@ import validateState from "../utils/validateState";
 export const register = async (routerClient: RouterClient) => {
   const headers = await getHeaders(routerClient.req);
   if (isPreFetch(headers)) {
-    return null;
+    return routerClient.json({ message: "Prefetch skipped" }, { status: 200 });
   }
 
   const authUrl = await routerClient.kindeClient.register(
     routerClient.sessionManager,
     {
-      authUrlParams: Object.fromEntries(routerClient.searchParams),
+      authUrlParams: {
+        ...Object.fromEntries(routerClient.searchParams),
+        supports_reauth: "true",
+      },
     },
   );
 

@@ -10,7 +10,7 @@ import validateState from "../utils/validateState";
 export const login = async (routerClient: RouterClient) => {
   const headers = await getHeaders(routerClient.req);
   if (isPreFetch(headers)) {
-    return null;
+    return routerClient.json({ message: "Prefetch skipped" }, { status: 200 });
   }
 
   const passedState = routerClient.searchParams.get("state");
@@ -26,7 +26,10 @@ export const login = async (routerClient: RouterClient) => {
   const authUrl = await routerClient.kindeClient.login(
     routerClient.sessionManager,
     {
-      authUrlParams: Object.fromEntries(routerClient.searchParams),
+      authUrlParams: {
+        ...Object.fromEntries(routerClient.searchParams),
+        supports_reauth: "true",
+      },
     },
   );
 

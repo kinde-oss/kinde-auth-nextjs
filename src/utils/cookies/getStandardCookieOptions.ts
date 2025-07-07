@@ -1,0 +1,14 @@
+import { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import { config } from "../../config";
+import { GLOBAL_COOKIE_OPTIONS, TWENTY_NINE_DAYS } from "../../utils/constants";
+
+export const getStandardCookieOptions = (): Omit<
+  ResponseCookie,
+  "name" | "value"
+> => {
+  return {
+    maxAge: TWENTY_NINE_DAYS,
+    domain: config.cookieDomain ? config.cookieDomain : undefined,
+    ...GLOBAL_COOKIE_OPTIONS,
+  };
+};

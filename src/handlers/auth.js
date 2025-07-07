@@ -5,6 +5,7 @@ import { login } from "./login";
 import { logout } from "./logout";
 import { setup } from "./setup";
 import { health } from "./health";
+import { portal } from "./portal";
 import { register } from "./register";
 import AppRouterClient from "../routerClients/AppRouterClient";
 import PagesRouterClient from "../routerClients/PagesRouterClient";
@@ -20,6 +21,7 @@ const routeMap = {
   [routes.login]: login,
   [routes.logout]: logout,
   [routes.health]: health,
+  [routes.portal]: portal,
   kinde_callback: callback,
 };
 

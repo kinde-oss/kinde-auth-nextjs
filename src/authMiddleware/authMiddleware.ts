@@ -10,6 +10,8 @@ import { getSplitCookies } from "../utils/cookies/getSplitSerializedCookies";
 import { getIdToken } from "../utils/getIdToken";
 import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
+import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOptions";
+import { isPublicPathMatch } from "../utils/isPublicPathMatch";
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname } = req.nextUrl;
@@ -19,11 +21,13 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const loginPage = options?.loginPage || `${config.apiPath}/${routes.login}`;
   const callbackPage = `${config.apiPath}/kinde_callback`;
   const registerPage = `${config.apiPath}/${routes.register}`;
+  const setupPage = `${config.apiPath}/${routes.setup}`;
 
   if (
     loginPage == pathname ||
     callbackPage == pathname ||
-    registerPage == pathname
+    registerPage == pathname ||
+    setupPage == pathname
   ) {
     return NextResponse.next();
   }
@@ -50,13 +54,13 @@ const handleMiddleware = async (req, options, onSuccess) => {
     ? `${loginPage}?${queryString}`
     : loginPage;
 
-  const isPublicPath = publicPaths.some((p) => {
-    // explicit root path handling
-    // if we use startsWith and "/" is provided as a publicPath,
-    // we inadvertently match all paths because they all start with "/"
-    if (p === "/") return pathname === "/";
-    return pathname.startsWith(p);
-  });
+  // Use extracted utility for public path matching
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const isPublicPath = isPublicPathMatch(
+    pathname,
+    publicPaths,
+    config.isDebugMode,
+  );
 
   // getAccessToken will validate the token
   let kindeAccessToken = await getAccessToken(req);
@@ -85,11 +89,38 @@ const handleMiddleware = async (req, options, onSuccess) => {
       console.log("authMiddleware: access token expired, refreshing");
     }
 
+    const sendResult = (debugMessage: string): NextResponse | undefined => {
+      if (config.isDebugMode) {
+        console.error(debugMessage);
+      }
+      if (!isPublicPath) {
+        return NextResponse.redirect(
+          new URL(
+            loginRedirectUrl,
+            options?.redirectURLBase || config.redirectURL,
+          ),
+        );
+      }
+      return undefined;
+    };
+
     try {
       refreshResponse = await kindeClient.refreshTokens(session, false);
       kindeAccessToken = refreshResponse.access_token;
       kindeIdToken = refreshResponse.id_token;
+      if (config.isDebugMode) {
+        console.log(
+          "authMiddleware: tokens refreshed",
+          !!refreshResponse.access_token,
+          !!refreshResponse.id_token,
+        );
+      }
+    } catch (error) {
+      const result = sendResult("authMiddleware: error refreshing tokens");
+      if (result) return result;
+    }
 
+    try {
       // if we want layouts/pages to get immediate access to the new token,
       // we need to set the cookie on the response here
       const splitAccessTokenCookies = getSplitCookies(
@@ -108,7 +139,11 @@ const handleMiddleware = async (req, options, onSuccess) => {
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       });
 
-      resp.cookies.set("refresh_token", refreshResponse.refresh_token);
+      resp.cookies.set(
+        "refresh_token",
+        refreshResponse.refresh_token,
+        getStandardCookieOptions(),
+      );
 
       // copy the cookies from the response to the request
       // in Next versions prior to 14.2.8, the cookies function
@@ -117,24 +152,13 @@ const handleMiddleware = async (req, options, onSuccess) => {
       copyCookiesToRequest(req, resp);
 
       if (config.isDebugMode) {
-        console.log("authMiddleware: tokens refreshed");
+        console.log("authMiddleware: tokens refreshed and cookies updated");
       }
     } catch (error) {
-      // token is expired and refresh failed, redirect to login
-      if (config.isDebugMode) {
-        console.error(
-          "authMiddleware: token refresh failed, redirecting to login",
-        );
-      }
-
-      if (!isPublicPath) {
-        return NextResponse.redirect(
-          new URL(
-            loginRedirectUrl,
-            options?.redirectURLBase || config.redirectURL,
-          ),
-        );
-      }
+      const result = sendResult(
+        "authMiddleware: error settings new token in cookie",
+      );
+      if (result) return result;
     }
   }
 

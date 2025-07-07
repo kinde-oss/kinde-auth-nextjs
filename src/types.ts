@@ -202,9 +202,9 @@ export type KindeProperties = {
 
 export type KindeOrganizationProperties<T = Record<string, any>> = {
   kp_org_city?: string;
-  kp_org_industr?: string;
+  kp_org_industry?: string;
   kp_org_postcode?: string;
-  kp_org_tate_region?: string;
+  kp_org_state_region?: string;
   kp_org_street_address?: string;
   kp_org_street_address_2?: string;
 } & T;
