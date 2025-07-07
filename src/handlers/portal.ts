@@ -36,7 +36,9 @@ export const portal = async (routerClient: RouterClient) => {
     routerClient.searchParams.get("returnUrl") || config.redirectURL;
   try {
     const subNavParam = routerClient.searchParams.get("subNav");
-    const subNav = isValidEnumValue(PortalPage, subNavParam) ? (subNavParam as PortalPage) : undefined;
+    const subNav = isValidEnumValue(PortalPage, subNavParam)
+      ? (subNavParam as PortalPage)
+      : undefined;
     const generateResult = await generatePortalUrl({
       subNav,
       returnUrl,

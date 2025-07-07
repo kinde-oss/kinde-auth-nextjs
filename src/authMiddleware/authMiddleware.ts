@@ -11,6 +11,7 @@ import { getIdToken } from "../utils/getIdToken";
 import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
 import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOptions";
+import { isPublicPathMatch } from "../utils/isPublicPathMatch";
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname } = req.nextUrl;
@@ -53,34 +54,13 @@ const handleMiddleware = async (req, options, onSuccess) => {
     ? `${loginPage}?${queryString}`
     : loginPage;
 
-  const isPublicPath = publicPaths.some((p: string | RegExp) => {
-    try {
-      // Handle RegExp objects
-      if (p instanceof RegExp) {
-        // Reset lastIndex to avoid global/sticky flag state issues
-        if (p.global || p.sticky) {
-          p.lastIndex = 0;
-        }
-        return p.test(pathname);
-      }
-
-      // Handle string patterns (existing logic)
-      // explicit root path handling
-      // if we use startsWith and "/" is provided as a publicPath,
-      // we inadvertently match all paths because they all start with "/"
-      if (p === "/") return pathname === "/";
-      return pathname.startsWith(p);
-    } catch (error) {
-      // Handle regex evaluation errors gracefully
-      if (config.isDebugMode) {
-        console.error(
-          `authMiddleware: error evaluating publicPath pattern:`,
-          error,
-        );
-      }
-      return false;
-    }
-  });
+  // Use extracted utility for public path matching
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const isPublicPath = isPublicPathMatch(
+    pathname,
+    publicPaths,
+    config.isDebugMode,
+  );
 
   // getAccessToken will validate the token
   let kindeAccessToken = await getAccessToken(req);
@@ -109,7 +89,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       console.log("authMiddleware: access token expired, refreshing");
     }
 
-    const sendResult = (debugMessage: string) => {
+    const sendResult = (debugMessage: string): NextResponse | undefined => {
       if (config.isDebugMode) {
         console.error(debugMessage);
       }
@@ -121,6 +101,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
           ),
         );
       }
+      return undefined;
     };
 
     try {
@@ -135,7 +116,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
         );
       }
     } catch (error) {
-      return sendResult("authMiddleware: error refreshing tokens");
+      const result = sendResult("authMiddleware: error refreshing tokens");
+      if (result) return result;
     }
 
     try {
@@ -173,7 +155,10 @@ const handleMiddleware = async (req, options, onSuccess) => {
         console.log("authMiddleware: tokens refreshed and cookies updated");
       }
     } catch (error) {
-      sendResult("authMiddleware: error settings new token in cookie");
+      const result = sendResult(
+        "authMiddleware: error settings new token in cookie",
+      );
+      if (result) return result;
     }
   }
 
