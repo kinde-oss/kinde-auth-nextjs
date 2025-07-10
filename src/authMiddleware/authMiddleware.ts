@@ -14,7 +14,7 @@ import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOpti
 import { isPublicPathMatch } from "../utils/isPublicPathMatch";
 
 const handleMiddleware = async (req, options, onSuccess) => {
-  const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
 
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
   const orgCode: string | undefined = options?.orgCode;
@@ -46,7 +46,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   }
 
   if (isReturnToCurrentPage) {
-    loginRedirectUrlParams.set("post_login_redirect_url", pathname);
+    loginRedirectUrlParams.set("post_login_redirect_url", pathname + search);
   }
 
   const queryString = loginRedirectUrlParams.toString();
