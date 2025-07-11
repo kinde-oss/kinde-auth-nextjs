@@ -10,7 +10,7 @@ import validateState from "../utils/validateState";
 export const login = async (routerClient: RouterClient) => {
   const headers = await getHeaders(routerClient.req);
   if (isPreFetch(headers)) {
-    return routerClient.json({ message: "Prefetch skipped" }, { status: 200 });
+    return null;
   }
 
   const passedState = routerClient.searchParams.get("state");
