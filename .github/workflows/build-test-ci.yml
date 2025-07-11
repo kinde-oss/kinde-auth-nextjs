@@ -15,7 +15,7 @@ jobs:
         node-version: [22.x]
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
         with:
           version: 8
       - name: Setting up Node.js ${{ matrix.node-version }}
