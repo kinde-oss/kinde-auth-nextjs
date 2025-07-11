@@ -10,7 +10,7 @@ import { isPreFetch } from "../utils/isPreFetch";
 export const createOrg = async (routerClient: RouterClient) => {
   const headers = await getHeaders(routerClient.req);
   if (isPreFetch(headers)) {
-    return routerClient.json({ message: "Prefetch skipped" }, { status: 200 });
+    return null;
   }
 
   const org_name = routerClient.getSearchParam("org_name");
