@@ -80,7 +80,7 @@ importers:
         version: 16.0.0
       happy-dom:
         specifier: ^17.0.0
-        version: 17.1.1
+        version: 17.6.3
       prettier:
         specifier: ^3.4.2
         version: 3.6.2
@@ -101,7 +101,7 @@ importers:
         version: 4.5.3(@types/node@24.0.13)(rollup@4.44.2)(typescript@5.8.3)(vite@6.2.5)
       vitest:
         specifier: ^3.0.5
-        version: 3.2.4(@types/node@24.0.13)(happy-dom@17.1.1)
+        version: 3.2.4(@types/node@24.0.13)(happy-dom@17.6.3)
 
   playground:
     dependencies:
@@ -2342,7 +2342,7 @@ packages:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@24.0.13)(happy-dom@17.1.1)
+      vitest: 3.2.4(@types/node@24.0.13)(happy-dom@17.6.3)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4333,9 +4333,9 @@ packages:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
     dev: false
 
-  /happy-dom@17.1.1:
-    resolution: {integrity: sha512-OSTkBlmD/6Do7gCd7nZB5iFq1bF9VQg/iFmjHmxvVX2S1UiOpo6sT+aFNnu3XUsB8hCZb9+GZ0G1g1TaMiAggw==}
-    engines: {node: '>=18.0.0'}
+  /happy-dom@17.6.3:
+    resolution: {integrity: sha512-UVIHeVhxmxedbWPCfgS55Jg2rDfwf2BCKeylcPSqazLz5w3Kri7Q4xdBJubsr/+VUzFLh0VjIvh13RaDA2/Xug==}
+    engines: {node: '>=20.0.0'}
     dependencies:
       webidl-conversions: 7.0.0
       whatwg-mimetype: 3.0.0
@@ -6868,7 +6868,7 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vitest@3.2.4(@types/node@24.0.13)(happy-dom@17.1.1):
+  /vitest@3.2.4(@types/node@24.0.13)(happy-dom@17.6.3):
     resolution: {integrity: sha512-LUCP5ev3GURDysTWiP47wRRUpLKMOfPh+yKTx3kVIEiu5KOMeqzpnYNsKyOoVrULivR8tLcks4+lga33Whn90A==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
@@ -6908,7 +6908,7 @@ packages:
       chai: 5.2.1
       debug: 4.4.1
       expect-type: 1.2.2
-      happy-dom: 17.1.1
+      happy-dom: 17.6.3
       magic-string: 0.30.17
       pathe: 2.0.3
       picomatch: 4.0.2
