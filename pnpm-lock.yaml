@@ -26,6 +26,9 @@ importers:
       crypto-js:
         specifier: ^4.2.0
         version: 4.2.0
+      destr:
+        specifier: ^2.0.5
+        version: 2.0.5
       next:
         specifier: ^12.3.5 || ^13.5.9 || ^14.2.25 || ^15.2.3
         version: 15.2.4(@babel/core@7.26.9)(react-dom@19.0.0)(react@19.0.0)
@@ -2965,9 +2968,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /destr@2.0.3:
-    resolution: {integrity: sha512-2N3BOUU4gYMpTP24s5rF5iP7BDr7uNTCs4ozw3kf/eKfvWSIu93GEBi5m427YoyJoeOzQ5smuu4nNAPGb8idSQ==}
-    dev: true
+  /destr@2.0.5:
+    resolution: {integrity: sha512-ugFTXCtDZunbzasqBxrK93Ik/DRYsO6S/fedkWEMKqt04xZ4csmnmwGDBAb07QWNaGMAmnTIemsYZCksjATwsA==}
 
   /detect-libc@2.0.3:
     resolution: {integrity: sha512-bwy0MGW55bG41VqxxypOsdSdGqLwXPI/focwgTYCFMbdUiBAxLg9CFzG08sz2aqzknwiX7Hkl0bQENjg8iLByw==}
@@ -5031,7 +5033,7 @@ packages:
   /ofetch@1.4.1:
     resolution: {integrity: sha512-QZj2DfGplQAr2oj9KzceK9Hwz6Whxazmn85yYeVuS3u9XTMOGMRx0kO95MQ+vLsj/S/NwBDMMLU5hpxvI6Tklw==}
     dependencies:
-      destr: 2.0.3
+      destr: 2.0.5
       node-fetch-native: 1.6.6
       ufo: 1.5.4
     dev: true
@@ -5399,7 +5401,7 @@ packages:
     resolution: {integrity: sha512-btXCnMmRIBINM2LDZoEmOogIZU7Qe7zn4BpomSKZ/ykbLObuBdvG+mFq11DL6fjH1DRwHhrlgtYWG96bJiC7Cg==}
     dependencies:
       defu: 6.1.4
-      destr: 2.0.3
+      destr: 2.0.5
     dev: true
 
   /rc@1.2.8:

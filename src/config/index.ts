@@ -1,5 +1,5 @@
-import { version } from "../utils/version";
 import { removeTrailingSlash } from "../utils/removeTrailingSlash";
+import packageJson from "../../package.json";
 
 /**
  * @type {import('../../types').KindeState}
@@ -132,7 +132,7 @@ export const config: Config = {
     clientSecret: KINDE_CLIENT_SECRET || "",
     logoutRedirectURL: KINDE_POST_LOGOUT_REDIRECT_URL || "",
     redirectURL: `${KINDE_SITE_URL}${KINDE_AUTH_API_PATH}/kinde_callback`,
-    frameworkVersion: version,
+    frameworkVersion: packageJson.version,
     scope: KINDE_SCOPE,
   },
   grantType: "AUTHORIZATION_CODE",
