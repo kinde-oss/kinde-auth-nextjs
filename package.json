@@ -90,7 +90,7 @@
     "globals": "^16.0.0",
     "happy-dom": "^17.0.0",
     "prettier": "^3.4.2",
-    "release-it": "^18.1.2",
+    "release-it": "^19.0.0",
     "rollup-plugin-preserve-directives": "^0.4.0",
     "typescript": "^5.7.3",
     "vite": "^6.2.5",
