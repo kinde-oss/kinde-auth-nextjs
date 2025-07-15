@@ -7,7 +7,8 @@ import {
   GLOBAL_COOKIE_OPTIONS,
   COOKIE_LIST,
 } from "../utils/constants";
-import { splitString } from "../utils/splitString";
+import { splitString } from "@kinde/js-utils";
+import { destr } from "destr";
 import * as cookie from "cookie";
 
 /**
@@ -17,20 +18,16 @@ import * as cookie from "cookie";
  * @returns {Promise<import('@kinde-oss/kinde-typescript-sdk').SessionManager>}
  */
 export const sessionManager = async (req, res) => {
-  try {
-    if (!req) {
-      const cookieStore = await cookies();
-      return appRouterSessionManager(cookieStore);
-    }
+  if (!req) {
+    const cookieStore = await cookies();
+    return appRouterSessionManager(cookieStore);
+  }
 
-    if (isAppRouter(req)) {
-      const cookieStore = await cookies(req, res);
-      return appRouterSessionManager(cookieStore);
-    } else {
-      return pageRouterSessionManager(req, res);
-    }
-  } catch (error) {
-    throw error;
+  if (isAppRouter(req)) {
+    const cookieStore = await cookies(req, res);
+    return appRouterSessionManager(cookieStore);
+  } else {
+    return pageRouterSessionManager(req, res);
   }
 };
 
@@ -57,13 +54,7 @@ export const appRouterSessionManager = (cookieStore) => ({
         index++;
         key = `${String(itemKey)}${index === 0 ? "" : index}`;
       }
-      try {
-        const jsonValue = JSON.parse(itemValue);
-        if (typeof jsonValue === "object") {
-          return jsonValue;
-        }
-      } catch (err) {}
-      return itemValue;
+      return destr(itemValue);
     } catch (error) {
       if (config.isDebugMode)
         console.error("Failed to parse session item app router:", error);
