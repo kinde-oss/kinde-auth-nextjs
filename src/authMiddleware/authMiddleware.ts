@@ -68,7 +68,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   // Check expiry BEFORE creating proxied session
   if (options?.activityTimeoutMinutes) {
-    const rawSession = await sessionManager(req, null);
+    const rawSession = await sessionManager(req, null, options.activityTimeoutMinutes);
     if (
       await isSessionExpiredDueToInactivity(
         rawSession,
@@ -85,6 +85,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       // Clear activity tracking cookie
       response.cookies.set("__last_activity", "", {
         expires: new Date(0),
+        domain: config.cookieDomain ? config.cookieDomain : undefined,
         ...GLOBAL_COOKIE_OPTIONS,
       });
 

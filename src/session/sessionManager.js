@@ -21,32 +21,45 @@ export const isSessionExpiredDueToInactivity = async (
   sessionManager,
   activityTimeoutMinutes,
 ) => {
-  if (!activityTimeoutMinutes) return false;
+  if (!activityTimeoutMinutes || activityTimeoutMinutes <= 0) return false;
 
-  // Get last activity from session
-  const lastActivityStr =
-    await sessionManager.getSessionItem("__last_activity");
-  if (!lastActivityStr) return false;
+  try {
+    // Get last activity from session
+    const lastActivityStr =
+      await sessionManager.getSessionItem("__last_activity");
+    if (!lastActivityStr) return false;
 
-  const lastActivity = parseInt(lastActivityStr);
-  const timeoutMs = activityTimeoutMinutes * 60 * 1000;
-  const timeSinceActivity = Date.now() - lastActivity;
+    const lastActivity = parseInt(lastActivityStr, 10);
+    if (isNaN(lastActivity)) return false;
 
-  return timeSinceActivity > timeoutMs;
+    const timeoutMs = activityTimeoutMinutes * 60 * 1000;
+    const timeSinceActivity = Date.now() - lastActivity;
+
+    return timeSinceActivity > timeoutMs;
+  } catch (error) {
+    if (config.isDebugMode) {
+      console.error("Failed to check session activity:", error);
+    }
+    return false;
+  }
 };
 
 /**
  * Creates a proxy that wraps a SessionManager with activity tracking functionality.
- * Only performs activity tracking when called from middleware context.
  *
  * @param {import('@kinde-oss/kinde-typescript-sdk').SessionManager} sessionManager
- * @param {number} activityTimeoutMinutes - Minutes of inactivity before session expires
  * @returns {import('@kinde-oss/kinde-typescript-sdk').SessionManager}
  */
 const createActivityTrackingProxy = (sessionManager) => {
   const updateActivity = async () => {
-    const now = Date.now();
-    await sessionManager.setSessionItem("__last_activity", now.toString());
+    try {
+      const now = Date.now();
+      await sessionManager.setSessionItem("__last_activity", now.toString());
+    } catch (error) {
+      if (config.isDebugMode) {
+        console.error("Failed to update activity timestamp:", error);
+      }
+    }
   };
 
   return new Proxy(sessionManager, {
@@ -83,16 +96,7 @@ export const sessionManager = async (req, res, activityTimeoutMinutes) => {
     baseSessionManager = pageRouterSessionManager(req, res);
   }
 
-  // Set activity tracking flag on request when middleware provides timeout
-  if (activityTimeoutMinutes && req) {
-    req.__activityTimeout = activityTimeoutMinutes;
-  }
-
-  // Check for activity tracking flag on request
-  const activeTimeout =
-    activityTimeoutMinutes || (req && req.__activityTimeout);
-
-  if (activeTimeout) {
+  if (activityTimeoutMinutes && activityTimeoutMinutes > 0) {
     return createActivityTrackingProxy(baseSessionManager);
   }
   return baseSessionManager;
