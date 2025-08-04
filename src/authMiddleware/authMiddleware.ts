@@ -68,7 +68,11 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   // Check expiry BEFORE creating proxied session
   if (options?.activityTimeoutMinutes) {
-    const rawSession = await sessionManager(req, null, options.activityTimeoutMinutes);
+    const rawSession = await sessionManager(
+      req,
+      null,
+      options.activityTimeoutMinutes,
+    );
     if (
       await isSessionExpiredDueToInactivity(
         rawSession,
