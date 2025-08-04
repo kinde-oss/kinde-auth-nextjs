@@ -11,25 +11,27 @@ import { splitString } from "@kinde/js-utils";
 import { destr } from "destr";
 import * as cookie from "cookie";
 
-
-
 /**
  * Check if session has expired due to inactivity
  * @param {import('@kinde-oss/kinde-typescript-sdk').SessionManager} sessionManager
  * @param {number} activityTimeoutMinutes - Minutes of inactivity before session expires
  * @returns {Promise<boolean>}
  */
-export const isSessionExpiredDueToInactivity = async (sessionManager, activityTimeoutMinutes) => {
+export const isSessionExpiredDueToInactivity = async (
+  sessionManager,
+  activityTimeoutMinutes,
+) => {
   if (!activityTimeoutMinutes) return false;
-  
+
   // Get last activity from session
-  const lastActivityStr = await sessionManager.getSessionItem('__last_activity');
+  const lastActivityStr =
+    await sessionManager.getSessionItem("__last_activity");
   if (!lastActivityStr) return false;
-  
+
   const lastActivity = parseInt(lastActivityStr);
   const timeoutMs = activityTimeoutMinutes * 60 * 1000;
   const timeSinceActivity = Date.now() - lastActivity;
-  
+
   return timeSinceActivity > timeoutMs;
 };
 
@@ -44,9 +46,9 @@ export const isSessionExpiredDueToInactivity = async (sessionManager, activityTi
 const createActivityTrackingProxy = (sessionManager) => {
   const updateActivity = async () => {
     const now = Date.now();
-    await sessionManager.setSessionItem('__last_activity', now.toString());
+    await sessionManager.setSessionItem("__last_activity", now.toString());
   };
-  
+
   return new Proxy(sessionManager, {
     get(target, prop) {
       if (prop === "getSessionItem") {
@@ -55,7 +57,7 @@ const createActivityTrackingProxy = (sessionManager) => {
           return await target.getSessionItem(itemKey);
         };
       }
-      
+
       return target[prop];
     },
   });
@@ -87,8 +89,9 @@ export const sessionManager = async (req, res, activityTimeoutMinutes) => {
   }
 
   // Check for activity tracking flag on request
-  const activeTimeout = activityTimeoutMinutes || (req && req.__activityTimeout);
-  
+  const activeTimeout =
+    activityTimeoutMinutes || (req && req.__activityTimeout);
+
   if (activeTimeout) {
     return createActivityTrackingProxy(baseSessionManager);
   }

@@ -5,7 +5,10 @@ import { jwtDecoder } from "@kinde/jwt-decoder";
 import { isTokenExpired } from "../utils/jwt/validation";
 import { getAccessToken } from "../utils/getAccessToken";
 import { kindeClient } from "../session/kindeServerClient";
-import { sessionManager, isSessionExpiredDueToInactivity } from "../session/sessionManager";
+import {
+  sessionManager,
+  isSessionExpiredDueToInactivity,
+} from "../session/sessionManager";
 import { getSplitCookies } from "../utils/cookies/getSplitSerializedCookies";
 import { getIdToken } from "../utils/getIdToken";
 import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
@@ -66,23 +69,35 @@ const handleMiddleware = async (req, options, onSuccess) => {
   // Check expiry BEFORE creating proxied session
   if (options?.activityTimeoutMinutes) {
     const rawSession = await sessionManager(req, null);
-    if (await isSessionExpiredDueToInactivity(rawSession, options.activityTimeoutMinutes)) {
+    if (
+      await isSessionExpiredDueToInactivity(
+        rawSession,
+        options.activityTimeoutMinutes,
+      )
+    ) {
       const response = NextResponse.redirect(
-        new URL(`${config.apiPath}/logout`, options?.redirectURLBase || config.redirectURL),
+        new URL(
+          `${config.apiPath}/logout`,
+          options?.redirectURLBase || config.redirectURL,
+        ),
       );
-      
-      // Clear activity tracking cookie 
-      response.cookies.set('__last_activity', '', {
+
+      // Clear activity tracking cookie
+      response.cookies.set("__last_activity", "", {
         expires: new Date(0),
         ...GLOBAL_COOKIE_OPTIONS,
       });
-      
+
       return response;
     }
   }
 
   // Create session manager with activity tracking
-  const session = await sessionManager(req, null, options?.activityTimeoutMinutes);
+  const session = await sessionManager(
+    req,
+    null,
+    options?.activityTimeoutMinutes,
+  );
 
   // getAccessToken will validate the token
   let kindeAccessToken = await getAccessToken(req);
