@@ -12,23 +12,94 @@ import { destr } from "destr";
 import * as cookie from "cookie";
 
 /**
+ * Check if session has expired due to inactivity
+ * @param {import('@kinde-oss/kinde-typescript-sdk').SessionManager} sessionManager
+ * @param {number} activityTimeoutMinutes - Minutes of inactivity before session expires
+ * @returns {Promise<boolean>}
+ */
+export const isSessionExpiredDueToInactivity = async (
+  sessionManager,
+  activityTimeoutMinutes,
+) => {
+  if (!activityTimeoutMinutes || activityTimeoutMinutes <= 0) return false;
+
+  try {
+    // Get last activity from session
+    const lastActivityStr =
+      await sessionManager.getSessionItem("__last_activity");
+    if (!lastActivityStr) return false;
+
+    const lastActivity = parseInt(lastActivityStr, 10);
+    if (isNaN(lastActivity)) return false;
+
+    const timeoutMs = activityTimeoutMinutes * 60 * 1000;
+    const timeSinceActivity = Date.now() - lastActivity;
+
+    return timeSinceActivity > timeoutMs;
+  } catch (error) {
+    if (config.isDebugMode) {
+      console.error("Failed to check session activity:", error);
+    }
+    return false;
+  }
+};
+
+/**
+ * Creates a proxy that wraps a SessionManager with activity tracking functionality.
+ *
+ * @param {import('@kinde-oss/kinde-typescript-sdk').SessionManager} sessionManager
+ * @returns {import('@kinde-oss/kinde-typescript-sdk').SessionManager}
+ */
+const createActivityTrackingProxy = (sessionManager) => {
+  const updateActivity = async () => {
+    try {
+      const now = Date.now();
+      await sessionManager.setSessionItem("__last_activity", now.toString());
+    } catch (error) {
+      if (config.isDebugMode) {
+        console.error("Failed to update activity timestamp:", error);
+      }
+    }
+  };
+
+  return new Proxy(sessionManager, {
+    get(target, prop) {
+      if (prop === "getSessionItem") {
+        return async (itemKey) => {
+          await updateActivity();
+          return await target.getSessionItem(itemKey);
+        };
+      }
+
+      return target[prop];
+    },
+  });
+};
+
+/**
  *
  * @param {import('next').NextApiRequest} [req]
  * @param {import('next').NextApiResponse | import('next').NextResponse} [res]
+ * @param {number} [activityTimeoutMinutes] - Minutes of inactivity before session expires
  * @returns {Promise<import('@kinde-oss/kinde-typescript-sdk').SessionManager>}
  */
-export const sessionManager = async (req, res) => {
+export const sessionManager = async (req, res, activityTimeoutMinutes) => {
+  let baseSessionManager;
+
   if (!req) {
     const cookieStore = await cookies();
-    return appRouterSessionManager(cookieStore);
+    baseSessionManager = appRouterSessionManager(cookieStore);
+  } else if (isAppRouter(req)) {
+    const cookieStore = await cookies(req, res);
+    baseSessionManager = appRouterSessionManager(cookieStore);
+  } else {
+    baseSessionManager = pageRouterSessionManager(req, res);
   }
 
-  if (isAppRouter(req)) {
-    const cookieStore = await cookies(req, res);
-    return appRouterSessionManager(cookieStore);
-  } else {
-    return pageRouterSessionManager(req, res);
+  if (activityTimeoutMinutes && activityTimeoutMinutes > 0) {
+    return createActivityTrackingProxy(baseSessionManager);
   }
+  return baseSessionManager;
 };
 
 /**
