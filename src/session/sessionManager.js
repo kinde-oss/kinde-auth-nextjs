@@ -11,24 +11,88 @@ import { splitString } from "@kinde/js-utils";
 import { destr } from "destr";
 import * as cookie from "cookie";
 
+
+
+/**
+ * Check if session has expired due to inactivity
+ * @param {import('@kinde-oss/kinde-typescript-sdk').SessionManager} sessionManager
+ * @param {number} activityTimeoutMinutes - Minutes of inactivity before session expires
+ * @returns {Promise<boolean>}
+ */
+export const isSessionExpiredDueToInactivity = async (sessionManager, activityTimeoutMinutes) => {
+  if (!activityTimeoutMinutes) return false;
+  
+  // Get last activity from session
+  const lastActivityStr = await sessionManager.getSessionItem('__last_activity');
+  if (!lastActivityStr) return false;
+  
+  const lastActivity = parseInt(lastActivityStr);
+  const timeoutMs = activityTimeoutMinutes * 60 * 1000;
+  const timeSinceActivity = Date.now() - lastActivity;
+  
+  return timeSinceActivity > timeoutMs;
+};
+
+/**
+ * Creates a proxy that wraps a SessionManager with activity tracking functionality.
+ * Only performs activity tracking when called from middleware context.
+ *
+ * @param {import('@kinde-oss/kinde-typescript-sdk').SessionManager} sessionManager
+ * @param {number} activityTimeoutMinutes - Minutes of inactivity before session expires
+ * @returns {import('@kinde-oss/kinde-typescript-sdk').SessionManager}
+ */
+const createActivityTrackingProxy = (sessionManager) => {
+  const updateActivity = async () => {
+    const now = Date.now();
+    await sessionManager.setSessionItem('__last_activity', now.toString());
+  };
+  
+  return new Proxy(sessionManager, {
+    get(target, prop) {
+      if (prop === "getSessionItem") {
+        return async (itemKey) => {
+          await updateActivity();
+          return await target.getSessionItem(itemKey);
+        };
+      }
+      
+      return target[prop];
+    },
+  });
+};
+
 /**
  *
  * @param {import('next').NextApiRequest} [req]
  * @param {import('next').NextApiResponse | import('next').NextResponse} [res]
+ * @param {number} [activityTimeoutMinutes] - Minutes of inactivity before session expires
  * @returns {Promise<import('@kinde-oss/kinde-typescript-sdk').SessionManager>}
  */
-export const sessionManager = async (req, res) => {
+export const sessionManager = async (req, res, activityTimeoutMinutes) => {
+  let baseSessionManager;
+
   if (!req) {
     const cookieStore = await cookies();
-    return appRouterSessionManager(cookieStore);
+    baseSessionManager = appRouterSessionManager(cookieStore);
+  } else if (isAppRouter(req)) {
+    const cookieStore = await cookies(req, res);
+    baseSessionManager = appRouterSessionManager(cookieStore);
+  } else {
+    baseSessionManager = pageRouterSessionManager(req, res);
   }
 
-  if (isAppRouter(req)) {
-    const cookieStore = await cookies(req, res);
-    return appRouterSessionManager(cookieStore);
-  } else {
-    return pageRouterSessionManager(req, res);
+  // Set activity tracking flag on request when middleware provides timeout
+  if (activityTimeoutMinutes && req) {
+    req.__activityTimeout = activityTimeoutMinutes;
   }
+
+  // Check for activity tracking flag on request
+  const activeTimeout = activityTimeoutMinutes || (req && req.__activityTimeout);
+  
+  if (activeTimeout) {
+    return createActivityTrackingProxy(baseSessionManager);
+  }
+  return baseSessionManager;
 };
 
 /**

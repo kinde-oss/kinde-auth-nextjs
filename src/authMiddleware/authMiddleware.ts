@@ -5,13 +5,14 @@ import { jwtDecoder } from "@kinde/jwt-decoder";
 import { isTokenExpired } from "../utils/jwt/validation";
 import { getAccessToken } from "../utils/getAccessToken";
 import { kindeClient } from "../session/kindeServerClient";
-import { sessionManager } from "../session/sessionManager";
+import { sessionManager, isSessionExpiredDueToInactivity } from "../session/sessionManager";
 import { getSplitCookies } from "../utils/cookies/getSplitSerializedCookies";
 import { getIdToken } from "../utils/getIdToken";
 import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
 import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOptions";
 import { isPublicPathMatch } from "../utils/isPublicPathMatch";
+import { GLOBAL_COOKIE_OPTIONS } from "../utils/constants";
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname, search } = req.nextUrl;
@@ -62,6 +63,27 @@ const handleMiddleware = async (req, options, onSuccess) => {
     config.isDebugMode,
   );
 
+  // Check expiry BEFORE creating proxied session
+  if (options?.activityTimeoutMinutes) {
+    const rawSession = await sessionManager(req, null);
+    if (await isSessionExpiredDueToInactivity(rawSession, options.activityTimeoutMinutes)) {
+      const response = NextResponse.redirect(
+        new URL(`${config.apiPath}/logout`, options?.redirectURLBase || config.redirectURL),
+      );
+      
+      // Clear activity tracking cookie 
+      response.cookies.set('__last_activity', '', {
+        expires: new Date(0),
+        ...GLOBAL_COOKIE_OPTIONS,
+      });
+      
+      return response;
+    }
+  }
+
+  // Create session manager with activity tracking
+  const session = await sessionManager(req, null, options?.activityTimeoutMinutes);
+
   // getAccessToken will validate the token
   let kindeAccessToken = await getAccessToken(req);
   // getIdToken will validate the token
@@ -78,8 +100,6 @@ const handleMiddleware = async (req, options, onSuccess) => {
       new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
     );
   }
-
-  const session = await sessionManager(req);
   let refreshResponse: OAuth2CodeExchangeResponse | null = null;
   const resp = NextResponse.next();
 
@@ -267,8 +287,18 @@ const handleMiddleware = async (req, options, onSuccess) => {
 };
 
 /**
- * @param {Request} [req]
- * @param {function(req: Request & {kindeAuth: {user: any, token: string}})} [onIsAuthorized]
+ * Kinde authentication middleware for Next.js
+ *
+ * @param {Request} [req] - The request object (when used directly)
+ * @param {function} [middleware] - Custom middleware function
+ * @param {Object} [options] - Configuration options
+ * @param {string[]} [options.publicPaths] - Array of public paths that don't require authentication
+ * @param {string} [options.loginPage] - Custom login page URL
+ * @param {string} [options.orgCode] - Organization code for login
+ * @param {boolean} [options.isReturnToCurrentPage] - Whether to return to current page after login
+ * @param {string} [options.redirectURLBase] - Base URL for redirects
+ * @param {number} [options.activityTimeoutMinutes] - Minutes of inactivity before session expires
+ * @param {function} [options.isAuthorized] - Custom authorization function
  */
 export function withAuth(...args) {
   // most basic usage - no options
