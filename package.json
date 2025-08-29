@@ -104,7 +104,7 @@
   },
   "dependencies": {
     "@kinde-oss/kinde-typescript-sdk": "2.12.0",
-    "@kinde/js-utils": "^0.21.2",
+    "@kinde/js-utils": "^0.23.0",
     "@kinde/jwt-decoder": "^0.2.0",
     "@kinde/jwt-validator": "^0.4.0",
     "cookie": "^1.0.2",
