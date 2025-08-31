@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@kinde-oss/kinde-typescript-sdk':
-        specifier: 2.12.0
-        version: 2.12.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
+        specifier: 2.13.0
+        version: 2.13.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
       '@kinde/js-utils':
         specifier: ^0.23.0
         version: 0.23.0
@@ -728,16 +728,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.30':
     resolution: {integrity: sha512-GQ7Nw5G2lTu/BtHTKfXhKHok2WGetd4XYcVKGx00SjAk8GMwgJM3zr6zORiPGuOE+/vkc90KtTosSSvaCjKb2Q==}
 
-  '@kinde-oss/kinde-typescript-sdk@2.12.0':
-    resolution: {integrity: sha512-/DxscKrc374AeRPSB95bY54jj6UesLHEEvAk/z+lba1Gx61NLuWVqc9oZS7VasOuDVOZLGDt9jSh7MEgjgZsfQ==}
-
-  '@kinde/js-utils@0.19.0':
-    resolution: {integrity: sha512-PvbyHxYMkR7Cgc8UG49qXJGGonIsu1MaDkmZRVhhh6Iok7t9tty62k0eCY5EyuN/lWpCG/3/jz6Gb3aAgixzmw==}
-    peerDependencies:
-      expo-secure-store: '>=11.0.0'
-    peerDependenciesMeta:
-      expo-secure-store:
-        optional: true
+  '@kinde-oss/kinde-typescript-sdk@2.13.0':
+    resolution: {integrity: sha512-cBH9a6dKQRyk1Bfh0gfAPGt9CbofCbtw3Q27hWJ5QzcYTG6SlJ6O2T0ctQ0yImgvXnSGTajwXRACjXCceW454A==}
 
   '@kinde/js-utils@0.23.0':
     resolution: {integrity: sha512-FNg2GVH9vE3Nzhu4uBChVIvp1mJta86nc7itViEr+Scp6C0DPBNNUcTQBgZJTqp4fRUz4+MuKh0tNGvggA2ZzQ==}
@@ -4021,9 +4013,9 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kinde-oss/kinde-typescript-sdk@2.12.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)':
+  '@kinde-oss/kinde-typescript-sdk@2.13.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)':
     dependencies:
-      '@kinde/js-utils': 0.19.0
+      '@kinde/js-utils': 0.23.0
       '@kinde/jwt-decoder': 0.2.0
       '@kinde/jwt-validator': 0.4.0
       '@typescript-eslint/parser': 8.41.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
@@ -4033,10 +4025,6 @@ snapshots:
       - expo-secure-store
       - supports-color
       - typescript
-
-  '@kinde/js-utils@0.19.0':
-    dependencies:
-      '@kinde/jwt-decoder': 0.2.0
 
   '@kinde/js-utils@0.23.0':
     dependencies:
