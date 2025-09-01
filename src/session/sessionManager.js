@@ -22,7 +22,7 @@ import * as cookie from "cookie";
 export const sessionManager = async (
   req,
   res,
-  options: { persistent?: boolean } = { persistent: true },
+  options = { persistent: true },
 ) => {
   const { persistent = true } = options;
 
