@@ -28,7 +28,7 @@ export const register = async (routerClient: RouterClient) => {
   );
 
   if (postLoginRedirectURL) {
-    routerClient.sessionManager.setSessionItem(
+    await routerClient.sessionManager.setSessionItem(
       "post_login_redirect_url",
       postLoginRedirectURL,
     );
@@ -41,7 +41,7 @@ export const register = async (routerClient: RouterClient) => {
       throw new Error("Invalid state supplied");
     }
 
-    routerClient.sessionManager.setSessionItem("state", passedState);
+    await routerClient.sessionManager.setSessionItem("state", passedState);
   }
 
   return routerClient.redirect(authUrl.toString());
