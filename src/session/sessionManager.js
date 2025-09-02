@@ -63,8 +63,8 @@ export const appRouterSessionManager = (cookieStore, persistent = true) => {
     getSessionItem: (itemKey) => {
       const item = cookieStore.get(itemKey);
       if (!item) return null;
+      let itemValue = "";
       try {
-        let itemValue = "";
         let index = 0;
         let key = `${String(itemKey)}${index === 0 ? "" : index}`;
         while (cookieStore.has(key)) {
@@ -76,7 +76,7 @@ export const appRouterSessionManager = (cookieStore, persistent = true) => {
       } catch (error) {
         if (config.isDebugMode)
           console.error("Failed to parse session item app router:", error);
-        return item.value;
+        return itemValue || item.value;
       }
     },
     /**
