@@ -1,3 +1,5 @@
+import { config } from "../config/index";
+
 type QueueItem = {
   execute: () => Promise<any>;
   resolve: (value: any) => void;
@@ -20,7 +22,9 @@ export class RequestQueueManager {
 
   async enqueue<T>(task: () => Promise<T>): Promise<T> {
     return new Promise((resolve, reject) => {
-      console.debug("enqueue: task added to queue");
+      if (config.isDebugMode) {
+        console.debug("enqueue: task added to queue");
+      }
       this.queue.push({
         execute: task,
         resolve,
@@ -38,7 +42,9 @@ export class RequestQueueManager {
 
     try {
       const result = await item.execute();
-      console.debug("processQueue: task executed successfully");
+      if (config.isDebugMode) {
+        console.debug("processQueue: task executed successfully");
+      }
       item.resolve(result);
     } catch (error) {
       console.debug("processQueue: task execution failed", error);
