@@ -35,7 +35,7 @@ export const setup = async (routerClient: RouterClient) => {
         );
       }
 
-      const session = await sessionManager(routerClient.req);
+      const session = await sessionManager(routerClient.req, routerClient.res);
 
       if (
         isTokenExpired(accessTokenEncoded) ||
