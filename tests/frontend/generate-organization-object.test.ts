@@ -220,7 +220,10 @@ describe("generateOrganizationObject", () => {
     };
 
     expect(
-      generateOrganizationObject(idTokenWithoutProperties, accessTokenWithCustom),
+      generateOrganizationObject(
+        idTokenWithoutProperties,
+        accessTokenWithCustom,
+      ),
     ).toEqual({
       orgCode: "org_95755120efb",
       orgName: "Peter Phanouvong",
