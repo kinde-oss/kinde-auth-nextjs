@@ -208,4 +208,70 @@ describe("generateOrganizationObject", () => {
       },
     });
   });
+
+  it("should include custom organization properties from access token", () => {
+    const accessTokenWithCustom: KindeAccessToken = {
+      ...accessToken,
+      organization_properties: {
+        ...orgProperties,
+        custom_org_prop: { v: "hello world" },
+        another_custom: { v: "42" },
+      },
+    };
+
+    expect(
+      generateOrganizationObject(idTokenWithoutProperties, accessTokenWithCustom),
+    ).toEqual({
+      orgCode: "org_95755120efb",
+      orgName: "Peter Phanouvong",
+      properties: {
+        city: "Sydney",
+        industry: "Software",
+        postcode: "2165",
+        state_region: "NSW",
+        kp_org_city: "Sydney",
+        kp_org_industry: "Software",
+        kp_org_postcode: "2165",
+        kp_org_state_region: "NSW",
+        custom_org_prop: "hello world",
+        another_custom: "42",
+      },
+    });
+  });
+
+  it("should have access token org properties override id token org properties", () => {
+    const idTokenWithCustom: KindeIdToken = {
+      ...idTokenWithoutProperties,
+      organization_properties: {
+        ...orgProperties,
+        custom_org_prop: { v: "from id token" },
+      },
+    };
+
+    const accessTokenOverrides: KindeAccessToken = {
+      ...accessToken,
+      organization_properties: {
+        ...orgProperties,
+        custom_org_prop: { v: "from access token" },
+      },
+    };
+
+    expect(
+      generateOrganizationObject(idTokenWithCustom, accessTokenOverrides),
+    ).toEqual({
+      orgCode: "org_95755120efb",
+      orgName: "Peter Phanouvong",
+      properties: {
+        city: "Sydney",
+        industry: "Software",
+        postcode: "2165",
+        state_region: "NSW",
+        kp_org_city: "Sydney",
+        kp_org_industry: "Software",
+        kp_org_postcode: "2165",
+        kp_org_state_region: "NSW",
+        custom_org_prop: "from access token",
+      },
+    });
+  });
 });
