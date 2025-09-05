@@ -28,6 +28,7 @@ export type KindeAccessToken = {
   scp: string[];
   sub: string;
   user_properties?: KindeTokenUserProperties;
+  external_org_id?: string;
 };
 
 type KindeTokenOrganizationProperties = {
@@ -48,6 +49,10 @@ type KindeTokenOrganizationProperties = {
   };
   kp_org_street_address_2: {
     v?: string;
+  };
+} & {
+  [key: string]: {
+    v?: any;
   };
 };
 
