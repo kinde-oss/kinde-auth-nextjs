@@ -46,6 +46,46 @@
         "default": "./dist/middleware.cjs.js"
       }
     },
+    "./app": {
+      "import": {
+        "types": "./dist/types/src/app/index.d.ts",
+        "default": "./dist/app.es.js"
+      },
+      "require": {
+        "types": "./dist/types/src/app/index.d.ts",
+        "default": "./dist/app.cjs.js"
+      }
+    },
+    "./app/server": {
+      "import": {
+        "types": "./dist/types/src/app/server/index.d.ts",
+        "default": "./dist/app-server.es.js"
+      },
+      "require": {
+        "types": "./dist/types/src/app/server/index.d.ts",
+        "default": "./dist/app-server.cjs.js"
+      }
+    },
+    "./pages": {
+      "import": {
+        "types": "./dist/types/src/pages/index.d.ts",
+        "default": "./dist/pages.es.js"
+      },
+      "require": {
+        "types": "./dist/types/src/pages/index.d.ts",
+        "default": "./dist/pages.cjs.js"
+      }
+    },
+    "./pages/server": {
+      "import": {
+        "types": "./dist/types/src/pages/server/index.d.ts",
+        "default": "./dist/pages-server.es.js"
+      },
+      "require": {
+        "types": "./dist/types/src/pages/server/index.d.ts",
+        "default": "./dist/pages-server.cjs.js"
+      }
+    },
     "./types": {
       "import": {
         "types": "./dist/types/src/types.d.ts",

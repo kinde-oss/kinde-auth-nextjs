@@ -33,3 +33,43 @@ You will need to add your Kinde credentials to the generated `.env.local` file i
 ## License
 
 By contributing to Kinde, you agree that your contributions will be licensed under its MIT License.
+
+## New Explicit Import Entry Points (App vs Pages Router)
+
+We have introduced **additive, non-breaking** explicit subpath imports to make it clearer which APIs you are using in a Next.js App Router vs Pages Router environment. All existing imports continue to work unchanged.
+
+### Available existing imports
+```
+@kinde-oss/kinde-auth-nextjs
+@kinde-oss/kinde-auth-nextjs/server
+@kinde-oss/kinde-auth-nextjs/components
+@kinde-oss/kinde-auth-nextjs/middleware
+```
+
+### New additive imports
+```
+@kinde-oss/kinde-auth-nextjs/app
+@kinde-oss/kinde-auth-nextjs/app/server
+@kinde-oss/kinde-auth-nextjs/pages
+@kinde-oss/kinde-auth-nextjs/pages/server
+```
+
+### When to use which
+- Use `.../app` in client components or RSC-compatible code for the App Router.
+- Use `.../app/server` inside App Router server contexts (route handlers, server actions) when you need helpers like `getKindeServerSession`.
+- Use `.../pages` and `.../pages/server` analogously when working in the traditional Pages Router.
+
+### Behavior parity
+Currently these new paths **re-export the same implementations** as the legacy generic paths. This guarantees there is no behavior change. Future minor versions may begin optimizing these new entrypoints (e.g., lighter dependencies) while keeping the old ones stable; any divergence will be documented.
+
+### Migration (optional at this stage)
+You can start switching to the explicit paths for clarity:
+```ts
+// Before (still valid)
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
+
+// After (App Router example)
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/app/server';
+```
+
+No deprecation warnings are emitted yet (it is in the pipeline); this is a clarity & future-proofing step.
