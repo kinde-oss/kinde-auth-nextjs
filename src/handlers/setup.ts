@@ -53,9 +53,9 @@ export const setup = async (routerClient: RouterClient) => {
             console.error("setup: refresh tokens failed - returning error");
           }
           return routerClient.json(
-            { 
-              message: "REFRESH_FAILED", 
-              error: error instanceof Error ? error.message : error 
+            {
+              message: "REFRESH_FAILED",
+              error: error instanceof Error ? error.message : error,
             },
             { status: 500 },
           );
@@ -74,9 +74,9 @@ export const setup = async (routerClient: RouterClient) => {
           );
         }
         return routerClient.json(
-          { 
-            message: "ACCESS_TOKEN_DECODE_FAILED", 
-            error: error instanceof Error ? error.message : error 
+          {
+            message: "ACCESS_TOKEN_DECODE_FAILED",
+            error: error instanceof Error ? error.message : error,
           },
           { status: 500 },
         );
@@ -89,9 +89,9 @@ export const setup = async (routerClient: RouterClient) => {
           console.error("setup: id token decode failed, redirecting to login");
         }
         return routerClient.json(
-          { 
-            message: "ID_TOKEN_DECODE_FAILED", 
-            error: error instanceof Error ? error.message : error 
+          {
+            message: "ID_TOKEN_DECODE_FAILED",
+            error: error instanceof Error ? error.message : error,
           },
           { status: 500 },
         );
