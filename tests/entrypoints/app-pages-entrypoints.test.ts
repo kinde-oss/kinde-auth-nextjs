@@ -14,6 +14,7 @@ describe('New app/pages entrypoints (non-breaking additive)', () => {
     const mod = await import('@kinde-oss/kinde-auth-nextjs/app/server');
     expect(mod.getKindeServerSession).toBeTypeOf('function');
     expect(mod.withAuth).toBeTypeOf('function');
+  expect(mod.createAppRouterSession).toBeTypeOf("function");
   });
 
   it('pages client exports', async () => {
@@ -26,5 +27,6 @@ describe('New app/pages entrypoints (non-breaking additive)', () => {
     const mod = await import('@kinde-oss/kinde-auth-nextjs/pages/server');
     expect(mod.getKindeServerSession).toBeTypeOf('function');
     expect(mod.withAuth).toBeTypeOf('function');
+  expect(mod.createPagesRouterSession).toBeTypeOf("function");
   });
 });
