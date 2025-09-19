@@ -1,5 +1,5 @@
 import { config } from "../config/index";
-import { getPermissions as jsGetPermissions } from "@kinde/js-utils";
+import { getPermissions } from "@kinde/js-utils";
 
 /**
  * @callback getPermissions
@@ -14,7 +14,7 @@ import { getPermissions as jsGetPermissions } from "@kinde/js-utils";
  */
 export const getPermissionsFactory = () => async () => {
   try {
-    const result = await jsGetPermissions();
+    const result = await getPermissions();
     if (!result.permissions || result.permissions.length === 0) {
       return { permissions: [], orgCode: result.orgCode ?? null };
     }

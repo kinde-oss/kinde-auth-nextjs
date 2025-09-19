@@ -1,5 +1,5 @@
 import { config } from "../config/index";
-import { getRoles as jsGetRoles } from "@kinde/js-utils";
+import { getRoles } from "@kinde/js-utils";
 /**
  * @callback getRoles
  * @returns {Promise<import('../types').KindeRoles | null>}
@@ -13,7 +13,7 @@ import { getRoles as jsGetRoles } from "@kinde/js-utils";
  */
 export const getRolesFactory = () => async () => {
   try {
-    const roles = await jsGetRoles();
+    const roles = await getRoles();
     if (!roles || roles.length === 0) return null;
     return roles;
   } catch (error) {

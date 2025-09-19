@@ -1,9 +1,8 @@
 import { getUserFactory } from "./getUser";
 import { getAccessToken } from "../utils/getAccessToken";
-import { isTokenExpired } from "../utils/jwt/validation";
-import { redirect } from "next/navigation";
 import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
 import { config } from "../config/index";
+import { isAuthenticated } from "@kinde/js-utils";
 
 /**
  *
@@ -11,12 +10,18 @@ import { config } from "../config/index";
  * @param {import('next').NextApiResponse} [res]
  * @returns {() => Promise<boolean>}
  */
-export const isAuthenticatedFactory = (req, res) => async () => {
+export const isAuthenticatedFactory = (req, res) => async (options) => {
   const token = await getAccessToken(req, res);
   if (config.isDebugMode) {
-    console.log("isAuthenticatedFactory: running redirectOnExpiredToken check");
+    console.log(
+      "isAuthenticatedFactory(js-utils): running redirectOnExpiredToken check"
+    );
   }
   redirectOnExpiredToken(token);
+  // (supports optional refresh via options)
+  const auth = await isAuthenticated(options);
+  if (!token) return null; // preserve tri-state (null when no token at all)
+  if (!auth) return false; // short-circuit: no need to fetch user profile
   const user = await getUserFactory(req, res)();
-  return token && Boolean(user);
+  return Boolean(user) && auth;
 };
