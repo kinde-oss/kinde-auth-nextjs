@@ -1,6 +1,5 @@
-import { sessionManager } from "./sessionManager";
-import { kindeClient } from "./kindeServerClient";
 import { config } from "../config/index";
+import { getPermissions } from "@kinde/js-utils";
 
 /**
  * @callback getPermissions
@@ -13,31 +12,16 @@ import { config } from "../config/index";
  * @param {import('next').NextApiResponse} [res]
  * @returns {getPermissions}
  */
-export const getPermissionsFactory = (req, res) => async () => {
+export const getPermissionsFactory = () => async () => {
   try {
-    const permissions = await kindeClient.getPermissions(
-      await sessionManager(req, res),
-    );
-
-    if (!permissions.permissions) {
-      const hasuraPermissions = await kindeClient.getClaimValue(
-        await sessionManager(req, res),
-        "x-hasura-permissions",
-      );
-
-      return {
-        permissions: hasuraPermissions,
-        orgCode: await kindeClient.getClaimValue(
-          await sessionManager(req, res),
-          "x-hasura-org-code",
-        ),
-      };
+    const result = await getPermissions();
+    if (!result.permissions || result.permissions.length === 0) {
+      return { permissions: [], orgCode: result.orgCode ?? null };
     }
-
-    return permissions;
+    return result;
   } catch (error) {
     if (config.isDebugMode) {
-      console.error(error);
+      console.error("getPermissionsFactory error (js-utils)", error);
     }
     return null;
   }

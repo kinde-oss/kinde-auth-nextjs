@@ -33,3 +33,69 @@ You will need to add your Kinde credentials to the generated `.env.local` file i
 ## License
 
 By contributing to Kinde, you agree that your contributions will be licensed under its MIT License.
+
+## Explicit Import Entry Points (App vs Pages Router)
+
+To make router intent clear (and enable future optimizations), you can now use router‑specific subpath imports. All existing imports still work unchanged.
+
+### Imports
+
+```
+# Existing (unchanged)
+@kinde-oss/kinde-auth-nextjs
+@kinde-oss/kinde-auth-nextjs/server
+@kinde-oss/kinde-auth-nextjs/components
+@kinde-oss/kinde-auth-nextjs/middleware
+
+# New (additive)
+@kinde-oss/kinde-auth-nextjs/app
+@kinde-oss/kinde-auth-nextjs/app/server
+@kinde-oss/kinde-auth-nextjs/pages
+@kinde-oss/kinde-auth-nextjs/pages/server
+```
+
+### Which path to use
+
+| Path | Use in | Typical usage |
+|------|--------|---------------|
+| `.../app` | App Router client/RSC | Provider, hooks, link components |
+| `.../app/server` | App Router server code (route handlers, server actions) | Session + auth helpers |
+| `.../pages` | Pages Router client code | Same client exports as root |
+| `.../pages/server` | Pages API routes / SSR utilities | Session + auth helpers |
+
+### Behavior parity
+All new subpaths currently re-export the exact same implementations as the legacy ones. No behavior change, no deprecations yet. Future minor versions may optimize these bundles; any divergence will be documented.
+
+### Migration (optional)
+```ts
+// Before (still valid)
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
+
+// After (App Router example)
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/app/server';
+```
+
+### Helper wrappers (syntactic sugar)
+
+```ts
+import { createAppRouterSession } from '@kinde-oss/kinde-auth-nextjs/app/server';
+import { createPagesRouterSession } from '@kinde-oss/kinde-auth-nextjs/pages/server';
+
+// App Router
+const appSession = createAppRouterSession();
+const token = await appSession.getAccessToken?.();
+
+// Pages Router
+export default async function handler(req, res) {
+	const pageSession = createPagesRouterSession(req, res);
+	const user = await pageSession.getUser?.();
+	res.status(200).json({ user });
+}
+```
+
+Wrappers simply call `getKindeServerSession`; they:
+- Make router context explicit
+- Provide future extension points
+- Assist gradual migration from Pages to App Router
+
+You can ignore them and continue using `getKindeServerSession` directly if you prefer.

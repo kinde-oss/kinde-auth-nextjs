@@ -1,6 +1,5 @@
-import { sessionManager } from "./sessionManager";
-import { kindeClient } from "./kindeServerClient";
 import { config } from "../config/index";
+import { getRoles } from "@kinde/js-utils";
 /**
  * @callback getRoles
  * @returns {Promise<import('../types').KindeRoles | null>}
@@ -12,26 +11,14 @@ import { config } from "../config/index";
  * @param {import('next').NextApiResponse} [res]
  * @returns {getRoles}
  */
-export const getRolesFactory = (req, res) => async () => {
+export const getRolesFactory = () => async () => {
   try {
-    const roles = await kindeClient.getClaimValue(
-      await sessionManager(req, res),
-      "roles",
-    );
-
-    if (!roles) {
-      const hasuraRoles = await kindeClient.getClaimValue(
-        await sessionManager(req, res),
-        "x-hasura-roles",
-      );
-
-      return hasuraRoles;
-    }
-
+    const roles = await getRoles();
+    if (!roles || roles.length === 0) return null;
     return roles;
   } catch (error) {
     if (config.isDebugMode) {
-      console.error(error);
+      console.error("getRolesFactory error (js-utils)", error);
     }
     return null;
   }
