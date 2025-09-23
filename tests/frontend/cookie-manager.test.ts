@@ -1,62 +1,75 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CookieStorage, storageSettings } from "../../src/session/sessionManager/index.ts";
+import { CookieStorage } from "../../src/session/sessionManager/index.ts";
 import { StorageKeys } from "../../src/session/sessionManager/types";
-import { MAX_COOKIE_LENGTH } from "../../src/utils/constants";
+import { MAX_COOKIE_LENGTH, COOKIE_LIST } from "../../src/utils/constants";
 
-// Direct import to tweak settings in a controlled way in a few tests
-// no direct cookieManager imports to avoid circular init issues in tests
+class FakeCookieStore {
+  private store = new Map<string, string>();
 
-const clearAllCookies = () => {
-  const cookieString = document.cookie || "";
-  if (!cookieString) return;
-  const names = cookieString.split("; ").map((part) => part.split("=")[0]);
-  for (const name of names) {
-    // expire cookie immediately
-    document.cookie = `${encodeURIComponent(name)}=; Path=/; Max-Age=0`;
+  getAll() {
+    return Array.from(this.store.entries()).map(([name, value]) => ({ name, value }));
   }
-};
+
+  get(name: string) {
+    const value = this.store.get(name);
+    return value ? { name, value } : undefined;
+  }
+
+  has(name: string) {
+    return this.store.has(name);
+  }
+
+  set(name: string, value: string, options?: { maxAge?: number }) {
+    if (options && typeof options.maxAge === "number" && options.maxAge <= 0) {
+      this.store.delete(name);
+      return;
+    }
+    this.store.set(name, value);
+  }
+
+  delete(name: string) {
+    this.store.delete(name);
+  }
+}
 
 describe("CookieStorage", () => {
+  let storage: CookieStorage;
+  let fake: FakeCookieStore;
+
   beforeEach(() => {
-    clearAllCookies();
-    // reset any custom settings we might toggle in tests
-    // reset storageSettings to sensible defaults for tests
-    storageSettings.keyPrefix = "kinde-"; // match index.ts default
-    storageSettings.maxLength = 2000; // not used by cookie manager directly
-    storageSettings.useInsecureForRefreshToken = false;
+    fake = new FakeCookieStore();
+    storage = new CookieStorage<any>(undefined as any, undefined as any, { persistent: true });
+    // inject our fake cookie store
+    // @ts-ignore accessing otherwise public field
+    storage.cookieStore = fake as any;
   });
 
   it("sets and gets a short string value", async () => {
-    const storage = new CookieStorage();
     const value = "abc123";
     await storage.setSessionItem(StorageKeys.accessToken, value);
 
     const result = await storage.getSessionItem(StorageKeys.accessToken);
     expect(result).toBe(value);
 
-    // sanity: cookie key shape matches storage key prefix
-    const baseKey = `${storageSettings.keyPrefix}${StorageKeys.accessToken}`;
-    expect(document.cookie.includes(`${encodeURIComponent(baseKey)}0=`)).toBe(true);
+    // chunking: first chunk has no index suffix
+    const names = fake.getAll().map((c) => c.name);
+    expect(names).toContain(StorageKeys.accessToken);
   });
 
   it("returns null when key is not present", async () => {
-    const storage = new CookieStorage();
     const result = await storage.getSessionItem(StorageKeys.idToken);
     expect(result).toBeNull();
   });
 
   it("splits and reassembles long string values across multiple cookies", async () => {
-    const storage = new CookieStorage();
-    const longValue = "x".repeat(MAX_COOKIE_LENGTH * 2 + 137); // 3 chunks: 3000, 3000, 137
+    const longValue = "x".repeat(MAX_COOKIE_LENGTH * 2 + 137); // 3 chunks
     await storage.setSessionItem(StorageKeys.accessToken, longValue);
 
-    const baseKey = `${storageSettings.keyPrefix}${StorageKeys.accessToken}`;
-    const names = (document.cookie || "").split("; ").map((p) => p.split("=")[0]);
-    const matching = names.filter((n) => decodeURIComponent(n).startsWith(`${baseKey}`));
-    expect(matching).toEqual([
-      `${encodeURIComponent(`${baseKey}0`)}`,
-      `${encodeURIComponent(`${baseKey}1`)}`,
-      `${encodeURIComponent(`${baseKey}2`)}`,
+    const names = fake.getAll().map((c) => c.name).filter((n) => n.startsWith(StorageKeys.accessToken));
+    expect(names.sort()).toEqual([
+      `${StorageKeys.accessToken}`,
+      `${StorageKeys.accessToken}1`,
+      `${StorageKeys.accessToken}2`,
     ]);
 
     const reassembled = await storage.getSessionItem(StorageKeys.accessToken);
@@ -64,20 +77,17 @@ describe("CookieStorage", () => {
     expect(reassembled).toBe(longValue);
   });
 
-  it("stores non-string values as stringified primitives in a single chunk", async () => {
-    const storage = new CookieStorage();
-
-    await storage.setSessionItem(StorageKeys.state, 42 as unknown as string);
+  it("parses non-string primitives via destr", async () => {
+    await storage.setSessionItem(StorageKeys.state, "42");
     const gotNumber = await storage.getSessionItem(StorageKeys.state);
-    expect(gotNumber).toBe("42");
+    expect(gotNumber).toBe(42);
 
-    await storage.setSessionItem(StorageKeys.nonce, true as unknown as string);
+    await storage.setSessionItem(StorageKeys.nonce, "true");
     const gotBool = await storage.getSessionItem(StorageKeys.nonce);
-    expect(gotBool).toBe("true");
+    expect(gotBool).toBe(true);
   });
 
   it("removes all cookie chunks for a key", async () => {
-    const storage = new CookieStorage();
     const longValue = "y".repeat(MAX_COOKIE_LENGTH + 10); // 2 chunks
     await storage.setSessionItem(StorageKeys.idToken, longValue);
 
@@ -87,15 +97,22 @@ describe("CookieStorage", () => {
     expect(result).toBeNull();
   });
 
-  it("destroySession clears all tracked items", async () => {
-    const storage = new CookieStorage();
-    await storage.setSessionItem(StorageKeys.accessToken, "v1");
-    await storage.setSessionItem(StorageKeys.idToken, "v2");
-
+  it("destroySession clears cookies that match known prefixes", async () => {
+    // seed some cookies that match COOKIE_LIST and some that don't
+    for (const prefix of COOKIE_LIST) {
+      fake.set(prefix, "1");
+      fake.set(`${prefix}1`, "2");
+    }
+    fake.set("unrelated", "x");
     await storage.destroySession();
 
-    expect(await storage.getSessionItem(StorageKeys.accessToken)).toBeNull();
-    expect(await storage.getSessionItem(StorageKeys.idToken)).toBeNull();
+    const remaining = fake.getAll().map((c) => c.name);
+    // all COOKIE_LIST-prefixed cookies should be gone
+    for (const prefix of COOKIE_LIST) {
+      expect(remaining.find((n) => n.startsWith(prefix))).toBeUndefined();
+    }
+    // unrelated cookie should remain
+    expect(remaining).toContain("unrelated");
   });
 });
 
