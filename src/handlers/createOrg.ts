@@ -26,7 +26,7 @@ export const createOrg = async (routerClient: RouterClient) => {
       throw new Error("Invalid state supplied");
     }
 
-    routerClient.sessionManager.setSessionItem("state", passedState);
+    await routerClient.sessionManager.setSessionItem("state", passedState);
   }
 
   const authUrl = await routerClient.kindeClient.createOrg(

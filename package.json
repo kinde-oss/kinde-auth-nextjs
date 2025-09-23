@@ -1,6 +1,6 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "2.8.6",
+  "version": "2.9.2",
   "description": "Kinde Auth SDK for NextJS",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
@@ -88,14 +88,14 @@
     "eslint-config-prettier": "^10.0.1",
     "genversion": "^3.2.0",
     "globals": "^16.0.0",
-    "happy-dom": "^17.0.0",
+    "happy-dom": "^18.0.0",
     "prettier": "^3.4.2",
     "release-it": "^19.0.0",
     "rollup-plugin-preserve-directives": "^0.4.0",
     "typescript": "^5.7.3",
     "vite": "^6.2.5",
     "vite-plugin-dts": "^4.5.3",
-    "vitest": "^3.0.5"
+    "vitest": "^3.2.4"
   },
   "peerDependencies": {
     "next": "^12.3.5 || ^13.5.9 || ^14.2.25 || ^15.2.3",
@@ -103,8 +103,8 @@
     "react-dom": "^18 || ^19"
   },
   "dependencies": {
-    "@kinde-oss/kinde-typescript-sdk": "2.12.0",
-    "@kinde/js-utils": "^0.21.2",
+    "@kinde-oss/kinde-typescript-sdk": "2.13.1",
+    "@kinde/js-utils": "^0.23.0",
     "@kinde/jwt-decoder": "^0.2.0",
     "@kinde/jwt-validator": "^0.4.0",
     "cookie": "^1.0.2",
@@ -119,5 +119,5 @@
     "readme.md",
     "dist"
   ],
-  "packageManager": "pnpm@8.15.9+sha512.499434c9d8fdd1a2794ebf4552b3b25c0a633abcee5bb15e7b5de90f32f47b513aca98cd5cfd001c31f0db454bc3804edccd578501e4ca293a6816166bbd9f81"
+  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
 }

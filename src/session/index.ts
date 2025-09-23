@@ -18,6 +18,7 @@ import { getRolesFactory } from "./getRoles";
 import { getClaimFactory } from "./getClaim";
 import { config } from "../config/index";
 import { NextApiRequest, NextApiResponse } from "next";
+import { getEntitlementsFactory } from "./getEntitlements";
 import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import {
   KindeAccessToken,
@@ -29,6 +30,7 @@ import {
   KindeUser,
   KindeRoles,
 } from "../types";
+import { getEntitlementsResponse } from "@kinde/js-utils";
 
 const sessionHandler = (
   req?: NextApiRequest,
@@ -67,6 +69,7 @@ const sessionHandler = (
     claim: string,
     tokenKey?: "access_token" | "id_token",
   ) => Promise<{ name: string; value: string }> | null;
+  getEntitlements: () => Promise<getEntitlementsResponse | null>;
 } => {
   return {
     /**
@@ -104,6 +107,7 @@ const sessionHandler = (
     isAuthenticated: isAuthenticatedFactory(req, res),
     getRoles: getRolesFactory(req, res),
     getClaim: getClaimFactory(req, res),
+    getEntitlements: getEntitlementsFactory(req, res),
   };
 };
 

@@ -12,6 +12,7 @@ import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
 import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOptions";
 import { isPublicPathMatch } from "../utils/isPublicPathMatch";
+import { TWENTY_NINE_DAYS } from "src/utils/constants";
 
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname, search } = req.nextUrl;
@@ -121,6 +122,13 @@ const handleMiddleware = async (req, options, onSuccess) => {
     }
 
     try {
+      let persistent = true;
+      const payload: { ksp?: { persistent: boolean } } | null = jwtDecoder<{
+        ksp: { persistent: boolean };
+      }>(refreshResponse.access_token);
+      if (payload) {
+        persistent = payload.ksp?.persistent ?? true;
+      }
       // if we want layouts/pages to get immediate access to the new token,
       // we need to set the cookie on the response here
       const splitAccessTokenCookies = getSplitCookies(
@@ -128,6 +136,9 @@ const handleMiddleware = async (req, options, onSuccess) => {
         refreshResponse.access_token,
       );
       splitAccessTokenCookies.forEach((cookie) => {
+        if (!persistent) {
+          delete cookie.options.maxAge;
+        }
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       });
 
@@ -136,13 +147,20 @@ const handleMiddleware = async (req, options, onSuccess) => {
         refreshResponse.id_token,
       );
       splitIdTokenCookies.forEach((cookie) => {
+        if (!persistent) {
+          delete cookie.options.maxAge;
+        }
         resp.cookies.set(cookie.name, cookie.value, cookie.options);
       });
 
+      const standardCookieOptions = getStandardCookieOptions();
+      if (!persistent) {
+        delete standardCookieOptions.maxAge;
+      }
       resp.cookies.set(
         "refresh_token",
         refreshResponse.refresh_token,
-        getStandardCookieOptions(),
+        standardCookieOptions,
       );
 
       // copy the cookies from the response to the request
