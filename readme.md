@@ -33,3 +33,53 @@ You will need to add your Kinde credentials to the generated `.env.local` file i
 ## License
 
 By contributing to Kinde, you agree that your contributions will be licensed under its MIT License.
+
+## Explicit Import Entry Points (App vs Pages Router)
+
+Router‑specific subpaths make intent clear and enable future tree‑shaking. All existing root imports still work; these are additive.
+
+```
+# Existing
+@kinde-oss/kinde-auth-nextjs
+@kinde-oss/kinde-auth-nextjs/server
+
+# New
+@kinde-oss/kinde-auth-nextjs/app          (client / RSC)
+@kinde-oss/kinde-auth-nextjs/app/server   (App Router server helpers)
+@kinde-oss/kinde-auth-nextjs/pages        (Pages client)
+@kinde-oss/kinde-auth-nextjs/pages/server (Pages server helpers)
+```
+
+| Subpath | Use for |
+|---------|---------|
+| `.../app` | App Router components, provider, hooks |
+| `.../app/server` | App Router route handlers / server actions |
+| `.../pages` | Pages Router client code |
+| `.../pages/server` | Pages API routes / getServerSideProps-like logic |
+
+### Session wrappers
+
+We provide lightweight wrappers that surface token / flag / entitlement / role / permission access via `@kinde/js-utils`:
+
+```ts
+import { createAppRouterSession } from '@kinde-oss/kinde-auth-nextjs/app/server';
+import { createPagesRouterSession } from '@kinde-oss/kinde-auth-nextjs/pages/server';
+
+// App Router
+const session = createAppRouterSession();
+const accessToken = await session.getAccessToken?.();
+
+// Pages Router
+export default async function handler(req, res) {
+  const session = createPagesRouterSession(req, res);
+  const isAuth = await session.isAuthenticated?.();
+  res.status(200).json({ isAuth });
+}
+```
+
+Key points:
+- Wrappers use js-utils for all token/flag/org/permission/role utilities (no legacy factories).
+- `refreshTokens` now also uses the js-utils `refreshToken` flow; we manually persist refreshed tokens to Next.js cookies (App Router via `cookies()`, Pages via response headers) with the same splitting and persistence logic.
+- Legacy exports (including `getKindeServerSession`) are unchanged and still supported.
+
+Upcoming (non-breaking) refinements: replace interim cookie write logic when js-utils ships its server storage layer; add opt-in flag before removing any legacy paths.
