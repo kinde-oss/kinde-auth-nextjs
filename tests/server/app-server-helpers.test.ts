@@ -1,27 +1,28 @@
-import { describe, it, expect, vi } from 'vitest';
-import { StorageKeys } from "@kinde/js-utils";
-
-vi.mock("@kinde/js-utils", () => ({
-  StorageKeys: { ...StorageKeys },
-  getDecodedToken: vi.fn(async (k: string) =>
-    k === StorageKeys.accessToken
-      ? { sub: "user123" }
-      : { sub: "user123", email: "e@example.com" }
-  ),
-  getRawToken: vi.fn(async (k: string) => k + "_raw"),
-  getFlag: vi.fn(async () => true),
-  getClaim: vi.fn(async () => "abc"),
-  getCurrentOrganization: vi.fn(async () => ({ id: "org1" })),
-  getPermission: vi.fn(async () => ({ code: "perm" })),
-  getPermissions: vi.fn(async () => [{ code: "perm" }]),
-  getRoles: vi.fn(async () => [{ code: "role" }]),
-  getUserOrganizations: vi.fn(async () => [{ id: "org1" }]),
-  isAuthenticated: vi.fn(async () => true),
-  getEntitlements: vi.fn(async () => [{ code: "ent" }]),
-}));
-
+import { describe, it, expect, vi } from "vitest";
 import { createAppServerHelpers } from "../../src/server/createServerHelpers";
 import { getServerUser } from "../../src/server/getServerUser";
+
+vi.mock("@kinde/js-utils", () => {
+  const StorageKeys = { accessToken: "accessToken", idToken: "idToken" };
+  return {
+    StorageKeys,
+    getDecodedToken: vi.fn(async (k: string) =>
+      k === StorageKeys.accessToken
+        ? { sub: "user123" }
+        : { sub: "user123", email: "e@example.com" }
+    ),
+    getRawToken: vi.fn(async (k: string) => k + "_raw"),
+    getFlag: vi.fn(async () => true),
+    getClaim: vi.fn(async () => "abc"),
+    getCurrentOrganization: vi.fn(async () => ({ id: "org1" })),
+    getPermission: vi.fn(async () => ({ code: "perm" })),
+    getPermissions: vi.fn(async () => [{ code: "perm" }]),
+    getRoles: vi.fn(async () => [{ code: "role" }]),
+    getUserOrganizations: vi.fn(async () => [{ id: "org1" }]),
+    isAuthenticated: vi.fn(async () => true),
+    getEntitlements: vi.fn(async () => [{ code: "ent" }]),
+  };
+});
 
 describe("createAppServerHelpers", () => {
   const helpers = createAppServerHelpers();
