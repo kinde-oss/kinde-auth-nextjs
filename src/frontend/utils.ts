@@ -31,28 +31,38 @@ type FetchKindeStateResponse =
 
 export const fetchKindeState = async (): Promise<FetchKindeStateResponse> => {
   const setupUrl = `${config.apiPath}/${routes.setup}`;
-  const res = await fetch(setupUrl);
-  const { message, error, ...kindeData } = (await res.json()) as SetupResponse;
-  if (!res.ok) {
-    return {
-      success: false,
-      error: "Failed to fetch Kinde state",
-    };
+
+  let res: Response;
+  try {
+    res = await fetch(setupUrl);
+  } catch (err) {
+    if (config.isDebugMode) {
+      console.error("Failed to fetch Kinde state", err);
+    }
+    return { success: false, error: "Failed to fetch Kinde state" };
   }
+
+  if (!res.ok) {
+    return { success: false, error: "Failed to fetch Kinde state" };
+  }
+
+  let parsedBody: SetupResponse;
+  try {
+    parsedBody = (await res.json()) as SetupResponse;
+  } catch (err) {
+    if (config.isDebugMode) {
+      console.error("Failed to parse Kinde state response", err);
+    }
+    return { success: false, error: "Failed to parse Kinde state response" };
+  }
+
+  const { message, error, ...kindeData } = parsedBody;
 
   switch (message) {
     case "OK":
-      return {
-        success: true,
-        kindeState: {
-          ...kindeData,
-        },
-      };
+      return { success: true, kindeState: kindeData };
     case "NOT_LOGGED_IN":
-      return {
-        success: false,
-        error: "Not logged in",
-      };
+      return { success: false, error: "Not logged in" };
     default:
       return {
         success: false,
