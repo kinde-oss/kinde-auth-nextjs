@@ -35,7 +35,7 @@ export const useFetchedKindeState = ({
       });
     }
     setLoading(false);
-  }, [onSuccess]);
+  }, []);
 
   useEffect(() => {
     setupState();
