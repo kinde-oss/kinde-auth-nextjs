@@ -21,7 +21,7 @@ export type FetchedKindeState = {
   userOrganizations: KindeOrganizations | null;
 };
 
-export type KindeClientState = FetchedKindeState & {
+export type KindeNextClientState = FetchedKindeState & {
   isLoading: boolean;
   error: string | null;
 }
