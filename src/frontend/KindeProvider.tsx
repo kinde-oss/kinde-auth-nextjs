@@ -7,36 +7,36 @@ import { StorageKeys } from "@kinde/js-utils";
 import { PublicKindeConfig } from "./types";
 
 type KindeProviderProps = {
-    children: React.ReactNode;
+  children: React.ReactNode;
 };
 
 export const KindeProvider = ({ children }: KindeProviderProps) => {
-    const [config, setConfig] = useState<PublicKindeConfig>(null);
-    const { loading } = useFetchedKindeState({
-        onSuccess: async (state) => {
-            console.log("[KindeProvider] Fetched state");
-            await Promise.all([
-                store.clientStorage.setSessionItem(
-                    StorageKeys.accessToken,
-                    state.accessTokenEncoded,
-                ),
-                store.clientStorage.setSessionItem(
-                    StorageKeys.idToken,
-                    state.idTokenRaw,
-                ),
-            ]);
-            setConfig(state.env);
-        },
-    });
-    if (loading) return null;
-    return (
-        <KindeReactProvider
-            clientId={config.clientId}
-            domain={config.issuerUrl}
-            redirectUri={config.redirectUrl}
-            store={store.clientStorage}
-        >
-            {children}
-        </KindeReactProvider>
-    );
+  const [config, setConfig] = useState<PublicKindeConfig>(null);
+  const { loading } = useFetchedKindeState({
+    onSuccess: async (state) => {
+      console.log("[KindeProvider] Fetched state");
+      await Promise.all([
+        store.clientStorage.setSessionItem(
+          StorageKeys.accessToken,
+          state.accessTokenEncoded,
+        ),
+        store.clientStorage.setSessionItem(
+          StorageKeys.idToken,
+          state.idTokenRaw,
+        ),
+      ]);
+      setConfig(state.env);
+    },
+  });
+  if (loading) return null;
+  return (
+    <KindeReactProvider
+      clientId={config.clientId}
+      domain={config.issuerUrl}
+      redirectUri={config.redirectUrl}
+      store={store.clientStorage}
+    >
+      {children}
+    </KindeReactProvider>
+  );
 };

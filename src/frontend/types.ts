@@ -14,12 +14,12 @@ export type PublicKindeConfig = {
   clientId: string;
   issuerUrl: string;
   redirectUrl: string;
-}
+};
 
 export type FetchedKindeState = {
   accessToken: KindeAccessToken | null;
   accessTokenEncoded: string | null;
-  featureFlags: KindeFeatureFlags
+  featureFlags: KindeFeatureFlags;
   idToken: KindeIdToken | null;
   idTokenRaw: string | null;
   isAuthenticated: boolean;
@@ -27,11 +27,10 @@ export type FetchedKindeState = {
   permissions: KindePermissions | null;
   user: KindeUser<Record<string, string>> | null;
   userOrganizations: KindeOrganizations | null;
-  env: PublicKindeConfig
+  env: PublicKindeConfig;
 };
 
 export type KindeNextClientState = Omit<FetchedKindeState, "env"> & {
   isLoading: boolean;
   error: string | null;
 };
-

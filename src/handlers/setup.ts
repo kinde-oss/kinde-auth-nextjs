@@ -144,7 +144,7 @@ export const setup = async (routerClient: RouterClient) => {
         clientId: config.clientID,
         issuerUrl: config.issuerURL,
         redirectUrl: config.redirectURL,
-      }
+      },
     });
   } catch (error) {
     if (config.isDebugMode) {
