@@ -140,6 +140,11 @@ export const setup = async (routerClient: RouterClient) => {
           name: org?.name,
         })),
       },
+      env: {
+        clientId: config.clientID,
+        issuerUrl: config.issuerURL,
+        redirectUrl: config.redirectURL,
+      }
     });
   } catch (error) {
     if (config.isDebugMode) {

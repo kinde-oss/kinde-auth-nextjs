@@ -10,6 +10,11 @@ import {
 } from "../types";
 
 export type KindeFeatureFlags = Record<string, KindeFlagRaw>;
+export type PublicKindeConfig = {
+  clientId: string;
+  issuerUrl: string;
+  redirectUrl: string;
+}
 
 export type FetchedKindeState = {
   accessToken: KindeAccessToken | null;
@@ -22,9 +27,10 @@ export type FetchedKindeState = {
   permissions: KindePermissions | null;
   user: KindeUser<Record<string, string>> | null;
   userOrganizations: KindeOrganizations | null;
+  env: PublicKindeConfig
 };
 
-export type KindeNextClientState = FetchedKindeState & {
+export type KindeNextClientState = Omit<FetchedKindeState, "env"> & {
   isLoading: boolean;
   error: string | null;
 };
