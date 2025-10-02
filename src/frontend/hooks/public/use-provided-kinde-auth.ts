@@ -1,7 +1,7 @@
 "use client";
 import { KindeContextProps, useKindeAuth } from "@kinde-oss/kinde-auth-react";
 import { KindeState } from "../../../types";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { DefaultKindeNextClientState } from "../../constants";
 import { KindeNextClientState } from "../../types";
 import { getFlagFactory } from "../../factories/feature-flag-factory";
@@ -20,15 +20,15 @@ export const useProvidedKindeAuth = (): KindeState => {
   );
   const reactAuth = useKindeAuth();
 
-  const transformState = async () => {
+  const transformState = useCallback(async () => {
     const transformedState =
       await transformReactAuthStateToNextState(reactAuth);
     setNextState(transformedState);
-  };
+  }, [reactAuth]);
 
   useEffect(() => {
     transformState();
-  }, []);
+  }, [transformState]);
 
   const clientState = useMemo(
     () => constructKindeClientState(nextState),
