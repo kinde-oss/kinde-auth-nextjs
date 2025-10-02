@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FetchedKindeState, KindeNextClientState } from "../../types";
 import { useSyncState } from "./use-sync-state";
 import { fetchKindeState } from "../../utils";
@@ -17,7 +17,7 @@ export const useFetchedKindeState = ({
     DefaultKindeNextClientState,
   );
 
-  const setupState = async () => {
+  const setupState = useCallback(async () => {
     const setupResponse = await fetchKindeState();
     if (setupResponse.success === true) {
       const { env, ...kindeState } = setupResponse.kindeState;
@@ -35,11 +35,11 @@ export const useFetchedKindeState = ({
       });
     }
     setLoading(false);
-  };
+  }, [onSuccess]);
 
   useEffect(() => {
     setupState();
-  }, []);
+  }, [setupState]);
 
   return {
     getFetchedState,
