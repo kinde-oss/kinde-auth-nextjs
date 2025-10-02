@@ -8,9 +8,10 @@ import { PublicKindeConfig } from "./types";
 
 type KindeProviderProps = {
   children: React.ReactNode;
+  fallback?: React.ReactNode;
 };
 
-export const KindeProvider = ({ children }: KindeProviderProps) => {
+export const KindeProvider = ({ children, fallback }: KindeProviderProps) => {
   const [config, setConfig] = useState<PublicKindeConfig>(null);
   const { loading } = useFetchedKindeState({
     onSuccess: async (state) => {
@@ -28,7 +29,7 @@ export const KindeProvider = ({ children }: KindeProviderProps) => {
       setConfig(state.env);
     },
   });
-  if (loading) return null;
+  if (loading) return fallback ?? null;
   return (
     <KindeReactProvider
       clientId={config.clientId}
