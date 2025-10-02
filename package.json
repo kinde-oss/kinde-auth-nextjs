@@ -143,6 +143,7 @@
     "react-dom": "^18 || ^19"
   },
   "dependencies": {
+    "@kinde-oss/kinde-auth-react": "^5.7.0",
     "@kinde-oss/kinde-typescript-sdk": "2.13.1",
     "@kinde/js-utils": "^0.23.0",
     "@kinde/jwt-decoder": "^0.2.0",
@@ -159,5 +160,5 @@
     "readme.md",
     "dist"
   ],
-  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
+  "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a"
 }
