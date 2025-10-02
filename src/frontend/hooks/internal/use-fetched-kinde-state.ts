@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { FetchedKindeState, KindeClientState } from '../types';
+import { FetchedKindeState, KindeClientState } from '../../types';
 import { useSyncState } from './use-sync-state';
-import { fetchKindeState } from '../utils';
+import { fetchKindeState } from '../../utils';
 
 const DefaultKindeClientState: KindeClientState = {
   accessToken: null,
