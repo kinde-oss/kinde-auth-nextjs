@@ -1,22 +1,11 @@
+'use client';
 import { useEffect, useState } from 'react';
-import { FetchedKindeState, KindeClientState } from '../../types';
+import { FetchedKindeState, KindeNextClientState } from '../../types';
 import { useSyncState } from './use-sync-state';
 import { fetchKindeState } from '../../utils';
+import { DefaultKindeNextClientState } from '../../constants';
 
-const DefaultKindeClientState: KindeClientState = {
-  accessToken: null,
-  accessTokenEncoded: null,
-  error: null,
-  featureFlags: [],
-  idToken: null,
-  idTokenRaw: null,
-  isAuthenticated: false,
-  isLoading: true,
-  organization: null,
-  permissions: null,
-  user: null,
-  userOrganizations: null,
-};
+
 
 type UseFetchedKindeStateProps = {
   onSuccess?: (state: FetchedKindeState) => void | Promise<void>;
@@ -26,22 +15,22 @@ export const useFetchedKindeState = ({
   onSuccess,
 }: UseFetchedKindeStateProps = {}) => {
   const [loading, setLoading] = useState(true);
-  const [getState, setState] = useSyncState<KindeClientState>(
-    DefaultKindeClientState
+  const [getFetchedState, setFetchedState] = useSyncState<KindeNextClientState>(
+    DefaultKindeNextClientState
   );
 
   const setupState = async () => {
     const setupResponse = await fetchKindeState();
     if (setupResponse.success === true) {
-      setState({
+      setFetchedState({
         ...setupResponse.kindeState,
         isLoading: false,
         error: null,
       });
       await onSuccess?.(setupResponse.kindeState);
     } else {
-      setState({
-        ...DefaultKindeClientState,
+      setFetchedState({
+        ...DefaultKindeNextClientState,
         isLoading: false,
         error: setupResponse.error,
       });
@@ -51,10 +40,11 @@ export const useFetchedKindeState = ({
 
   useEffect(() => {
     setupState();
-  });
+  }, []);
 
   return {
-    getState,
+    getFetchedState,
     loading,
+    refetch: setupState,
   };
 };
