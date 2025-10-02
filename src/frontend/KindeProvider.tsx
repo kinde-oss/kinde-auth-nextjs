@@ -15,7 +15,6 @@ export const KindeProvider = ({ children, fallback }: KindeProviderProps) => {
   const [config, setConfig] = useState<PublicKindeConfig | null>(null);
   const { loading } = useFetchedKindeState({
     onSuccess: async (state) => {
-      console.log("[KindeProvider] Fetched state");
       await Promise.all([
         store.clientStorage.setSessionItem(
           StorageKeys.accessToken,
