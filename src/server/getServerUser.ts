@@ -1,4 +1,4 @@
-import { getDecodedToken } from '@kinde/js-utils';
+import { getDecodedToken, StorageKeys } from "@kinde/js-utils";
 
 export interface ServerUser {
   id: string;
@@ -14,7 +14,7 @@ export interface ServerUser {
  */
 export const getServerUser = async (): Promise<ServerUser | null> => {
   try {
-    const idTok: any = await getDecodedToken('idToken');
+    const idTok: any = await getDecodedToken(StorageKeys.idToken);
     if (!idTok) return null;
     return {
       id: idTok.sub,
