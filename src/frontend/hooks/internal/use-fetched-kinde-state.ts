@@ -4,6 +4,7 @@ import { FetchedKindeState, KindeNextClientState } from "../../types";
 import { useSyncState } from "./use-sync-state";
 import { fetchKindeState } from "../../utils";
 import { DefaultKindeNextClientState } from "../../constants";
+import * as store from "../../store"
 
 type UseFetchedKindeStateProps = {
   onSuccess?: (state: FetchedKindeState) => void | Promise<void>;
@@ -33,6 +34,7 @@ export const useFetchedKindeState = ({
         isLoading: false,
         error: setupResponse.error,
       });
+      await store.clientStorage.destroySession();
     }
     setLoading(false);
   }, []);
