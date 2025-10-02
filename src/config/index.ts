@@ -31,7 +31,9 @@ const initialState = {
 
 const SESSION_PREFIX = "pkce-verifier";
 
-const KINDE_SITE_URL = removeTrailingSlash(process.env.KINDE_SITE_URL || process.env.NEXT_PUBLIC_KINDE_SITE_URL);
+const KINDE_SITE_URL = removeTrailingSlash(
+  process.env.KINDE_SITE_URL || process.env.NEXT_PUBLIC_KINDE_SITE_URL,
+);
 
 const KINDE_POST_LOGIN_ALLOWED_URL_REGEX =
   process.env.KINDE_POST_LOGIN_ALLOWED_URL_REGEX;
@@ -49,8 +51,11 @@ const KINDE_POST_LOGOUT_REDIRECT_URL = removeTrailingSlash(
   process.env.KINDE_POST_LOGOUT_REDIRECT_URL,
 );
 
-const KINDE_ISSUER_URL = removeTrailingSlash(process.env.KINDE_ISSUER_URL || process.env.NEXT_PUBLIC_KINDE_ISSUER_URL);
-const KINDE_CLIENT_ID = process.env.KINDE_CLIENT_ID || process.env.NEXT_PUBLIC_KINDE_CLIENT_ID;
+const KINDE_ISSUER_URL = removeTrailingSlash(
+  process.env.KINDE_ISSUER_URL || process.env.NEXT_PUBLIC_KINDE_ISSUER_URL,
+);
+const KINDE_CLIENT_ID =
+  process.env.KINDE_CLIENT_ID || process.env.NEXT_PUBLIC_KINDE_CLIENT_ID;
 const KINDE_CLIENT_SECRET = process.env.KINDE_CLIENT_SECRET;
 const KINDE_AUDIENCE = process.env.KINDE_AUDIENCE;
 const KINDE_COOKIE_DOMAIN = removeTrailingSlash(

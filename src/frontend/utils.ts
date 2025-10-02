@@ -1,10 +1,10 @@
-import { config, routes } from '../config/index.js';
-import { FetchedKindeState } from './types.js';
+import { config, routes } from "../config/index.js";
+import { FetchedKindeState } from "./types.js";
 
 export const getRefreshTokensServerAction = async () => {
   try {
     const { refreshTokensServerAction } = await import(
-      '../session/refreshTokensServerAction.js'
+      "../session/refreshTokensServerAction.js"
     );
     return refreshTokensServerAction;
   } catch (error) {
@@ -12,7 +12,7 @@ export const getRefreshTokensServerAction = async () => {
   }
 };
 
-type FetchedKindeStateMessage = 'OK' | 'NOT_LOGGED_IN';
+type FetchedKindeStateMessage = "OK" | "NOT_LOGGED_IN";
 
 type SetupResponse = {
   message: FetchedKindeStateMessage;
@@ -36,27 +36,27 @@ export const fetchKindeState = async (): Promise<FetchKindeStateResponse> => {
   if (!res.ok) {
     return {
       success: false,
-      error: 'Failed to fetch Kinde state',
+      error: "Failed to fetch Kinde state",
     };
   }
 
   switch (message) {
-    case 'OK':
+    case "OK":
       return {
         success: true,
         kindeState: {
           ...kindeData,
         },
       };
-    case 'NOT_LOGGED_IN':
+    case "NOT_LOGGED_IN":
       return {
         success: false,
-        error: 'Not logged in',
+        error: "Not logged in",
       };
     default:
       return {
         success: false,
-        error: `${message}: ${error || 'An error occurred'}`,
+        error: `${message}: ${error || "An error occurred"}`,
       };
   }
 };

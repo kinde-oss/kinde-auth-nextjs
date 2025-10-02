@@ -1,22 +1,22 @@
-import { KindeContextProps } from '@kinde-oss/kinde-auth-react';
-import { KindeNextClientState } from '../types';
+import { KindeContextProps } from "@kinde-oss/kinde-auth-react";
+import { KindeNextClientState } from "../types";
 import {
   getBooleanFlagFactory,
   getFlagFactory,
   getIntegerFlagFactory,
   getStringFlagFactory,
-} from './feature-flag-factory';
-import { getOrganizationFactory } from './organization-factory';
+} from "./feature-flag-factory";
+import { getOrganizationFactory } from "./organization-factory";
 import {
   getClaimFactory,
   getNextTypedAccessTokenFactory,
   getNextTypedIdTokenFactory,
   getRawAccessTokenFactory,
   getRawIdTokenFactory,
-} from './token-factory';
-import { jwtDecoder } from '@kinde/jwt-decoder';
-import { KindeAccessToken, KindeIdToken } from '../../types';
-import { generateUserObject } from '../../utils/generateUserObject';
+} from "./token-factory";
+import { jwtDecoder } from "@kinde/jwt-decoder";
+import { KindeAccessToken, KindeIdToken } from "../../types";
+import { generateUserObject } from "../../utils/generateUserObject";
 
 const getNextClientFunctions = (state: KindeNextClientState) => {
   return {
@@ -55,7 +55,7 @@ export const constructKindeClientState = (state: KindeNextClientState) => {
 };
 
 export const transformReactAuthStateToNextState = async (
-  reactAuthState: KindeContextProps
+  reactAuthState: KindeContextProps,
 ): Promise<KindeNextClientState> => {
   const accessToken = await reactAuthState.getAccessToken();
   const idToken = await reactAuthState.getIdToken();
@@ -99,8 +99,8 @@ export const transformReactAuthStateToNextState = async (
       },
     },
     permissions: {
-        permissions,
-        orgCode: organization,
+      permissions,
+      orgCode: organization,
     },
     user: generateUserObject(decodedIdToken, decodedAccessToken),
     userOrganizations: {

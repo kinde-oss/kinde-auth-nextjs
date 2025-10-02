@@ -342,9 +342,7 @@ describe("useKindeBrowserClient", () => {
         return expect(result.current.isLoading).toBe(false);
       });
 
-      expect(result.current.getAccessToken()).toEqual(
-        mockResponse.accessToken,
-      );
+      expect(result.current.getAccessToken()).toEqual(mockResponse.accessToken);
     });
 
     it("should get access token raw (encoded)", async () => {
@@ -529,9 +527,7 @@ describe("useKindeBrowserClient", () => {
         return expect(result.current.isLoading).toBe(false);
       });
 
-      expect(result.current.getPermissions()).toEqual(
-        mockResponse.permissions,
-      );
+      expect(result.current.getPermissions()).toEqual(mockResponse.permissions);
     });
 
     it("should check if user has specific permission", async () => {
@@ -1008,7 +1004,9 @@ describe("useKindeBrowserClient", () => {
       });
 
       // Mock the dynamic import
-      const mockRefreshTokensServerAction = vi.fn().mockResolvedValue(undefined);
+      const mockRefreshTokensServerAction = vi
+        .fn()
+        .mockResolvedValue(undefined);
       vi.doMock("../../src/session/refreshTokensServerAction.js", () => ({
         refreshTokensServerAction: mockRefreshTokensServerAction,
       }));

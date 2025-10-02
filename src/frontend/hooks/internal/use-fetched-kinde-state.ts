@@ -1,11 +1,9 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { FetchedKindeState, KindeNextClientState } from '../../types';
-import { useSyncState } from './use-sync-state';
-import { fetchKindeState } from '../../utils';
-import { DefaultKindeNextClientState } from '../../constants';
-
-
+"use client";
+import { useEffect, useState } from "react";
+import { FetchedKindeState, KindeNextClientState } from "../../types";
+import { useSyncState } from "./use-sync-state";
+import { fetchKindeState } from "../../utils";
+import { DefaultKindeNextClientState } from "../../constants";
 
 type UseFetchedKindeStateProps = {
   onSuccess?: (state: FetchedKindeState) => void | Promise<void>;
@@ -16,7 +14,7 @@ export const useFetchedKindeState = ({
 }: UseFetchedKindeStateProps = {}) => {
   const [loading, setLoading] = useState(true);
   const [getFetchedState, setFetchedState] = useSyncState<KindeNextClientState>(
-    DefaultKindeNextClientState
+    DefaultKindeNextClientState,
   );
 
   const setupState = async () => {

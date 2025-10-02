@@ -1,10 +1,8 @@
-'use client';
-import {
-  KindeState,
-} from '../../../types.js';
-import { constructKindeClientState } from '../../factories/index.js';
-import { getRefreshTokensServerAction } from '../../utils.js';
-import { useFetchedKindeState } from '../internal/use-fetched-kinde-state.js';
+"use client";
+import { KindeState } from "../../../types.js";
+import { constructKindeClientState } from "../../factories/index.js";
+import { getRefreshTokensServerAction } from "../../utils.js";
+import { useFetchedKindeState } from "../internal/use-fetched-kinde-state.js";
 
 /**
  *
@@ -13,7 +11,7 @@ import { useFetchedKindeState } from '../internal/use-fetched-kinde-state.js';
 export const useProviderlessKindeAuth = (
   apiPath = process.env.NEXT_PUBLIC_KINDE_AUTH_API_PATH ||
     process.env.KINDE_AUTH_API_PATH ||
-    '/api/auth'
+    "/api/auth",
 ): KindeState => {
   const { getFetchedState, refetch } = useFetchedKindeState();
 
@@ -24,7 +22,7 @@ export const useProviderlessKindeAuth = (
       await refetch();
     } else {
       console.warn(
-        '[Kinde] refreshData is only available in Next.js App Router environments, version 14 or higher.'
+        "[Kinde] refreshData is only available in Next.js App Router environments, version 14 or higher.",
       );
     }
   };

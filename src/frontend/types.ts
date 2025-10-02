@@ -6,7 +6,7 @@ import {
   KindeOrganizations,
   KindePermissions,
   KindeUser,
-} from '../types';
+} from "../types";
 
 export type FetchedKindeState = {
   accessToken: KindeAccessToken | null;
@@ -24,4 +24,4 @@ export type FetchedKindeState = {
 export type KindeNextClientState = FetchedKindeState & {
   isLoading: boolean;
   error: string | null;
-}
+};

@@ -1,19 +1,19 @@
-import { config } from '../../config';
-import { KindeFlag, KindeFlagTypeCode } from '../../types';
-import { flagDataTypeMap } from '../OldAuthProvider';
+import { config } from "../../config";
+import { KindeFlag, KindeFlagTypeCode } from "../../types";
+import { flagDataTypeMap } from "../OldAuthProvider";
 
 export const getFlagFactory = (featureFlags: KindeFlag[]) => {
   return (
     code: string,
     defaultValue: string | number | boolean,
-    flagType: KindeFlagTypeCode
+    flagType: KindeFlagTypeCode,
   ): KindeFlag => {
     const flags = featureFlags || [];
     const flag = flags && flags[code] ? flags[code] : null;
 
     if (!flag && defaultValue == undefined) {
       throw Error(
-        `Flag ${code} was not found, and no default value has been provided`
+        `Flag ${code} was not found, and no default value has been provided`,
       );
     }
 
@@ -21,7 +21,7 @@ export const getFlagFactory = (featureFlags: KindeFlag[]) => {
       throw Error(
         `Flag ${code} is of type ${flagDataTypeMap[flag.t]} - requested type ${
           flagDataTypeMap[flagType]
-        }`
+        }`,
       );
     }
     return {
@@ -37,8 +37,8 @@ export const getFlagFactory = (featureFlags: KindeFlag[]) => {
 export const getBooleanFlagFactory = (featureFlags: KindeFlag[]) => {
   return (code: string, defaultValue: boolean) => {
     try {
-    const flag = getFlagFactory(featureFlags)(code, defaultValue, 'b');
-    return flag.value;
+      const flag = getFlagFactory(featureFlags)(code, defaultValue, "b");
+      return flag.value;
     } catch (error) {
       if (config.isDebugMode) {
         console.error(error);
@@ -50,7 +50,7 @@ export const getBooleanFlagFactory = (featureFlags: KindeFlag[]) => {
 export const getStringFlagFactory = (featureFlags: KindeFlag[]) => {
   return (code: string, defaultValue: string) => {
     try {
-      const flag = getFlagFactory(featureFlags)(code, defaultValue, 's');
+      const flag = getFlagFactory(featureFlags)(code, defaultValue, "s");
       return flag.value;
     } catch (error) {
       if (config.isDebugMode) {
@@ -63,7 +63,7 @@ export const getStringFlagFactory = (featureFlags: KindeFlag[]) => {
 export const getIntegerFlagFactory = (featureFlags: KindeFlag[]) => {
   return (code: string, defaultValue: number) => {
     try {
-      const flag = getFlagFactory(featureFlags)(code, defaultValue, 'i');
+      const flag = getFlagFactory(featureFlags)(code, defaultValue, "i");
       return flag.value;
     } catch (error) {
       if (config.isDebugMode) {
