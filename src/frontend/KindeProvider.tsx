@@ -12,7 +12,7 @@ type KindeProviderProps = {
 };
 
 export const KindeProvider = ({ children, fallback }: KindeProviderProps) => {
-  const [config, setConfig] = useState<PublicKindeConfig>(null);
+  const [config, setConfig] = useState<PublicKindeConfig | null>(null);
   const { loading } = useFetchedKindeState({
     onSuccess: async (state) => {
       console.log("[KindeProvider] Fetched state");
@@ -30,6 +30,10 @@ export const KindeProvider = ({ children, fallback }: KindeProviderProps) => {
     },
   });
   if (loading) return fallback ?? null;
+  if (!config) {
+    console.error("[KindeProvider] Failed to fetch config");
+    return fallback ?? null;
+  }
   return (
     <KindeReactProvider
       clientId={config.clientId}
