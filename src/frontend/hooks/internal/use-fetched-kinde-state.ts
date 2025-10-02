@@ -20,12 +20,13 @@ export const useFetchedKindeState = ({
   const setupState = async () => {
     const setupResponse = await fetchKindeState();
     if (setupResponse.success === true) {
+      const { env, ...kindeState } = setupResponse.kindeState;
       setFetchedState({
-        ...setupResponse.kindeState,
+        ...kindeState,
         isLoading: false,
         error: null,
       });
-      await onSuccess?.(setupResponse.kindeState);
+      await onSuccess?.({ ...kindeState, env });
     } else {
       setFetchedState({
         ...DefaultKindeNextClientState,
