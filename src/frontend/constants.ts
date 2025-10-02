@@ -4,7 +4,7 @@ export const DefaultKindeNextClientState: KindeNextClientState = {
   accessToken: null,
   accessTokenEncoded: null,
   error: null,
-  featureFlags: [],
+  featureFlags: {},
   idToken: null,
   idTokenRaw: null,
   isAuthenticated: false,

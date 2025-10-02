@@ -72,10 +72,7 @@ export const transformReactAuthStateToNextState = async (
     accessToken: decodedAccessToken,
     accessTokenEncoded: accessToken,
     error: null,
-    // @ts-expect-error
-    // Another example of the type contract being wrong.
-    // TODO: Fix this in 3.0
-    featureFlags: featureFlags,
+    featureFlags,
     idToken: decodedIdToken,
     idTokenRaw: idToken,
     isAuthenticated: false,

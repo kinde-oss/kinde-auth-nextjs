@@ -1,6 +1,7 @@
 import {
   KindeAccessToken,
   KindeFlag,
+  KindeFlagRaw,
   KindeIdToken,
   KindeOrganization,
   KindeOrganizations,
@@ -8,10 +9,12 @@ import {
   KindeUser,
 } from "../types";
 
+export type KindeFeatureFlags = Record<string, KindeFlagRaw>;
+
 export type FetchedKindeState = {
   accessToken: KindeAccessToken | null;
   accessTokenEncoded: string | null;
-  featureFlags: KindeFlag[];
+  featureFlags: KindeFeatureFlags
   idToken: KindeIdToken | null;
   idTokenRaw: string | null;
   isAuthenticated: boolean;
@@ -25,3 +28,4 @@ export type KindeNextClientState = FetchedKindeState & {
   isLoading: boolean;
   error: string | null;
 };
+
