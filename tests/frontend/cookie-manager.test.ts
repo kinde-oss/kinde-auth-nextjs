@@ -39,9 +39,9 @@ describe("CookieStorage", () => {
   beforeEach(() => {
     fake = new FakeCookieStore();
     storage = new CookieStorage<any>(undefined as any, undefined as any, { persistent: true });
-    // inject our fake cookie store
-    // @ts-ignore accessing otherwise public field
-    storage.cookieStore = fake as any;
+    // inject our fake cookie store (bypass lazy initialization for testing)
+    // @ts-ignore accessing private field
+    storage._cookieStore = fake as any;
   });
 
   it("sets and gets a short string value", async () => {
@@ -113,6 +113,34 @@ describe("CookieStorage", () => {
     }
     // unrelated cookie should remain
     expect(remaining).toContain("unrelated");
+  });
+
+  it("stores and retrieves objects correctly", async () => {
+    const obj = { foo: "bar", nested: { value: 42 } };
+    await storage.setSessionItem(StorageKeys.state, obj);
+
+    const result = await storage.getSessionItem(StorageKeys.state);
+    expect(result).toEqual(obj);
+  });
+
+  it("handles undefined values by not setting cookies", async () => {
+    await storage.setSessionItem(StorageKeys.nonce, undefined);
+    
+    const result = await storage.getSessionItem(StorageKeys.nonce);
+    expect(result).toBeNull();
+    
+    const cookies = fake.getAll().map((c) => c.name);
+    expect(cookies.find((n) => n.startsWith(StorageKeys.nonce))).toBeUndefined();
+  });
+
+  it("handles number and boolean values correctly", async () => {
+    await storage.setSessionItem(StorageKeys.state, 123);
+    const num = await storage.getSessionItem(StorageKeys.state);
+    expect(num).toBe(123);
+
+    await storage.setSessionItem(StorageKeys.nonce, false);
+    const bool = await storage.getSessionItem(StorageKeys.nonce);
+    expect(bool).toBe(false);
   });
 });
 

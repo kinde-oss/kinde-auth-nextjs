@@ -24,7 +24,7 @@ export const cookieStorageSettings: CookieStorageSettings = {
 export class CookieStorage<V extends string = StorageKeys> extends SessionBase<V> implements SessionManager<V> {
   public req: NextApiRequest|undefined;
   public resp: NextApiResponse|undefined;
-  public cookieStore: ReadonlyRequestCookies;
+  private _cookieStore: ReadonlyRequestCookies | undefined;
 
   sessionState = {persistent:true};
 
@@ -35,14 +35,22 @@ export class CookieStorage<V extends string = StorageKeys> extends SessionBase<V
     this.sessionState = options;
   }
 
-  async initCookieStore() {
+  /**
+   * Lazy initialization of cookie store - only called when needed during request context
+   */
+  private async ensureCookieStore(): Promise<ReadonlyRequestCookies> {
+    if (this._cookieStore) {
+      return this._cookieStore;
+    }
 
     if (!this.req) {
-      this.cookieStore = await cookies();
+      this._cookieStore = await cookies();
+      return this._cookieStore;
     }
   
     if (isAppRouter(this.req)) {
-      this.cookieStore = await cookies();
+      this._cookieStore = await cookies();
+      return this._cookieStore;
     } else {
       throw new Error("This store is to be used for App Router.")
     }
@@ -53,12 +61,13 @@ export class CookieStorage<V extends string = StorageKeys> extends SessionBase<V
    * @returns {void}
    */
   async destroySession(): Promise<void> {
-    this.cookieStore
+    const cookieStore = await this.ensureCookieStore();
+    cookieStore
     .getAll()
     .map((c) => c.name)
     .forEach((key) => {
       if (COOKIE_LIST.some((substr) => key.startsWith(substr))) {
-        this.cookieStore.set(key, "", {
+        cookieStore.set(key, "", {
           domain: config.cookieDomain ? config.cookieDomain : undefined,
           maxAge: 0,
           ...GLOBAL_COOKIE_OPTIONS,
@@ -74,18 +83,19 @@ export class CookieStorage<V extends string = StorageKeys> extends SessionBase<V
     itemKey: V | StorageKeys,
     itemValue: unknown,
   ): Promise<void> {
-    this.cookieStore.getAll().map((c) => c.name)
+    const cookieStore = await this.ensureCookieStore();
+    cookieStore.getAll().map((c) => c.name)
     .forEach((key) => {
       if (key.startsWith(`${String(itemKey)}`)) {
-        this.cookieStore.delete(key);
+        cookieStore.delete(key);
       }
     });
   if (itemValue !== undefined) {
     const itemValueString = 
-      typeof itemValue === "object" ? JSON.stringify(itemValue) : itemValue;
-    splitString(itemValueString as string, MAX_COOKIE_LENGTH).forEach(
+      typeof itemValue === "object" ? JSON.stringify(itemValue) : String(itemValue);
+    splitString(itemValueString, MAX_COOKIE_LENGTH).forEach(
       (value, index) => {
-        this.cookieStore.set(itemKey + (index === 0 ? "" : index), value, {
+        cookieStore.set(itemKey + (index === 0 ? "" : index), value, {
           maxAge: this.sessionState.persistent ? TWENTY_NINE_DAYS : undefined,
           domain: config.cookieDomain ? config.cookieDomain : undefined,
           ...GLOBAL_COOKIE_OPTIONS,
@@ -99,14 +109,15 @@ export class CookieStorage<V extends string = StorageKeys> extends SessionBase<V
    * Gets the value for the provided key from cookies, reassembling chunks.
    */
   async getSessionItem(itemKey: V | StorageKeys): Promise<unknown | null> {
-    const item = this.cookieStore.get(itemKey);
+    const cookieStore = await this.ensureCookieStore();
+    const item = cookieStore.get(itemKey);
     if (!item) return null;
     let itemValue = "";
     try {
       let index = 0;
       let key = `${String(itemKey)}${index === 0 ? "" : index}`;
-      while (this.cookieStore.has(key)) {
-        itemValue += this.cookieStore.get(key).value;
+      while (cookieStore.has(key)) {
+        itemValue += cookieStore.get(key).value;
         index++;
         key = `${String(itemKey)}${index === 0 ? "" : index}`;
       }
@@ -122,12 +133,13 @@ export class CookieStorage<V extends string = StorageKeys> extends SessionBase<V
    * Removes all cookie parts associated with the provided key.
    */
   async removeSessionItem(itemKey: V | StorageKeys): Promise<void> {
-    this.cookieStore
+    const cookieStore = await this.ensureCookieStore();
+    cookieStore
     .getAll()
     .map((c) => c.name)
     .forEach((key) => {
       if (key.startsWith(`${String(itemKey)}`)) {
-        this.cookieStore.delete(key);
+        cookieStore.delete(key);
       }
     });
   }
