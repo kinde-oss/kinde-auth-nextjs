@@ -2,10 +2,10 @@ import { SessionBase, StorageKeys, type SessionManager } from "./types.js";
 import { splitString } from "@kinde/js-utils";
 import {
   COOKIE_LIST,
-    GLOBAL_COOKIE_OPTIONS,
-    MAX_COOKIE_LENGTH,
-    TWENTY_NINE_DAYS,
-  } from "../../utils/constants";
+  GLOBAL_COOKIE_OPTIONS,
+  MAX_COOKIE_LENGTH,
+  TWENTY_NINE_DAYS,
+} from "../../utils/constants";
 import { CookieStorageSettings, storageSettings } from "./settings";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies.js";
@@ -14,23 +14,29 @@ import destr from "destr";
 import { isAppRouter } from "../../utils/isAppRouter.js";
 import { config } from "../../config/index";
 
-
 export const cookieStorageSettings: CookieStorageSettings = {
   keyPrefix: "kinde_",
   maxLength: MAX_COOKIE_LENGTH, // stay under common cookie size limits per chunk
-  useInsecureForRefreshToken: false
+  useInsecureForRefreshToken: false,
 };
 
-export class CookieStorage<V extends string = StorageKeys> extends SessionBase<V> implements SessionManager<V> {
-  public req: NextApiRequest|undefined;
-  public resp: NextApiResponse|undefined;
+export class CookieStorage<V extends string = StorageKeys>
+  extends SessionBase<V>
+  implements SessionManager<V>
+{
+  public req: NextApiRequest | undefined;
+  public resp: NextApiResponse | undefined;
   private _cookieStore: ReadonlyRequestCookies | undefined;
 
-  sessionState = {persistent:true};
+  sessionState = { persistent: true };
 
-  constructor(req:NextApiRequest, resp: NextApiResponse, options: { persistent: true }) {
+  constructor(
+    req: NextApiRequest,
+    resp: NextApiResponse,
+    options: { persistent: true },
+  ) {
     super();
-    this.req = req
+    this.req = req;
     this.resp = resp;
     this.sessionState = options;
   }
@@ -47,12 +53,12 @@ export class CookieStorage<V extends string = StorageKeys> extends SessionBase<V
       this._cookieStore = await cookies();
       return this._cookieStore;
     }
-  
+
     if (isAppRouter(this.req)) {
       this._cookieStore = await cookies();
       return this._cookieStore;
     } else {
-      throw new Error("This store is to be used for App Router.")
+      throw new Error("This store is to be used for App Router.");
     }
   }
 
@@ -63,17 +69,17 @@ export class CookieStorage<V extends string = StorageKeys> extends SessionBase<V
   async destroySession(): Promise<void> {
     const cookieStore = await this.ensureCookieStore();
     cookieStore
-    .getAll()
-    .map((c) => c.name)
-    .forEach((key) => {
-      if (COOKIE_LIST.some((substr) => key.startsWith(substr))) {
-        cookieStore.set(key, "", {
-          domain: config.cookieDomain ? config.cookieDomain : undefined,
-          maxAge: 0,
-          ...GLOBAL_COOKIE_OPTIONS,
-        });
-      }
-    });
+      .getAll()
+      .map((c) => c.name)
+      .forEach((key) => {
+        if (COOKIE_LIST.some((substr) => key.startsWith(substr))) {
+          cookieStore.set(key, "", {
+            domain: config.cookieDomain ? config.cookieDomain : undefined,
+            maxAge: 0,
+            ...GLOBAL_COOKIE_OPTIONS,
+          });
+        }
+      });
   }
 
   /**
@@ -84,25 +90,29 @@ export class CookieStorage<V extends string = StorageKeys> extends SessionBase<V
     itemValue: unknown,
   ): Promise<void> {
     const cookieStore = await this.ensureCookieStore();
-    cookieStore.getAll().map((c) => c.name)
-    .forEach((key) => {
-      if (key.startsWith(`${String(itemKey)}`)) {
-        cookieStore.delete(key);
-      }
-    });
-  if (itemValue !== undefined) {
-    const itemValueString = 
-      typeof itemValue === "object" ? JSON.stringify(itemValue) : String(itemValue);
-    splitString(itemValueString, MAX_COOKIE_LENGTH).forEach(
-      (value, index) => {
-        cookieStore.set(itemKey + (index === 0 ? "" : index), value, {
-          maxAge: this.sessionState.persistent ? TWENTY_NINE_DAYS : undefined,
-          domain: config.cookieDomain ? config.cookieDomain : undefined,
-          ...GLOBAL_COOKIE_OPTIONS,
-        });
-      },
-    );  
-  }
+    cookieStore
+      .getAll()
+      .map((c) => c.name)
+      .forEach((key) => {
+        if (key.startsWith(`${String(itemKey)}`)) {
+          cookieStore.delete(key);
+        }
+      });
+    if (itemValue !== undefined) {
+      const itemValueString =
+        typeof itemValue === "object"
+          ? JSON.stringify(itemValue)
+          : String(itemValue);
+      splitString(itemValueString, MAX_COOKIE_LENGTH).forEach(
+        (value, index) => {
+          cookieStore.set(itemKey + (index === 0 ? "" : index), value, {
+            maxAge: this.sessionState.persistent ? TWENTY_NINE_DAYS : undefined,
+            domain: config.cookieDomain ? config.cookieDomain : undefined,
+            ...GLOBAL_COOKIE_OPTIONS,
+          });
+        },
+      );
+    }
   }
 
   /**
@@ -135,14 +145,12 @@ export class CookieStorage<V extends string = StorageKeys> extends SessionBase<V
   async removeSessionItem(itemKey: V | StorageKeys): Promise<void> {
     const cookieStore = await this.ensureCookieStore();
     cookieStore
-    .getAll()
-    .map((c) => c.name)
-    .forEach((key) => {
-      if (key.startsWith(`${String(itemKey)}`)) {
-        cookieStore.delete(key);
-      }
-    });
+      .getAll()
+      .map((c) => c.name)
+      .forEach((key) => {
+        if (key.startsWith(`${String(itemKey)}`)) {
+          cookieStore.delete(key);
+        }
+      });
   }
 }
-
-
