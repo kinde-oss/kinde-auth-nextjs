@@ -6,4 +6,4 @@ export { CookieStorage } from "./cookieManager";
 
 // Export types directly
 export { StorageKeys } from "./types";
-export type { SessionManager } from "./types.ts";
+export type { SessionManager } from "./types.js";
