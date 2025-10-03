@@ -56,9 +56,9 @@ describe("CookieStorage", () => {
     const result = await storage.getSessionItem(StorageKeys.accessToken);
     expect(result).toBe(value);
 
-    // chunking: first chunk has no index suffix
+    // chunking: first chunk has no index suffix, but has prefix
     const names = fake.getAll().map((c) => c.name);
-    expect(names).toContain(StorageKeys.accessToken);
+    expect(names).toContain(`kinde-${StorageKeys.accessToken}`);
   });
 
   it("returns null when key is not present", async () => {
@@ -73,11 +73,11 @@ describe("CookieStorage", () => {
     const names = fake
       .getAll()
       .map((c) => c.name)
-      .filter((n) => n.startsWith(StorageKeys.accessToken));
+      .filter((n) => n.startsWith(`kinde-${StorageKeys.accessToken}`));
     expect(names.sort()).toEqual([
-      `${StorageKeys.accessToken}`,
-      `${StorageKeys.accessToken}1`,
-      `${StorageKeys.accessToken}2`,
+      `kinde-${StorageKeys.accessToken}`,
+      `kinde-${StorageKeys.accessToken}1`,
+      `kinde-${StorageKeys.accessToken}2`,
     ]);
 
     const reassembled = await storage.getSessionItem(StorageKeys.accessToken);
@@ -139,7 +139,7 @@ describe("CookieStorage", () => {
 
     const cookies = fake.getAll().map((c) => c.name);
     expect(
-      cookies.find((n) => n.startsWith(StorageKeys.nonce)),
+      cookies.find((n) => n.startsWith(`kinde-${StorageKeys.nonce}`)),
     ).toBeUndefined();
   });
 
@@ -151,5 +151,21 @@ describe("CookieStorage", () => {
     await storage.setSessionItem(StorageKeys.nonce, false);
     const bool = await storage.getSessionItem(StorageKeys.nonce);
     expect(bool).toBe(false);
+  });
+
+  it("prepends keyPrefix to all cookie names", async () => {
+    await storage.setSessionItem(StorageKeys.accessToken, "token123");
+    await storage.setSessionItem(StorageKeys.idToken, "id456");
+    
+    const allCookies = fake.getAll();
+    const cookieNames = allCookies.map((c) => c.name);
+    
+    // All cookies should have the "kinde-" prefix
+    expect(cookieNames).toContain("kinde-accessToken");
+    expect(cookieNames).toContain("kinde-idToken");
+    
+    // Should NOT have unprefixed cookies
+    expect(cookieNames).not.toContain("accessToken");
+    expect(cookieNames).not.toContain("idToken");
   });
 });

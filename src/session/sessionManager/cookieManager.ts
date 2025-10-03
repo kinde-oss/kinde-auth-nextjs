@@ -15,7 +15,7 @@ import { isAppRouter } from "../../utils/isAppRouter.js";
 import { config } from "../../config/index";
 
 export const cookieStorageSettings: CookieStorageSettings = {
-  keyPrefix: "kinde_",
+  keyPrefix: "kinde-",
   maxLength: MAX_COOKIE_LENGTH, // stay under common cookie size limits per chunk
   useInsecureForRefreshToken: false,
 };
@@ -90,11 +90,13 @@ export class CookieStorage<V extends string = StorageKeys>
     itemValue: unknown,
   ): Promise<void> {
     const cookieStore = await this.ensureCookieStore();
+    const prefixedKey = `${cookieStorageSettings.keyPrefix}${String(itemKey)}`;
+    
     cookieStore
       .getAll()
       .map((c) => c.name)
       .forEach((key) => {
-        if (key.startsWith(`${String(itemKey)}`)) {
+        if (key.startsWith(prefixedKey)) {
           cookieStore.delete(key);
         }
       });
@@ -105,7 +107,7 @@ export class CookieStorage<V extends string = StorageKeys>
           : String(itemValue);
       splitString(itemValueString, MAX_COOKIE_LENGTH).forEach(
         (value, index) => {
-          cookieStore.set(itemKey + (index === 0 ? "" : index), value, {
+          cookieStore.set(prefixedKey + (index === 0 ? "" : index), value, {
             maxAge: this.sessionState.persistent ? TWENTY_NINE_DAYS : undefined,
             domain: config.cookieDomain ? config.cookieDomain : undefined,
             ...GLOBAL_COOKIE_OPTIONS,
@@ -120,16 +122,19 @@ export class CookieStorage<V extends string = StorageKeys>
    */
   async getSessionItem(itemKey: V | StorageKeys): Promise<unknown | null> {
     const cookieStore = await this.ensureCookieStore();
-    const item = cookieStore.get(itemKey);
+    const prefixedKey = `${cookieStorageSettings.keyPrefix}${String(itemKey)}`;
+    const item = cookieStore.get(prefixedKey);
     if (!item) return null;
     let itemValue = "";
     try {
       let index = 0;
-      let key = `${String(itemKey)}${index === 0 ? "" : index}`;
+      let key = `${prefixedKey}${index === 0 ? "" : index}`;
       while (cookieStore.has(key)) {
-        itemValue += cookieStore.get(key).value;
+        const chunk = cookieStore.get(key);
+        if (!chunk) break;
+        itemValue += chunk.value;
         index++;
-        key = `${String(itemKey)}${index === 0 ? "" : index}`;
+        key = `${prefixedKey}${index === 0 ? "" : index}`;
       }
       return destr(itemValue);
     } catch (error) {
@@ -144,11 +149,12 @@ export class CookieStorage<V extends string = StorageKeys>
    */
   async removeSessionItem(itemKey: V | StorageKeys): Promise<void> {
     const cookieStore = await this.ensureCookieStore();
+    const prefixedKey = `${cookieStorageSettings.keyPrefix}${String(itemKey)}`;
     cookieStore
       .getAll()
       .map((c) => c.name)
       .forEach((key) => {
-        if (key.startsWith(`${String(itemKey)}`)) {
+        if (key.startsWith(prefixedKey)) {
           cookieStore.delete(key);
         }
       });
