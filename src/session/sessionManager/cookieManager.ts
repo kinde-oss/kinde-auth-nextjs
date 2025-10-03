@@ -31,9 +31,9 @@ export class CookieStorage<V extends string = StorageKeys>
   sessionState = { persistent: true };
 
   constructor(
-    req: NextApiRequest,
-    resp: NextApiResponse,
-    options: { persistent: true },
+    req: NextApiRequest | undefined,
+    resp: NextApiResponse | undefined,
+    options: { persistent: boolean } = { persistent: true },
   ) {
     super();
     this.req = req;
