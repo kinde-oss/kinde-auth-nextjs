@@ -156,14 +156,14 @@ describe("CookieStorage", () => {
   it("prepends keyPrefix to all cookie names", async () => {
     await storage.setSessionItem(StorageKeys.accessToken, "token123");
     await storage.setSessionItem(StorageKeys.idToken, "id456");
-    
+
     const allCookies = fake.getAll();
     const cookieNames = allCookies.map((c) => c.name);
-    
+
     // All cookies should have the "kinde-" prefix
     expect(cookieNames).toContain("kinde-accessToken");
     expect(cookieNames).toContain("kinde-idToken");
-    
+
     // Should NOT have unprefixed cookies
     expect(cookieNames).not.toContain("accessToken");
     expect(cookieNames).not.toContain("idToken");

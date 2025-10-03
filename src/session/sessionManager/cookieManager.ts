@@ -91,7 +91,7 @@ export class CookieStorage<V extends string = StorageKeys>
   ): Promise<void> {
     const cookieStore = await this.ensureCookieStore();
     const prefixedKey = `${cookieStorageSettings.keyPrefix}${String(itemKey)}`;
-    
+
     cookieStore
       .getAll()
       .map((c) => c.name)
