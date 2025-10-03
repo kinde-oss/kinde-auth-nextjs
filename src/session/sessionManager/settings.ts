@@ -1,4 +1,4 @@
-import type { StorageSettingsType } from './types';
+import type { StorageSettingsType } from "./types";
 
 export const storageSettings: StorageSettingsType = {
   /**
@@ -46,6 +46,4 @@ export interface CookieStorageSettings extends StorageSettingsType {
   sameSite?: "Lax" | "Strict" | "None";
   secure?: boolean;
   httpOnly?: boolean; // has no effect in browser set but preserved for parity
-};
-
-
+}

@@ -7,7 +7,10 @@ class FakeCookieStore {
   private store = new Map<string, string>();
 
   getAll() {
-    return Array.from(this.store.entries()).map(([name, value]) => ({ name, value }));
+    return Array.from(this.store.entries()).map(([name, value]) => ({
+      name,
+      value,
+    }));
   }
 
   get(name: string) {
@@ -38,7 +41,9 @@ describe("CookieStorage", () => {
 
   beforeEach(() => {
     fake = new FakeCookieStore();
-    storage = new CookieStorage<any>(undefined as any, undefined as any, { persistent: true });
+    storage = new CookieStorage<any>(undefined as any, undefined as any, {
+      persistent: true,
+    });
     // inject our fake cookie store (bypass lazy initialization for testing)
     // @ts-ignore accessing private field
     storage._cookieStore = fake as any;
@@ -65,7 +70,10 @@ describe("CookieStorage", () => {
     const longValue = "x".repeat(MAX_COOKIE_LENGTH * 2 + 137); // 3 chunks
     await storage.setSessionItem(StorageKeys.accessToken, longValue);
 
-    const names = fake.getAll().map((c) => c.name).filter((n) => n.startsWith(StorageKeys.accessToken));
+    const names = fake
+      .getAll()
+      .map((c) => c.name)
+      .filter((n) => n.startsWith(StorageKeys.accessToken));
     expect(names.sort()).toEqual([
       `${StorageKeys.accessToken}`,
       `${StorageKeys.accessToken}1`,
@@ -125,12 +133,14 @@ describe("CookieStorage", () => {
 
   it("handles undefined values by not setting cookies", async () => {
     await storage.setSessionItem(StorageKeys.nonce, undefined);
-    
+
     const result = await storage.getSessionItem(StorageKeys.nonce);
     expect(result).toBeNull();
-    
+
     const cookies = fake.getAll().map((c) => c.name);
-    expect(cookies.find((n) => n.startsWith(StorageKeys.nonce))).toBeUndefined();
+    expect(
+      cookies.find((n) => n.startsWith(StorageKeys.nonce)),
+    ).toBeUndefined();
   });
 
   it("handles number and boolean values correctly", async () => {
@@ -143,5 +153,3 @@ describe("CookieStorage", () => {
     expect(bool).toBe(false);
   });
 });
-
-
