@@ -139,7 +139,7 @@ describe("CookieStorage", () => {
 
     const cookies = fake.getAll().map((c) => c.name);
     expect(
-      cookies.find((n) => n.startsWith(`kinde-${StorageKeys.nonce}`))
+      cookies.find((n) => n.startsWith(`kinde-${StorageKeys.nonce}`)),
     ).toBeUndefined();
   });
 
