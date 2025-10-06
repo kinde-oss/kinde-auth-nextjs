@@ -1,18 +1,18 @@
-import { SessionBase, StorageKeys, type SessionManager } from "./types.js";
-import { splitString } from "@kinde/js-utils";
+import { StorageKeys } from "@kinde/js-utils";
+import { type SessionManager, splitString, SessionBase } from "@kinde/js-utils";
 import {
   COOKIE_LIST,
   GLOBAL_COOKIE_OPTIONS,
   MAX_COOKIE_LENGTH,
   TWENTY_NINE_DAYS,
 } from "../../utils/constants";
-import { CookieStorageSettings, storageSettings } from "./settings";
-import { NextApiRequest, NextApiResponse } from "next";
+import { CookieStorageSettings } from "./settings";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies.js";
 import { cookies } from "next/headers.js";
 import destr from "destr";
 import { isAppRouter } from "../../utils/isAppRouter.js";
 import { config } from "../../config/index";
+import { NextRequest, NextResponse } from "next/server.js";
 
 export const cookieStorageSettings: CookieStorageSettings = {
   keyPrefix: "kinde-",
@@ -24,21 +24,29 @@ export class CookieStorage<V extends string = StorageKeys>
   extends SessionBase<V>
   implements SessionManager<V>
 {
-  public req: NextApiRequest | undefined;
-  public resp: NextApiResponse | undefined;
+  public req: NextRequest | undefined;
+  public resp: NextResponse | undefined;
   private _cookieStore: ReadonlyRequestCookies | undefined;
 
   sessionState = { persistent: true };
 
   constructor(
-    req: NextApiRequest | undefined,
-    resp: NextApiResponse | undefined,
-    options: { persistent: boolean } = { persistent: true },
+    req: NextRequest | undefined,
+    resp: NextResponse | undefined,
+    options: { persistent: boolean } = { persistent: true }
   ) {
     super();
     this.req = req;
     this.resp = resp;
     this.sessionState = options;
+  }
+
+  /**
+   * Check if we're in middleware context (both req and resp provided)
+   * In middleware, we must use resp.cookies for mutations (Next.js < 15 requirement)
+   */
+  private isMiddlewareContext(): boolean {
+    return !!(this.req && this.resp);
   }
 
   /**
@@ -58,7 +66,9 @@ export class CookieStorage<V extends string = StorageKeys>
       this._cookieStore = await cookies();
       return this._cookieStore;
     } else {
-      throw new Error("This store is to be used for App Router.");
+      throw new Error(
+        "This store should make use of the request cookies provided by the middleware."
+      );
     }
   }
 
@@ -68,18 +78,30 @@ export class CookieStorage<V extends string = StorageKeys>
    */
   async destroySession(): Promise<void> {
     const cookieStore = await this.ensureCookieStore();
-    cookieStore
+    const cookiesToDelete = cookieStore
       .getAll()
       .map((c) => c.name)
-      .forEach((key) => {
-        if (COOKIE_LIST.some((substr) => key.startsWith(substr))) {
-          cookieStore.set(key, "", {
-            domain: config.cookieDomain ? config.cookieDomain : undefined,
-            maxAge: 0,
-            ...GLOBAL_COOKIE_OPTIONS,
-          });
-        }
+      .filter((key) => COOKIE_LIST.some((substr) => key.startsWith(substr)));
+
+    // In middleware context, use resp.cookies (Next.js < 15 requirement)
+    if (this.isMiddlewareContext() && this.resp) {
+      cookiesToDelete.forEach((key) => {
+        this.resp!.cookies.set(key, "", {
+          domain: config.cookieDomain ? config.cookieDomain : undefined,
+          maxAge: 0,
+          ...GLOBAL_COOKIE_OPTIONS,
+        });
       });
+    } else {
+      // In Server Actions/Route Handlers, use cookieStore
+      cookiesToDelete.forEach((key) => {
+        cookieStore.set(key, "", {
+          domain: config.cookieDomain ? config.cookieDomain : undefined,
+          maxAge: 0,
+          ...GLOBAL_COOKIE_OPTIONS,
+        });
+      });
+    }
   }
 
   /**
@@ -87,33 +109,69 @@ export class CookieStorage<V extends string = StorageKeys>
    */
   async setSessionItem(
     itemKey: V | StorageKeys,
-    itemValue: unknown,
+    itemValue: unknown
   ): Promise<void> {
     const cookieStore = await this.ensureCookieStore();
     const prefixedKey = `${cookieStorageSettings.keyPrefix}${String(itemKey)}`;
 
-    cookieStore
+    // Get list of keys to delete
+    const keysToDelete = cookieStore
       .getAll()
       .map((c) => c.name)
-      .forEach((key) => {
-        if (key.startsWith(prefixedKey)) {
-          cookieStore.delete(key);
-        }
+      .filter((key) => key.startsWith(prefixedKey));
+
+    // In middleware context, use resp.cookies (Next.js < 15 requirement)
+    if (this.isMiddlewareContext() && this.resp) {
+      // Delete old chunks
+      keysToDelete.forEach((key) => {
+        this.resp!.cookies.delete(key);
       });
-    if (itemValue !== undefined) {
-      const itemValueString =
-        typeof itemValue === "object"
-          ? JSON.stringify(itemValue)
-          : String(itemValue);
-      splitString(itemValueString, MAX_COOKIE_LENGTH).forEach(
-        (value, index) => {
-          cookieStore.set(prefixedKey + (index === 0 ? "" : index), value, {
-            maxAge: this.sessionState.persistent ? TWENTY_NINE_DAYS : undefined,
-            domain: config.cookieDomain ? config.cookieDomain : undefined,
-            ...GLOBAL_COOKIE_OPTIONS,
-          });
-        },
-      );
+
+      // Set new value (potentially chunked)
+      if (itemValue !== undefined) {
+        const itemValueString =
+          typeof itemValue === "object"
+            ? JSON.stringify(itemValue)
+            : String(itemValue);
+        splitString(itemValueString, MAX_COOKIE_LENGTH).forEach(
+          (value, index) => {
+            this.resp!.cookies.set(
+              prefixedKey + (index === 0 ? "" : index),
+              value,
+              {
+                maxAge: this.sessionState.persistent
+                  ? TWENTY_NINE_DAYS
+                  : undefined,
+                domain: config.cookieDomain ? config.cookieDomain : undefined,
+                ...GLOBAL_COOKIE_OPTIONS,
+              }
+            );
+          }
+        );
+      }
+    } else {
+      // In Server Actions/Route Handlers, use cookieStore
+      keysToDelete.forEach((key) => {
+        cookieStore.delete(key);
+      });
+
+      if (itemValue !== undefined) {
+        const itemValueString =
+          typeof itemValue === "object"
+            ? JSON.stringify(itemValue)
+            : String(itemValue);
+        splitString(itemValueString, MAX_COOKIE_LENGTH).forEach(
+          (value, index) => {
+            cookieStore.set(prefixedKey + (index === 0 ? "" : index), value, {
+              maxAge: this.sessionState.persistent
+                ? TWENTY_NINE_DAYS
+                : undefined,
+              domain: config.cookieDomain ? config.cookieDomain : undefined,
+              ...GLOBAL_COOKIE_OPTIONS,
+            });
+          }
+        );
+      }
     }
   }
 
@@ -150,13 +208,39 @@ export class CookieStorage<V extends string = StorageKeys>
   async removeSessionItem(itemKey: V | StorageKeys): Promise<void> {
     const cookieStore = await this.ensureCookieStore();
     const prefixedKey = `${cookieStorageSettings.keyPrefix}${String(itemKey)}`;
-    cookieStore
+    const keysToDelete = cookieStore
       .getAll()
       .map((c) => c.name)
-      .forEach((key) => {
-        if (key.startsWith(prefixedKey)) {
-          cookieStore.delete(key);
-        }
+      .filter((key) => key.startsWith(prefixedKey));
+
+    // In middleware context, use resp.cookies (Next.js < 15 requirement)
+    if (this.isMiddlewareContext() && this.resp) {
+      keysToDelete.forEach((key) => {
+        this.resp!.cookies.delete(key);
       });
+    } else {
+      // In Server Actions/Route Handlers, use cookieStore
+      keysToDelete.forEach((key) => {
+        cookieStore.delete(key);
+      });
+    }
+  }
+
+  /**
+   * Sets multiple items simultaneously.
+   */
+  async setItems(items: Partial<Record<V, unknown>>): Promise<void> {
+    for (const [key, value] of Object.entries(items)) {
+      await this.setSessionItem(key as V, value);
+    }
+  }
+
+  /**
+   * Removes multiple items simultaneously.
+   */
+  async removeItems(...items: V[]): Promise<void> {
+    for (const item of items) {
+      await this.removeSessionItem(item);
+    }
   }
 }

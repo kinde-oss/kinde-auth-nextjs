@@ -13,6 +13,10 @@ importers:
         version: 5.10.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@kinde-oss/kinde-typescript-sdk':
         specifier: 2.13.1
+        version: 2.13.1(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
+      '@kinde/js-utils':
+        specifier: ^0.25.0
+        version: 0.25.0
         version: 2.13.1(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.3)
       '@kinde/jwt-decoder':
         specifier: ^0.2.0
@@ -1057,6 +1061,12 @@ packages:
 
   '@next/swc-win32-x64-msvc@16.1.6':
     resolution: {integrity: sha512-NRfO39AIrzBnixKbjuo2YiYhB6o9d8v/ymU9m/Xk8cyVk+k7XylniXkHwjs4s70wedVffc6bQNbufk5v0xEm0A==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [win32]
+
+  '@next/swc-win32-x64-msvc@15.5.4':
+    resolution: {integrity: sha512-1ur2tSHZj8Px/KMAthmuI9FMp/YFusMMGoRNJaRZMOlSkgvLjzosSdQI0cJAKogdHl3qXUQKL9MGaYvKwA7DXg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
@@ -4575,6 +4585,9 @@ snapshots:
     optional: true
 
   '@next/swc-win32-x64-msvc@16.1.6':
+    optional: true
+
+  '@next/swc-win32-x64-msvc@15.5.4':
     optional: true
 
   '@nodelib/fs.scandir@2.1.5':
