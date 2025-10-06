@@ -33,7 +33,7 @@ export class CookieStorage<V extends string = StorageKeys>
   constructor(
     req: NextRequest | undefined,
     resp: NextResponse | undefined,
-    options: { persistent: boolean } = { persistent: true }
+    options: { persistent: boolean } = { persistent: true },
   ) {
     super();
     this.req = req;
@@ -67,7 +67,7 @@ export class CookieStorage<V extends string = StorageKeys>
       return this._cookieStore;
     } else {
       throw new Error(
-        "This store should make use of the request cookies provided by the middleware."
+        "This store should make use of the request cookies provided by the middleware.",
       );
     }
   }
@@ -109,7 +109,7 @@ export class CookieStorage<V extends string = StorageKeys>
    */
   async setSessionItem(
     itemKey: V | StorageKeys,
-    itemValue: unknown
+    itemValue: unknown,
   ): Promise<void> {
     const cookieStore = await this.ensureCookieStore();
     const prefixedKey = `${cookieStorageSettings.keyPrefix}${String(itemKey)}`;
@@ -144,9 +144,9 @@ export class CookieStorage<V extends string = StorageKeys>
                   : undefined,
                 domain: config.cookieDomain ? config.cookieDomain : undefined,
                 ...GLOBAL_COOKIE_OPTIONS,
-              }
+              },
             );
-          }
+          },
         );
       }
     } else {
@@ -169,7 +169,7 @@ export class CookieStorage<V extends string = StorageKeys>
               domain: config.cookieDomain ? config.cookieDomain : undefined,
               ...GLOBAL_COOKIE_OPTIONS,
             });
-          }
+          },
         );
       }
     }
