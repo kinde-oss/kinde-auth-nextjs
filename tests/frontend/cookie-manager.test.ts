@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { CookieStorage } from "../../src/session/sessionManager/index.ts";
-import { StorageKeys } from "../../src/session/sessionManager/types";
 import { MAX_COOKIE_LENGTH, COOKIE_LIST } from "../../src/utils/constants";
+import { StorageKeys } from "@kinde/js-utils";
 
 class FakeCookieStore {
   private store = new Map<string, string>();
@@ -139,7 +139,7 @@ describe("CookieStorage", () => {
 
     const cookies = fake.getAll().map((c) => c.name);
     expect(
-      cookies.find((n) => n.startsWith(`kinde-${StorageKeys.nonce}`)),
+      cookies.find((n) => n.startsWith(`kinde-${StorageKeys.nonce}`))
     ).toBeUndefined();
   });
 
