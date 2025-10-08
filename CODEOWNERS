@@ -1,1 +1,1 @@
-@kinde-oss/giants-kinde
+* @kinde-oss/giants-kinde
