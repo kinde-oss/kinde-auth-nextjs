@@ -26,6 +26,11 @@ export const setup = async (routerClient: RouterClient) => {
       return routerClient.json(
         {
           message: "NOT_LOGGED_IN",
+          env: {
+            clientId: config.clientID,
+            issuerUrl: config.issuerURL,
+            redirectUrl: config.redirectURL,
+          },
         },
         { status: 200 },
       );
@@ -49,6 +54,11 @@ export const setup = async (routerClient: RouterClient) => {
           {
             message: "REFRESH_FAILED",
             error: error instanceof Error ? error.message : error,
+            env: {
+              clientId: config.clientID,
+              issuerUrl: config.issuerURL,
+              redirectUrl: config.redirectURL,
+            },
           },
           { status: 500 },
         );
@@ -70,6 +80,11 @@ export const setup = async (routerClient: RouterClient) => {
         {
           message: "ACCESS_TOKEN_DECODE_FAILED",
           error: error instanceof Error ? error.message : error,
+          env: {
+            clientId: config.clientID,
+            issuerUrl: config.issuerURL,
+            redirectUrl: config.redirectURL,
+          },
         },
         { status: 500 },
       );
@@ -85,6 +100,11 @@ export const setup = async (routerClient: RouterClient) => {
         {
           message: "ID_TOKEN_DECODE_FAILED",
           error: error instanceof Error ? error.message : error,
+          env: {
+            clientId: config.clientID,
+            issuerUrl: config.issuerURL,
+            redirectUrl: config.redirectURL,
+          },
         },
         { status: 500 },
       );
@@ -92,7 +112,15 @@ export const setup = async (routerClient: RouterClient) => {
 
     if (!accessToken || !idToken) {
       return routerClient.json(
-        { message: "TOKENS_MISSING", error: "No access or id token" },
+        {
+          message: "TOKENS_MISSING",
+          error: "No access or id token",
+          env: {
+            clientId: config.clientID,
+            issuerUrl: config.issuerURL,
+            redirectUrl: config.redirectURL,
+          },
+        },
         { status: 500 },
       );
     }
