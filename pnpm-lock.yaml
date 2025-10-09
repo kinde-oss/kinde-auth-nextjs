@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@kinde-oss/kinde-auth-nextjs': link:../../../Library/pnpm/global/5/node_modules/@kinde-oss/kinde-auth-nextjs
-
 importers:
 
   .:
@@ -114,9 +111,6 @@ importers:
 
   playground:
     dependencies:
-      '@kinde-oss/kinde-auth-nextjs':
-        specifier: link:../../../../Library/pnpm/global/5/node_modules/@kinde-oss/kinde-auth-nextjs
-        version: link:../../../../Library/pnpm/global/5/node_modules/@kinde-oss/kinde-auth-nextjs
       '@types/node':
         specifier: latest
         version: 24.6.2
