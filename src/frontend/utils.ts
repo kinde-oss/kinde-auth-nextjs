@@ -44,10 +44,6 @@ export const fetchKindeState = async (): Promise<FetchKindeStateResponse> => {
     return { success: false, error: "Failed to fetch Kinde state", env: null };
   }
 
-  if (!res.ok) {
-    return { success: false, error: "Failed to fetch Kinde state", env: null };
-  }
-
   let parsedBody: SetupResponse;
   try {
     parsedBody = (await res.json()) as SetupResponse;
@@ -63,6 +59,14 @@ export const fetchKindeState = async (): Promise<FetchKindeStateResponse> => {
   }
 
   const { message, error, env, ...kindeData } = parsedBody;
+
+  if (!res.ok) {
+    return {
+      success: false,
+      error: error || message || "Failed to fetch Kinde state",
+      env: env ?? null,
+    };
+  }
 
   switch (message) {
     case "OK":
