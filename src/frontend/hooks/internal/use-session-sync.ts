@@ -49,7 +49,7 @@ export const useSessionSync = () => {
       isLoading: false,
       error: null,
     });
-      
+
     console.log("setupResponse successful", setupResponse);
 
     setConfig(setupResponse.env);

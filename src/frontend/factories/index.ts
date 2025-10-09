@@ -99,7 +99,10 @@ export const transformReactAuthStateToNextState = async (
       permissions,
       orgCode: organization,
     },
-    user: decodedIdToken && decodedAccessToken ? generateUserObject(decodedIdToken, decodedAccessToken) : null,
+    user:
+      decodedIdToken && decodedAccessToken
+        ? generateUserObject(decodedIdToken, decodedAccessToken)
+        : null,
     userOrganizations: {
       orgCodes: userOrganizations,
       orgs: orgNames?.map((org) => ({
