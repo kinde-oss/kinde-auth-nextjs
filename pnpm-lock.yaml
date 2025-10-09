@@ -111,6 +111,9 @@ importers:
 
   playground:
     dependencies:
+      '@kinde-oss/kinde-auth-nextjs':
+        specifier: link:..
+        version: link:..
       '@types/node':
         specifier: latest
         version: 24.6.2
@@ -118,13 +121,13 @@ importers:
         specifier: latest
         version: 15.5.4(eslint@9.36.0(jiti@2.6.1))(typescript@5.9.3)
       next:
-        specifier: ^15.5.4
+        specifier: latest
         version: 15.5.4(@babel/core@7.28.4)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react:
-        specifier: ^19.2.0
+        specifier: latest
         version: 19.2.0
       react-dom:
-        specifier: ^19.2.0
+        specifier: latest
         version: 19.2.0(react@19.2.0)
 
 packages:
