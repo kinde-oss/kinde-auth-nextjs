@@ -1,5 +1,5 @@
 import { config, routes } from "../config/index.js";
-import { FetchedKindeState } from "./types.js";
+import { FetchedKindeState, PublicKindeConfig } from "./types.js";
 
 export const getRefreshTokensServerAction = async () => {
   try {
@@ -22,11 +22,13 @@ type SetupResponse = {
 type FetchKindeStateResponse =
   | {
       success: true;
-      kindeState: FetchedKindeState;
+      kindeState: Omit<FetchedKindeState, "env">;
+      env: PublicKindeConfig;
     }
   | {
       success: false;
       error: string;
+      env: PublicKindeConfig | null;
     };
 
 export const fetchKindeState = async (): Promise<FetchKindeStateResponse> => {
@@ -39,11 +41,11 @@ export const fetchKindeState = async (): Promise<FetchKindeStateResponse> => {
     if (config.isDebugMode) {
       console.error("Failed to fetch Kinde state", err);
     }
-    return { success: false, error: "Failed to fetch Kinde state" };
+    return { success: false, error: "Failed to fetch Kinde state", env: null };
   }
 
   if (!res.ok) {
-    return { success: false, error: "Failed to fetch Kinde state" };
+    return { success: false, error: "Failed to fetch Kinde state", env: null };
   }
 
   let parsedBody: SetupResponse;
@@ -53,20 +55,25 @@ export const fetchKindeState = async (): Promise<FetchKindeStateResponse> => {
     if (config.isDebugMode) {
       console.error("Failed to parse Kinde state response", err);
     }
-    return { success: false, error: "Failed to parse Kinde state response" };
+    return {
+      success: false,
+      error: "Failed to parse Kinde state response",
+      env: null,
+    };
   }
 
-  const { message, error, ...kindeData } = parsedBody;
+  const { message, error, env, ...kindeData } = parsedBody;
 
   switch (message) {
     case "OK":
-      return { success: true, kindeState: kindeData };
+      return { success: true, kindeState: kindeData, env };
     case "NOT_LOGGED_IN":
-      return { success: false, error: "Not logged in" };
+      return { success: false, error: "Not logged in", env };
     default:
       return {
         success: false,
         error: `${message}: ${error || "An error occurred"}`,
+        env,
       };
   }
 };
