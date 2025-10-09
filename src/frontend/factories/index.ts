@@ -61,13 +61,13 @@ export const transformReactAuthStateToNextState = async (
   const idToken = await reactAuthState.getIdToken();
   const decodedAccessToken = jwtDecoder<KindeAccessToken>(accessToken);
   const decodedIdToken = jwtDecoder<KindeIdToken>(idToken);
-  const permissions = decodedAccessToken.permissions;
-  const organization = decodedAccessToken.org_code;
-  const featureFlags = decodedAccessToken.feature_flags;
-  const userOrganizations = decodedIdToken.org_codes;
-  const orgName = decodedAccessToken.org_name;
-  const orgProperties = decodedAccessToken.organization_properties;
-  const orgNames = decodedIdToken.organizations;
+  const permissions = decodedAccessToken?.permissions ?? [];
+  const organization = decodedAccessToken?.org_code;
+  const featureFlags = decodedAccessToken?.feature_flags;
+  const userOrganizations = decodedIdToken?.org_codes ?? [];
+  const orgName = decodedAccessToken?.org_name;
+  const orgProperties = decodedAccessToken?.organization_properties;
+  const orgNames = decodedIdToken?.organizations ?? [];
   return {
     accessToken: decodedAccessToken,
     accessTokenEncoded: accessToken,
@@ -99,7 +99,7 @@ export const transformReactAuthStateToNextState = async (
       permissions,
       orgCode: organization,
     },
-    user: generateUserObject(decodedIdToken, decodedAccessToken),
+    user: decodedIdToken && decodedAccessToken ? generateUserObject(decodedIdToken, decodedAccessToken) : null,
     userOrganizations: {
       orgCodes: userOrganizations,
       orgs: orgNames?.map((org) => ({
