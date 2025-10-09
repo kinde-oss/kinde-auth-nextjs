@@ -9,6 +9,7 @@ import {
   constructKindeClientState,
   transformReactAuthStateToNextState,
 } from "../../factories";
+import { getRefreshTokensServerAction } from "../../utils";
 
 // This isn't particularly pretty,
 // but we need to make `useKindeAuth` adhere
@@ -35,10 +36,19 @@ export const useProvidedKindeAuth = (): KindeState => {
     [nextState],
   );
 
+  const refreshData = async () => {
+    const refreshTokens = await getRefreshTokensServerAction();
+    if (refreshTokens) {
+      await refreshTokens();
+    } else {
+      console.warn(
+        "[Kinde] refreshData is only available in Next.js App Router environments, version 14 or higher.",
+      );
+    }
+  };
+
   return {
     ...clientState,
-    refreshData: async () => {
-      // noop for now
-    },
+    refreshData,
   };
 };
