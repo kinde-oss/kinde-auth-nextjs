@@ -1,44 +1,33 @@
 "use client";
 import { KindeProvider as KindeReactProvider } from "@kinde-oss/kinde-auth-react";
-import React, { useState } from "react";
-import { useFetchedKindeState } from "./hooks/internal/use-fetched-kinde-state";
+import React from "react";
+import { useSessionSync } from "./hooks/internal/use-session-sync";
 import * as store from "./store";
-import { StorageKeys } from "@kinde/js-utils";
-import { PublicKindeConfig } from "./types";
+import { storageSettings } from "@kinde/js-utils";
 
 type KindeProviderProps = {
   children: React.ReactNode;
-  fallback?: React.ReactNode;
+  waitForInitialLoad?: boolean;
 };
 
-export const KindeProvider = ({ children, fallback }: KindeProviderProps) => {
-  const [config, setConfig] = useState<PublicKindeConfig | null>(null);
-  const { loading } = useFetchedKindeState({
-    onSuccess: async (state) => {
-      await Promise.all([
-        store.clientStorage.setSessionItem(
-          StorageKeys.accessToken,
-          state.accessTokenEncoded,
-        ),
-        store.clientStorage.setSessionItem(
-          StorageKeys.idToken,
-          state.idTokenRaw,
-        ),
-      ]);
-      setConfig(state.env);
-    },
-  });
-  if (loading) return fallback ?? null;
-  if (!config) {
+export const KindeProvider = ({
+  children,
+  waitForInitialLoad,
+}: KindeProviderProps) => {
+  const { loading, config } = useSessionSync();
+  if (loading && waitForInitialLoad) return null;
+  if (!config && !loading) {
     console.error("[KindeProvider] Failed to fetch config");
-    return fallback ?? null;
+    return null;
   }
+
   return (
     <KindeReactProvider
-      clientId={config.clientId}
-      domain={config.issuerUrl}
-      redirectUri={config.redirectUrl}
+      clientId={config?.clientId ?? ""}
+      domain={config?.issuerUrl ?? ""}
+      redirectUri={config?.redirectUrl ?? ""}
       store={store.clientStorage}
+      forceChildrenRender
     >
       {children}
     </KindeReactProvider>
