@@ -2,7 +2,7 @@
 import { KindeState } from "../../../types.js";
 import { constructKindeClientState } from "../../factories/index.js";
 import { getRefreshTokensServerAction } from "../../utils.js";
-import { useFetchedKindeState } from "../internal/use-fetched-kinde-state.js";
+import { useSessionSync } from "../internal/use-session-sync.js";
 
 /**
  *
@@ -13,7 +13,7 @@ export const useProviderlessKindeAuth = (
     process.env.KINDE_AUTH_API_PATH ||
     "/api/auth",
 ): KindeState => {
-  const { getFetchedState, refetch } = useFetchedKindeState();
+  const { getFetchedState, refetch } = useSessionSync();
 
   const refreshData = async () => {
     const refreshTokens = await getRefreshTokensServerAction();
