@@ -9,7 +9,7 @@ import { useSyncState } from "./use-sync-state";
 import { fetchKindeState } from "../../utils";
 import { DefaultKindeNextClientState } from "../../constants";
 import * as store from "../../store";
-import { StorageKeys } from "@kinde/js-utils";
+import { getDecodedToken, RefreshTokenResult, setRefreshTimer, StorageKeys } from "@kinde-oss/kinde-auth-react/utils";
 
 export const useSessionSync = () => {
   const [loading, setLoading] = useState(true);

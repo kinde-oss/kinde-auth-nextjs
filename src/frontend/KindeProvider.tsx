@@ -3,7 +3,7 @@ import { KindeProvider as KindeReactProvider } from "@kinde-oss/kinde-auth-react
 import React from "react";
 import { useSessionSync } from "./hooks/internal/use-session-sync";
 import * as store from "./store";
-import { storageSettings } from "@kinde/js-utils";
+import { storageSettings } from "@kinde-oss/kinde-auth-react/utils";
 
 type KindeProviderProps = {
   children: React.ReactNode;

@@ -1,4 +1,4 @@
-import { MemoryStorage, setActiveStorage } from "@kinde/js-utils";
+import { MemoryStorage, setActiveStorage } from "@kinde-oss/kinde-auth-react/utils";
 
 export const clientStorage = new MemoryStorage();
 setActiveStorage(clientStorage);
