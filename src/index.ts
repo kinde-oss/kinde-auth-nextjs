@@ -2,6 +2,8 @@ export {
   KindeProvider,
   useKindeAuth,
   useKindeBrowserClient,
+  initializeActivityTracking,
+  BrowserActivitySessionManager,
 } from "./frontend/index";
 export {
   LoginLink,

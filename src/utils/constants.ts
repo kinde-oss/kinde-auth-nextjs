@@ -21,3 +21,5 @@ export const COOKIE_LIST = [
 ];
 
 export const MAX_COOKIE_LENGTH = 3000;
+
+export const ACTIVITY_COOKIE_NAME = "kinde_activity_ts";
