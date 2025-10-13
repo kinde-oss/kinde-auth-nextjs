@@ -5,10 +5,9 @@ import { generateUserObject } from "../utils/generateUserObject";
 import { getAccessToken } from "../utils/getAccessToken";
 import RouterClient from "../routerClients/RouterClient";
 import { getIdToken } from "../utils/getIdToken";
-import { isTokenExpired } from "../utils/jwt/validation";
 import { sessionManager } from "../session/sessionManager";
 import { kindeClient } from "../session/kindeServerClient";
-
+import { isTokenExpired } from '@kinde-oss/kinde-auth-react/utils'
 /**
  *
  * @param {RouterClient} routerClient
@@ -38,7 +37,7 @@ export const setup = async (routerClient: RouterClient) => {
 
     const session = await sessionManager(routerClient.req, routerClient.res);
 
-    if (isTokenExpired(accessTokenEncoded) || isTokenExpired(idTokenEncoded)) {
+    if (await isTokenExpired({ threshold: 20 })) {
       if (config.isDebugMode) {
         console.log("setup: access or id token expired - attempting refresh");
       }
