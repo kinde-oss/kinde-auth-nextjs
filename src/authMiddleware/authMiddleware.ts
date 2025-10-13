@@ -85,7 +85,10 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const resp = NextResponse.next();
 
   // if accessToken is expired, refresh it
-  if (isTokenExpired(kindeAccessToken) || isTokenExpired(kindeIdToken)) {
+  if (
+    isTokenExpired(kindeAccessToken, 20) ||
+    isTokenExpired(kindeIdToken, 20)
+  ) {
     if (config.isDebugMode) {
       console.log("authMiddleware: access token expired, refreshing");
     }

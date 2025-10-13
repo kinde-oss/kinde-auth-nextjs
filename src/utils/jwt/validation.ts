@@ -4,14 +4,19 @@ import { jwtDecoder } from "@kinde/jwt-decoder";
 
 // currently assumes that the token is valid
 // .. should we revalidate here as well? seems redundant
-export const isTokenExpired = (token: string) => {
-  const decodedToken = jwtDecoder(token);
+export const isTokenExpired = (token: string, threshold = 0) => {
+  try {
+    const decodedToken = jwtDecoder(token);
 
-  if (!decodedToken?.exp) {
-    return true;
+    if (!decodedToken?.exp) {
+      return true;
+    }
+
+    return decodedToken.exp < Math.floor(Date.now() / 1000) + threshold;
+  } catch (error) {
+    console.error("Error checking authentication:", error);
+    return false;
   }
-
-  return decodedToken.exp && decodedToken.exp < Date.now() / 1000;
 };
 
 export const validateToken = async ({
