@@ -9,14 +9,19 @@ import { useSyncState } from "./use-sync-state";
 import { fetchKindeState } from "../../utils";
 import { DefaultKindeNextClientState } from "../../constants";
 import * as store from "../../store";
-import { getDecodedToken, RefreshTokenResult, setRefreshTimer, StorageKeys } from "@kinde-oss/kinde-auth-react/utils";
+import {
+  getDecodedToken,
+  RefreshTokenResult,
+  setRefreshTimer,
+  StorageKeys,
+} from "@kinde-oss/kinde-auth-react/utils";
 import { JWTDecoded } from "@kinde/jwt-decoder";
 
 export const calculateExpiryRealMs = async (): Promise<number | null> => {
   const token = await getDecodedToken<JWTDecoded>("accessToken");
   if (!token) return null;
 
-  return (token.exp - Math.floor(Date.now() / 1000));
+  return token.exp - Math.floor(Date.now() / 1000);
 };
 
 export const useSessionSync = () => {
@@ -26,32 +31,38 @@ export const useSessionSync = () => {
     DefaultKindeNextClientState,
   );
 
-  const handleError = useCallback(async (error: string) => {
-    await store.clientStorage.destroySession();
-    setFetchedState({
-      ...DefaultKindeNextClientState,
-      isLoading: false,
-      error,
-    });
-  }, [setFetchedState]);
+  const handleError = useCallback(
+    async (error: string) => {
+      await store.clientStorage.destroySession();
+      setFetchedState({
+        ...DefaultKindeNextClientState,
+        isLoading: false,
+        error,
+      });
+    },
+    [setFetchedState],
+  );
 
-  const updateTokensAndSetRefresh = useCallback(async (kindeState: Omit<FetchedKindeState, "env">) => {
-    const { accessTokenEncoded, idTokenRaw } = kindeState;
+  const updateTokensAndSetRefresh = useCallback(
+    async (kindeState: Omit<FetchedKindeState, "env">) => {
+      const { accessTokenEncoded, idTokenRaw } = kindeState;
 
-    await store.clientStorage.setItems({
-      [StorageKeys.accessToken]: accessTokenEncoded,
-      [StorageKeys.idToken]: idTokenRaw,
-    });
+      await store.clientStorage.setItems({
+        [StorageKeys.accessToken]: accessTokenEncoded,
+        [StorageKeys.idToken]: idTokenRaw,
+      });
 
-    const expiry = await calculateExpiryRealMs();
-    setRefreshTimer(expiry, refreshHandler);
+      const expiry = await calculateExpiryRealMs();
+      setRefreshTimer(expiry, refreshHandler);
 
-    setFetchedState({
-      ...kindeState,
-      isLoading: false,
-      error: null,
-    });
-  }, [setFetchedState]);
+      setFetchedState({
+        ...kindeState,
+        isLoading: false,
+        error: null,
+      });
+    },
+    [setFetchedState],
+  );
 
   const setupState = useCallback(async () => {
     const setupResponse = await fetchKindeState();
@@ -82,10 +93,10 @@ export const useSessionSync = () => {
     const setupResponse = await fetchKindeState();
 
     if (!setupResponse.success) {
-      await handleError('User is unauthenticated or refresh failed');
+      await handleError("User is unauthenticated or refresh failed");
       return {
         success: false,
-        error: 'User is unauthenticated or refresh failed',
+        error: "User is unauthenticated or refresh failed",
       };
     }
 
