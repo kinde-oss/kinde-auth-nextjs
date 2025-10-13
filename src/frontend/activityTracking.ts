@@ -8,6 +8,10 @@ import { BrowserActivitySessionManager } from "./BrowserActivitySessionManager";
 import { activityConfig } from "../config/index";
 import { ActivityTrackingConfig, TimeoutActivityType } from "../types";
 import { ACTIVITY_COOKIE_NAME } from "../utils/constants";
+import {
+  isActivityExpired,
+  parseActivityCookie,
+} from "../utils/activityHelpers";
 
 let cleanupFunction: (() => void) | null = null;
 let cookieWatcherAbortController: AbortController | null = null;
@@ -92,22 +96,15 @@ function checkActivityOnMount(
     return;
   }
 
-  // Read the activity cookie
-  const cookies = document.cookie.split(";");
-  const activityCookie = cookies.find((c) =>
-    c.trim().startsWith(`${ACTIVITY_COOKIE_NAME}=`),
-  );
+  // Parse the activity cookie
+  const lastActivityTimestamp = parseActivityCookie(document.cookie);
 
-  if (!activityCookie) {
+  if (lastActivityTimestamp === null) {
     return;
   }
 
-  const lastActivityTimestamp = parseInt(activityCookie.split("=")[1], 10);
-  const now = Date.now();
-  const timeoutMs = timeoutMinutes * 60 * 1000;
-  const timeSinceLastActivity = now - lastActivityTimestamp;
-
-  if (timeSinceLastActivity >= timeoutMs) {
+  // Check if activity has expired
+  if (isActivityExpired(lastActivityTimestamp, timeoutMinutes)) {
     console.log(
       "[Kinde Activity] Session expired while tab was closed, triggering timeout",
     );
