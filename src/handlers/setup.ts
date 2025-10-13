@@ -182,6 +182,11 @@ export const setup = async (routerClient: RouterClient) => {
       {
         message: "SETUP_FAILED",
         error: error instanceof Error ? error.message : error,
+        env: {
+          clientId: config.clientID,
+          issuerUrl: config.issuerURL,
+          redirectUrl: config.redirectURL,
+        },
       },
       { status: 500 },
     );
