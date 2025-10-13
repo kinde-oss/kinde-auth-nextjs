@@ -14,7 +14,9 @@ export const KindeProvider = ({
   children,
   waitForInitialLoad,
 }: KindeProviderProps) => {
-  const { loading, config } = useSessionSync();
+  const { loading, config, refreshHandler } = useSessionSync();
+
+  storageSettings.onRefreshHandler = refreshHandler;
   if (loading && waitForInitialLoad) return null;
   if (!config && !loading) {
     console.error("[KindeProvider] Failed to fetch config");
