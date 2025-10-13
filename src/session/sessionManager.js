@@ -6,13 +6,11 @@ import {
   MAX_COOKIE_LENGTH,
   GLOBAL_COOKIE_OPTIONS,
   COOKIE_LIST,
+  ACTIVITY_COOKIE_NAME,
 } from "../utils/constants";
 import { splitString } from "@kinde/js-utils";
 import { destr } from "destr";
 import * as cookie from "cookie";
-
-// Activity tracking cookie name
-const ACTIVITY_COOKIE_NAME = "kinde_activity_ts";
 
 /**
  * Check if activity cookie is expired

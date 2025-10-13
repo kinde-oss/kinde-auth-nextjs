@@ -7,8 +7,7 @@ import {
 import { BrowserActivitySessionManager } from "./BrowserActivitySessionManager";
 import { activityConfig } from "../config/index";
 import { ActivityTrackingConfig, TimeoutActivityType } from "../types";
-
-const ACTIVITY_COOKIE_NAME = "kinde_activity_ts";
+import { ACTIVITY_COOKIE_NAME } from "../utils/constants";
 
 let cleanupFunction: (() => void) | null = null;
 let cookieWatcherAbortController: AbortController | null = null;
