@@ -15,7 +15,7 @@ export const isTokenExpired = (token: string, threshold = 0) => {
     return decodedToken.exp < Math.floor(Date.now() / 1000) + threshold;
   } catch (error) {
     console.error("Error checking authentication:", error);
-    return false;
+    return true;
   }
 };
 
