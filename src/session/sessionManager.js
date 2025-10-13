@@ -295,7 +295,7 @@ export const pageRouterSessionManager = (req, res, persistent = true) => {
           const jsonValue = JSON.parse(itemValueString);
           if (typeof jsonValue === "object") {
             // Signal activity after successful session item retrieval
-            setActivityCookiePageRouter(res);
+            setActivityCookiePageRouter(res, req);
             return jsonValue;
           }
         } catch (err) {
@@ -303,7 +303,7 @@ export const pageRouterSessionManager = (req, res, persistent = true) => {
             console.error("Failed to parse session item:", err);
         }
         // Signal activity after successful session item retrieval
-        setActivityCookiePageRouter(res);
+        setActivityCookiePageRouter(res, req);
         return itemValueString;
       } catch (error) {
         if (config.isDebugMode)
@@ -370,7 +370,7 @@ export const pageRouterSessionManager = (req, res, persistent = true) => {
         );
       }
       // Signal activity after session item update
-      setActivityCookiePageRouter(res);
+      setActivityCookiePageRouter(res, req);
     },
     /**
      *
@@ -407,7 +407,7 @@ export const pageRouterSessionManager = (req, res, persistent = true) => {
         }),
       ]);
       // Signal activity after session item removal
-      setActivityCookiePageRouter(res);
+      setActivityCookiePageRouter(res, req);
     },
 
     destroySession: async () => {
