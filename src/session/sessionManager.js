@@ -173,13 +173,14 @@ export const appRouterSessionManager = (cookieStore, persistent = true) => {
           key = `${String(itemKey)}${index === 0 ? "" : index}`;
         }
         const result = destr(itemValue);
-        // Signal activity after successful session item retrieval
-        setActivityCookieAppRouter(cookieStore);
         return result;
       } catch (error) {
         if (config.isDebugMode)
           console.error("Failed to parse session item app router:", error);
         return itemValue || item.value;
+      } finally {
+        // Signal activity after session item retrieval (success or error)
+        setActivityCookieAppRouter(cookieStore);
       }
     },
     /**

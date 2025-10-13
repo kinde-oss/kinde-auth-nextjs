@@ -2,6 +2,7 @@ import {
   sessionManagerActivityProxy,
   storageSettings,
   setActiveStorage,
+  clearActiveStorage,
 } from "@kinde/js-utils";
 import { BrowserActivitySessionManager } from "./BrowserActivitySessionManager";
 import { activityConfig } from "../config/index";
@@ -70,6 +71,7 @@ export function initializeActivityTracking(
   return (cleanupFunction = () => {
     cookieWatcherAbortController?.abort();
     cookieWatcherAbortController = null;
+    clearActiveStorage();
     cleanupFunction = null;
   });
 }
