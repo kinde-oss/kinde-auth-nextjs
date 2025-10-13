@@ -51,4 +51,3 @@ export function parseActivityCookie(cookieString: string): number | null {
   // Return null if parsing resulted in NaN
   return isNaN(parsed) ? null : parsed;
 }
-
