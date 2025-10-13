@@ -391,3 +391,17 @@ export type KindeClientConfig = {
   frameworkVersion: string;
   framework: string;
 };
+
+// Activity tracking types
+export enum TimeoutActivityType {
+  preWarning = "preWarning",
+  timeout = "timeout",
+}
+
+export type ActivityTrackingConfig = {
+  timeoutMinutes?: number;
+  prewarningMinutes?: number;
+  onActivityTimeout?: (
+    timeoutType: TimeoutActivityType,
+  ) => void | Promise<void>;
+};

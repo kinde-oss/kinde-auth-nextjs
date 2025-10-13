@@ -13,6 +13,7 @@ export const flagDataTypeMap = {
   b: "boolean",
 };
 import { routes } from "../config/index";
+import { initializeActivityTracking } from "./activityTracking";
 
 const AuthContext = createContext({
   ...config.initialState,
@@ -46,10 +47,10 @@ const tokenFetcher = async (url) => {
 
 /**
  *
- * @param {children: import('react').ReactNode, options?: {apiPath: string} | undefined} props
+ * @param {children: import('react').ReactNode, activityTracking?: import('../types').ActivityTrackingConfig} props
  * @returns
  */
-export const KindeProvider = ({ children }) => {
+export const KindeProvider = ({ children, activityTracking }) => {
   const setupUrl = `${config.apiPath}/${routes.setup}`;
 
   const refreshData = useCallback(() => {
@@ -255,6 +256,21 @@ export const KindeProvider = ({ children }) => {
       checkLoading();
     }
   }, [state.user]);
+
+  // Initialize activity tracking
+  useEffect(() => {
+    if (typeof window === "undefined" || !activityTracking) {
+      return;
+    }
+
+    const cleanup = initializeActivityTracking(activityTracking);
+
+    return () => {
+      if (cleanup) {
+        cleanup();
+      }
+    };
+  }, [activityTracking]);
 
   // provide this stuff to the rest of your app
   const {

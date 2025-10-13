@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { isAppRouter } from "../utils/isAppRouter";
-import { config } from "../config/index";
+import { config, activityConfig } from "../config/index";
 import {
   TWENTY_NINE_DAYS,
   MAX_COOKIE_LENGTH,
@@ -10,6 +10,106 @@ import {
 import { splitString } from "@kinde/js-utils";
 import { destr } from "destr";
 import * as cookie from "cookie";
+
+// Activity tracking cookie name
+const ACTIVITY_COOKIE_NAME = "kinde_activity_ts";
+
+/**
+ * Check if activity cookie is expired
+ * @param {string | undefined} existingCookieValue - The existing activity cookie value
+ * @returns {boolean} True if expired, false otherwise
+ */
+const isActivityCookieExpired = (existingCookieValue) => {
+  if (!existingCookieValue || !activityConfig.timeoutMinutes) {
+    return false;
+  }
+
+  const lastActivityTimestamp = parseInt(existingCookieValue, 10);
+  const now = Date.now();
+  const timeoutMs = activityConfig.timeoutMinutes * 60 * 1000;
+  const timeSinceLastActivity = now - lastActivityTimestamp;
+
+  return timeSinceLastActivity >= timeoutMs;
+};
+
+/**
+ * Helper to set activity timestamp cookie for app router
+ * @param {import("next/dist/server/web/spec-extension/adapters/request-cookies").ReadonlyRequestCookies} cookieStore
+ */
+const setActivityCookieAppRouter = (cookieStore) => {
+  try {
+    const existingCookie = cookieStore.get(ACTIVITY_COOKIE_NAME);
+
+    // If expired, don't update the cookie - preserve expired state for client detection
+    if (isActivityCookieExpired(existingCookie?.value)) {
+      if (config.isDebugMode) {
+        console.log("[Kinde Activity] Activity cookie expired, not updating");
+      }
+      return;
+    }
+
+    cookieStore.set(ACTIVITY_COOKIE_NAME, Date.now().toString(), {
+      maxAge: TWENTY_NINE_DAYS,
+      domain: config.cookieDomain ? config.cookieDomain : undefined,
+      sameSite: "lax",
+      httpOnly: false, // Must be false so client-side JS can read it
+      path: "/",
+    });
+  } catch (error) {
+    // Silently fail - activity tracking is not critical
+    if (config.isDebugMode) {
+      console.error("Failed to set activity cookie:", error);
+    }
+  }
+};
+
+/**
+ * Helper to set activity timestamp cookie for page router
+ * @param {import('next').NextApiResponse} res
+ * @param {import('next').NextApiRequest} req
+ */
+const setActivityCookiePageRouter = (res, req) => {
+  try {
+    if (!res) return;
+
+    const existingCookie = req?.cookies[ACTIVITY_COOKIE_NAME];
+
+    // If expired, don't update the cookie - preserve expired state for client detection
+    if (isActivityCookieExpired(existingCookie)) {
+      if (config.isDebugMode) {
+        console.log("[Kinde Activity] Activity cookie expired, not updating");
+      }
+      return;
+    }
+
+    let cookies = res.getHeader("Set-Cookie") || [];
+    if (!Array.isArray(cookies)) {
+      cookies = [cookies.toString()];
+    }
+
+    const activityCookie = cookie.serialize(
+      ACTIVITY_COOKIE_NAME,
+      Date.now().toString(),
+      {
+        maxAge: TWENTY_NINE_DAYS,
+        domain: config.cookieDomain ? config.cookieDomain : undefined,
+        sameSite: "lax",
+        httpOnly: false, // Must be false so client-side JS can read it
+        path: "/",
+      },
+    );
+
+    res.setHeader("Set-Cookie", [
+      ...cookies.filter((c) => !c.startsWith(`${ACTIVITY_COOKIE_NAME}=`)),
+      activityCookie,
+    ]);
+  } catch (error) {
+    // Silently fail - activity tracking is not critical
+    if (config.isDebugMode) {
+      console.error("Failed to set activity cookie:", error);
+    }
+  }
+};
 
 /**
  *
@@ -72,7 +172,10 @@ export const appRouterSessionManager = (cookieStore, persistent = true) => {
           index++;
           key = `${String(itemKey)}${index === 0 ? "" : index}`;
         }
-        return destr(itemValue);
+        const result = destr(itemValue);
+        // Signal activity after successful session item retrieval
+        setActivityCookieAppRouter(cookieStore);
+        return result;
       } catch (error) {
         if (config.isDebugMode)
           console.error("Failed to parse session item app router:", error);
@@ -107,6 +210,8 @@ export const appRouterSessionManager = (cookieStore, persistent = true) => {
           },
         );
       }
+      // Signal activity after session item update
+      setActivityCookieAppRouter(cookieStore);
     },
     /**
      *
@@ -122,6 +227,8 @@ export const appRouterSessionManager = (cookieStore, persistent = true) => {
             cookieStore.delete(key);
           }
         });
+      // Signal activity after session item removal
+      setActivityCookieAppRouter(cookieStore);
     },
     /**
      * @returns {Promise<void>}
@@ -139,6 +246,14 @@ export const appRouterSessionManager = (cookieStore, persistent = true) => {
             });
           }
         });
+      // Clear activity tracking cookie to prevent infinite timeout loop
+      cookieStore.set(ACTIVITY_COOKIE_NAME, "", {
+        domain: config.cookieDomain ? config.cookieDomain : undefined,
+        maxAge: 0,
+        sameSite: "lax",
+        httpOnly: false,
+        path: "/",
+      });
     },
   };
 };
@@ -180,12 +295,16 @@ export const pageRouterSessionManager = (req, res, persistent = true) => {
         try {
           const jsonValue = JSON.parse(itemValueString);
           if (typeof jsonValue === "object") {
+            // Signal activity after successful session item retrieval
+            setActivityCookiePageRouter(res);
             return jsonValue;
           }
         } catch (err) {
           if (config.isDebugMode)
             console.error("Failed to parse session item:", err);
         }
+        // Signal activity after successful session item retrieval
+        setActivityCookiePageRouter(res);
         return itemValueString;
       } catch (error) {
         if (config.isDebugMode)
@@ -251,6 +370,8 @@ export const pageRouterSessionManager = (req, res, persistent = true) => {
           },
         );
       }
+      // Signal activity after session item update
+      setActivityCookiePageRouter(res);
     },
     /**
      *
@@ -286,6 +407,8 @@ export const pageRouterSessionManager = (req, res, persistent = true) => {
           }
         }),
       ]);
+      // Signal activity after session item removal
+      setActivityCookiePageRouter(res);
     },
 
     destroySession: async () => {
@@ -303,6 +426,14 @@ export const pageRouterSessionManager = (req, res, persistent = true) => {
               ...GLOBAL_COOKIE_OPTIONS,
             });
           }
+        }),
+        // Clear activity tracking cookie to prevent infinite timeout loop
+        cookie.serialize(ACTIVITY_COOKIE_NAME, "", {
+          domain: config.cookieDomain ? config.cookieDomain : undefined,
+          maxAge: -1,
+          sameSite: "lax",
+          httpOnly: false,
+          path: "/",
         }),
       ]);
     },

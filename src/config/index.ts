@@ -60,6 +60,21 @@ const KINDE_SCOPE = process.env.KINDE_SCOPE || "openid profile email offline";
 
 const isDebugMode = process.env.KINDE_DEBUG_MODE === "true";
 
+// Activity tracking configuration
+const KINDE_ACTIVITY_TIMEOUT_MINUTES =
+  process.env.NEXT_PUBLIC_KINDE_ACTIVITY_TIMEOUT_MINUTES;
+const KINDE_ACTIVITY_TIMEOUT_PREWARNING_MINUTES =
+  process.env.NEXT_PUBLIC_KINDE_ACTIVITY_TIMEOUT_PREWARNING_MINUTES;
+
+export const activityConfig = {
+  timeoutMinutes: KINDE_ACTIVITY_TIMEOUT_MINUTES
+    ? parseFloat(KINDE_ACTIVITY_TIMEOUT_MINUTES)
+    : undefined,
+  prewarningMinutes: KINDE_ACTIVITY_TIMEOUT_PREWARNING_MINUTES
+    ? parseFloat(KINDE_ACTIVITY_TIMEOUT_PREWARNING_MINUTES)
+    : undefined,
+};
+
 type Config = {
   isDebugMode: boolean;
   apiPath: string;
