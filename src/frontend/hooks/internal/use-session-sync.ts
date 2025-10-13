@@ -10,6 +10,14 @@ import { fetchKindeState } from "../../utils";
 import { DefaultKindeNextClientState } from "../../constants";
 import * as store from "../../store";
 import { getDecodedToken, RefreshTokenResult, setRefreshTimer, StorageKeys } from "@kinde-oss/kinde-auth-react/utils";
+import { JWTDecoded } from "@kinde/jwt-decoder";
+
+export const calculateExpiryRealMs = async (): Promise<number | null> => {
+  const token = await getDecodedToken<JWTDecoded>("accessToken");
+  if (!token) return null;
+
+  return (token.exp - Math.floor(Date.now() / 1000));
+};
 
 export const useSessionSync = () => {
   const [loading, setLoading] = useState(true);
@@ -18,19 +26,39 @@ export const useSessionSync = () => {
     DefaultKindeNextClientState,
   );
 
+  const handleError = useCallback(async (error: string) => {
+    await store.clientStorage.destroySession();
+    setFetchedState({
+      ...DefaultKindeNextClientState,
+      isLoading: false,
+      error,
+    });
+  }, [setFetchedState]);
+
+  const updateTokensAndSetRefresh = useCallback(async (kindeState: Omit<FetchedKindeState, "env">) => {
+    const { accessTokenEncoded, idTokenRaw } = kindeState;
+
+    await store.clientStorage.setItems({
+      [StorageKeys.accessToken]: accessTokenEncoded,
+      [StorageKeys.idToken]: idTokenRaw,
+    });
+
+    const expiry = await calculateExpiryRealMs();
+    setRefreshTimer(expiry, refreshHandler);
+
+    setFetchedState({
+      ...kindeState,
+      isLoading: false,
+      error: null,
+    });
+  }, [setFetchedState]);
+
   const setupState = useCallback(async () => {
     const setupResponse = await fetchKindeState();
 
     if (setupResponse.success === false) {
-      setFetchedState({
-        ...DefaultKindeNextClientState,
-        isLoading: false,
-        error: setupResponse.error,
-      });
-      await store.clientStorage.destroySession();
-      console.log("setupResponse unsuccessful", setupResponse);
+      await handleError(setupResponse.error);
       setConfig(setupResponse.env);
-
       setLoading(false);
 
       return {
@@ -39,34 +67,36 @@ export const useSessionSync = () => {
       };
     }
 
-    const { accessTokenEncoded, idTokenRaw, ...kindeState } =
-      setupResponse.kindeState;
-
-    setFetchedState({
-      ...kindeState,
-      accessTokenEncoded,
-      idTokenRaw,
-      isLoading: false,
-      error: null,
-    });
-
-    console.log("setupResponse successful", setupResponse);
-
+    await updateTokensAndSetRefresh(setupResponse.kindeState);
     setConfig(setupResponse.env);
-
-    await store.clientStorage.setItems({
-      [StorageKeys.accessToken]: accessTokenEncoded,
-      [StorageKeys.idToken]: idTokenRaw,
-    });
-
     setLoading(false);
 
     return {
       success: true,
-      [StorageKeys.accessToken]: accessTokenEncoded,
-      [StorageKeys.idToken]: idTokenRaw,
+      [StorageKeys.accessToken]: setupResponse.kindeState.accessTokenEncoded,
+      [StorageKeys.idToken]: setupResponse.kindeState.idTokenRaw,
     };
-  }, []);
+  }, [handleError, updateTokensAndSetRefresh]);
+
+  const refreshHandler = useCallback(async (): Promise<RefreshTokenResult> => {
+    const setupResponse = await fetchKindeState();
+
+    if (!setupResponse.success) {
+      await handleError('User is unauthenticated or refresh failed');
+      return {
+        success: false,
+        error: 'User is unauthenticated or refresh failed',
+      };
+    }
+
+    await updateTokensAndSetRefresh(setupResponse.kindeState);
+
+    return {
+      success: true,
+      idToken: setupResponse.kindeState.idTokenRaw,
+      accessToken: setupResponse.kindeState.accessTokenEncoded,
+    };
+  }, [handleError, updateTokensAndSetRefresh]);
 
   useEffect(() => {
     setupState();
@@ -77,5 +107,6 @@ export const useSessionSync = () => {
     getFetchedState,
     loading,
     refetch: setupState,
+    refreshHandler,
   };
 };
