@@ -1,6 +1,6 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "2.9.1",
+  "version": "2.9.2",
   "description": "Kinde Auth SDK for NextJS",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
@@ -145,7 +145,7 @@
   "dependencies": {
     "@kinde-oss/kinde-auth-react": "^5.7.0",
     "@kinde-oss/kinde-typescript-sdk": "2.13.1",
-    "@kinde/js-utils": "^0.23.0",
+    "@kinde/js-utils": "^0.24.0",
     "@kinde/jwt-decoder": "^0.2.0",
     "@kinde/jwt-validator": "^0.4.0",
     "cookie": "^1.0.2",
