@@ -6,14 +6,14 @@ describe("entrypoint surfaces", () => {
     expect((mod as any).createAppServerHelpers).toBeTypeOf("function");
     // Assert absence of legacy wrapper
     expect(
-      Object.prototype.hasOwnProperty.call(mod, "createAppRouterSession")
+      Object.prototype.hasOwnProperty.call(mod, "createAppRouterSession"),
     ).toBe(false);
   });
   it("pages server exports new helpers", async () => {
     const mod = await import("@kinde-oss/kinde-auth-nextjs/pages/server");
     expect((mod as any).createPagesServerHelpers).toBeTypeOf("function");
     expect(
-      Object.prototype.hasOwnProperty.call(mod, "createPagesRouterSession")
+      Object.prototype.hasOwnProperty.call(mod, "createPagesRouterSession"),
     ).toBe(false);
   });
 });

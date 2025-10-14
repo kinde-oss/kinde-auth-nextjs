@@ -25,7 +25,7 @@ export interface KindeServerHelpers {
   getStringFlag(code: string, defaultValue: string): Promise<string>;
   getClaim(
     claim: string,
-    tokenKey?: "accessToken" | "idToken"
+    tokenKey?: "accessToken" | "idToken",
   ): Promise<{ name: string; value: string } | null>;
   getOrganization<T = any>(): Promise<T | null>;
   getPermission(key: string): Promise<any | null>;
@@ -37,7 +37,10 @@ export interface KindeServerHelpers {
 }
 
 /** Internal helper to safely call an async function and swallow errors returning fallback */
-const safe = async <T>(fn: () => Promise<T>, fallback: any = null): Promise<T | any> => {
+const safe = async <T>(
+  fn: () => Promise<T>,
+  fallback: any = null,
+): Promise<T | any> => {
   try {
     return await fn();
   } catch {
@@ -94,10 +97,14 @@ export const buildServerHelpers = (): KindeServerHelpers => {
  * App Router server helpers factory.
  * Prefer direct js-utils imports for tree-shaking; this is a migration convenience.
  */
-export const createAppServerHelpers = (): KindeServerHelpers => buildServerHelpers();
+export const createAppServerHelpers = (): KindeServerHelpers =>
+  buildServerHelpers();
 
 /**
  * Pages Router server helpers factory (accepts req/res for potential future use).
  * Currently req/res are unused; kept to align with legacy signatures and allow evolution.
  */
-export const createPagesServerHelpers = (_req?: any, _res?: any): KindeServerHelpers => buildServerHelpers();
+export const createPagesServerHelpers = (
+  _req?: any,
+  _res?: any,
+): KindeServerHelpers => buildServerHelpers();

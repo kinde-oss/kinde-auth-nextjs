@@ -9,7 +9,7 @@ vi.mock("@kinde/js-utils", () => {
     getDecodedToken: vi.fn(async (k: string) =>
       k === StorageKeys.accessToken
         ? { sub: "user123" }
-        : { sub: "user123", email: "e@example.com" }
+        : { sub: "user123", email: "e@example.com" },
     ),
     getRawToken: vi.fn(async (k: string) => k + "_raw"),
     getFlag: vi.fn(async () => true),
