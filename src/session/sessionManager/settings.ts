@@ -1,4 +1,4 @@
-import { StorageSettingsType } from "node_modules/@kinde/js-utils/dist/sessionManager/types";
+type StorageSettingsType = typeof import("@kinde/js-utils").storageSettings;
 
 export interface CookieStorageSettings extends StorageSettingsType {
   domain?: string;

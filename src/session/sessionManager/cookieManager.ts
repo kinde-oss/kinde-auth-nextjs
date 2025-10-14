@@ -7,7 +7,6 @@ import {
   TWENTY_NINE_DAYS,
 } from "../../utils/constants";
 import { CookieStorageSettings } from "./settings";
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies.js";
 import { cookies } from "next/headers.js";
 import destr from "destr";
 import { isAppRouter } from "../../utils/isAppRouter.js";
@@ -26,14 +25,14 @@ export class CookieStorage<V extends string = StorageKeys>
 {
   public req: NextRequest | undefined;
   public resp: NextResponse | undefined;
-  private _cookieStore: ReadonlyRequestCookies | undefined;
+  private _cookieStore: ReturnType<typeof cookies> | undefined;
 
   sessionState = { persistent: true };
 
   constructor(
     req: NextRequest | undefined,
     resp: NextResponse | undefined,
-    options: { persistent: boolean } = { persistent: true },
+    options: { persistent: boolean } = { persistent: true }
   ) {
     super();
     this.req = req;
@@ -52,22 +51,31 @@ export class CookieStorage<V extends string = StorageKeys>
   /**
    * Lazy initialization of cookie store - only called when needed during request context
    */
-  private async ensureCookieStore(): Promise<ReadonlyRequestCookies> {
+  private async ensureCookieStore(): Promise<ReturnType<typeof cookies>> {
     if (this._cookieStore) {
       return this._cookieStore;
     }
 
+    // In middleware context, use request cookies to pick up mutations made via resp.cookies
+    // This is required for Next.js < 14.2.8 compatibility
+    if (this.isMiddlewareContext() && this.req) {
+      this._cookieStore = this.req.cookies as unknown as ReturnType<
+        typeof cookies
+      >;
+      return this._cookieStore;
+    }
+
     if (!this.req) {
-      this._cookieStore = await cookies();
+      this._cookieStore = cookies();
       return this._cookieStore;
     }
 
     if (isAppRouter(this.req)) {
-      this._cookieStore = await cookies();
+      this._cookieStore = cookies();
       return this._cookieStore;
     } else {
       throw new Error(
-        "This store should make use of the request cookies provided by the middleware.",
+        "This store should make use of the request cookies provided by the middleware."
       );
     }
   }
@@ -109,7 +117,7 @@ export class CookieStorage<V extends string = StorageKeys>
    */
   async setSessionItem(
     itemKey: V | StorageKeys,
-    itemValue: unknown,
+    itemValue: unknown
   ): Promise<void> {
     const cookieStore = await this.ensureCookieStore();
     const prefixedKey = `${cookieStorageSettings.keyPrefix}${String(itemKey)}`;
@@ -144,9 +152,9 @@ export class CookieStorage<V extends string = StorageKeys>
                   : undefined,
                 domain: config.cookieDomain ? config.cookieDomain : undefined,
                 ...GLOBAL_COOKIE_OPTIONS,
-              },
+              }
             );
-          },
+          }
         );
       }
     } else {
@@ -169,7 +177,7 @@ export class CookieStorage<V extends string = StorageKeys>
               domain: config.cookieDomain ? config.cookieDomain : undefined,
               ...GLOBAL_COOKIE_OPTIONS,
             });
-          },
+          }
         );
       }
     }
