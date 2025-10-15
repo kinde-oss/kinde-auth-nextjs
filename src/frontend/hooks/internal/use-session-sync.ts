@@ -24,7 +24,7 @@ export const calculateExpiryRealMs = async (): Promise<number | null> => {
   return token.exp - Math.floor(Date.now() / 1000);
 };
 
-export const useSessionSync = () => {
+export const useSessionSync = (shouldAutoRefresh = true) => {
   const [loading, setLoading] = useState(true);
   const [config, setConfig] = useState<PublicKindeConfig | null>(null);
   const [getFetchedState, setFetchedState] = useSyncState<KindeNextClientState>(
@@ -52,8 +52,10 @@ export const useSessionSync = () => {
         [StorageKeys.idToken]: idTokenRaw,
       });
 
-      const expiry = await calculateExpiryRealMs();
-      setRefreshTimer(expiry, refreshHandler);
+      if (shouldAutoRefresh) {
+        const expiry = await calculateExpiryRealMs();
+        setRefreshTimer(expiry, refreshHandler);
+      }
 
       setFetchedState({
         ...kindeState,

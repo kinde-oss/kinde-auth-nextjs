@@ -13,7 +13,7 @@ export const useProviderlessKindeAuth = (
     process.env.KINDE_AUTH_API_PATH ||
     "/api/auth",
 ): KindeState => {
-  const { getFetchedState, refetch } = useSessionSync();
+  const { getFetchedState, refetch } = useSessionSync(false);
 
   const refreshData = async () => {
     const refreshTokens = await getRefreshTokensServerAction();
