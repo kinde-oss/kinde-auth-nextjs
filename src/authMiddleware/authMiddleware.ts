@@ -244,13 +244,15 @@ const handleMiddleware = async (req, options, onSuccess) => {
           "authMiddleware: onSuccess callback returned a response, copying our cookies to it",
         );
       }
-      
+
       // Copy our cookies to their response
       resp.cookies.getAll().forEach((cookie) => {
         callbackResult.cookies.set(cookie.name, cookie.value, {
           ...cookie,
         });
       });
+
+      copyCookiesToRequest(req, callbackResult);
 
       return callbackResult;
     }
