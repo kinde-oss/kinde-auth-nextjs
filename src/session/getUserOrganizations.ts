@@ -16,7 +16,10 @@ export const getUserOrganizationsFactory =
           session,
           "organizations",
           "id_token",
-        )) as { id: string; name: string }[]) ?? [];
+        )) as {
+          id: string;
+          name: string;
+        }[]) ?? [];
       const idTokenHasuraOrgs =
         ((await kindeClient.getClaimValue(
           session,
