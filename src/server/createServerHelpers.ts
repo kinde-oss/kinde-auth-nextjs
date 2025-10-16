@@ -43,7 +43,10 @@ const safe = async <T>(
 ): Promise<T | any> => {
   try {
     return await fn();
-  } catch {
+  } catch (err) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Kinde Server Helpers] Error:', err);
+    }
     return fallback;
   }
 };
