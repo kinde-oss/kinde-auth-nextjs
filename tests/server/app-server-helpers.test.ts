@@ -13,7 +13,7 @@ beforeEach(() => {
   jsUtilsMockFns.getDecodedToken.mockImplementation(async (k: string) =>
     k === storageKeys.accessToken
       ? { sub: "user123" }
-      : { sub: "user123", email: "e@example.com" }
+      : { sub: "user123", email: "e@example.com" },
   );
 });
 

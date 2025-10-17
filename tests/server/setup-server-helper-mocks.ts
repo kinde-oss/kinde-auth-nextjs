@@ -44,17 +44,31 @@ const defaultSessionManagerImpl = async () => ({
 export const sessionManagerMock = vi.fn(defaultSessionManagerImpl);
 
 const setDefaultImplementations = () => {
-  jsUtilsMockFns.getDecodedToken.mockImplementation(async () => ({ sub: "default" }));
-  jsUtilsMockFns.getRawToken.mockImplementation(async (k: string) => `${k}_raw`);
+  jsUtilsMockFns.getDecodedToken.mockImplementation(async () => ({
+    sub: "default",
+  }));
+  jsUtilsMockFns.getRawToken.mockImplementation(
+    async (k: string) => `${k}_raw`,
+  );
   jsUtilsMockFns.getFlag.mockImplementation(async () => true);
   jsUtilsMockFns.getClaim.mockImplementation(async () => "abc");
-  jsUtilsMockFns.getCurrentOrganization.mockImplementation(async () => ({ id: "org1" }));
-  jsUtilsMockFns.getPermission.mockImplementation(async () => ({ code: "perm" }));
-  jsUtilsMockFns.getPermissions.mockImplementation(async () => [{ code: "perm" }]);
+  jsUtilsMockFns.getCurrentOrganization.mockImplementation(async () => ({
+    id: "org1",
+  }));
+  jsUtilsMockFns.getPermission.mockImplementation(async () => ({
+    code: "perm",
+  }));
+  jsUtilsMockFns.getPermissions.mockImplementation(async () => [
+    { code: "perm" },
+  ]);
   jsUtilsMockFns.getRoles.mockImplementation(async () => [{ code: "role" }]);
-  jsUtilsMockFns.getUserOrganizations.mockImplementation(async () => [{ id: "org1" }]);
+  jsUtilsMockFns.getUserOrganizations.mockImplementation(async () => [
+    { id: "org1" },
+  ]);
   jsUtilsMockFns.isAuthenticated.mockImplementation(async () => true);
-  jsUtilsMockFns.getEntitlements.mockImplementation(async () => [{ code: "ent" }]);
+  jsUtilsMockFns.getEntitlements.mockImplementation(async () => [
+    { code: "ent" },
+  ]);
 };
 
 export const resetServerHelperMocks = () => {
