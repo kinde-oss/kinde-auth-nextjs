@@ -46,6 +46,46 @@
         "default": "./dist/middleware.cjs.js"
       }
     },
+    "./app": {
+      "import": {
+        "types": "./dist/types/src/app/index.d.ts",
+        "default": "./dist/app.es.js"
+      },
+      "require": {
+        "types": "./dist/types/src/app/index.d.ts",
+        "default": "./dist/app.cjs.js"
+      }
+    },
+    "./app/server": {
+      "import": {
+        "types": "./dist/types/src/app/server/index.d.ts",
+        "default": "./dist/app-server.es.js"
+      },
+      "require": {
+        "types": "./dist/types/src/app/server/index.d.ts",
+        "default": "./dist/app-server.cjs.js"
+      }
+    },
+    "./pages": {
+      "import": {
+        "types": "./dist/types/src/pages/index.d.ts",
+        "default": "./dist/pages.es.js"
+      },
+      "require": {
+        "types": "./dist/types/src/pages/index.d.ts",
+        "default": "./dist/pages.cjs.js"
+      }
+    },
+    "./pages/server": {
+      "import": {
+        "types": "./dist/types/src/pages/server/index.d.ts",
+        "default": "./dist/pages-server.es.js"
+      },
+      "require": {
+        "types": "./dist/types/src/pages/server/index.d.ts",
+        "default": "./dist/pages-server.cjs.js"
+      }
+    },
     "./types": {
       "import": {
         "types": "./dist/types/src/types.d.ts",
@@ -103,6 +143,7 @@
     "react-dom": "^18 || ^19"
   },
   "dependencies": {
+    "@kinde-oss/kinde-auth-react": "^5.7.0",
     "@kinde-oss/kinde-typescript-sdk": "2.13.1",
     "@kinde/js-utils": "^0.24.0",
     "@kinde/jwt-decoder": "^0.2.0",
@@ -119,5 +160,5 @@
     "readme.md",
     "dist"
   ],
-  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
+  "packageManager": "pnpm@10.18.3+sha512.bbd16e6d7286fd7e01f6b3c0b3c932cda2965c06a908328f74663f10a9aea51f1129eea615134bf992831b009eabe167ecb7008b597f40ff9bc75946aadfb08d"
 }

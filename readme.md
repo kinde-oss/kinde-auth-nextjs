@@ -33,3 +33,19 @@ You will need to add your Kinde credentials to the generated `.env.local` file i
 ## License
 
 By contributing to Kinde, you agree that your contributions will be licensed under its MIT License.
+
+## Explicit Import Entry Points (App vs Pages Router)
+
+Router‑specific subpaths make intent clear and enable future tree‑shaking. All existing root imports still work; these are additive.
+
+```
+# Existing
+@kinde-oss/kinde-auth-nextjs
+@kinde-oss/kinde-auth-nextjs/server
+
+# New
+@kinde-oss/kinde-auth-nextjs/app          (client / RSC)
+@kinde-oss/kinde-auth-nextjs/app/server   (App Router server helpers)
+@kinde-oss/kinde-auth-nextjs/pages        (Pages client)
+@kinde-oss/kinde-auth-nextjs/pages/server (Pages server helpers)
+```
