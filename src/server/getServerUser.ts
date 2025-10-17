@@ -24,7 +24,7 @@ interface DecodedIdToken {
  */
 export const getServerUser = async (
   req?: any,
-  res?: any
+  res?: any,
 ): Promise<ServerUser | null> => {
   try {
     return await withServerStorage(req, res, async () => {

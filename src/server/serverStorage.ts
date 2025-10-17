@@ -31,7 +31,9 @@ export const hydrateServerStorage = async (req?: any, res?: any) => {
       tasks.push(storage.setSessionItem(StorageKeys.idToken, idToken));
     }
     if (typeof refreshToken === "string" && refreshToken) {
-      tasks.push(storage.setSessionItem(StorageKeys.refreshToken, refreshToken));
+      tasks.push(
+        storage.setSessionItem(StorageKeys.refreshToken, refreshToken),
+      );
     }
 
     if (tasks.length) {
@@ -39,7 +41,10 @@ export const hydrateServerStorage = async (req?: any, res?: any) => {
     }
   } catch (err) {
     if (process.env.NODE_ENV === "development") {
-      console.error("[kinde-auth-nextjs] Failed to hydrate server storage", err);
+      console.error(
+        "[kinde-auth-nextjs] Failed to hydrate server storage",
+        err,
+      );
     }
   }
 

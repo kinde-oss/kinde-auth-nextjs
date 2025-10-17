@@ -25,7 +25,7 @@ export interface KindeServerHelpers {
   getStringFlag(code: string, defaultValue: string): Promise<string>;
   getClaim(
     claim: string,
-    tokenKey?: "accessToken" | "idToken"
+    tokenKey?: "accessToken" | "idToken",
   ): Promise<{ name: string; value: string } | null>;
   getOrganization<T = any>(): Promise<T | null>;
   getPermission(key: string): Promise<any | null>;
@@ -41,7 +41,7 @@ const safe = async <T>(
   req: any,
   res: any,
   fn: () => Promise<T>,
-  fallback: any = null
+  fallback: any = null,
 ): Promise<T | any> => {
   try {
     return await withServerStorage(req, res, fn);
@@ -56,7 +56,7 @@ const safe = async <T>(
 /** Build helpers used by both App & Pages server entrypoints */
 export const buildServerHelpers = (
   req?: any,
-  res?: any
+  res?: any,
 ): KindeServerHelpers => {
   return {
     getAccessToken: () =>
@@ -74,7 +74,7 @@ export const buildServerHelpers = (
           const v = await jsGetFlag(code);
           return v == null ? _default : v;
         },
-        _default
+        _default,
       ),
     getBooleanFlag: (code, defaultValue) =>
       safe(
@@ -84,7 +84,7 @@ export const buildServerHelpers = (
           const v: any = await jsGetFlag(code);
           return typeof v === "boolean" ? v : defaultValue;
         },
-        defaultValue
+        defaultValue,
       ),
     getIntegerFlag: (code, defaultValue) =>
       safe(
@@ -94,7 +94,7 @@ export const buildServerHelpers = (
           const v: any = await jsGetFlag(code);
           return typeof v === "number" ? v : defaultValue;
         },
-        defaultValue
+        defaultValue,
       ),
     getStringFlag: (code, defaultValue) =>
       safe(
@@ -104,7 +104,7 @@ export const buildServerHelpers = (
           const v: any = await jsGetFlag(code);
           return typeof v === "string" ? v : defaultValue;
         },
-        defaultValue
+        defaultValue,
       ),
     getClaim: (claim, tokenKey) =>
       safe(
@@ -116,7 +116,7 @@ export const buildServerHelpers = (
           if (val == null) return null;
           return { name: claim, value: String(val) };
         },
-        null
+        null,
       ),
     getOrganization: () => safe(req, res, () => getCurrentOrganization()),
     getPermission: (key) => safe(req, res, () => jsGetPermission(key)),
@@ -140,5 +140,7 @@ export const createAppServerHelpers = (): KindeServerHelpers =>
  * Pages Router server helpers factory.
  * Requires req/res so we can hydrate js-utils storage from the router cookies.
  */
-export const createPagesServerHelpers = (_req?: any, _res?: any): KindeServerHelpers =>
-  buildServerHelpers(_req, _res);
+export const createPagesServerHelpers = (
+  _req?: any,
+  _res?: any,
+): KindeServerHelpers => buildServerHelpers(_req, _res);
