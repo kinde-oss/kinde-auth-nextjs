@@ -1,20 +1,24 @@
-import { describe, it, expect, vi } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-vi.mock("@kinde/js-utils", () => ({
-  getDecodedToken: vi.fn(async () => ({ sub: "userABC" })),
-  getRawToken: vi.fn(async () => "raw"),
-  getFlag: vi.fn(async () => 42),
-  getClaim: vi.fn(async () => "val"),
-  getCurrentOrganization: vi.fn(async () => null),
-  getPermission: vi.fn(async () => null),
-  getPermissions: vi.fn(async () => []),
-  getRoles: vi.fn(async () => []),
-  getUserOrganizations: vi.fn(async () => []),
-  isAuthenticated: vi.fn(async () => false),
-  getEntitlements: vi.fn(async () => []),
-}));
-
+import {
+  jsUtilsMockFns,
+  resetServerHelperMocks,
+} from "./setup-server-helper-mocks";
 import { createPagesServerHelpers } from "../../src/server/createServerHelpers";
+
+beforeEach(() => {
+  resetServerHelperMocks();
+  jsUtilsMockFns.getDecodedToken.mockResolvedValue({ sub: "userABC" });
+  jsUtilsMockFns.isAuthenticated.mockResolvedValue(false);
+  jsUtilsMockFns.getEntitlements.mockResolvedValue([]);
+  jsUtilsMockFns.getFlag.mockResolvedValue(42);
+  jsUtilsMockFns.getClaim.mockResolvedValue("val");
+  jsUtilsMockFns.getCurrentOrganization.mockResolvedValue(null);
+  jsUtilsMockFns.getPermission.mockResolvedValue(null);
+  jsUtilsMockFns.getPermissions.mockResolvedValue([]);
+  jsUtilsMockFns.getRoles.mockResolvedValue([]);
+  jsUtilsMockFns.getUserOrganizations.mockResolvedValue([]);
+});
 
 describe("createPagesServerHelpers", () => {
   it("accepts req/res and returns helpers", () => {
