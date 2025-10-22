@@ -16,8 +16,9 @@ import {
   StorageKeys,
 } from "@kinde-oss/kinde-auth-react/utils";
 import { JWTDecoded } from "@kinde/jwt-decoder";
+import { config as sdkConfig } from "../../../config/index";
 
-export const calculateExpiryRealMs = async (): Promise<number | null> => {
+export const calculateExpirySeconds = async (): Promise<number | null> => {
   const token = await getDecodedToken<JWTDecoded>("accessToken");
   if (!token) return null;
 
@@ -53,7 +54,7 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       });
 
       if (shouldAutoRefresh) {
-        const expiry = await calculateExpiryRealMs();
+        const expiry = await calculateExpirySeconds();
         setRefreshTimer(expiry, refreshHandler);
       }
 
@@ -70,6 +71,9 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
     const setupResponse = await fetchKindeState();
 
     if (setupResponse.success === false) {
+      if (sdkConfig.isDebugMode) {
+        console.log("setupResponse unsuccessful", setupResponse);
+      }
       await handleError(setupResponse.error);
       setConfig(setupResponse.env);
       setLoading(false);
@@ -113,6 +117,7 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
 
   useEffect(() => {
     setupState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
