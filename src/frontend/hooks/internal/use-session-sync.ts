@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FetchedKindeState,
   KindeNextClientState,
@@ -44,6 +44,10 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
     [setFetchedState],
   );
 
+  const refreshHandlerRef = useRef<(() => Promise<RefreshTokenResult>) | null>(
+    null,
+  );
+
   const updateTokensAndSetRefresh = useCallback(
     async (kindeState: Omit<FetchedKindeState, "env">) => {
       const { accessTokenEncoded, idTokenRaw } = kindeState;
@@ -55,7 +59,10 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
 
       if (shouldAutoRefresh) {
         const expiry = await calculateExpirySeconds();
-        setRefreshTimer(expiry, refreshHandler);
+        const handler = refreshHandlerRef.current;
+        if (handler) {
+          setRefreshTimer(expiry, handler);
+        }
       }
 
       setFetchedState({
@@ -64,8 +71,32 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
         error: null,
       });
     },
-    [setFetchedState],
+    [setFetchedState, shouldAutoRefresh],
   );
+
+  const refreshHandler = useCallback(async (): Promise<RefreshTokenResult> => {
+    const setupResponse = await fetchKindeState();
+
+    if (!setupResponse.success) {
+      await handleError("User is unauthenticated or refresh failed");
+      return {
+        success: false,
+        error: "User is unauthenticated or refresh failed",
+      };
+    }
+
+    await updateTokensAndSetRefresh(setupResponse.kindeState);
+
+    return {
+      success: true,
+      idToken: setupResponse.kindeState.idTokenRaw,
+      accessToken: setupResponse.kindeState.accessTokenEncoded,
+    };
+  }, [handleError, updateTokensAndSetRefresh]);
+
+  useEffect(() => {
+    refreshHandlerRef.current = refreshHandler;
+  }, [refreshHandler]);
 
   const setupState = useCallback(async () => {
     const setupResponse = await fetchKindeState();
@@ -92,26 +123,6 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       success: true,
       [StorageKeys.accessToken]: setupResponse.kindeState.accessTokenEncoded,
       [StorageKeys.idToken]: setupResponse.kindeState.idTokenRaw,
-    };
-  }, [handleError, updateTokensAndSetRefresh]);
-
-  const refreshHandler = useCallback(async (): Promise<RefreshTokenResult> => {
-    const setupResponse = await fetchKindeState();
-
-    if (!setupResponse.success) {
-      await handleError("User is unauthenticated or refresh failed");
-      return {
-        success: false,
-        error: "User is unauthenticated or refresh failed",
-      };
-    }
-
-    await updateTokensAndSetRefresh(setupResponse.kindeState);
-
-    return {
-      success: true,
-      idToken: setupResponse.kindeState.idTokenRaw,
-      accessToken: setupResponse.kindeState.accessTokenEncoded,
     };
   }, [handleError, updateTokensAndSetRefresh]);
 
