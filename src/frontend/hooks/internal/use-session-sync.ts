@@ -60,7 +60,7 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       if (shouldAutoRefresh) {
         const expiry = await calculateExpirySeconds();
         const handler = refreshHandlerRef.current;
-        if (handler) {
+        if (handler && expiry !== null) {
           setRefreshTimer(expiry, handler);
         }
       }
