@@ -62,7 +62,7 @@ importers:
         version: 4.7.0(vite@6.3.6(@types/node@24.9.1)(jiti@2.6.1))
       '@vitest/coverage-v8':
         specifier: 4.0.3
-        version: 4.0.3(vitest@4.0.3(@types/node@24.9.1)(happy-dom@18.0.1)(jiti@2.6.1))
+        version: 4.0.3(vitest@4.0.3(@types/node@24.9.1)(happy-dom@20.0.2)(jiti@2.6.1))
       ajv:
         specifier: ^8.17.1
         version: 8.17.1
@@ -82,8 +82,8 @@ importers:
         specifier: ^16.0.0
         version: 16.4.0
       happy-dom:
-        specifier: ^18.0.0
-        version: 18.0.1
+        specifier: ^20.0.2
+        version: 20.0.2
       prettier:
         specifier: ^3.4.2
         version: 3.6.2
@@ -104,7 +104,7 @@ importers:
         version: 4.5.4(@types/node@24.9.1)(rollup@4.52.3)(typescript@5.9.3)(vite@6.3.6(@types/node@24.9.1)(jiti@2.6.1))
       vitest:
         specifier: ^4.0.0
-        version: 4.0.3(@types/node@24.9.1)(happy-dom@18.0.1)(jiti@2.6.1)
+        version: 4.0.3(@types/node@24.9.1)(happy-dom@20.0.2)(jiti@2.6.1)
 
   playground:
     dependencies:
@@ -1146,8 +1146,8 @@ packages:
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
 
-  '@types/node@20.19.19':
-    resolution: {integrity: sha512-pb1Uqj5WJP7wrcbLU7Ru4QtA0+3kAXrkutGiD26wUKzSMgNNaPARTUDQmElUXp64kh3cWdou3Q0C7qwwxqSFmg==}
+  '@types/node@20.19.23':
+    resolution: {integrity: sha512-yIdlVVVHXpmqRhtyovZAcSy0MiPcYWGkoO4CGe/+jpP0hmNuihm4XhHbADpK++MsiLHP5MVlv+bcgdF99kSiFQ==}
 
   '@types/node@24.9.1':
     resolution: {integrity: sha512-QoiaXANRkSXK6p0Duvt56W208du4P9Uye9hWLWgGMDTEoKPhuenzNcC4vGUmrNkiOKTlIrBoyNQYNpSwfEZXSg==}
@@ -2212,8 +2212,8 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
-  happy-dom@18.0.1:
-    resolution: {integrity: sha512-qn+rKOW7KWpVTtgIUi6RVmTBZJSe2k0Db0vh1f7CWrWclkkc7/Q+FrOfkZIb2eiErLyqu5AXEzE7XthO9JVxRA==}
+  happy-dom@20.0.2:
+    resolution: {integrity: sha512-pYOyu624+6HDbY+qkjILpQGnpvZOusItCk+rvF5/V+6NkcgTKnbOldpIy22tBnxoaLtlM9nXgoqAcW29/B7CIw==}
     engines: {node: '>=20.0.0'}
 
   has-bigints@1.1.0:
@@ -4431,7 +4431,7 @@ snapshots:
 
   '@types/json5@0.0.29': {}
 
-  '@types/node@20.19.19':
+  '@types/node@20.19.23':
     dependencies:
       undici-types: 6.21.0
 
@@ -4670,7 +4670,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@4.0.3(vitest@4.0.3(@types/node@24.9.1)(happy-dom@18.0.1)(jiti@2.6.1))':
+  '@vitest/coverage-v8@4.0.3(vitest@4.0.3(@types/node@24.9.1)(happy-dom@20.0.2)(jiti@2.6.1))':
     dependencies:
       '@bcoe/v8-coverage': 1.0.2
       '@vitest/utils': 4.0.3
@@ -4683,7 +4683,7 @@ snapshots:
       magicast: 0.3.5
       std-env: 3.9.0
       tinyrainbow: 3.0.3
-      vitest: 4.0.3(@types/node@24.9.1)(happy-dom@18.0.1)(jiti@2.6.1)
+      vitest: 4.0.3(@types/node@24.9.1)(happy-dom@20.0.2)(jiti@2.6.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -5784,9 +5784,9 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  happy-dom@18.0.1:
+  happy-dom@20.0.2:
     dependencies:
-      '@types/node': 20.19.19
+      '@types/node': 20.19.23
       '@types/whatwg-mimetype': 3.0.2
       whatwg-mimetype: 3.0.0
 
@@ -7083,7 +7083,7 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.6.1
 
-  vitest@4.0.3(@types/node@24.9.1)(happy-dom@18.0.1)(jiti@2.6.1):
+  vitest@4.0.3(@types/node@24.9.1)(happy-dom@20.0.2)(jiti@2.6.1):
     dependencies:
       '@vitest/expect': 4.0.3
       '@vitest/mocker': 4.0.3(vite@6.3.6(@types/node@24.9.1)(jiti@2.6.1))
@@ -7107,7 +7107,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 24.9.1
-      happy-dom: 18.0.1
+      happy-dom: 20.0.2
     transitivePeerDependencies:
       - jiti
       - less
