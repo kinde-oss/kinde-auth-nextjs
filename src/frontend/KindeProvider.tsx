@@ -30,8 +30,17 @@ export const KindeProvider = ({
     return {
       ...activityTimeout,
       onTimeout: async (type: TimeoutActivityType) => {
-        // Call user's callback first (for alerts, logging, etc.)
-        await activityTimeout.onTimeout?.(type);
+        try {
+          // Call user's callback first (for alerts, logging, etc.)
+          await activityTimeout.onTimeout?.(type);
+        } catch (error) {
+          if (sdkConfig.isDebugMode) {
+            console.error(
+              "[KindeProvider] activityTimeout.onTimeout failed",
+              error,
+            );
+          }
+        }
 
         // On timeout, redirect to Next.js logout endpoint for complete cleanup
         // This redirect is necessary because:
@@ -46,7 +55,7 @@ export const KindeProvider = ({
   }, [activityTimeout]);
 
   storageSettings.onRefreshHandler = refreshHandler;
-  
+
   if (loading && waitForInitialLoad) return null;
   if (!config && !loading) {
     console.error("[KindeProvider] Failed to fetch config");
