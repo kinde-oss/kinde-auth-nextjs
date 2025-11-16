@@ -29,9 +29,9 @@ export const KindeProvider = ({
 
     return {
       ...activityTimeout,
-      onTimeout: (type: TimeoutActivityType) => {
+      onTimeout: async (type: TimeoutActivityType) => {
         // Call user's callback first (for alerts, logging, etc.)
-        activityTimeout.onTimeout?.(type);
+        await activityTimeout.onTimeout?.(type);
 
         // On timeout, redirect to Next.js logout endpoint for complete cleanup
         // This redirect is necessary because:
