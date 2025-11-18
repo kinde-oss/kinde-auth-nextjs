@@ -8,7 +8,7 @@ import React, { useMemo } from "react";
 import { useSessionSync } from "./hooks/internal/use-session-sync";
 import * as store from "./store";
 import { storageSettings } from "@kinde-oss/kinde-auth-react/utils";
-import { config as sdkConfig, routes } from "../config/index";
+import { config as sdkConfig } from "../config/index";
 
 type KindeProviderProps = {
   children: React.ReactNode;
@@ -44,7 +44,13 @@ export const KindeProvider = ({
 
         // End session by revoking tokens and clearing local session
         if (type === TimeoutActivityType.timeout) {
-          window.location.href = `${sdkConfig.apiPath}/end_session`;
+          try {
+            await fetch(`${sdkConfig.apiPath}/end_session`);
+          } catch (error) {
+            if (sdkConfig.isDebugMode) {
+              console.error("[KindeProvider] Failed to end session:", error);
+            }
+          }
         }
       },
     };
