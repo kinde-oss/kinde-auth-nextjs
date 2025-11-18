@@ -30,11 +30,17 @@ export const endSession = async (routerClient: RouterClient) => {
         token_type_hint: tokenTypeHint,
       });
 
-      await fetch(`${domain}/oauth2/revoke`, {
+      const response = await fetch(`${domain}/oauth2/revoke`, {
         method: "POST",
         body: formParams,
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
+
+      if (!response.ok) {
+        throw new Error(
+          `Token revocation failed: ${response.status} ${response.statusText}`,
+        );
+      }
     };
 
     // Revoke both tokens
