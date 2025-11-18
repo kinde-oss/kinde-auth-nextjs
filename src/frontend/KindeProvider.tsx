@@ -42,13 +42,9 @@ export const KindeProvider = ({
           }
         }
 
-        // On timeout, redirect to Next.js logout endpoint for complete cleanup
-        // This redirect is necessary because:
-        // 1. React SDK's token revocation doesn't work reliably
-        // 2. Next.js server handler clears httpOnly cookies
-        // 3. Kinde server needs the redirect for proper token revocation
+        // End session by revoking tokens and clearing local session
         if (type === TimeoutActivityType.timeout) {
-          window.location.href = `${sdkConfig.apiPath}/${routes.logout}`;
+          window.location.href = `${sdkConfig.apiPath}/end_session`;
         }
       },
     };

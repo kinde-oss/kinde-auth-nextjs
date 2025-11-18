@@ -155,6 +155,7 @@ export const routes: {
   health: string;
   setup: string;
   portal: string;
+  endSession: string;
 } = {
   login: validateRoute(process.env.KINDE_AUTH_LOGIN_ROUTE) || "login",
   logout: validateRoute(process.env.KINDE_AUTH_LOGOUT_ROUTE) || "logout",
@@ -164,4 +165,6 @@ export const routes: {
   health: validateRoute(process.env.KINDE_AUTH_HEALTH_ROUTE) || "health",
   setup: validateRoute(process.env.KINDE_AUTH_SETUP_ROUTE) || "setup",
   portal: validateRoute(process.env.KINDE_AUTH_PORTAL_ROUTE) || "portal",
+  endSession:
+    validateRoute(process.env.KINDE_AUTH_ENDSESSION_ROUTE) || "end_session",
 };
