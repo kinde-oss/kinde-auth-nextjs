@@ -46,6 +46,7 @@ export const KindeProvider = ({
         if (type === TimeoutActivityType.timeout) {
           try {
             await fetch(`${sdkConfig.apiPath}/end_session`);
+            await refreshHandler();
           } catch (error) {
             if (sdkConfig.isDebugMode) {
               console.error("[KindeProvider] Failed to end session:", error);
