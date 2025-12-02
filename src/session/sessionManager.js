@@ -7,7 +7,7 @@ import {
   GLOBAL_COOKIE_OPTIONS,
   COOKIE_LIST,
 } from "../utils/constants";
-import { splitString } from "@kinde/js-utils";
+import { splitString } from "@kinde-oss/kinde-auth-react/utils";
 import { destr } from "destr";
 import * as cookie from "cookie";
 

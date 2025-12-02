@@ -1,6 +1,6 @@
 import React from "react";
 import { config, routes } from "../config/index";
-import { GeneratePortalUrlParams } from "@kinde/js-utils";
+import { GeneratePortalUrlParams } from "@kinde-oss/kinde-auth-react/utils";
 
 export interface PortalLinkProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement>,

@@ -1,2 +1,3 @@
-export { KindeProvider, useKindeAuth } from "./AuthProvider.jsx";
-export { useKindeBrowserClient } from "./KindeBrowserClient.js";
+export { useKindeAuth } from "./OldAuthProvider.jsx";
+export { useKindeBrowserClient } from "./hooks/public/use-kinde-browser-client.js";
+export { KindeProvider } from "./KindeProvider.tsx";
