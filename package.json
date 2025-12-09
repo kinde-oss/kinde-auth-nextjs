@@ -1,6 +1,6 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "2.11.0",
+  "version": "2.11.1-1",
   "description": "Kinde Auth SDK for NextJS",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
@@ -61,7 +61,8 @@
     "release": "release-it",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
-    "dev": "cd playground && pnpm run dev"
+    "dev": "cd playground && pnpm run dev",
+    "dev:prepare": "rm -rf playground && git clone https://github.com/kinde-starter-kits/kinde-nextjs-app-router-starter-kit playground && npm link && cd playground && npm i && mv .env_sample .env && rm -rf .git && npm link @kinde-oss/kinde-auth-nextjs"
   },
   "author": {
     "name": "Kinde",

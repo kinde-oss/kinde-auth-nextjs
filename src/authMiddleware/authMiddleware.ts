@@ -17,13 +17,14 @@ import { TWENTY_NINE_DAYS } from "src/utils/constants";
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname, search } = req.nextUrl;
 
+  const params = new URLSearchParams(search);
+  const hasInvitationCode = params.has("invitation_code");
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
   const orgCode: string | undefined = options?.orgCode;
   const loginPage = options?.loginPage || `${config.apiPath}/${routes.login}`;
   const callbackPage = `${config.apiPath}/kinde_callback`;
   const registerPage = `${config.apiPath}/${routes.register}`;
   const setupPage = `${config.apiPath}/${routes.setup}`;
-
   if (
     loginPage == pathname ||
     callbackPage == pathname ||
@@ -31,6 +32,36 @@ const handleMiddleware = async (req, options, onSuccess) => {
     setupPage == pathname
   ) {
     return NextResponse.next();
+  }
+
+  if (hasInvitationCode) {
+    try {
+      const registerWithInviteRedirectUrlParams = new URLSearchParams();
+      const invitationCode = params.get("invitation_code");
+      registerWithInviteRedirectUrlParams.set(
+        "invitation_code",
+        invitationCode
+      );
+      registerWithInviteRedirectUrlParams.set("is_invitation", "true");
+
+      const queryString = registerWithInviteRedirectUrlParams.toString();
+      const registerWithInviteRedirectUrl = queryString
+        ? `${registerPage}?${queryString}`
+        : registerPage;
+
+      return NextResponse.redirect(
+        new URL(
+          registerWithInviteRedirectUrl,
+          options?.redirectURLBase || config.redirectURL
+        )
+      );
+    } catch (error) {
+      if (config.isDebugMode) {
+        console.error(
+          "authMiddleware: error redirecting to register with invitation code"
+        );
+      }
+    }
   }
 
   let publicPaths = ["/_next", "/favicon.ico"];
@@ -60,7 +91,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const isPublicPath = isPublicPathMatch(
     pathname,
     publicPaths,
-    config.isDebugMode,
+    config.isDebugMode
   );
 
   // getAccessToken will validate the token
@@ -72,11 +103,11 @@ const handleMiddleware = async (req, options, onSuccess) => {
   if ((!kindeAccessToken || !kindeIdToken) && !isPublicPath) {
     if (config.isDebugMode) {
       console.log(
-        "authMiddleware: no access or id token, redirecting to login",
+        "authMiddleware: no access or id token, redirecting to login"
       );
     }
     return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)
     );
   }
 
@@ -101,8 +132,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
         return NextResponse.redirect(
           new URL(
             loginRedirectUrl,
-            options?.redirectURLBase || config.redirectURL,
-          ),
+            options?.redirectURLBase || config.redirectURL
+          )
         );
       }
       return undefined;
@@ -116,7 +147,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         console.log(
           "authMiddleware: tokens refreshed",
           !!refreshResponse.access_token,
-          !!refreshResponse.id_token,
+          !!refreshResponse.id_token
         );
       }
     } catch (error) {
@@ -136,7 +167,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       // we need to set the cookie on the response here
       const splitAccessTokenCookies = getSplitCookies(
         "access_token",
-        refreshResponse.access_token,
+        refreshResponse.access_token
       );
       splitAccessTokenCookies.forEach((cookie) => {
         if (!persistent) {
@@ -147,7 +178,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
       const splitIdTokenCookies = getSplitCookies(
         "id_token",
-        refreshResponse.id_token,
+        refreshResponse.id_token
       );
       splitIdTokenCookies.forEach((cookie) => {
         if (!persistent) {
@@ -163,7 +194,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       resp.cookies.set(
         "refresh_token",
         refreshResponse.refresh_token,
-        standardCookieOptions,
+        standardCookieOptions
       );
 
       // copy the cookies from the response to the request
@@ -177,7 +208,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       }
     } catch (error) {
       const result = sendResult(
-        "authMiddleware: error settings new token in cookie",
+        "authMiddleware: error settings new token in cookie"
       );
       if (result) return result;
     }
@@ -197,11 +228,11 @@ const handleMiddleware = async (req, options, onSuccess) => {
   } catch (error) {
     if (config.isDebugMode) {
       console.error(
-        "authMiddleware: access token decode failed, redirecting to login",
+        "authMiddleware: access token decode failed, redirecting to login"
       );
     }
     return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)
     );
   }
 
@@ -210,11 +241,11 @@ const handleMiddleware = async (req, options, onSuccess) => {
   } catch (error) {
     if (config.isDebugMode) {
       console.error(
-        "authMiddleware: id token decode failed, redirecting to login",
+        "authMiddleware: id token decode failed, redirecting to login"
       );
     }
     return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)
     );
   }
 
@@ -241,7 +272,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     if (callbackResult instanceof NextResponse) {
       if (config.isDebugMode) {
         console.log(
-          "authMiddleware: onSuccess callback returned a response, copying our cookies to it",
+          "authMiddleware: onSuccess callback returned a response, copying our cookies to it"
         );
       }
 
@@ -260,7 +291,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     // If they didn't return a response, return our response with the refreshed tokens
     if (config.isDebugMode) {
       console.log(
-        "authMiddleware: onSuccess callback did not return a response, returning our response",
+        "authMiddleware: onSuccess callback did not return a response, returning our response"
       );
     }
 
@@ -270,7 +301,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   if (customValidationValid) {
     if (config.isDebugMode) {
       console.log(
-        "authMiddleware: customValidationValid is true, returning response",
+        "authMiddleware: customValidationValid is true, returning response"
       );
     }
     return resp;
@@ -281,7 +312,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   }
 
   return NextResponse.redirect(
-    new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
+    new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)
   );
 };
 
@@ -292,6 +323,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
 export function withAuth(...args) {
   // most basic usage - no options
   if (!args.length || args[0] instanceof Request) {
+    console.warn("PESICKA, most basic");
     // @ts-ignore
     return handleMiddleware(...args);
   }
@@ -302,6 +334,9 @@ export function withAuth(...args) {
     const options = args[1];
     return async (...args) =>
       await handleMiddleware(args[0], options, async ({ token, user }) => {
+        console.warn(
+          "PESICKA, most passing through the kidneAuthData to middleware function "
+        );
         args[0].kindeAuth = { token, user };
         return await middleware(...args);
       });
@@ -309,6 +344,7 @@ export function withAuth(...args) {
 
   // includes options
   const options = args[0];
+  console.warn("PESICKA, includes options");
   // @ts-ignore
   return async (...args) => await handleMiddleware(args[0], options);
 }
