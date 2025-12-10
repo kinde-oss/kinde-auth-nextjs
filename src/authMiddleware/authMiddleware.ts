@@ -18,13 +18,15 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname, search } = req.nextUrl;
 
   const params = new URLSearchParams(search);
-  const hasInvitationCode = params.has("invitation_code");
+  const invitationCode = params.get("invitation_code");
+  const hasInvitationCode = invitationCode && invitationCode.trim().length > 0;
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
   const orgCode: string | undefined = options?.orgCode;
   const loginPage = options?.loginPage || `${config.apiPath}/${routes.login}`;
   const callbackPage = `${config.apiPath}/kinde_callback`;
   const registerPage = `${config.apiPath}/${routes.register}`;
   const setupPage = `${config.apiPath}/${routes.setup}`;
+
   if (
     loginPage == pathname ||
     callbackPage == pathname ||
@@ -33,6 +35,19 @@ const handleMiddleware = async (req, options, onSuccess) => {
   ) {
     return NextResponse.next();
   }
+
+  let publicPaths = ["/_next", "/favicon.ico"];
+  if (options?.publicPaths !== undefined) {
+    if (Array.isArray(options?.publicPaths)) {
+      publicPaths = options.publicPaths;
+    }
+  }
+
+  const loginRedirectUrlParams = new URLSearchParams();
+  const queryString = loginRedirectUrlParams.toString();
+  const loginRedirectUrl = queryString
+    ? `${loginPage}?${queryString}`
+    : loginPage;
 
   if (hasInvitationCode) {
     try {
@@ -59,19 +74,17 @@ const handleMiddleware = async (req, options, onSuccess) => {
       if (config.isDebugMode) {
         console.error(
           "authMiddleware: error redirecting to register with invitation code",
+          error,
         );
       }
+      return NextResponse.redirect(
+        new URL(
+          loginRedirectUrl,
+          options?.redirectURLBase || config.redirectURL,
+        ),
+      );
     }
   }
-
-  let publicPaths = ["/_next", "/favicon.ico"];
-  if (options?.publicPaths !== undefined) {
-    if (Array.isArray(options?.publicPaths)) {
-      publicPaths = options.publicPaths;
-    }
-  }
-
-  const loginRedirectUrlParams = new URLSearchParams();
 
   if (orgCode) {
     loginRedirectUrlParams.set("org_code", orgCode);
@@ -80,11 +93,6 @@ const handleMiddleware = async (req, options, onSuccess) => {
   if (isReturnToCurrentPage) {
     loginRedirectUrlParams.set("post_login_redirect_url", pathname + search);
   }
-
-  const queryString = loginRedirectUrlParams.toString();
-  const loginRedirectUrl = queryString
-    ? `${loginPage}?${queryString}`
-    : loginPage;
 
   // Use extracted utility for public path matching
   // eslint-disable-next-line @typescript-eslint/no-var-requires
