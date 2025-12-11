@@ -42,8 +42,16 @@ const handleMiddleware = async (req, options, onSuccess) => {
       publicPaths = options.publicPaths;
     }
   }
-
   const loginRedirectUrlParams = new URLSearchParams();
+
+  if (orgCode) {
+    loginRedirectUrlParams.set("org_code", orgCode);
+  }
+
+  if (isReturnToCurrentPage) {
+    loginRedirectUrlParams.set("post_login_redirect_url", pathname + search);
+  }
+
   const queryString = loginRedirectUrlParams.toString();
   const loginRedirectUrl = queryString
     ? `${loginPage}?${queryString}`
@@ -52,7 +60,6 @@ const handleMiddleware = async (req, options, onSuccess) => {
   if (hasInvitationCode) {
     try {
       const registerWithInviteRedirectUrlParams = new URLSearchParams();
-      const invitationCode = params.get("invitation_code");
       registerWithInviteRedirectUrlParams.set(
         "invitation_code",
         invitationCode,
@@ -84,14 +91,6 @@ const handleMiddleware = async (req, options, onSuccess) => {
         ),
       );
     }
-  }
-
-  if (orgCode) {
-    loginRedirectUrlParams.set("org_code", orgCode);
-  }
-
-  if (isReturnToCurrentPage) {
-    loginRedirectUrlParams.set("post_login_redirect_url", pathname + search);
   }
 
   // Use extracted utility for public path matching
