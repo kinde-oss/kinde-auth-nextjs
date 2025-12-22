@@ -7,7 +7,7 @@ import {
   PortalPage,
   setActiveStorage,
   StorageKeys,
-} from "@kinde/js-utils";
+} from "@kinde-oss/kinde-auth-react/utils";
 import { isValidEnumValue } from "../utils/isValidEnumValue";
 import { config, routes } from "../config";
 

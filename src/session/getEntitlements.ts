@@ -7,7 +7,7 @@ import {
   getEntitlementsResponse,
   getEntitlements as getEntitlementsUtils,
   setActiveStorage,
-} from "@kinde/js-utils";
+} from "@kinde-oss/kinde-auth-react/utils";
 
 /**
  * Retrieves the entitlements for the current user from the Account API.

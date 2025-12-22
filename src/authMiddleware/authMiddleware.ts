@@ -85,7 +85,10 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const resp = NextResponse.next();
 
   // if accessToken is expired, refresh it
-  if (isTokenExpired(kindeAccessToken) || isTokenExpired(kindeIdToken)) {
+  if (
+    isTokenExpired(kindeAccessToken, 20) ||
+    isTokenExpired(kindeIdToken, 20)
+  ) {
     if (config.isDebugMode) {
       console.log("authMiddleware: access token expired, refreshing");
     }
@@ -241,6 +244,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
           "authMiddleware: onSuccess callback returned a response, copying our cookies to it",
         );
       }
+
       // Copy our cookies to their response
       resp.cookies.getAll().forEach((cookie) => {
         callbackResult.cookies.set(cookie.name, cookie.value, {
@@ -248,10 +252,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         });
       });
 
-      // Copy any headers we set (if any) to their response
-      resp.headers.forEach((value, key) => {
-        callbackResult.headers.set(key, value);
-      });
+      copyCookiesToRequest(req, callbackResult);
 
       return callbackResult;
     }

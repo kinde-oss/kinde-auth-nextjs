@@ -1,6 +1,6 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "2.9.2",
+  "version": "2.11.0",
   "description": "Kinde Auth SDK for NextJS",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
@@ -121,7 +121,7 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
-    "@vitest/coverage-v8": "3.2.4",
+    "@vitest/coverage-v8": "4.0.3",
     "ajv": "^8.17.1",
     "changelogen": "^0.6.0",
     "eslint": "^9.22.0",
@@ -135,17 +135,16 @@
     "typescript": "^5.7.3",
     "vite": "^6.2.5",
     "vite-plugin-dts": "^4.5.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.0"
   },
   "peerDependencies": {
-    "next": "^12.3.5 || ^13.5.9 || ^14.2.25 || ^15.2.3",
+    "next": "^12.3.5 || ^13.5.9 || ^14.2.25 || ^15.2.3 || ^16.0.0",
     "react": "^18 || ^19",
     "react-dom": "^18 || ^19"
   },
   "dependencies": {
-    "@kinde-oss/kinde-auth-react": "^5.7.0",
+    "@kinde-oss/kinde-auth-react": "5.10.1",
     "@kinde-oss/kinde-typescript-sdk": "2.13.1",
-    "@kinde/js-utils": "^0.24.0",
     "@kinde/jwt-decoder": "^0.2.0",
     "@kinde/jwt-validator": "^0.4.0",
     "cookie": "^1.0.2",
@@ -160,5 +159,5 @@
     "readme.md",
     "dist"
   ],
-  "packageManager": "pnpm@10.18.3+sha512.bbd16e6d7286fd7e01f6b3c0b3c932cda2965c06a908328f74663f10a9aea51f1129eea615134bf992831b009eabe167ecb7008b597f40ff9bc75946aadfb08d"
+  "packageManager": "pnpm@10.22.0"
 }
