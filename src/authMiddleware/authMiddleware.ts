@@ -22,7 +22,7 @@ const handleInvitationCodeRedirect = (
   invitationCode: string,
   registerPage: string,
   loginRedirectUrl: string,
-  redirectURLBase: string | undefined
+  redirectURLBase: string | undefined,
 ): NextResponse => {
   try {
     const params = new URLSearchParams();
@@ -34,18 +34,18 @@ const handleInvitationCodeRedirect = (
     return NextResponse.redirect(
       new URL(
         registerWithInviteRedirectUrl,
-        redirectURLBase || config.redirectURL
-      )
+        redirectURLBase || config.redirectURL,
+      ),
     );
   } catch (error) {
     if (config.isDebugMode) {
       console.error(
         "authMiddleware: error redirecting to register with invitation code",
-        error
+        error,
       );
     }
     return NextResponse.redirect(
-      new URL(loginRedirectUrl, redirectURLBase || config.redirectURL)
+      new URL(loginRedirectUrl, redirectURLBase || config.redirectURL),
     );
   }
 };
@@ -98,7 +98,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       invitationCode,
       registerPage,
       loginRedirectUrl,
-      options?.redirectURLBase
+      options?.redirectURLBase,
     );
   }
 
@@ -107,7 +107,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const isPublicPath = isPublicPathMatch(
     pathname,
     publicPaths,
-    config.isDebugMode
+    config.isDebugMode,
   );
 
   // getAccessToken will validate the token
@@ -119,11 +119,11 @@ const handleMiddleware = async (req, options, onSuccess) => {
   if ((!kindeAccessToken || !kindeIdToken) && !isPublicPath) {
     if (config.isDebugMode) {
       console.log(
-        "authMiddleware: no access or id token, redirecting to login"
+        "authMiddleware: no access or id token, redirecting to login",
       );
     }
     return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)
+      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
     );
   }
 
@@ -148,8 +148,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
         return NextResponse.redirect(
           new URL(
             loginRedirectUrl,
-            options?.redirectURLBase || config.redirectURL
-          )
+            options?.redirectURLBase || config.redirectURL,
+          ),
         );
       }
       return undefined;
@@ -163,7 +163,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         console.log(
           "authMiddleware: tokens refreshed",
           !!refreshResponse.access_token,
-          !!refreshResponse.id_token
+          !!refreshResponse.id_token,
         );
       }
     } catch (error) {
@@ -183,7 +183,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       // we need to set the cookie on the response here
       const splitAccessTokenCookies = getSplitCookies(
         "access_token",
-        refreshResponse.access_token
+        refreshResponse.access_token,
       );
       splitAccessTokenCookies.forEach((cookie) => {
         if (!persistent) {
@@ -194,7 +194,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
       const splitIdTokenCookies = getSplitCookies(
         "id_token",
-        refreshResponse.id_token
+        refreshResponse.id_token,
       );
       splitIdTokenCookies.forEach((cookie) => {
         if (!persistent) {
@@ -210,7 +210,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       resp.cookies.set(
         "refresh_token",
         refreshResponse.refresh_token,
-        standardCookieOptions
+        standardCookieOptions,
       );
 
       // copy the cookies from the response to the request
@@ -224,7 +224,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
       }
     } catch (error) {
       const result = sendResult(
-        "authMiddleware: error settings new token in cookie"
+        "authMiddleware: error settings new token in cookie",
       );
       if (result) return result;
     }
@@ -244,11 +244,11 @@ const handleMiddleware = async (req, options, onSuccess) => {
   } catch (error) {
     if (config.isDebugMode) {
       console.error(
-        "authMiddleware: access token decode failed, redirecting to login"
+        "authMiddleware: access token decode failed, redirecting to login",
       );
     }
     return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)
+      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
     );
   }
 
@@ -257,11 +257,11 @@ const handleMiddleware = async (req, options, onSuccess) => {
   } catch (error) {
     if (config.isDebugMode) {
       console.error(
-        "authMiddleware: id token decode failed, redirecting to login"
+        "authMiddleware: id token decode failed, redirecting to login",
       );
     }
     return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)
+      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
     );
   }
 
@@ -288,7 +288,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     if (callbackResult instanceof NextResponse) {
       if (config.isDebugMode) {
         console.log(
-          "authMiddleware: onSuccess callback returned a response, copying our cookies to it"
+          "authMiddleware: onSuccess callback returned a response, copying our cookies to it",
         );
       }
 
@@ -307,7 +307,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     // If they didn't return a response, return our response with the refreshed tokens
     if (config.isDebugMode) {
       console.log(
-        "authMiddleware: onSuccess callback did not return a response, returning our response"
+        "authMiddleware: onSuccess callback did not return a response, returning our response",
       );
     }
 
@@ -317,7 +317,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   if (customValidationValid) {
     if (config.isDebugMode) {
       console.log(
-        "authMiddleware: customValidationValid is true, returning response"
+        "authMiddleware: customValidationValid is true, returning response",
       );
     }
     return resp;
@@ -328,7 +328,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   }
 
   return NextResponse.redirect(
-    new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL)
+    new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
   );
 };
 
