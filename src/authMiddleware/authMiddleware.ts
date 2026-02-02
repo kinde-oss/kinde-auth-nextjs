@@ -55,7 +55,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   const params = new URLSearchParams(search);
   const invitationCode = params.get("invitation_code");
-  const hasInvitationCode = invitationCode && invitationCode.trim().length > 0;
+  const hasInvitationCode = !!invitationCode?.trim();
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
   const orgCode: string | undefined = options?.orgCode;
   const loginPage = options?.loginPage || `${config.apiPath}/${routes.login}`;
