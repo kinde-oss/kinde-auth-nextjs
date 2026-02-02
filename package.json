@@ -105,7 +105,7 @@
   "dependencies": {
     "@kinde-oss/kinde-auth-react": "5.10.1",
     "@kinde-oss/kinde-typescript-sdk": "2.13.1",
-    "@kinde/js-utils": "^0.25.0",
+    "@kinde/js-utils": "^0.25.1",
     "@kinde/jwt-decoder": "^0.2.0",
     "@kinde/jwt-validator": "^0.4.0",
     "cookie": "^1.0.2",
