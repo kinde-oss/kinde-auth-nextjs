@@ -1,6 +1,17 @@
 import { config, routes } from "../config/index";
 import RouterClient from "../routerClients/RouterClient";
 
+const redirectToLogin = (routerClient: RouterClient) => {
+  const loginUrl = new URL(
+    `${config.redirectURL}${config.apiPath}/${routes.login}`,
+  );
+  const state = routerClient.getSearchParam("state");
+  if (state) {
+    loginUrl.searchParams.set("state", state);
+  }
+  return routerClient.redirect(loginUrl.toString());
+};
+
 export const callback = async (routerClient: RouterClient) => {
   const errorParam = routerClient.getSearchParam("error");
   if (errorParam) {
@@ -26,9 +37,9 @@ export const callback = async (routerClient: RouterClient) => {
           );
         }
       }
-      return;
+      return redirectToLogin(routerClient);
     }
-    return;
+    return redirectToLogin(routerClient);
   }
 
   const postLoginRedirectURLFromMemory =
