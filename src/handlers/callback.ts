@@ -1,34 +1,41 @@
 import { config, routes } from "../config/index";
 import RouterClient from "../routerClients/RouterClient";
 
+const redirectToLogin = (routerClient: RouterClient) => {
+  const loginUrl = new URL(
+    `${config.redirectURL}${config.apiPath}/${routes.login}`,
+  );
+  const state = routerClient.getSearchParam("state");
+  if (state) {
+    loginUrl.searchParams.set("state", state);
+  }
+  return routerClient.redirect(loginUrl.toString());
+};
+
 export const callback = async (routerClient: RouterClient) => {
   const errorParam = routerClient.getSearchParam("error");
   if (errorParam) {
     if (errorParam?.toLowerCase() === "login_link_expired") {
       const reauthState = routerClient.getSearchParam("reauth_state");
       if (reauthState) {
-        const decodedAuthState = atob(reauthState);
         try {
-          const reauthState = JSON.parse(decodedAuthState);
-          if (reauthState) {
-            const urlParams = new URLSearchParams(reauthState);
+          const decodedAuthState = atob(reauthState);
+          const parsedReauthState = JSON.parse(decodedAuthState);
+          if (parsedReauthState) {
+            const urlParams = new URLSearchParams(parsedReauthState);
             const loginRoute = new URL(
               `${config.redirectURL}${config.apiPath}/${routes.login}`,
             );
             loginRoute.search = urlParams.toString();
             return routerClient.redirect(loginRoute.toString());
           }
-        } catch (ex) {
-          throw new Error(
-            ex instanceof Error
-              ? ex.message
-              : "Unknown Error parsing reauth state",
-          );
+        } catch {
+          return redirectToLogin(routerClient);
         }
       }
-      return;
+      return redirectToLogin(routerClient);
     }
-    return;
+    return redirectToLogin(routerClient);
   }
 
   const postLoginRedirectURLFromMemory =
