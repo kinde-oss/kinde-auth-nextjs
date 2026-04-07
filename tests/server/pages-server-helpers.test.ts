@@ -3,26 +3,61 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   jsUtilsMockFns,
   resetServerHelperMocks,
+  storageKeys,
 } from "./setup-server-helper-mocks";
 import { createPagesServerHelpers } from "../../src/server/createServerHelpers";
+import { getServerUser } from "../../src/server/getServerUser";
 
 beforeEach(() => {
   resetServerHelperMocks();
-  jsUtilsMockFns.getDecodedToken.mockResolvedValue({ sub: "userABC" });
-  jsUtilsMockFns.isAuthenticated.mockResolvedValue(false);
-  jsUtilsMockFns.getEntitlements.mockResolvedValue([]);
-  jsUtilsMockFns.getFlag.mockResolvedValue(42);
-  jsUtilsMockFns.getClaim.mockResolvedValue("val");
-  jsUtilsMockFns.getCurrentOrganization.mockResolvedValue(null);
-  jsUtilsMockFns.getPermission.mockResolvedValue(null);
-  jsUtilsMockFns.getPermissions.mockResolvedValue([]);
-  jsUtilsMockFns.getRoles.mockResolvedValue([]);
-  jsUtilsMockFns.getUserOrganizations.mockResolvedValue([]);
+  jsUtilsMockFns.getDecodedToken.mockImplementation(async (k: string) =>
+    k === storageKeys.accessToken
+      ? { sub: "user123" }
+      : { sub: "user123", email: "e@example.com" },
+  );
 });
 
 describe("createPagesServerHelpers", () => {
-  it("accepts req/res and returns helpers", () => {
-    const helpers = createPagesServerHelpers({}, {} as any);
-    expect(typeof helpers.getAccessToken).toBe("function");
+  const helpers = createPagesServerHelpers({}, {} as any);
+  const keys = [
+    "getAccessToken",
+    "getIdToken",
+    "getAccessTokenRaw",
+    "getIdTokenRaw",
+    "getFlag",
+    "getBooleanFlag",
+    "getIntegerFlag",
+    "getStringFlag",
+    "getClaim",
+    "getOrganization",
+    "getPermission",
+    "getPermissions",
+    "getRoles",
+    "getUserOrganizations",
+    "isAuthenticated",
+    "getEntitlements",
+  ];
+
+  it("exposes expected function keys", () => {
+    for (const k of keys) {
+      expect((helpers as any)[k]).toBeTypeOf("function");
+    }
+  });
+
+  it("boolean flag fallback works", async () => {
+    const b = await helpers.getBooleanFlag("missing", false);
+    expect(typeof b).toBe("boolean");
+  });
+
+  it("getServerUser returns shaped user", async () => {
+    const u = await getServerUser({}, {} as any);
+    expect(u?.id).toBe("user123");
+  });
+
+  it("getClaim normalizes tokenKey variants", async () => {
+    const claim1 = await helpers.getClaim("sub", "accessToken");
+    const claim2 = await helpers.getClaim("sub", "idToken");
+    expect(claim1?.name).toBe("sub");
+    expect(claim2?.name).toBe("sub");
   });
 });

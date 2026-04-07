@@ -30,6 +30,7 @@ export const getServerUser = async (
     return await withServerStorage(req, res, async () => {
       const idTok: DecodedIdToken = await getDecodedToken(StorageKeys.idToken);
       if (!idTok) return null;
+      if (!idTok.sub) return null;
       return {
         id: idTok.sub,
         email: idTok.email,

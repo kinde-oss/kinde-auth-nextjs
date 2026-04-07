@@ -12,7 +12,8 @@ export const storageTokenValues = {
   refresh: "mock_refresh_token",
 };
 
-export const jsUtilsMockFns = {
+// Internal hoisted instances referenced in vi.mock factories below
+const _jsUtilsMockFns = vi.hoisted(() => ({
   getDecodedToken: vi.fn(),
   getRawToken: vi.fn(),
   getFlag: vi.fn(),
@@ -24,61 +25,9 @@ export const jsUtilsMockFns = {
   getUserOrganizations: vi.fn(),
   isAuthenticated: vi.fn(),
   getEntitlements: vi.fn(),
-};
+}));
 
-const defaultSessionManagerImpl = async () => ({
-  getSessionItem: async (key: string) => {
-    switch (key) {
-      case "access_token":
-        return storageTokenValues.access;
-      case "id_token":
-        return storageTokenValues.id;
-      case "refresh_token":
-        return storageTokenValues.refresh;
-      default:
-        return null;
-    }
-  },
-});
-
-export const sessionManagerMock = vi.fn(defaultSessionManagerImpl);
-
-const setDefaultImplementations = () => {
-  jsUtilsMockFns.getDecodedToken.mockImplementation(async () => ({
-    sub: "default",
-  }));
-  jsUtilsMockFns.getRawToken.mockImplementation(
-    async (k: string) => `${k}_raw`,
-  );
-  jsUtilsMockFns.getFlag.mockImplementation(async () => true);
-  jsUtilsMockFns.getClaim.mockImplementation(async () => "abc");
-  jsUtilsMockFns.getCurrentOrganization.mockImplementation(async () => ({
-    id: "org1",
-  }));
-  jsUtilsMockFns.getPermission.mockImplementation(async () => ({
-    code: "perm",
-  }));
-  jsUtilsMockFns.getPermissions.mockImplementation(async () => [
-    { code: "perm" },
-  ]);
-  jsUtilsMockFns.getRoles.mockImplementation(async () => [{ code: "role" }]);
-  jsUtilsMockFns.getUserOrganizations.mockImplementation(async () => [
-    { id: "org1" },
-  ]);
-  jsUtilsMockFns.isAuthenticated.mockImplementation(async () => true);
-  jsUtilsMockFns.getEntitlements.mockImplementation(async () => [
-    { code: "ent" },
-  ]);
-};
-
-export const resetServerHelperMocks = () => {
-  Object.values(jsUtilsMockFns).forEach((fn) => fn.mockReset());
-  setDefaultImplementations();
-  sessionManagerMock.mockReset();
-  sessionManagerMock.mockImplementation(defaultSessionManagerImpl);
-};
-
-setDefaultImplementations();
+const _sessionManagerMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@kinde/js-utils", () => {
   class FakeMemoryStorage {
@@ -102,14 +51,74 @@ vi.mock("@kinde/js-utils", () => {
   }
 
   return {
-    StorageKeys: storageKeys,
+    StorageKeys: {
+      accessToken: "accessToken",
+      idToken: "idToken",
+      refreshToken: "refreshToken",
+    },
     MemoryStorage: FakeMemoryStorage,
     setActiveStorage: vi.fn(),
     clearActiveStorage: vi.fn(),
-    ...jsUtilsMockFns,
+    ..._jsUtilsMockFns,
   };
 });
 
 vi.mock("../../src/session/sessionManager.js", () => ({
-  sessionManager: sessionManagerMock,
+  sessionManager: _sessionManagerMock,
 }));
+
+// Public exports — same object references as the hoisted internals above
+export const jsUtilsMockFns = _jsUtilsMockFns;
+export const sessionManagerMock = _sessionManagerMock;
+
+const defaultSessionManagerImpl = async () => ({
+  getSessionItem: async (key: string) => {
+    switch (key) {
+      case "access_token":
+        return storageTokenValues.access;
+      case "id_token":
+        return storageTokenValues.id;
+      case "refresh_token":
+        return storageTokenValues.refresh;
+      default:
+        return null;
+    }
+  },
+});
+
+const setDefaultImplementations = () => {
+  _jsUtilsMockFns.getDecodedToken.mockImplementation(async () => ({
+    sub: "default",
+  }));
+  _jsUtilsMockFns.getRawToken.mockImplementation(
+    async (k: string) => `${k}_raw`,
+  );
+  _jsUtilsMockFns.getFlag.mockImplementation(async () => true);
+  _jsUtilsMockFns.getClaim.mockImplementation(async () => "abc");
+  _jsUtilsMockFns.getCurrentOrganization.mockImplementation(async () => ({
+    id: "org1",
+  }));
+  _jsUtilsMockFns.getPermission.mockImplementation(async () => ({
+    code: "perm",
+  }));
+  _jsUtilsMockFns.getPermissions.mockImplementation(async () => [
+    { code: "perm" },
+  ]);
+  _jsUtilsMockFns.getRoles.mockImplementation(async () => [{ code: "role" }]);
+  _jsUtilsMockFns.getUserOrganizations.mockImplementation(async () => [
+    { id: "org1" },
+  ]);
+  _jsUtilsMockFns.isAuthenticated.mockImplementation(async () => true);
+  _jsUtilsMockFns.getEntitlements.mockImplementation(async () => [
+    { code: "ent" },
+  ]);
+};
+
+export const resetServerHelperMocks = () => {
+  Object.values(_jsUtilsMockFns).forEach((fn) => fn.mockReset());
+  setDefaultImplementations();
+  _sessionManagerMock.mockReset();
+  _sessionManagerMock.mockImplementation(defaultSessionManagerImpl);
+};
+
+setDefaultImplementations();
