@@ -30,6 +30,7 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
+        /^@kinde-oss\/kinde-auth-react(\/.*)?$/,
         "@kinde-oss/kinde-typescript-sdk",
         "@kinde/jwt-decoder",
         "@kinde/jwt-validator",

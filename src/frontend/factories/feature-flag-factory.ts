@@ -1,7 +1,19 @@
 import { config } from "../../config";
-import { KindeFlag, KindeFlagRaw, KindeFlagTypeCode } from "../../types";
-import { flagDataTypeMap } from "../OldAuthProvider";
+import {
+  KindeFlag,
+  KindeFlagRaw,
+  KindeFlagTypeCode,
+  KindeFlagTypeValue,
+} from "../../types";
 import { KindeFeatureFlags } from "../types";
+
+/** @type {Record<KindeFlagTypeCode, KindeFlagTypeValue>} */
+export const flagDataTypeMap: Record<KindeFlagTypeCode, KindeFlagTypeValue> = {
+  s: "string",
+  i: "integer",
+  b: "boolean",
+  j: "json",
+};
 
 export const getFlagFactory = (featureFlags: KindeFeatureFlags) => {
   return (
