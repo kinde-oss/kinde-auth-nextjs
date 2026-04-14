@@ -3,9 +3,8 @@ import { FetchedKindeState, PublicKindeConfig } from "./types.js";
 
 export const getRefreshTokensServerAction = async () => {
   try {
-    const { refreshTokensServerAction } = await import(
-      "../session/refreshTokensServerAction.js"
-    );
+    const { refreshTokensServerAction } =
+      await import("../session/refreshTokensServerAction.js");
     return refreshTokensServerAction;
   } catch (error) {
     return null;
