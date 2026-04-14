@@ -85,8 +85,8 @@ importers:
         specifier: ^20.8.9
         version: 20.8.9
       prettier:
-        specifier: ^3.4.2
-        version: 3.6.2
+        specifier: ^3.8.2
+        version: 3.8.2
       release-it:
         specifier: ^19.0.0
         version: 19.0.5(@types/node@25.6.0)(magicast@0.3.5)
@@ -3002,8 +3002,8 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  prettier@3.6.2:
-    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
+  prettier@3.8.2:
+    resolution: {integrity: sha512-8c3mgTe0ASwWAJK+78dpviD+A8EqhndQPUBpNUIPt6+xWlIigCwfN01lWr9MAede4uqXGTEKeQWTvzb3vjia0Q==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -6655,7 +6655,7 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier@3.6.2: {}
+  prettier@3.8.2: {}
 
   pretty-format@27.5.1:
     dependencies:
