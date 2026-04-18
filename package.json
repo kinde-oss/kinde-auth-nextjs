@@ -77,7 +77,7 @@
   "homepage": "https://kinde.com",
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
-    "@eslint/js": "^9.22.0",
+    "@eslint/js": "^10.0.0",
     "@testing-library/react": "^16.2.0",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
@@ -85,7 +85,7 @@
     "@vitest/coverage-v8": "4.0.3",
     "ajv": "^8.17.1",
     "changelogen": "^0.6.0",
-    "eslint": "^9.22.0",
+    "eslint": "^10.0.0",
     "eslint-config-prettier": "^10.0.1",
     "genversion": "^3.2.0",
     "globals": "^16.5.0",
