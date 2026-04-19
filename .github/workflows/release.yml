@@ -9,7 +9,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22.x'
+          node-version: "22.x"
       - name: Install dependencies and build 🔧
         run: npm ci
       - run: npm lint
