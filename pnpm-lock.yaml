@@ -19,7 +19,7 @@ importers:
         version: 0.2.1
       '@kinde/jwt-validator':
         specifier: ^0.4.0
-        version: 0.4.0
+        version: 0.4.1
       cookie:
         specifier: ^1.0.2
         version: 1.1.1
@@ -789,8 +789,8 @@ packages:
   '@kinde/jwt-decoder@0.2.1':
     resolution: {integrity: sha512-V6JIC7SzQjxpxcgXrrs5AzJQrLoLgsTvnLVirHDhmSE//LIFz7nxM5Z19Hgm56wKm3L3yDM8QZW/oluflLCrxQ==}
 
-  '@kinde/jwt-validator@0.4.0':
-    resolution: {integrity: sha512-aseXLTD/rh/rZ2v85Xy493CEtuC49MA4Hbt6ObccqSJfIGLAeMrAtBh2m9DleigVkMuZ/99/U4PqLnaVDLt5OQ==}
+  '@kinde/jwt-validator@0.4.1':
+    resolution: {integrity: sha512-q6Pt9UnebdcQb6pL2LpEBfkvG0SBcrA602Y5mz4XGK2BWP3bBv918FgF9Dkmm6DXRG649IwiTVBhdpoM+rbNOA==}
 
   '@microsoft/api-extractor-model@7.30.9':
     resolution: {integrity: sha512-oKExWajACw0hO9Z0ybWvCZZhWK0kZcA/3rJieZmh4e5difg9II00kvmFMIg1KOrFuErNOZMCVY45nEm9a/orvg==}
@@ -4438,7 +4438,7 @@ snapshots:
     dependencies:
       '@kinde/js-utils': 0.26.0
       '@kinde/jwt-decoder': 0.2.1
-      '@kinde/jwt-validator': 0.4.0
+      '@kinde/jwt-validator': 0.4.1
       uncrypto: 0.1.3
     transitivePeerDependencies:
       - expo-secure-store
@@ -4453,7 +4453,7 @@ snapshots:
 
   '@kinde/jwt-decoder@0.2.1': {}
 
-  '@kinde/jwt-validator@0.4.0':
+  '@kinde/jwt-validator@0.4.1':
     dependencies:
       '@kinde/jwt-decoder': 0.2.1
       jsrsasign: 11.1.0
