@@ -104,7 +104,7 @@
     "react-dom": "^18.0.0 || >=19.2.1"
   },
   "dependencies": {
-    "@kinde-oss/kinde-auth-react": "5.11.0",
+    "@kinde-oss/kinde-auth-react": "5.11.2",
     "@kinde-oss/kinde-typescript-sdk": "2.13.2",
     "@kinde/jwt-decoder": "^0.2.0",
     "@kinde/jwt-validator": "^0.4.0",
