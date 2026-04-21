@@ -120,5 +120,5 @@
     "readme.md",
     "dist"
   ],
-  "packageManager": "pnpm@10.22.0"
+  "packageManager": "pnpm@10.33.0"
 }
