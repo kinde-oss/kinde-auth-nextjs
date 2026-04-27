@@ -2,6 +2,7 @@ import RouterClient from "../routerClients/RouterClient";
 import { isPreFetch } from "../utils/isPreFetch";
 import { getHeaders } from "../utils/getHeaders";
 import validateState from "../utils/validateState";
+import { config } from "../config/index";
 
 /**
  *
@@ -33,9 +34,9 @@ export const login = async (routerClient: RouterClient) => {
     },
   );
 
-  const postLoginRedirectURL = routerClient.getSearchParam(
-    "post_login_redirect_url",
-  );
+  const postLoginRedirectURL =
+    routerClient.getSearchParam("post_login_redirect_url") ||
+    config.postLoginRedirectURL;
 
   if (postLoginRedirectURL) {
     await routerClient.sessionManager.setSessionItem(

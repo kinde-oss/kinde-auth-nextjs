@@ -30,7 +30,7 @@ import {
   KindeUser,
   KindeRoles,
 } from "../types";
-import { getEntitlementsResponse } from "@kinde/js-utils";
+import { getEntitlementsResponse } from "@kinde-oss/kinde-auth-react/utils";
 
 const sessionHandler = (
   req?: NextApiRequest,

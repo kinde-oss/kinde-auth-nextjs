@@ -1,6 +1,6 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "2.9.2",
+  "version": "2.12.0",
   "description": "Kinde Auth SDK for NextJS",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
@@ -61,7 +61,8 @@
     "release": "release-it",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
-    "dev": "cd playground && pnpm run dev"
+    "dev": "cd playground && pnpm run dev",
+    "dev:prepare": "rm -rf playground && git clone --depth 1 https://github.com/kinde-starter-kits/kinde-nextjs-app-router-starter-kit playground && rm -rf playground/.git && mv playground/.env_sample playground/.env && cd playground && pnpm i && pnpm link .."
   },
   "author": {
     "name": "Kinde",
@@ -76,35 +77,35 @@
   "homepage": "https://kinde.com",
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
-    "@eslint/js": "^9.22.0",
+    "@eslint/js": "^10.0.0",
     "@testing-library/react": "^16.2.0",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
-    "@vitest/coverage-v8": "3.2.4",
+    "@vitest/coverage-v8": "4.1.5",
     "ajv": "^8.17.1",
     "changelogen": "^0.6.0",
-    "eslint": "^9.22.0",
+    "eslint": "10.2.1",
     "eslint-config-prettier": "^10.0.1",
     "genversion": "^3.2.0",
-    "globals": "^16.0.0",
-    "happy-dom": "^18.0.0",
-    "prettier": "^3.4.2",
-    "release-it": "^19.0.0",
+    "globals": "^17.0.0",
+    "happy-dom": "^20.8.9",
+    "prettier": "^3.8.2",
+    "release-it": "^20.0.0",
     "rollup-plugin-preserve-directives": "^0.4.0",
-    "typescript": "^5.7.3",
-    "vite": "^6.2.5",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.0",
     "vite-plugin-dts": "^4.5.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.0"
   },
   "peerDependencies": {
-    "next": "^12.3.5 || ^13.5.9 || ^14.2.25 || ^15.2.3",
-    "react": "^18 || ^19",
-    "react-dom": "^18 || ^19"
+    "next": "^12.3.5 || ~13.0.0 || ~13.1.0 || ~13.2.0 || ^14.2.35 || ^15.0.7 || ^15.1.11 || ^15.2.8 || ^15.3.8 || ^15.4.10 || ^15.5.9 || >=16.0.10",
+    "react": "^18.0.0 || >=19.2.1",
+    "react-dom": "^18.0.0 || >=19.2.1"
   },
   "dependencies": {
-    "@kinde-oss/kinde-typescript-sdk": "2.13.1",
-    "@kinde/js-utils": "^0.24.0",
+    "@kinde-oss/kinde-auth-react": "5.11.2",
+    "@kinde-oss/kinde-typescript-sdk": "2.13.2",
     "@kinde/jwt-decoder": "^0.2.0",
     "@kinde/jwt-validator": "^0.4.0",
     "cookie": "^1.0.2",
@@ -119,5 +120,5 @@
     "readme.md",
     "dist"
   ],
-  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b"
+  "packageManager": "pnpm@10.33.2"
 }

@@ -14,9 +14,48 @@ import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOpti
 import { isPublicPathMatch } from "../utils/isPublicPathMatch";
 import { TWENTY_NINE_DAYS } from "src/utils/constants";
 
+/**
+ * Handles invitation code redirect logic.
+ * Redirects to the register page with the invitation code, or to login on error.
+ */
+const handleInvitationCodeRedirect = (
+  invitationCode: string,
+  registerPage: string,
+  loginRedirectUrl: string,
+  redirectURLBase: string | undefined,
+): NextResponse => {
+  try {
+    const params = new URLSearchParams();
+    params.set("invitation_code", invitationCode);
+    params.set("is_invitation", "true");
+
+    const registerWithInviteRedirectUrl = `${registerPage}?${params.toString()}`;
+
+    return NextResponse.redirect(
+      new URL(
+        registerWithInviteRedirectUrl,
+        redirectURLBase || config.redirectURL,
+      ),
+    );
+  } catch (error) {
+    if (config.isDebugMode) {
+      console.error(
+        "authMiddleware: error redirecting to register with invitation code",
+        error,
+      );
+    }
+    return NextResponse.redirect(
+      new URL(loginRedirectUrl, redirectURLBase || config.redirectURL),
+    );
+  }
+};
+
 const handleMiddleware = async (req, options, onSuccess) => {
   const { pathname, search } = req.nextUrl;
 
+  const params = new URLSearchParams(search);
+  const invitationCode = params.get("invitation_code");
+  const hasInvitationCode = !!invitationCode?.trim();
   const isReturnToCurrentPage = options?.isReturnToCurrentPage;
   const orgCode: string | undefined = options?.orgCode;
   const loginPage = options?.loginPage || `${config.apiPath}/${routes.login}`;
@@ -39,7 +78,6 @@ const handleMiddleware = async (req, options, onSuccess) => {
       publicPaths = options.publicPaths;
     }
   }
-
   const loginRedirectUrlParams = new URLSearchParams();
 
   if (orgCode) {
@@ -54,6 +92,15 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const loginRedirectUrl = queryString
     ? `${loginPage}?${queryString}`
     : loginPage;
+
+  if (hasInvitationCode) {
+    return handleInvitationCodeRedirect(
+      invitationCode,
+      registerPage,
+      loginRedirectUrl,
+      options?.redirectURLBase,
+    );
+  }
 
   // Use extracted utility for public path matching
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -85,7 +132,10 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const resp = NextResponse.next();
 
   // if accessToken is expired, refresh it
-  if (isTokenExpired(kindeAccessToken) || isTokenExpired(kindeIdToken)) {
+  if (
+    isTokenExpired(kindeAccessToken, 20) ||
+    isTokenExpired(kindeIdToken, 20)
+  ) {
     if (config.isDebugMode) {
       console.log("authMiddleware: access token expired, refreshing");
     }
@@ -241,6 +291,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
           "authMiddleware: onSuccess callback returned a response, copying our cookies to it",
         );
       }
+
       // Copy our cookies to their response
       resp.cookies.getAll().forEach((cookie) => {
         callbackResult.cookies.set(cookie.name, cookie.value, {
@@ -248,10 +299,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         });
       });
 
-      // Copy any headers we set (if any) to their response
-      resp.headers.forEach((value, key) => {
-        callbackResult.headers.set(key, value);
-      });
+      copyCookiesToRequest(req, callbackResult);
 
       return callbackResult;
     }
