@@ -81,7 +81,7 @@
     "@testing-library/react": "^16.2.0",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-v8": "4.1.5",
     "ajv": "^8.17.1",
     "changelogen": "^0.6.0",
