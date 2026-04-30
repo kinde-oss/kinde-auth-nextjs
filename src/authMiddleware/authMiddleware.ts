@@ -12,7 +12,7 @@ import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
 import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOptions";
 import { isPublicPathMatch } from "../utils/isPublicPathMatch";
-import { TWENTY_NINE_DAYS } from "src/utils/constants";
+import { TWENTY_NINE_DAYS } from "../utils/constants";
 
 /**
  * Handles invitation code redirect logic.
