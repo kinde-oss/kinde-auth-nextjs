@@ -68,6 +68,10 @@ export const transformReactAuthStateToNextState = async (
   const orgName = decodedAccessToken?.org_name;
   const orgProperties = decodedAccessToken?.organization_properties;
   const orgNames = decodedIdToken?.organizations ?? [];
+  const user =
+    decodedIdToken && decodedAccessToken
+      ? generateUserObject(decodedIdToken, decodedAccessToken)
+      : null;
   return {
     accessToken: decodedAccessToken,
     accessTokenEncoded: accessToken,
@@ -76,7 +80,8 @@ export const transformReactAuthStateToNextState = async (
     idToken: decodedIdToken,
     idTokenRaw: idToken,
     isAuthenticated: false,
-    isLoading: reactAuthState.isLoading,
+    isLoading:
+      reactAuthState.isLoading || (reactAuthState.isAuthenticated && user === null),
     organization: {
       orgCode: organization,
       orgName,
@@ -99,10 +104,7 @@ export const transformReactAuthStateToNextState = async (
       permissions,
       orgCode: organization,
     },
-    user:
-      decodedIdToken && decodedAccessToken
-        ? generateUserObject(decodedIdToken, decodedAccessToken)
-        : null,
+    user,
     userOrganizations: {
       orgCodes: userOrganizations,
       orgs: orgNames?.map((org) => ({
