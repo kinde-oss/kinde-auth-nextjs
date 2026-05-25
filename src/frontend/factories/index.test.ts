@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { transformReactAuthStateToNextState, constructKindeClientState } from "./index";
+import {
+  transformReactAuthStateToNextState,
+  constructKindeClientState,
+} from "./index";
 import type { KindeContextProps } from "@kinde-oss/kinde-auth-react";
 
 // ---------------------------------------------------------------------------
@@ -108,7 +111,10 @@ describe("transformReactAuthStateToNextState — isLoading correctness", () => {
 
   // ── Scenario 1: React SDK still loading ──────────────────────────────────
   it("returns isLoading true when reactAuthState.isLoading is true", async () => {
-    const reactAuth = makeReactAuth({ isLoading: true, isAuthenticated: false });
+    const reactAuth = makeReactAuth({
+      isLoading: true,
+      isAuthenticated: false,
+    });
 
     const result = await transformReactAuthStateToNextState(reactAuth);
 
@@ -159,7 +165,7 @@ describe("transformReactAuthStateToNextState — isLoading correctness", () => {
   it("returns isLoading false with user when authenticated and tokens decoded", async () => {
     mockJwtDecoder
       .mockReturnValueOnce(DECODED_ACCESS_TOKEN) // first call → accessToken
-      .mockReturnValueOnce(DECODED_ID_TOKEN);    // second call → idToken
+      .mockReturnValueOnce(DECODED_ID_TOKEN); // second call → idToken
 
     const reactAuth = makeReactAuth({
       isLoading: false,

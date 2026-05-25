@@ -81,7 +81,8 @@ export const transformReactAuthStateToNextState = async (
     idTokenRaw: idToken,
     isAuthenticated: false,
     isLoading:
-      reactAuthState.isLoading || (reactAuthState.isAuthenticated && user === null),
+      reactAuthState.isLoading ||
+      (reactAuthState.isAuthenticated && user === null),
     organization: {
       orgCode: organization,
       orgName,
