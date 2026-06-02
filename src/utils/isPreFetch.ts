@@ -1,8 +1,8 @@
 export function isPreFetch(headers: Headers): boolean {
-  const isPrefetch =
+  return (
     headers.get("purpose") === "prefetch" ||
     headers.get("x-purpose") === "prefetch" ||
-    headers.get("x-moz") === "prefetch";
-
-  return !!isPrefetch;
+    headers.get("x-moz") === "prefetch" ||
+    headers.get("next-router-prefetch") === "1"
+  );
 }
