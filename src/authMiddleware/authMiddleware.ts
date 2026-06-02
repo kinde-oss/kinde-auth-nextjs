@@ -12,7 +12,6 @@ import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
 import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOptions";
 import { isPublicPathMatch } from "../utils/isPublicPathMatch";
-import { TWENTY_NINE_DAYS } from "src/utils/constants";
 
 /**
  * Handles invitation code redirect logic.
@@ -48,6 +47,20 @@ const handleInvitationCodeRedirect = (
       new URL(loginRedirectUrl, redirectURLBase || config.redirectURL),
     );
   }
+};
+
+const loginRedirect = (
+  req,
+  loginRedirectUrl: string,
+  redirectURLBase: string | undefined,
+): NextResponse => {
+  const method = req.method?.toUpperCase() ?? "GET";
+  if (method !== "GET" && method !== "HEAD") {
+    return NextResponse.json({ statusCode: 401, message: "Unauthorized" });
+  }
+  return NextResponse.redirect(
+    new URL(loginRedirectUrl, redirectURLBase || config.redirectURL),
+  );
 };
 
 const handleMiddleware = async (req, options, onSuccess) => {
@@ -122,9 +135,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         "authMiddleware: no access or id token, redirecting to login",
       );
     }
-    return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
-    );
+    return loginRedirect(req, loginRedirectUrl, options?.redirectURLBase);
   }
 
   const session = await sessionManager(req);
@@ -145,12 +156,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         console.error(debugMessage);
       }
       if (!isPublicPath) {
-        return NextResponse.redirect(
-          new URL(
-            loginRedirectUrl,
-            options?.redirectURLBase || config.redirectURL,
-          ),
-        );
+        return loginRedirect(req, loginRedirectUrl, options?.redirectURLBase);
       }
       return undefined;
     };
@@ -247,9 +253,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         "authMiddleware: access token decode failed, redirecting to login",
       );
     }
-    return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
-    );
+    return loginRedirect(req, loginRedirectUrl, options?.redirectURLBase);
   }
 
   try {
@@ -260,9 +264,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         "authMiddleware: id token decode failed, redirecting to login",
       );
     }
-    return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
-    );
+    return loginRedirect(req, loginRedirectUrl, options?.redirectURLBase);
   }
 
   const customValidationValid = options?.isAuthorized
@@ -327,9 +329,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     console.log("authMiddleware: default behaviour, redirecting to login");
   }
 
-  return NextResponse.redirect(
-    new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
-  );
+  return loginRedirect(req, loginRedirectUrl, options?.redirectURLBase);
 };
 
 /**
