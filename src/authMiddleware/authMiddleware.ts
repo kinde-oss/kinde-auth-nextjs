@@ -18,11 +18,17 @@ import { isPublicPathMatch } from "../utils/isPublicPathMatch";
  * Redirects to the register page with the invitation code, or to login on error.
  */
 const handleInvitationCodeRedirect = (
+  req,
   invitationCode: string,
   registerPage: string,
   loginRedirectUrl: string,
   redirectURLBase: string | undefined,
 ): NextResponse => {
+  const method = req.method?.toUpperCase() ?? "GET";
+  if (method !== "GET" && method !== "HEAD") {
+    return NextResponse.json({ statusCode: 401, message: "Unauthorized" });
+  }
+
   try {
     const params = new URLSearchParams();
     params.set("invitation_code", invitationCode);
@@ -108,6 +114,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
 
   if (hasInvitationCode) {
     return handleInvitationCodeRedirect(
+      req,
       invitationCode,
       registerPage,
       loginRedirectUrl,
