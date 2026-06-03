@@ -105,8 +105,18 @@ describe("CookieStorage", () => {
     expect(result).toBeNull();
   });
 
-  it("destroySession clears cookies that match known prefixes", async () => {
-    // seed some cookies that match COOKIE_LIST and some that don't
+  it("destroySession clears kinde-prefixed session cookies", async () => {
+    await storage.setSessionItem(StorageKeys.accessToken, "token");
+    await storage.setSessionItem(StorageKeys.idToken, "id");
+    fake.set("unrelated", "x");
+    await storage.destroySession();
+
+    const remaining = fake.getAll().map((c) => c.name);
+    expect(remaining.find((n) => n.startsWith("kinde-"))).toBeUndefined();
+    expect(remaining).toContain("unrelated");
+  });
+
+  it("destroySession clears legacy unprefixed auth cookies", async () => {
     for (const prefix of COOKIE_LIST) {
       fake.set(prefix, "1");
       fake.set(`${prefix}1`, "2");
@@ -115,12 +125,25 @@ describe("CookieStorage", () => {
     await storage.destroySession();
 
     const remaining = fake.getAll().map((c) => c.name);
-    // all COOKIE_LIST-prefixed cookies should be gone
     for (const prefix of COOKIE_LIST) {
       expect(remaining.find((n) => n.startsWith(prefix))).toBeUndefined();
     }
-    // unrelated cookie should remain
     expect(remaining).toContain("unrelated");
+  });
+
+  it("creates session cookies when persistent is false", async () => {
+    const sessionStorage = new CookieStorage<any>(
+      undefined as any,
+      undefined as any,
+      { persistent: false },
+    );
+    // @ts-ignore accessing private field
+    sessionStorage._cookieStore = fake as any;
+
+    await sessionStorage.setSessionItem(StorageKeys.state, "test");
+
+    const cookie = fake.get(`kinde-${StorageKeys.state}`);
+    expect(cookie).toBeDefined();
   });
 
   it("stores and retrieves objects correctly", async () => {

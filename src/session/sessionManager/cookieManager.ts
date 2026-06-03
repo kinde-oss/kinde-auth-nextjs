@@ -23,9 +23,11 @@ export class CookieStorage<V extends string = StorageKeys>
   extends SessionBase<V>
   implements SessionManager<V>
 {
+  asyncStore = true;
+
   public req: NextRequest | undefined;
   public resp: NextResponse | undefined;
-  private _cookieStore: ReturnType<typeof cookies> | undefined;
+  private _cookieStore: Awaited<ReturnType<typeof cookies>> | undefined;
 
   sessionState = { persistent: true };
 
@@ -48,10 +50,31 @@ export class CookieStorage<V extends string = StorageKeys>
     return !!(this.req && this.resp);
   }
 
+  private shouldDeleteSessionCookie(name: string): boolean {
+    const { keyPrefix } = cookieStorageSettings;
+    if (name.startsWith(keyPrefix)) {
+      return true;
+    }
+    return COOKIE_LIST.some((substr) => name.startsWith(substr));
+  }
+
+  private prepareChunks(itemValue: unknown): string[] {
+    if (itemValue === undefined) {
+      return [];
+    }
+    const itemValueString =
+      typeof itemValue === "object"
+        ? JSON.stringify(itemValue)
+        : String(itemValue);
+    return splitString(itemValueString, MAX_COOKIE_LENGTH);
+  }
+
   /**
    * Lazy initialization of cookie store - only called when needed during request context
    */
-  private async ensureCookieStore(): Promise<ReturnType<typeof cookies>> {
+  private async ensureCookieStore(): Promise<
+    Awaited<ReturnType<typeof cookies>>
+  > {
     if (this._cookieStore) {
       return this._cookieStore;
     }
@@ -59,19 +82,19 @@ export class CookieStorage<V extends string = StorageKeys>
     // In middleware context, use request cookies to pick up mutations made via resp.cookies
     // This is required for Next.js < 14.2.8 compatibility
     if (this.isMiddlewareContext() && this.req) {
-      this._cookieStore = this.req.cookies as unknown as ReturnType<
-        typeof cookies
+      this._cookieStore = this.req.cookies as unknown as Awaited<
+        ReturnType<typeof cookies>
       >;
       return this._cookieStore;
     }
 
     if (!this.req) {
-      this._cookieStore = cookies();
+      this._cookieStore = await cookies();
       return this._cookieStore;
     }
 
     if (isAppRouter(this.req)) {
-      this._cookieStore = cookies();
+      this._cookieStore = await cookies();
       return this._cookieStore;
     } else {
       throw new Error(
@@ -89,7 +112,7 @@ export class CookieStorage<V extends string = StorageKeys>
     const cookiesToDelete = cookieStore
       .getAll()
       .map((c) => c.name)
-      .filter((key) => COOKIE_LIST.some((substr) => key.startsWith(substr)));
+      .filter((key) => this.shouldDeleteSessionCookie(key));
 
     // In middleware context, use resp.cookies (Next.js < 15 requirement)
     if (this.isMiddlewareContext() && this.resp) {
@@ -122,62 +145,42 @@ export class CookieStorage<V extends string = StorageKeys>
     const cookieStore = await this.ensureCookieStore();
     const prefixedKey = `${cookieStorageSettings.keyPrefix}${String(itemKey)}`;
 
-    // Get list of keys to delete
-    const keysToDelete = cookieStore
-      .getAll()
-      .map((c) => c.name)
-      .filter((key) => key.startsWith(prefixedKey));
+    const keysToDelete: string[] = [];
+    for (const { name } of cookieStore.getAll()) {
+      if (name.startsWith(prefixedKey)) {
+        keysToDelete.push(name);
+      }
+    }
+
+    const cookieOptions = {
+      maxAge: this.sessionState.persistent ? TWENTY_NINE_DAYS : undefined,
+      domain: config.cookieDomain ? config.cookieDomain : undefined,
+      ...GLOBAL_COOKIE_OPTIONS,
+    };
 
     // In middleware context, use resp.cookies (Next.js < 15 requirement)
     if (this.isMiddlewareContext() && this.resp) {
-      // Delete old chunks
-      keysToDelete.forEach((key) => {
-        this.resp!.cookies.delete(key);
-      });
+      for (const key of keysToDelete) {
+        this.resp.cookies.delete(key);
+      }
 
-      // Set new value (potentially chunked)
-      if (itemValue !== undefined) {
-        const itemValueString =
-          typeof itemValue === "object"
-            ? JSON.stringify(itemValue)
-            : String(itemValue);
-        splitString(itemValueString, MAX_COOKIE_LENGTH).forEach(
-          (value, index) => {
-            this.resp!.cookies.set(
-              prefixedKey + (index === 0 ? "" : index),
-              value,
-              {
-                maxAge: this.sessionState.persistent
-                  ? TWENTY_NINE_DAYS
-                  : undefined,
-                domain: config.cookieDomain ? config.cookieDomain : undefined,
-                ...GLOBAL_COOKIE_OPTIONS,
-              },
-            );
-          },
+      for (const [index, value] of this.prepareChunks(itemValue).entries()) {
+        this.resp.cookies.set(
+          prefixedKey + (index === 0 ? "" : String(index)),
+          value,
+          cookieOptions,
         );
       }
     } else {
-      // In Server Actions/Route Handlers, use cookieStore
-      keysToDelete.forEach((key) => {
+      for (const key of keysToDelete) {
         cookieStore.delete(key);
-      });
+      }
 
-      if (itemValue !== undefined) {
-        const itemValueString =
-          typeof itemValue === "object"
-            ? JSON.stringify(itemValue)
-            : String(itemValue);
-        splitString(itemValueString, MAX_COOKIE_LENGTH).forEach(
-          (value, index) => {
-            cookieStore.set(prefixedKey + (index === 0 ? "" : index), value, {
-              maxAge: this.sessionState.persistent
-                ? TWENTY_NINE_DAYS
-                : undefined,
-              domain: config.cookieDomain ? config.cookieDomain : undefined,
-              ...GLOBAL_COOKIE_OPTIONS,
-            });
-          },
+      for (const [index, value] of this.prepareChunks(itemValue).entries()) {
+        cookieStore.set(
+          prefixedKey + (index === 0 ? "" : String(index)),
+          value,
+          cookieOptions,
         );
       }
     }
@@ -206,7 +209,7 @@ export class CookieStorage<V extends string = StorageKeys>
     } catch (error) {
       if (config.isDebugMode)
         console.error("Failed to parse session item app router:", error);
-      return itemValue || item.value;
+      return itemValue;
     }
   }
 
@@ -216,21 +219,19 @@ export class CookieStorage<V extends string = StorageKeys>
   async removeSessionItem(itemKey: V | StorageKeys): Promise<void> {
     const cookieStore = await this.ensureCookieStore();
     const prefixedKey = `${cookieStorageSettings.keyPrefix}${String(itemKey)}`;
-    const keysToDelete = cookieStore
-      .getAll()
-      .map((c) => c.name)
-      .filter((key) => key.startsWith(prefixedKey));
-
     // In middleware context, use resp.cookies (Next.js < 15 requirement)
     if (this.isMiddlewareContext() && this.resp) {
-      keysToDelete.forEach((key) => {
-        this.resp!.cookies.delete(key);
-      });
+      for (const { name } of cookieStore.getAll()) {
+        if (name.startsWith(prefixedKey)) {
+          this.resp.cookies.delete(name);
+        }
+      }
     } else {
-      // In Server Actions/Route Handlers, use cookieStore
-      keysToDelete.forEach((key) => {
-        cookieStore.delete(key);
-      });
+      for (const { name } of cookieStore.getAll()) {
+        if (name.startsWith(prefixedKey)) {
+          cookieStore.delete(name);
+        }
+      }
     }
   }
 
