@@ -3,11 +3,14 @@
   "include": ["src/**/*"],
   "compilerOptions": {
     "allowJs": true,
-    "baseUrl": ".",
     "jsx": "react",
     "module": "ES2022",
     "moduleResolution": "bundler",
     "lib": ["es6", "dom"],
+    // Preserve pre-TS6 behavior (strict defaults to true in TS6)
+    "strict": false,
+    // Explicitly list required @types packages (TS6 no longer auto-includes all @types/*)
+    "types": ["node"],
     // Generate d.ts files
     "declaration": true,
     // This compiler run should
@@ -25,6 +28,5 @@
     "resolveJsonModule": true,
     "declarationDir": "./dist/types"
     // "checkJs": true,
-    // "strict": true
   }
 }

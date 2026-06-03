@@ -1,4 +1,4 @@
-import kinde from "../session/index";
+import { getKindeServerSession as kinde } from "../session/index";
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 import { routes } from "../config";

@@ -111,4 +111,4 @@ const sessionHandler = (
   };
 };
 
-export default sessionHandler;
+export { sessionHandler as getKindeServerSession };

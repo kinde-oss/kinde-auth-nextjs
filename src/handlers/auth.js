@@ -41,7 +41,7 @@ const getRoute = (endpoint) => {
  * @param {{onError?: () => void; config: {audience?: string | string[], clientId?: string, clientSecret?: string, issuerURL?: string, siteUrl?: string, postLoginRedirectUrl?: string, postLogoutRedirectUrl?: string}}} [options]
  * @returns {(req, res) => any}
  */
-export default (request, endpoint, options) => {
+export const handleAuth = (request, endpoint, options) => {
   if (!config.clientOptions.authDomain)
     throw new Error(
       "The environment variable 'KINDE_ISSUER_URL' is required. Set it in your .env file",
