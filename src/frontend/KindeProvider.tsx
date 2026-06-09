@@ -4,7 +4,7 @@ import {
   ActivityTimeoutConfig,
   TimeoutActivityType,
 } from "@kinde-oss/kinde-auth-react";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSessionSync } from "./hooks/internal/use-session-sync";
 import * as store from "./store";
 import { storageSettings } from "@kinde-oss/kinde-auth-react/utils";
@@ -21,7 +21,10 @@ export const KindeProvider = ({
   waitForInitialLoad,
   activityTimeout,
 }: KindeProviderProps) => {
+  const [hasMounted, setHasMounted] = useState(false);
   const { loading, config, refreshHandler } = useSessionSync();
+
+  useEffect(() => setHasMounted(true), []);
 
   // Wrap the user's onTimeout callback to handle Next.js logout
   const wrappedActivityTimeout = useMemo(() => {
@@ -58,6 +61,8 @@ export const KindeProvider = ({
   }, [activityTimeout]);
 
   storageSettings.onRefreshHandler = refreshHandler;
+
+  if (!hasMounted) return <>{children}</>;
 
   if (loading && waitForInitialLoad) return null;
   if (!config && !loading) {
