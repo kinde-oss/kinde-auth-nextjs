@@ -2,6 +2,7 @@
   "name": "@kinde-oss/kinde-auth-nextjs",
   "version": "2.12.2",
   "description": "Kinde Auth SDK for NextJS",
+  "license": "MIT",
   "main": "dist/cjs/index.js",
   "module": "dist/index.js",
   "typings": "dist/types/src/index.d.ts",
