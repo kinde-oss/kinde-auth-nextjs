@@ -60,6 +60,9 @@ export const fetchKindeState = async (): Promise<FetchKindeStateResponse> => {
   const { message, error, env, ...kindeData } = parsedBody;
 
   if (!res.ok) {
+    if (message === "NOT_LOGGED_IN") {
+      return { success: false, error: "Not logged in", env: env ?? null };
+    }
     return {
       success: false,
       error: error || message || "Failed to fetch Kinde state",
@@ -70,8 +73,6 @@ export const fetchKindeState = async (): Promise<FetchKindeStateResponse> => {
   switch (message) {
     case "OK":
       return { success: true, kindeState: kindeData, env };
-    case "NOT_LOGGED_IN":
-      return { success: false, error: "Not logged in", env };
     default:
       return {
         success: false,

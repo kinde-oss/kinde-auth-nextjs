@@ -26,7 +26,7 @@ const handleInvitationCodeRedirect = (
 ): NextResponse => {
   const method = req.method?.toUpperCase() ?? "GET";
   if (method !== "GET" && method !== "HEAD") {
-    return NextResponse.json({ statusCode: 401, message: "Unauthorized" });
+    return NextResponse.json({ statusCode: 401, message: "Unauthorized" }, { status: 401 });
   }
 
   try {
