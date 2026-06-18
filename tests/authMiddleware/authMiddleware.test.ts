@@ -138,6 +138,7 @@ describe("authMiddleware — non-GET/HEAD returns HTTP 401", () => {
       );
       await withAuth(req);
       expect(NextResponse.json).not.toHaveBeenCalled();
+      expect(NextResponse.redirect).toHaveBeenCalled();
     });
   });
 

@@ -66,7 +66,11 @@ describe("fetchKindeState — auth failure HTTP status handling", () => {
 
   it("returns { success: false } with error message for HTTP 401 ACCESS_TOKEN_DECODE_FAILED", async () => {
     mockFetch(
-      { message: "ACCESS_TOKEN_DECODE_FAILED", error: "Invalid token", env: ENV },
+      {
+        message: "ACCESS_TOKEN_DECODE_FAILED",
+        error: "Invalid token",
+        env: ENV,
+      },
       401,
     );
     const result = await fetchKindeState();
