@@ -30,7 +30,7 @@ export const portal = async (routerClient: RouterClient) => {
   if (!accessToken) {
     return routerClient.redirect(
       new URL(
-        `${config.redirectURL}${config.apiPath}/${routes.login}`,
+        `${routerClient.clientConfig.siteUrl}${config.apiPath}/${routes.login}`,
       ).toString(),
     );
   }
