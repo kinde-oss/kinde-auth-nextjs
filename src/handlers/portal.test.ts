@@ -64,10 +64,7 @@ describe("portal handler — unauthenticated redirect", () => {
   });
 
   it("uses routerClient.clientConfig.siteUrl for the login redirect when there is no access token", async () => {
-    const routerClient = makeRouterClient(
-      "https://preview.example.com",
-      null,
-    );
+    const routerClient = makeRouterClient("https://preview.example.com", null);
 
     await portal(routerClient as any);
 
