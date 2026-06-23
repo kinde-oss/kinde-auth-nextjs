@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@kinde-oss/kinde-auth-react':
-        specifier: 5.12.0
-        version: 5.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: 5.12.1
+        version: 5.12.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@kinde-oss/kinde-typescript-sdk':
         specifier: 2.13.2
         version: 2.13.2
@@ -31,7 +31,7 @@ importers:
         version: 2.0.5
       next:
         specifier: ^12.3.5 || ~13.0.0 || ~13.1.0 || ~13.2.0 || ^14.2.35 || ^15.0.7 || ^15.1.11 || ^15.2.8 || ^15.3.8 || ^15.4.10 || ^15.5.9 || >=16.0.10
-        version: 16.1.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        version: 16.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
         specifier: ^18.0.0 || >=19.2.1
         version: 19.2.7
@@ -628,8 +628,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@kinde-oss/kinde-auth-react@5.12.0':
-    resolution: {integrity: sha512-KtNWhOopUJ+sxEDf+u5tijvIv6wt9BJlhfrVbkuWc4ZIm483A19yWwSwnyNfjUW1HT/cTGLQc0na77mboFQqhg==}
+  '@kinde-oss/kinde-auth-react@5.12.1':
+    resolution: {integrity: sha512-Zv38/GVBSs7f/GHnAUzZYSlJN4U8OJlf+basu31P+utuaDXnTNX7+sjA8qbSI2/bluayuDWI5EONRYKmbnJ/wA==}
     peerDependencies:
       react: ^17 || ^18 || >=19.2.1
       react-dom: ^17 || ^18 || >=19.2.1
@@ -3123,11 +3123,6 @@ packages:
   rc9@2.1.2:
     resolution: {integrity: sha512-btXCnMmRIBINM2LDZoEmOogIZU7Qe7zn4BpomSKZ/ykbLObuBdvG+mFq11DL6fjH1DRwHhrlgtYWG96bJiC7Cg==}
 
-  react-dom@19.2.6:
-    resolution: {integrity: sha512-0prMI+hvBbPjsWnxDLxlCGyM8PN6UuWjEUCYmZhO67xIV9Xasa/r/vDnq+Xyq4Lo27g8QSbO5YzARu0D1Sps3g==}
-    peerDependencies:
-      react: ^19.2.6
-
   react-dom@19.2.7:
     resolution: {integrity: sha512-t0BRVXvbiE/o20Hfw669rLbMCDWtYZLvmJigy2f0MxsXF+71pxhR3xOkspmsO8h3ZlNzyibAmtCa3l4lYKk6gQ==}
     peerDependencies:
@@ -3138,10 +3133,6 @@ packages:
 
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
-
-  react@19.2.6:
-    resolution: {integrity: sha512-sfWGGfavi0xr8Pg0sVsyHMAOziVYKgPLNrS7ig+ivMNb3wbCBw3KxtflsGBAwD3gYQlE/AEZsTLgToRrSCjb0Q==}
-    engines: {node: '>=0.10.0'}
 
   react@19.2.7:
     resolution: {integrity: sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==}
@@ -4215,7 +4206,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kinde-oss/kinde-auth-react@5.12.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@kinde-oss/kinde-auth-react@5.12.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@kinde/js-utils': 0.30.1
       react: 19.2.7
@@ -6478,16 +6469,16 @@ snapshots:
     dependencies:
       type-fest: 2.19.0
 
-  next@16.1.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
+  next@16.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       '@next/env': 16.1.6
       '@swc/helpers': 0.5.15
       baseline-browser-mapping: 2.9.19
       caniuse-lite: 1.0.30001766
       postcss: 8.4.31
-      react: 19.2.6
-      react-dom: 19.2.6(react@19.2.6)
-      styled-jsx: 5.1.6(@babel/core@7.28.4)(react@19.2.6)
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+      styled-jsx: 5.1.6(@babel/core@7.28.4)(react@19.2.7)
     optionalDependencies:
       '@next/swc-darwin-arm64': 16.1.6
       '@next/swc-darwin-x64': 16.1.6
@@ -6787,11 +6778,6 @@ snapshots:
       defu: 6.1.7
       destr: 2.0.5
 
-  react-dom@19.2.6(react@19.2.6):
-    dependencies:
-      react: 19.2.6
-      scheduler: 0.27.0
-
   react-dom@19.2.7(react@19.2.7):
     dependencies:
       react: 19.2.7
@@ -6800,8 +6786,6 @@ snapshots:
   react-is@16.13.1: {}
 
   react-is@17.0.2: {}
-
-  react@19.2.6: {}
 
   react@19.2.7: {}
 
@@ -7179,13 +7163,6 @@ snapshots:
   strip-bom@3.0.0: {}
 
   strip-json-comments@3.1.1: {}
-
-  styled-jsx@5.1.6(@babel/core@7.28.4)(react@19.2.6):
-    dependencies:
-      client-only: 0.0.1
-      react: 19.2.6
-    optionalDependencies:
-      '@babel/core': 7.28.4
 
   styled-jsx@5.1.6(@babel/core@7.28.4)(react@19.2.7):
     dependencies:
