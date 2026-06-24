@@ -1,2 +1,4 @@
 packages:
   - "playground"
+
+enable-pre-post-scripts: true
