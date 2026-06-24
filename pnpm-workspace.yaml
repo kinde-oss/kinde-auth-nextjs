@@ -1,6 +1,10 @@
 packages:
   - "playground"
 
+allowBuilds:
+  sharp: true
+  unrs-resolver: true
+
 enable-pre-post-scripts: true
 
 onlyBuiltDependencies:
