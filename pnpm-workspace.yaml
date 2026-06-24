@@ -2,3 +2,7 @@ packages:
   - "playground"
 
 enable-pre-post-scripts: true
+
+onlyBuiltDependencies:
+  - sharp
+  - unrs-resolver
