@@ -1,6 +1,6 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "2.12.2",
+  "version": "2.13.0",
   "description": "Kinde Auth SDK for NextJS",
   "license": "MIT",
   "main": "dist/cjs/index.js",
@@ -121,5 +121,5 @@
     "readme.md",
     "dist"
   ],
-"packageManager": "pnpm@11.9.0"
+  "packageManager": "pnpm@11.9.0"
 }
