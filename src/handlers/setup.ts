@@ -31,7 +31,7 @@ export const setup = async (routerClient: RouterClient) => {
             redirectUrl: config.redirectURL,
           },
         },
-        { status: 200 },
+        { status: 401 },
       );
     }
 
@@ -59,7 +59,7 @@ export const setup = async (routerClient: RouterClient) => {
               redirectUrl: config.redirectURL,
             },
           },
-          { status: 500 },
+          { status: 401 },
         );
       }
     }
@@ -85,7 +85,7 @@ export const setup = async (routerClient: RouterClient) => {
             redirectUrl: config.redirectURL,
           },
         },
-        { status: 500 },
+        { status: 401 },
       );
     }
 
@@ -105,7 +105,7 @@ export const setup = async (routerClient: RouterClient) => {
             redirectUrl: config.redirectURL,
           },
         },
-        { status: 500 },
+        { status: 401 },
       );
     }
 
@@ -120,7 +120,7 @@ export const setup = async (routerClient: RouterClient) => {
             redirectUrl: config.redirectURL,
           },
         },
-        { status: 500 },
+        { status: 401 },
       );
     }
 

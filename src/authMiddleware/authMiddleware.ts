@@ -12,18 +12,31 @@ import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
 import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOptions";
 import { isPublicPathMatch } from "../utils/isPublicPathMatch";
-import { TWENTY_NINE_DAYS } from "src/utils/constants";
+import { isNonSafeMethod } from "../utils/isNonSafeMethod";
+import { buildAuthRedirectUrl } from "../utils/buildAuthRedirectUrl";
 
 /**
  * Handles invitation code redirect logic.
- * Redirects to the register page with the invitation code, or to login on error.
+ * Redirects to the register page with the invitation code, or falls back to
+ * the auth redirect URL on error.
+ *
+ * Non-safe HTTP methods (POST, PUT, etc.) cannot follow a 3xx redirect, so
+ * a 401 JSON response is returned instead.
  */
 const handleInvitationCodeRedirect = (
+  req,
   invitationCode: string,
   registerPage: string,
-  loginRedirectUrl: string,
+  authRedirectUrl: string,
   redirectURLBase: string | undefined,
 ): NextResponse => {
+  if (isNonSafeMethod(req)) {
+    return NextResponse.json(
+      { statusCode: 401, message: "Unauthorized" },
+      { status: 401 },
+    );
+  }
+
   try {
     const params = new URLSearchParams();
     params.set("invitation_code", invitationCode);
@@ -45,9 +58,29 @@ const handleInvitationCodeRedirect = (
       );
     }
     return NextResponse.redirect(
-      new URL(loginRedirectUrl, redirectURLBase || config.redirectURL),
+      new URL(authRedirectUrl, redirectURLBase || config.redirectURL),
     );
   }
+};
+
+/**
+ * Redirects the user to the auth/login page, or returns a 401 JSON response
+ * for non-safe HTTP methods (POST, PUT, etc.) that cannot follow a 3xx redirect.
+ */
+const authRedirect = (
+  req,
+  authRedirectUrl: string,
+  redirectURLBase: string | undefined,
+): NextResponse => {
+  if (isNonSafeMethod(req)) {
+    return NextResponse.json(
+      { statusCode: 401, message: "Unauthorized" },
+      { status: 401 },
+    );
+  }
+  return NextResponse.redirect(
+    new URL(authRedirectUrl, redirectURLBase || config.redirectURL),
+  );
 };
 
 const handleMiddleware = async (req, options, onSuccess) => {
@@ -63,6 +96,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
   const registerPage = `${config.apiPath}/${routes.register}`;
   const setupPage = `${config.apiPath}/${routes.setup}`;
 
+  // Let the auth SDK's own routes through without any checks.
   if (
     loginPage == pathname ||
     callbackPage == pathname ||
@@ -78,32 +112,26 @@ const handleMiddleware = async (req, options, onSuccess) => {
       publicPaths = options.publicPaths;
     }
   }
-  const loginRedirectUrlParams = new URLSearchParams();
 
-  if (orgCode) {
-    loginRedirectUrlParams.set("org_code", orgCode);
-  }
-
-  if (isReturnToCurrentPage) {
-    loginRedirectUrlParams.set("post_login_redirect_url", pathname + search);
-  }
-
-  const queryString = loginRedirectUrlParams.toString();
-  const loginRedirectUrl = queryString
-    ? `${loginPage}?${queryString}`
-    : loginPage;
+  // Build the URL to send unauthenticated users to, including any optional
+  // org_code and post_login_redirect_url query parameters.
+  const authRedirectUrl = buildAuthRedirectUrl(loginPage, {
+    orgCode,
+    isReturnToCurrentPage,
+    pathname,
+    search,
+  });
 
   if (hasInvitationCode) {
     return handleInvitationCodeRedirect(
+      req,
       invitationCode,
       registerPage,
-      loginRedirectUrl,
+      authRedirectUrl,
       options?.redirectURLBase,
     );
   }
 
-  // Use extracted utility for public path matching
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const isPublicPath = isPublicPathMatch(
     pathname,
     publicPaths,
@@ -115,23 +143,21 @@ const handleMiddleware = async (req, options, onSuccess) => {
   // getIdToken will validate the token
   let kindeIdToken = await getIdToken(req);
 
-  // if no access token, redirect to login
+  // No valid tokens — send to login (or 401 for non-safe methods).
   if ((!kindeAccessToken || !kindeIdToken) && !isPublicPath) {
     if (config.isDebugMode) {
       console.log(
         "authMiddleware: no access or id token, redirecting to login",
       );
     }
-    return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
-    );
+    return authRedirect(req, authRedirectUrl, options?.redirectURLBase);
   }
 
   const session = await sessionManager(req);
   let refreshResponse: OAuth2CodeExchangeResponse | null = null;
   const resp = NextResponse.next();
 
-  // if accessToken is expired, refresh it
+  // If either token is within 20 seconds of expiry, attempt a silent refresh.
   if (
     isTokenExpired(kindeAccessToken, 20) ||
     isTokenExpired(kindeIdToken, 20)
@@ -145,12 +171,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         console.error(debugMessage);
       }
       if (!isPublicPath) {
-        return NextResponse.redirect(
-          new URL(
-            loginRedirectUrl,
-            options?.redirectURLBase || config.redirectURL,
-          ),
-        );
+        return authRedirect(req, authRedirectUrl, options?.redirectURLBase);
       }
       return undefined;
     };
@@ -179,8 +200,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
       if (payload) {
         persistent = payload.ksp?.persistent ?? true;
       }
-      // if we want layouts/pages to get immediate access to the new token,
-      // we need to set the cookie on the response here
+      // Set the refreshed tokens on the response so layouts/pages can read them
+      // immediately without waiting for the next request cycle.
       const splitAccessTokenCookies = getSplitCookies(
         "access_token",
         refreshResponse.access_token,
@@ -213,10 +234,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
         standardCookieOptions,
       );
 
-      // copy the cookies from the response to the request
-      // in Next versions prior to 14.2.8, the cookies function
-      // reads the Set-Cookie header from the *request* object, not the *response* object
-      // in order to get the new cookies to the request, we need to copy them over
+      // Copy refreshed cookies to the request so Next.js versions prior to
+      // 14.2.8 can read them from the request object (not just the response).
       copyCookiesToRequest(req, resp);
 
       if (config.isDebugMode) {
@@ -230,8 +249,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
     }
   }
 
-  // we don't bail out earlier than here because we want to refresh the tokens
-  // if they are expired, even if the path is public
+  // Token refresh (if needed) is always attempted before bailing on public paths,
+  // so that public pages still receive up-to-date cookies.
   if (isPublicPath) {
     return resp;
   }
@@ -247,9 +266,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         "authMiddleware: access token decode failed, redirecting to login",
       );
     }
-    return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
-    );
+    return authRedirect(req, authRedirectUrl, options?.redirectURLBase);
   }
 
   try {
@@ -260,9 +277,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
         "authMiddleware: id token decode failed, redirecting to login",
       );
     }
-    return NextResponse.redirect(
-      new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
-    );
+    return authRedirect(req, authRedirectUrl, options?.redirectURLBase);
   }
 
   const customValidationValid = options?.isAuthorized
@@ -284,7 +299,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
       },
     });
 
-    // If a user returned a response from their onSuccess callback, copy our refreshed tokens to it
+    // If the onSuccess callback returned its own response, forward our
+    // refreshed token cookies onto it before returning.
     if (callbackResult instanceof NextResponse) {
       if (config.isDebugMode) {
         console.log(
@@ -292,7 +308,6 @@ const handleMiddleware = async (req, options, onSuccess) => {
         );
       }
 
-      // Copy our cookies to their response
       resp.cookies.getAll().forEach((cookie) => {
         callbackResult.cookies.set(cookie.name, cookie.value, {
           ...cookie,
@@ -304,7 +319,6 @@ const handleMiddleware = async (req, options, onSuccess) => {
       return callbackResult;
     }
 
-    // If they didn't return a response, return our response with the refreshed tokens
     if (config.isDebugMode) {
       console.log(
         "authMiddleware: onSuccess callback did not return a response, returning our response",
@@ -327,9 +341,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     console.log("authMiddleware: default behaviour, redirecting to login");
   }
 
-  return NextResponse.redirect(
-    new URL(loginRedirectUrl, options?.redirectURLBase || config.redirectURL),
-  );
+  return authRedirect(req, authRedirectUrl, options?.redirectURLBase);
 };
 
 /**
