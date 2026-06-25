@@ -21,8 +21,8 @@ importers:
         specifier: ^0.4.0
         version: 0.4.3
       cookie:
-        specifier: ^1.0.2
-        version: 1.1.1
+        specifier: ^2.0.0
+        version: 2.0.0
       crypto-js:
         specifier: ^4.2.0
         version: 4.2.0
@@ -31,7 +31,7 @@ importers:
         version: 2.0.5
       next:
         specifier: ^12.3.5 || ~13.0.0 || ~13.1.0 || ~13.2.0 || ^14.2.35 || ^15.0.7 || ^15.1.11 || ^15.2.8 || ^15.3.8 || ^15.4.10 || ^15.5.9 || >=16.0.10
-        version: 16.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 16.1.6(@babel/core@7.28.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
         specifier: ^18.0.0 || >=19.2.1
         version: 19.2.7
@@ -1748,9 +1748,9 @@ packages:
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
-  cookie@1.1.1:
-    resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
-    engines: {node: '>=18'}
+  cookie@2.0.0:
+    resolution: {integrity: sha512-hRSFuKJ6SYHrFVNltQdagQFMk7e0Q/VrORTGqZGyUAmmhA3EwPeldHCTg0HqUaDodQOfQDe7qXuOtpf4lwCsaA==}
+    engines: {node: '>=22'}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -5196,7 +5196,7 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
-  cookie@1.1.1: {}
+  cookie@2.0.0: {}
 
   cross-spawn@7.0.6:
     dependencies:
@@ -6355,7 +6355,7 @@ snapshots:
     dependencies:
       type-fest: 2.19.0
 
-  next@16.1.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  next@16.1.6(@babel/core@7.28.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       '@next/env': 16.1.6
       '@swc/helpers': 0.5.15
