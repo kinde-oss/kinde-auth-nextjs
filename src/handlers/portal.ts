@@ -28,7 +28,11 @@ export const portal = async (routerClient: RouterClient) => {
     await routerClient.sessionManager.getSessionItem("access_token");
 
   if (!accessToken) {
-    return routerClient.redirect(`${config.apiPath}/${routes.login}`);
+    return routerClient.redirect(
+      new URL(
+        `${routerClient.clientConfig.siteUrl}${config.apiPath}/${routes.login}`,
+      ).toString(),
+    );
   }
 
   await storage.setSessionItem(StorageKeys.accessToken, accessToken);
