@@ -23,6 +23,13 @@ describe("isPreFetch", () => {
     expect(isPreFetch(headers)).toBe(true);
   });
 
+  it("should return true when next-router-prefetch header is 1", () => {
+    const headers = new Headers({
+      "next-router-prefetch": "1",
+    });
+    expect(isPreFetch(headers)).toBe(true);
+  });
+
   it("should return false when no prefetch headers are present", () => {
     const headers = new Headers({
       "content-type": "application/json",

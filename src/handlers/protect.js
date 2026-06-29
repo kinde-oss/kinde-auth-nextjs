@@ -118,23 +118,35 @@ export const protectApi = (handler, config) => async (req) => {
     const isSignedIn = await isAuthenticated();
 
     if (!isSignedIn) {
-      return NextResponse.json({ statusCode: 401, message: "Unauthorized" });
+      return NextResponse.json(
+        { statusCode: 401, message: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     if (config.roles) {
       const roles = await getRoles();
       if (!roles)
-        return NextResponse.json({ statusCode: 401, message: "Unauthorized" });
+        return NextResponse.json(
+          { statusCode: 401, message: "Unauthorized" },
+          { status: 401 },
+        );
       const roleNames = new Set(roles.map((r) => r.name));
       if (!config.roles.some((role) => roleNames.has(role))) {
-        return NextResponse.json({ statusCode: 401, message: "Unauthorized" });
+        return NextResponse.json(
+          { statusCode: 401, message: "Unauthorized" },
+          { status: 401 },
+        );
       }
     }
 
     if (typeof config.permissions === "string") {
       const hasPermission = await getPermission(config.permissions);
       if (!hasPermission) {
-        return NextResponse.json({ statusCode: 403, message: "Forbidden" });
+        return NextResponse.json(
+          { statusCode: 403, message: "Forbidden" },
+          { status: 403 },
+        );
       }
     }
 
@@ -145,7 +157,10 @@ export const protectApi = (handler, config) => async (req) => {
           permissions.includes(permission),
         )
       ) {
-        return NextResponse.json({ statusCode: 403, message: "Forbidden" });
+        return NextResponse.json(
+          { statusCode: 403, message: "Forbidden" },
+          { status: 403 },
+        );
       }
     }
   } catch (error) {
