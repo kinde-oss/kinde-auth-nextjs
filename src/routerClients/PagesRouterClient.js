@@ -68,6 +68,11 @@ export default class PagesRouterClient extends RouterClient {
     return this.res.status(status.status).json(data);
   }
 
+  noContent() {
+    this.res.setHeader("Cache-Control", "no-store");
+    return this.res.status(204).end();
+  }
+
   /**
    *
    * @param {string} key
