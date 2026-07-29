@@ -77,13 +77,32 @@ import { withAuth } from "../../src/authMiddleware/authMiddleware";
 // Helpers
 // --------------------------------------------------------------------------
 
-const makeRequest = (method: string, url: string): Request => {
+const makeRequest = (
+  method: string,
+  url: string,
+  headers: Record<string, string> = {},
+): Request => {
   const req = new Request(url, { method });
   (req as any).nextUrl = new URL(url);
   (req as any).cookies = {
     get: vi.fn().mockReturnValue(null),
     getAll: vi.fn(() => []),
   };
+
+  // Sec-Fetch-* are forbidden request headers and cannot be set via Request.
+  // Override headers.get so middleware can still read the values under test.
+  const normalized = Object.fromEntries(
+    Object.entries(headers).map(([key, value]) => [key.toLowerCase(), value]),
+  );
+  const originalGet = req.headers.get.bind(req.headers);
+  req.headers.get = (name: string) => {
+    const key = name.toLowerCase();
+    if (Object.prototype.hasOwnProperty.call(normalized, key)) {
+      return normalized[key];
+    }
+    return originalGet(name);
+  };
+
   return req;
 };
 
@@ -172,6 +191,50 @@ describe("authMiddleware — non-GET/HEAD returns HTTP 401", () => {
 
     it("redirects GET to login when unauthenticated", async () => {
       const req = makeRequest("GET", "http://localhost:3000/dashboard");
+      await withAuth(req);
+      expect(NextResponse.json).not.toHaveBeenCalled();
+      expect(NextResponse.redirect).toHaveBeenCalled();
+    });
+
+    it("returns HTTP 401 for GET fetch with Sec-Fetch-Dest empty", async () => {
+      const req = makeRequest("GET", "http://localhost:3000/api/data", {
+        "Sec-Fetch-Dest": "empty",
+      });
+      await withAuth(req);
+      expect(NextResponse.json).toHaveBeenCalledWith(
+        { statusCode: 401, message: "Unauthorized" },
+        { status: 401 },
+      );
+    });
+
+    it("returns HTTP 401 for GET fetch with Sec-Fetch-Mode cors", async () => {
+      const req = makeRequest("GET", "http://localhost:3000/api/data", {
+        "Sec-Fetch-Mode": "cors",
+      });
+      await withAuth(req);
+      expect(NextResponse.json).toHaveBeenCalledWith(
+        { statusCode: 401, message: "Unauthorized" },
+        { status: 401 },
+      );
+    });
+
+    it("returns HTTP 401 for GET when Accept prefers application/json", async () => {
+      const req = makeRequest("GET", "http://localhost:3000/api/data", {
+        Accept: "application/json",
+      });
+      await withAuth(req);
+      expect(NextResponse.json).toHaveBeenCalledWith(
+        { statusCode: 401, message: "Unauthorized" },
+        { status: 401 },
+      );
+    });
+
+    it("redirects document GET navigation (text/html Accept)", async () => {
+      const req = makeRequest("GET", "http://localhost:3000/dashboard", {
+        Accept: "text/html,application/xhtml+xml",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+      });
       await withAuth(req);
       expect(NextResponse.json).not.toHaveBeenCalled();
       expect(NextResponse.redirect).toHaveBeenCalled();

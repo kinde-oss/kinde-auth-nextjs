@@ -10,6 +10,7 @@ import { fetchKindeState } from "../../utils";
 import { DefaultKindeNextClientState } from "../../constants";
 import * as store from "../../store";
 import {
+  clearRefreshTimer,
   getDecodedToken,
   RefreshTokenResult,
   setRefreshTimer,
@@ -17,6 +18,7 @@ import {
 } from "@kinde-oss/kinde-auth-react/utils";
 import { JWTDecoded } from "@kinde/jwt-decoder";
 import { config as sdkConfig } from "../../../config/index";
+import { subscribeSessionEvents } from "../../sessionChannel";
 
 export const calculateExpirySeconds = async (): Promise<number | null> => {
   const token = await getDecodedToken<JWTDecoded>("accessToken");
@@ -32,8 +34,12 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
     DefaultKindeNextClientState,
   );
 
-  const handleError = useCallback(
-    async (error: string) => {
+  const isRevalidatingRef = useRef(false);
+  const hasCompletedInitialLoadRef = useRef(false);
+
+  const clearClientSession = useCallback(
+    async (error: string | null = null) => {
+      clearRefreshTimer();
       await store.clientStorage.destroySession();
       setFetchedState({
         ...DefaultKindeNextClientState,
@@ -42,6 +48,13 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       });
     },
     [setFetchedState],
+  );
+
+  const handleError = useCallback(
+    async (error: string) => {
+      await clearClientSession(error);
+    },
+    [clearClientSession],
   );
 
   const refreshHandlerRef = useRef<(() => Promise<RefreshTokenResult>) | null>(
@@ -60,7 +73,7 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       if (shouldAutoRefresh) {
         const expiry = await calculateExpirySeconds();
         const handler = refreshHandlerRef.current;
-        if (handler && expiry !== null) {
+        if (handler && expiry !== null && expiry > 0) {
           setRefreshTimer(expiry, handler);
         }
       }
@@ -108,6 +121,7 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       await handleError(setupResponse.error);
       setConfig(setupResponse.env);
       setLoading(false);
+      hasCompletedInitialLoadRef.current = true;
 
       return {
         success: false,
@@ -118,6 +132,7 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
     await updateTokensAndSetRefresh(setupResponse.kindeState);
     setConfig(setupResponse.env);
     setLoading(false);
+    hasCompletedInitialLoadRef.current = true;
 
     return {
       success: true,
@@ -130,6 +145,39 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
     setupState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Cross-tab logout: clear in-memory client state when another tab logs out.
+  useEffect(() => {
+    return subscribeSessionEvents(async (event) => {
+      if (event.type !== "logged_out") return;
+      if (sdkConfig.isDebugMode) {
+        console.log("useSessionSync: received logged_out from another tab");
+      }
+      await clearClientSession(null);
+    });
+  }, [clearClientSession]);
+
+  // Revalidate session when the tab becomes visible again (covers logout via
+  // raw /api/auth/logout URL without LogoutLink, and expired cookies).
+  useEffect(() => {
+    const onVisibilityChange = async () => {
+      if (document.visibilityState !== "visible") return;
+      if (!hasCompletedInitialLoadRef.current) return;
+      if (isRevalidatingRef.current) return;
+
+      isRevalidatingRef.current = true;
+      try {
+        await setupState();
+      } finally {
+        isRevalidatingRef.current = false;
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [setupState]);
 
   return {
     config,
