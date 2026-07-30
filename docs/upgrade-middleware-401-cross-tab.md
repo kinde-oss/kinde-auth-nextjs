@@ -16,11 +16,14 @@ A typical setup keeps working as-is:
 // middleware.ts
 import { withAuth } from "@kinde-oss/kinde-auth-nextjs/middleware";
 
-export default withAuth(async function middleware(req) {
-  // your logic
-}, {
-  publicPaths: ["/", "/about"],
-});
+export default withAuth(
+  async function middleware(req) {
+    // your logic
+  },
+  {
+    publicPaths: ["/", "/about"],
+  },
+);
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
@@ -39,12 +42,12 @@ You do **not** need to:
 
 ### 1. Unauthenticated API calls return `401` instead of redirect / 5xx
 
-| Request type | Before (e.g. 2.11.0) | After (latest) |
-|---|---|---|
-| Document navigation (GET/HEAD, HTML) | Redirect to login | Redirect to login (unchanged) |
-| Mutating methods (POST, PUT, PATCH, DELETE, …) | Redirect to login | **`401` JSON** `{ statusCode: 401, message: "Unauthorized" }` |
-| Fetch/XHR-style GET (JSON `Accept`, `Sec-Fetch-Mode: cors`, `Sec-Fetch-Dest: empty`) | Redirect to login | **`401` JSON** |
-| `/api/auth/setup` auth failures | Often **200** / **500** | **`401`** |
+| Request type                                                                         | Before (e.g. 2.11.0)    | After (latest)                                                |
+| ------------------------------------------------------------------------------------ | ----------------------- | ------------------------------------------------------------- |
+| Document navigation (GET/HEAD, HTML)                                                 | Redirect to login       | Redirect to login (unchanged)                                 |
+| Mutating methods (POST, PUT, PATCH, DELETE, …)                                       | Redirect to login       | **`401` JSON** `{ statusCode: 401, message: "Unauthorized" }` |
+| Fetch/XHR-style GET (JSON `Accept`, `Sec-Fetch-Mode: cors`, `Sec-Fetch-Dest: empty`) | Redirect to login       | **`401` JSON**                                                |
+| `/api/auth/setup` auth failures                                                      | Often **200** / **500** | **`401`**                                                     |
 
 No middleware config is required for this; it is built into `withAuth`.
 
@@ -122,7 +125,7 @@ Use `LogoutLink` (or ensure logout goes through the SDK logout route) so other t
 ```tsx
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
 
-<LogoutLink>Sign out</LogoutLink>
+<LogoutLink>Sign out</LogoutLink>;
 ```
 
 If users hit `/api/auth/logout` via a plain `<a href>` without `LogoutLink`, cookies still clear, but other tabs may only update when they regain focus (visibility revalidation).
@@ -139,16 +142,16 @@ Wrap the app in `KindeProvider` if you rely on client auth state (`useKindeBrows
 
 ---
 
-## When you *might* need middleware code changes
+## When you _might_ need middleware code changes
 
 Only if you customized auth failure behavior yourself:
 
-| Situation | Action |
-|---|---|
-| Custom middleware that **reimplements** redirects instead of using `withAuth`’s response | Prefer composing with `withAuth`, or mirror the new 401 rules for API requests |
-| App assumed **all** unauthenticated hits are redirects (including POST/fetch) | Update those callers for `401` (Step 3) |
-| GET “API” routes that send `Accept: text/html` and navigate-style fetch headers | May still redirect; send JSON/`cors`/`empty` fetch headers, or handle redirect explicitly |
-| Routes not in the middleware matcher | Add them, or protect with `protectApi` / server session checks |
+| Situation                                                                                | Action                                                                                    |
+| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Custom middleware that **reimplements** redirects instead of using `withAuth`’s response | Prefer composing with `withAuth`, or mirror the new 401 rules for API requests            |
+| App assumed **all** unauthenticated hits are redirects (including POST/fetch)            | Update those callers for `401` (Step 3)                                                   |
+| GET “API” routes that send `Accept: text/html` and navigate-style fetch headers          | May still redirect; send JSON/`cors`/`empty` fetch headers, or handle redirect explicitly |
+| Routes not in the middleware matcher                                                     | Add them, or protect with `protectApi` / server session checks                            |
 
 There is **no new required option** on `withAuth` for this upgrade.
 
@@ -162,12 +165,12 @@ If some APIs are outside the matcher, use server helpers / `protectApi` as you d
 
 ## Summary
 
-| Area | Required action |
-|---|---|
-| `middleware.ts` `withAuth` setup | **None** for standard setups |
-| Package version | Upgrade to latest |
-| Client `fetch` / API callers | Handle **`401`** as logged out |
-| `KindeProvider` + `LogoutLink` | Recommended for cross-tab UI sync |
-| Matcher / `publicPaths` | Review only if APIs were excluded from middleware |
+| Area                             | Required action                                   |
+| -------------------------------- | ------------------------------------------------- |
+| `middleware.ts` `withAuth` setup | **None** for standard setups                      |
+| Package version                  | Upgrade to latest                                 |
+| Client `fetch` / API callers     | Handle **`401`** as logged out                    |
+| `KindeProvider` + `LogoutLink`   | Recommended for cross-tab UI sync                 |
+| Matcher / `publicPaths`          | Review only if APIs were excluded from middleware |
 
 **Bottom line:** existing middleware configuration can stay; the upgrade mainly changes **response behavior** (401 for API-style requests) and adds **client cross-tab sync**. Update callers that expected redirects or 5xx after logout.
