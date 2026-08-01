@@ -1,11 +1,11 @@
 import { getUserFactory } from "./getUser";
 import { getAccessToken } from "../utils/getAccessToken";
-import { isTokenExpired } from "../utils/jwt/validation";
-import { redirect } from "next/navigation";
-import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
 import { config } from "../config/index";
 
 /**
+ * Returns a function that checks if the user is authenticated.
+ * This function simply returns true/false based on token validity,
+ * without triggering redirects. Use middleware for route protection.
  *
  * @param {import('next').NextApiRequest} [req]
  * @param {import('next').NextApiResponse} [res]
@@ -13,10 +13,6 @@ import { config } from "../config/index";
  */
 export const isAuthenticatedFactory = (req, res) => async () => {
   const token = await getAccessToken(req, res);
-  if (config.isDebugMode) {
-    console.log("isAuthenticatedFactory: running redirectOnExpiredToken check");
-  }
-  redirectOnExpiredToken(token);
   const user = await getUserFactory(req, res)();
   return token && Boolean(user);
 };
