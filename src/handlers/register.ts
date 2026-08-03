@@ -11,7 +11,7 @@ import { config } from "../config/index";
 export const register = async (routerClient: RouterClient) => {
   const headers = await getHeaders(routerClient.req);
   if (isPreFetch(headers)) {
-    return null;
+    return routerClient.noContent();
   }
 
   const authUrl = await routerClient.kindeClient.register(
