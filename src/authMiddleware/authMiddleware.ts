@@ -12,7 +12,7 @@ import { OAuth2CodeExchangeResponse } from "@kinde-oss/kinde-typescript-sdk";
 import { copyCookiesToRequest } from "../utils/copyCookiesToRequest";
 import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOptions";
 import { isPublicPathMatch } from "../utils/isPublicPathMatch";
-import { isNonSafeMethod } from "../utils/isNonSafeMethod";
+import { shouldReturnUnauthorizedJson } from "../utils/shouldReturnUnauthorizedJson";
 import { buildAuthRedirectUrl } from "../utils/buildAuthRedirectUrl";
 
 /**
@@ -20,8 +20,8 @@ import { buildAuthRedirectUrl } from "../utils/buildAuthRedirectUrl";
  * Redirects to the register page with the invitation code, or falls back to
  * the auth redirect URL on error.
  *
- * Non-safe HTTP methods (POST, PUT, etc.) cannot follow a 3xx redirect, so
- * a 401 JSON response is returned instead.
+ * API/XHR-style requests cannot usefully follow a login redirect, so a 401
+ * JSON response is returned instead.
  */
 const handleInvitationCodeRedirect = (
   req,
@@ -30,7 +30,7 @@ const handleInvitationCodeRedirect = (
   authRedirectUrl: string,
   redirectURLBase: string | undefined,
 ): NextResponse => {
-  if (isNonSafeMethod(req)) {
+  if (shouldReturnUnauthorizedJson(req)) {
     return NextResponse.json(
       { statusCode: 401, message: "Unauthorized" },
       { status: 401 },
@@ -65,14 +65,14 @@ const handleInvitationCodeRedirect = (
 
 /**
  * Redirects the user to the auth/login page, or returns a 401 JSON response
- * for non-safe HTTP methods (POST, PUT, etc.) that cannot follow a 3xx redirect.
+ * for API/XHR-style requests (non-safe methods, CORS fetch, JSON Accept).
  */
 const authRedirect = (
   req,
   authRedirectUrl: string,
   redirectURLBase: string | undefined,
 ): NextResponse => {
-  if (isNonSafeMethod(req)) {
+  if (shouldReturnUnauthorizedJson(req)) {
     return NextResponse.json(
       { statusCode: 401, message: "Unauthorized" },
       { status: 401 },
