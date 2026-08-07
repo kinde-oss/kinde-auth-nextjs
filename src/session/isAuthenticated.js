@@ -9,10 +9,11 @@ import { config } from "../config/index";
  *
  * @param {import('next').NextApiRequest} [req]
  * @param {import('next').NextApiResponse} [res]
+ * @param {boolean} [autoRedirect] - If true, will redirect on expired token (default: false for isAuthenticated)
  * @returns {() => Promise<boolean>}
  */
-export const isAuthenticatedFactory = (req, res) => async () => {
-  const token = await getAccessToken(req, res);
-  const user = await getUserFactory(req, res)();
+export const isAuthenticatedFactory = (req, res, autoRedirect = false) => async () => {
+  const token = await getAccessTokenFactory(req, res, autoRedirect)();
+  const user = await getUserFactory(req, res, autoRedirect)();
   return token && Boolean(user);
 };

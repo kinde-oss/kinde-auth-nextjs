@@ -12,7 +12,7 @@ import { getAccessToken } from "../utils/getAccessToken";
 import { getIdToken } from "../utils/getIdToken";
 
 export const getUserFactory =
-  (req: NextApiRequest, res: NextApiResponse) =>
+  (req: NextApiRequest, res: NextApiResponse, autoRedirect?: boolean) =>
   async <T = KindeProperties>(): Promise<KindeUser<T>> => {
     try {
       const rawToken = await getIdToken(req, res);

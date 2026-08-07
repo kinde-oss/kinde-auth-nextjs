@@ -13,7 +13,11 @@ import { config, routes } from "../config";
 //
 // TODO: This is a temporary solution, long-term this would be much better
 // off living inside getKindeServerSession, but we'd need to make getKindeServerSession async (breaking)
-export const redirectOnExpiredToken = (token: string | null) => {
+export const redirectOnExpiredToken = (
+  token: string | null,
+  autoRedirect?: boolean,
+) => {
+  const shouldRedirect = autoRedirect ?? config.autoRedirect;
   if (config.isDebugMode) {
     console.log("redirectOnExpiredToken: checking for expired token");
   }
@@ -36,5 +40,7 @@ export const redirectOnExpiredToken = (token: string | null) => {
       "redirectOnExpiredToken: token is defined and expired, redirecting",
     );
   }
-  redirect(`${config.apiPath}/${routes.login}`);
+  if (shouldRedirect) {
+    redirect(`${config.apiPath}/${routes.login}`);
+  }
 };
