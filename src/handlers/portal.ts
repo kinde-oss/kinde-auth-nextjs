@@ -18,7 +18,7 @@ import { config, routes } from "../config";
 export const portal = async (routerClient: RouterClient) => {
   const headers = await getHeaders(routerClient.req);
   if (isPreFetch(headers)) {
-    return null;
+    return routerClient.noContent();
   }
 
   const storage = new MemoryStorage();

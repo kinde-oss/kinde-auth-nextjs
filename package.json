@@ -83,7 +83,7 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "@vitest/coverage-v8": "4.1.9",
+    "@vitest/coverage-v8": "4.1.10",
     "ajv": "^8.17.1",
     "changelogen": "^0.6.0",
     "eslint": "^10.0.0",
@@ -92,7 +92,7 @@
     "globals": "^17.0.0",
     "happy-dom": "^20.8.9",
     "prettier": "^3.8.2",
-    "release-it": "^20.0.0",
+    "release-it": "^21.0.0",
     "rollup-plugin-preserve-directives": "^0.4.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.10",
@@ -106,7 +106,7 @@
   },
   "dependencies": {
     "@kinde-oss/kinde-auth-react": "5.12.1",
-    "@kinde-oss/kinde-typescript-sdk": "2.14.0",
+    "@kinde-oss/kinde-typescript-sdk": "2.15.0",
     "@kinde/jwt-decoder": "^0.2.0",
     "@kinde/jwt-validator": "^0.4.0",
     "cookie": "^1.0.2",
@@ -121,5 +121,5 @@
     "readme.md",
     "dist"
   ],
-"packageManager": "pnpm@11.9.0"
+  "packageManager": "pnpm@11.20.0"
 }
