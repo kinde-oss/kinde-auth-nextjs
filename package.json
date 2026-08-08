@@ -96,7 +96,7 @@
     "rollup-plugin-preserve-directives": "^0.4.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.10",
-    "vite-plugin-dts": "^4.5.3",
+    "vite-plugin-dts": "^5.0.0",
     "vitest": "^4.0.0"
   },
   "peerDependencies": {
@@ -121,5 +121,5 @@
     "readme.md",
     "dist"
   ],
-"packageManager": "pnpm@11.20.0"
+  "packageManager": "pnpm@11.20.0"
 }
