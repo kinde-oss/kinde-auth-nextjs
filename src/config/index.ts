@@ -64,9 +64,11 @@ const KINDE_COOKIE_DOMAIN = removeTrailingSlash(
 const KINDE_SCOPE = process.env.KINDE_SCOPE || "openid profile email offline";
 
 const isDebugMode = process.env.KINDE_DEBUG_MODE === "true";
+const autoRedirect = process.env.KINDE_AUTO_REDIRECT !== "false";
 
 type Config = {
   isDebugMode: boolean;
+  autoRedirect: boolean;
   apiPath: string;
   initialState: any; // TODO: Fix this type
   SESSION_PREFIX: string;
@@ -106,6 +108,7 @@ type Config = {
 
 export const config: Config = {
   isDebugMode,
+  autoRedirect,
   apiPath: KINDE_AUTH_API_PATH,
   initialState,
   SESSION_PREFIX,

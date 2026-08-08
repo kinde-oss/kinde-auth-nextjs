@@ -13,17 +13,18 @@ import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
  *
  * @param {import('next').NextApiRequest} [req]
  * @param {import('next').NextApiResponse} [res]
+ * @param {boolean} [autoRedirect]
  * @returns {getIdToken}
  */
 
 // @ts-ignore
-export const getIdTokenFactory = (req, res) => async () => {
+export const getIdTokenFactory = (req, res, autoRedirect) => async () => {
   try {
     const token = await getIdToken(req, res);
     if (config.isDebugMode) {
       console.log("getIdTokenFactory: running redirectOnExpiredToken check");
     }
-    redirectOnExpiredToken(token);
+    redirectOnExpiredToken(token, autoRedirect);
     return jwtDecoder(token);
   } catch (err) {
     if (config.isDebugMode) {

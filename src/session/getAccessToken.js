@@ -12,10 +12,11 @@ import { redirectOnExpiredToken } from "../utils/redirectOnExpiredToken";
  *
  * @param {import('next').NextApiRequest} [req]
  * @param {import('next').NextApiResponse} [res]
+ * @param {boolean} [autoRedirect]
  *
  * @returns {getAccessToken}
  */
-export const getAccessTokenFactory = (req, res) => async () => {
+export const getAccessTokenFactory = (req, res, autoRedirect) => async () => {
   try {
     const accessToken = await getAccessToken(req, res);
     if (config.isDebugMode) {
@@ -23,7 +24,7 @@ export const getAccessTokenFactory = (req, res) => async () => {
         "getAccessTokenFactory: running redirectOnExpiredToken check",
       );
     }
-    redirectOnExpiredToken(accessToken);
+    redirectOnExpiredToken(accessToken, autoRedirect);
     return jwtDecoder(accessToken);
   } catch (err) {
     if (config.isDebugMode) {
