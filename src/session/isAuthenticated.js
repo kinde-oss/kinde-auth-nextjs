@@ -1,5 +1,5 @@
 import { getUserFactory } from "./getUser";
-import { getAccessToken } from "../utils/getAccessToken";
+import { getAccessTokenFactory } from "./getAccessToken";
 import { config } from "../config/index";
 
 /**
@@ -13,7 +13,14 @@ import { config } from "../config/index";
  * @returns {() => Promise<boolean>}
  */
 export const isAuthenticatedFactory = (req, res, autoRedirect = false) => async () => {
-  const token = await getAccessTokenFactory(req, res, autoRedirect)();
+  const getAccessTokenFn = getAccessTokenFactory(req, res, autoRedirect);
+  const token = await getAccessTokenFn();
+  
+  // Return false early if no token or token is expired
+  if (!token) {
+    return false;
+  }
+  
   const user = await getUserFactory(req, res, autoRedirect)();
-  return token && Boolean(user);
+  return Boolean(user);
 };
