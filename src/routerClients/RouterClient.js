@@ -41,6 +41,16 @@ export default class RouterClient {
     throw new Error("Method 'json()' must be implemented.");
   }
 
+  /**
+   * Empty response for prefetch requests. Must be a real Response on App Router
+   * (null triggers a 500) and must not include a body that the browser can reuse
+   * as a navigation document.
+   * @returns
+   */
+  noContent() {
+    throw new Error("Method 'noContent()' must be implemented.");
+  }
+
   error() {
     throw new Error("Method 'error()' must be implemented.");
   }

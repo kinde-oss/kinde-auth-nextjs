@@ -73,6 +73,13 @@ export default class AppRouterClient extends RouterClient {
     return NextResponse.json(data, status);
   }
 
+  noContent() {
+    return new NextResponse(null, {
+      status: 204,
+      headers: { "Cache-Control": "no-store" },
+    });
+  }
+
   error() {
     return Response.error;
   }

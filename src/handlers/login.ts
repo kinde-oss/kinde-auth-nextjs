@@ -11,7 +11,7 @@ import { config } from "../config/index";
 export const login = async (routerClient: RouterClient) => {
   const headers = await getHeaders(routerClient.req);
   if (isPreFetch(headers)) {
-    return null;
+    return routerClient.noContent();
   }
 
   const passedState = routerClient.searchParams.get("state");
