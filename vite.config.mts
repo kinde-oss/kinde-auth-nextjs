@@ -10,7 +10,7 @@ export default defineConfig({
     react(),
     dts({
       include: ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx"],
-      outDir: "dist/types",
+      outDirs: "dist/types",
     }),
   ],
   build: {

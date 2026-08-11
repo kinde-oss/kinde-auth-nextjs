@@ -1,6 +1,6 @@
 {
   "name": "@kinde-oss/kinde-auth-nextjs",
-  "version": "2.12.2",
+  "version": "2.13.0",
   "description": "Kinde Auth SDK for NextJS",
   "license": "MIT",
   "main": "dist/cjs/index.js",
@@ -83,7 +83,7 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "@vitest/coverage-v8": "4.1.9",
+    "@vitest/coverage-v8": "4.1.10",
     "ajv": "^8.17.1",
     "changelogen": "^0.6.0",
     "eslint": "^10.0.0",
@@ -92,11 +92,11 @@
     "globals": "^17.0.0",
     "happy-dom": "^20.8.9",
     "prettier": "^3.8.2",
-    "release-it": "^20.0.0",
+    "release-it": "^21.0.0",
     "rollup-plugin-preserve-directives": "^0.4.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.10",
-    "vite-plugin-dts": "^4.5.3",
+    "vite-plugin-dts": "^5.0.0",
     "vitest": "^4.0.0"
   },
   "peerDependencies": {
@@ -121,5 +121,5 @@
     "readme.md",
     "dist"
   ],
-"packageManager": "pnpm@11.20.0"
+  "packageManager": "pnpm@11.20.0"
 }
