@@ -46,8 +46,10 @@ export const KindeProvider = ({
         // End session by revoking tokens and clearing local session
         if (type === TimeoutActivityType.timeout) {
           try {
-            await fetch(`${sdkConfig.apiPath}/end_session`);
-            publishSessionEvent({ type: "logged_out" });
+            const res = await fetch(`${sdkConfig.apiPath}/end_session`);
+            if (res.ok) {
+              publishSessionEvent({ type: "logged_out" });
+            }
             await refreshHandler();
           } catch (error) {
             if (sdkConfig.isDebugMode) {

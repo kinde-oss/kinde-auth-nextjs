@@ -36,6 +36,8 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
 
   const isRevalidatingRef = useRef(false);
   const hasCompletedInitialLoadRef = useRef(false);
+  // Bumped on cross-tab logout so in-flight setupState results are discarded.
+  const sessionEpochRef = useRef(0);
 
   const clearClientSession = useCallback(
     async (error: string | null = null) => {
@@ -112,7 +114,17 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
   }, [refreshHandler]);
 
   const setupState = useCallback(async () => {
+    const epoch = sessionEpochRef.current;
     const setupResponse = await fetchKindeState();
+
+    // Another tab logged out (or session was otherwise invalidated) while this
+    // request was in flight — do not restore stale authenticated state.
+    if (epoch !== sessionEpochRef.current) {
+      return {
+        success: false,
+        error: "Session invalidated",
+      };
+    }
 
     if (setupResponse.success === false) {
       if (sdkConfig.isDebugMode) {
@@ -153,6 +165,7 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       if (sdkConfig.isDebugMode) {
         console.log("useSessionSync: received logged_out from another tab");
       }
+      sessionEpochRef.current += 1;
       await clearClientSession(null);
     });
   }, [clearClientSession]);

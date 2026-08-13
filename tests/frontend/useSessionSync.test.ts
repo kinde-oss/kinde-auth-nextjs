@@ -103,6 +103,56 @@ describe("useSessionSync — cross-tab and focus sync", () => {
     expect(result.current.getFetchedState().error).toBeNull();
   });
 
+  it("does not restore stale state when logged_out arrives during setup", async () => {
+    let resolveSetup: (value: unknown) => void = () => {};
+    const pendingSetup = new Promise((resolve) => {
+      resolveSetup = resolve;
+    });
+
+    fetchKindeState.mockReturnValueOnce(
+      Promise.resolve({
+        success: true,
+        kindeState: loggedInState,
+        env: ENV,
+      }),
+    );
+
+    const { result } = renderHook(() => useSessionSync());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    fetchKindeState.mockReturnValueOnce(pendingSetup);
+
+    await act(async () => {
+      void result.current.refetch();
+    });
+
+    await act(async () => {
+      await sessionHandlerRef.current?.({ type: "logged_out" });
+    });
+
+    expect(result.current.getFetchedState().isAuthenticated).toBe(false);
+
+    await act(async () => {
+      resolveSetup({
+        success: true,
+        kindeState: {
+          ...loggedInState,
+          accessTokenEncoded: "stale.access.jwt",
+          idTokenRaw: "stale.id.jwt",
+        },
+        env: ENV,
+      });
+      await pendingSetup;
+      await Promise.resolve();
+    });
+
+    expect(result.current.getFetchedState().isAuthenticated).toBe(false);
+    expect(result.current.getFetchedState().accessTokenEncoded).toBeNull();
+  });
+
   it("revalidates via setup on visibilitychange to visible", async () => {
     const { result } = renderHook(() => useSessionSync());
 
