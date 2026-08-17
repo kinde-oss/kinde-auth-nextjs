@@ -90,6 +90,7 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
   );
 
   const refreshHandler = useCallback(async (): Promise<RefreshTokenResult> => {
+    const epoch = sessionEpochRef.current;
     const setupResponse = await fetchKindeState();
 
     if (!setupResponse.success) {
@@ -100,14 +101,32 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       };
     }
 
+    // Another tab logged out (or session was otherwise invalidated) while this
+    // request was in flight — do not restore stale authenticated state.
+    if (epoch !== sessionEpochRef.current) {
+      await clearClientSession(null);
+      return {
+        success: false,
+        error: "Session invalidated",
+      };
+    }
+
     await updateTokensAndSetRefresh(setupResponse.kindeState);
+
+    if (epoch !== sessionEpochRef.current) {
+      await clearClientSession(null);
+      return {
+        success: false,
+        error: "Session invalidated",
+      };
+    }
 
     return {
       success: true,
       idToken: setupResponse.kindeState.idTokenRaw,
       accessToken: setupResponse.kindeState.accessTokenEncoded,
     };
-  }, [handleError, updateTokensAndSetRefresh]);
+  }, [clearClientSession, handleError, updateTokensAndSetRefresh]);
 
   useEffect(() => {
     refreshHandlerRef.current = refreshHandler;
@@ -120,6 +139,12 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
     // Another tab logged out (or session was otherwise invalidated) while this
     // request was in flight — do not restore stale authenticated state.
     if (epoch !== sessionEpochRef.current) {
+      if (setupResponse.env) {
+        setConfig(setupResponse.env);
+      }
+      setLoading(false);
+      hasCompletedInitialLoadRef.current = true;
+
       return {
         success: false,
         error: "Session invalidated",

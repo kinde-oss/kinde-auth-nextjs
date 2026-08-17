@@ -153,6 +153,80 @@ describe("useSessionSync — cross-tab and focus sync", () => {
     expect(result.current.getFetchedState().accessTokenEncoded).toBeNull();
   });
 
+  it("settles initial loading when logged_out arrives during the first setup", async () => {
+    let resolveSetup: (value: unknown) => void = () => {};
+    const pendingSetup = new Promise((resolve) => {
+      resolveSetup = resolve;
+    });
+
+    fetchKindeState.mockReturnValueOnce(pendingSetup);
+
+    const { result } = renderHook(() => useSessionSync());
+
+    await act(async () => {
+      await sessionHandlerRef.current?.({ type: "logged_out" });
+    });
+
+    await act(async () => {
+      resolveSetup({
+        success: true,
+        kindeState: loggedInState,
+        env: ENV,
+      });
+      await pendingSetup;
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.config).toEqual(ENV);
+    expect(result.current.getFetchedState().isAuthenticated).toBe(false);
+  });
+
+  it("does not restore stale state when logged_out arrives during refresh", async () => {
+    const { result } = renderHook(() => useSessionSync());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    let resolveRefresh: (value: unknown) => void = () => {};
+    const pendingRefresh = new Promise((resolve) => {
+      resolveRefresh = resolve;
+    });
+
+    fetchKindeState.mockReturnValueOnce(pendingRefresh);
+
+    let refreshPromise: Promise<unknown> = Promise.resolve();
+    await act(async () => {
+      refreshPromise = result.current.refreshHandler();
+    });
+
+    await act(async () => {
+      await sessionHandlerRef.current?.({ type: "logged_out" });
+    });
+
+    let refreshResult: unknown;
+    await act(async () => {
+      resolveRefresh({
+        success: true,
+        kindeState: {
+          ...loggedInState,
+          accessTokenEncoded: "stale.access.jwt",
+          idTokenRaw: "stale.id.jwt",
+        },
+        env: ENV,
+      });
+      refreshResult = await refreshPromise;
+    });
+
+    expect(refreshResult).toMatchObject({ success: false });
+    expect(result.current.getFetchedState().isAuthenticated).toBe(false);
+    expect(result.current.getFetchedState().accessTokenEncoded).toBeNull();
+  });
+
   it("revalidates via setup on visibilitychange to visible", async () => {
     const { result } = renderHook(() => useSessionSync());
 
