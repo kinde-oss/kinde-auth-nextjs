@@ -26,7 +26,9 @@ const prefersJsonOverHtml = (accept: string | null | undefined): boolean => {
  * `Sec-Fetch-Dest: empty`, `Sec-Fetch-Mode: cors`), not document navigations.
  * Those must keep the login redirect rather than a JSON 401.
  */
-const isNextAppRouterFetch = (headers: NonNullable<HeaderReadable["headers"]>): boolean => {
+const isNextAppRouterFetch = (
+  headers: NonNullable<HeaderReadable["headers"]>,
+): boolean => {
   if (headers.get("rsc")) {
     return true;
   }
