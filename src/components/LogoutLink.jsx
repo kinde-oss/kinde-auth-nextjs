@@ -1,5 +1,4 @@
 import { config, routes } from "../config/index";
-import React from "react";
 import { publishSessionEvent } from "../frontend/sessionChannel";
 
 /**
