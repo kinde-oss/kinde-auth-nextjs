@@ -66,6 +66,7 @@ const handleInvitationCodeRedirect = (
 /**
  * Redirects the user to the auth/login page, or returns a 401 JSON response
  * for API/XHR-style requests (non-safe methods, CORS fetch, JSON Accept).
+ * Next.js App Router RSC navigations still redirect.
  */
 const authRedirect = (
   req,

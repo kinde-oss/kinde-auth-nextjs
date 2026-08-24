@@ -239,5 +239,17 @@ describe("authMiddleware — non-GET/HEAD returns HTTP 401", () => {
       expect(NextResponse.json).not.toHaveBeenCalled();
       expect(NextResponse.redirect).toHaveBeenCalled();
     });
+
+    it("redirects Next.js App Router RSC GET instead of returning 401", async () => {
+      const req = makeRequest("GET", "http://localhost:3000/dashboard", {
+        RSC: "1",
+        "Next-Router-State-Tree": "[]",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+      });
+      await withAuth(req);
+      expect(NextResponse.json).not.toHaveBeenCalled();
+      expect(NextResponse.redirect).toHaveBeenCalled();
+    });
   });
 });

@@ -22,11 +22,27 @@ const prefersJsonOverHtml = (accept: string | null | undefined): boolean => {
 };
 
 /**
+ * Next.js App Router `<Link>` / `router.push` are GET fetches (`RSC: 1`,
+ * `Sec-Fetch-Dest: empty`, `Sec-Fetch-Mode: cors`), not document navigations.
+ * Those must keep the login redirect rather than a JSON 401.
+ */
+const isNextAppRouterFetch = (headers: NonNullable<HeaderReadable["headers"]>): boolean => {
+  if (headers.get("rsc")) {
+    return true;
+  }
+  return Boolean(headers.get("next-router-state-tree"));
+};
+
+/**
  * Returns true when an unauthenticated request should receive a 401 JSON
  * response instead of a login redirect.
  *
  * Covers non-safe methods (POST, PUT, …) and fetch/XHR-style GETs that prefer
- * JSON or use CORS/`Sec-Fetch-Dest: empty`. Document navigations still redirect.
+ * JSON or use CORS/`Sec-Fetch-Dest: empty`. Document navigations and Next.js
+ * App Router RSC / router fetches still redirect.
+ *
+ * Older browsers (notably Safari) omit Sec-Fetch-* and most fetch() calls send
+ * no Accept, so those GETs fall through to a login redirect instead of 401 JSON.
  */
 export const shouldReturnUnauthorizedJson = (req: HeaderReadable): boolean => {
   if (isNonSafeMethod(req)) {
@@ -35,6 +51,10 @@ export const shouldReturnUnauthorizedJson = (req: HeaderReadable): boolean => {
 
   const headers = req.headers;
   if (!headers?.get) {
+    return false;
+  }
+
+  if (isNextAppRouterFetch(headers)) {
     return false;
   }
 
@@ -48,5 +68,6 @@ export const shouldReturnUnauthorizedJson = (req: HeaderReadable): boolean => {
     return true;
   }
 
+  // Last signal: Accept. Missing Sec-Fetch-* + no Accept → redirect (legacy).
   return prefersJsonOverHtml(headers.get("accept"));
 };

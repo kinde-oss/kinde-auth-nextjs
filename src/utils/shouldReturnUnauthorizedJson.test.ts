@@ -26,6 +26,19 @@ describe("shouldReturnUnauthorizedJson", () => {
     ).toBe(false);
   });
 
+  it("returns false for Next.js App Router RSC / router GET fetches", () => {
+    expect(
+      shouldReturnUnauthorizedJson(
+        withHeaders("GET", {
+          rsc: "1",
+          "next-router-state-tree": "[]",
+          "sec-fetch-dest": "empty",
+          "sec-fetch-mode": "cors",
+        }),
+      ),
+    ).toBe(false);
+  });
+
   it("returns true for GET with Sec-Fetch-Dest empty", () => {
     expect(
       shouldReturnUnauthorizedJson(
@@ -63,6 +76,8 @@ describe("shouldReturnUnauthorizedJson", () => {
   });
 
   it("returns false for GET with no API indicators", () => {
+    // Older Safari omits Sec-Fetch-Dest/Mode; default fetch() often omits Accept.
+    // That combo cannot be distinguished from a document GET, so we redirect.
     expect(shouldReturnUnauthorizedJson(withHeaders("GET"))).toBe(false);
   });
 });
