@@ -153,6 +153,55 @@ describe("useSessionSync — cross-tab and focus sync", () => {
     expect(result.current.getFetchedState().accessTokenEncoded).toBeNull();
   });
 
+  it("does not restore stale state when logged_out arrives while tokens are being written", async () => {
+    const { result } = renderHook(() => useSessionSync());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    let resolveSetItems: (value: unknown) => void = () => {};
+    const pendingSetItems = new Promise((resolve) => {
+      resolveSetItems = resolve;
+    });
+    setItems.mockReturnValueOnce(pendingSetItems);
+
+    fetchKindeState.mockResolvedValueOnce({
+      success: true,
+      kindeState: {
+        ...loggedInState,
+        accessTokenEncoded: "stale.access.jwt",
+        idTokenRaw: "stale.id.jwt",
+      },
+      env: ENV,
+    });
+
+    await act(async () => {
+      void result.current.refetch();
+    });
+
+    await waitFor(() => {
+      expect(setItems).toHaveBeenCalled();
+    });
+
+    await act(async () => {
+      await sessionHandlerRef.current?.({ type: "logged_out" });
+    });
+
+    expect(result.current.getFetchedState().isAuthenticated).toBe(false);
+
+    await act(async () => {
+      resolveSetItems(undefined);
+      await pendingSetItems;
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(result.current.getFetchedState().isAuthenticated).toBe(false);
+    expect(result.current.getFetchedState().accessTokenEncoded).toBeNull();
+    expect(destroySession).toHaveBeenCalled();
+  });
+
   it("settles initial loading when logged_out arrives during the first setup", async () => {
     let resolveSetup: (value: unknown) => void = () => {};
     const pendingSetup = new Promise((resolve) => {

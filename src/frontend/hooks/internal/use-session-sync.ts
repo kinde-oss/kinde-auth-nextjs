@@ -167,6 +167,20 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
     }
 
     await updateTokensAndSetRefresh(setupResponse.kindeState);
+
+    // Another tab logged out while tokens were being written — do not keep
+    // the stale authenticated state that updateTokensAndSetRefresh just applied.
+    if (epoch !== sessionEpochRef.current) {
+      await clearClientSession(null);
+      setLoading(false);
+      hasCompletedInitialLoadRef.current = true;
+
+      return {
+        success: false,
+        error: "Session invalidated",
+      };
+    }
+
     setConfig(setupResponse.env);
     setLoading(false);
     hasCompletedInitialLoadRef.current = true;
@@ -176,7 +190,7 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       [StorageKeys.accessToken]: setupResponse.kindeState.accessTokenEncoded,
       [StorageKeys.idToken]: setupResponse.kindeState.idTokenRaw,
     };
-  }, [handleError, updateTokensAndSetRefresh]);
+  }, [clearClientSession, handleError, updateTokensAndSetRefresh]);
 
   useEffect(() => {
     setupState();
