@@ -69,6 +69,16 @@ const loggedInState = {
 };
 
 describe("useSessionSync — cross-tab and focus sync", () => {
+  const setDocumentVisible = async () => {
+    Object.defineProperty(document, "visibilityState", {
+      configurable: true,
+      get: () => "visible",
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+    await Promise.resolve();
+    await Promise.resolve();
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     sessionHandlerRef.current = null;
@@ -276,6 +286,91 @@ describe("useSessionSync — cross-tab and focus sync", () => {
     expect(result.current.getFetchedState().accessTokenEncoded).toBeNull();
   });
 
+  it("does not restore session on focus while cookies are still valid after logged_out", async () => {
+    const { result } = renderHook(() => useSessionSync());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    await act(async () => {
+      await sessionHandlerRef.current?.({ type: "logged_out" });
+    });
+
+    expect(result.current.getFetchedState().isAuthenticated).toBe(false);
+
+    const setItemsAfterLogout = setItems.mock.calls.length;
+    fetchKindeState.mockResolvedValue({
+      success: true,
+      kindeState: {
+        ...loggedInState,
+        accessTokenEncoded: "access.jwt.still-valid-cookies",
+        idTokenRaw: "id.jwt.still-valid-cookies",
+      },
+      env: ENV,
+    });
+
+    await act(async () => {
+      await setDocumentVisible();
+    });
+
+    await waitFor(() => {
+      expect(fetchKindeState.mock.calls.length).toBeGreaterThan(1);
+    });
+
+    expect(result.current.getFetchedState().isAuthenticated).toBe(false);
+    expect(result.current.getFetchedState().accessTokenEncoded).toBeNull();
+    expect(setItems.mock.calls.length).toBe(setItemsAfterLogout);
+  });
+
+  it("allows cookie revalidation again after /setup reports logged out", async () => {
+    const { result } = renderHook(() => useSessionSync());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    await act(async () => {
+      await sessionHandlerRef.current?.({ type: "logged_out" });
+    });
+
+    fetchKindeState.mockResolvedValue({
+      success: false,
+      error: "Not logged in",
+      env: ENV,
+    });
+
+    await act(async () => {
+      await setDocumentVisible();
+    });
+
+    await waitFor(() => {
+      expect(result.current.getFetchedState().isAuthenticated).toBe(false);
+    });
+
+    fetchKindeState.mockResolvedValue({
+      success: true,
+      kindeState: {
+        ...loggedInState,
+        accessTokenEncoded: "access.jwt.relogin",
+        idTokenRaw: "id.jwt.relogin",
+      },
+      env: ENV,
+    });
+
+    await act(async () => {
+      await setDocumentVisible();
+    });
+
+    await waitFor(() => {
+      expect(result.current.getFetchedState().accessTokenEncoded).toBe(
+        "access.jwt.relogin",
+      );
+    });
+
+    expect(result.current.getFetchedState().isAuthenticated).toBe(true);
+  });
+
   it("revalidates via setup on visibilitychange to visible", async () => {
     const { result } = renderHook(() => useSessionSync());
 
@@ -292,14 +387,7 @@ describe("useSessionSync — cross-tab and focus sync", () => {
     });
 
     await act(async () => {
-      Object.defineProperty(document, "visibilityState", {
-        configurable: true,
-        get: () => "visible",
-      });
-      document.dispatchEvent(new Event("visibilitychange"));
-      // Allow the async visibility handler to settle.
-      await Promise.resolve();
-      await Promise.resolve();
+      await setDocumentVisible();
     });
 
     await waitFor(() => {
@@ -328,13 +416,7 @@ describe("useSessionSync — cross-tab and focus sync", () => {
     });
 
     await act(async () => {
-      Object.defineProperty(document, "visibilityState", {
-        configurable: true,
-        get: () => "visible",
-      });
-      document.dispatchEvent(new Event("visibilitychange"));
-      await Promise.resolve();
-      await Promise.resolve();
+      await setDocumentVisible();
     });
 
     await waitFor(() => {

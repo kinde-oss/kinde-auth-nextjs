@@ -29,7 +29,9 @@ export function LogoutLink({
       href={href}
       {...props}
       onClick={(event) => {
-        // Notify other tabs before navigation clears this tab's cookies.
+        // This tab navigates to /logout, so we cannot wait for cookies to clear.
+        // Other tabs ignore cookie-based revalidation until /setup reports
+        // logged out (see useSessionSync).
         publishSessionEvent({ type: "logged_out" });
         onClick?.(event);
       }}

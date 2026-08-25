@@ -38,6 +38,16 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
   const hasCompletedInitialLoadRef = useRef(false);
   // Bumped on cross-tab logout so in-flight setupState results are discarded.
   const sessionEpochRef = useRef(0);
+  // `logged_out` is published before /logout has necessarily cleared cookies.
+  // Ignore authenticated /setup results until we observe a definite logged-out
+  // response — otherwise focus revalidation can restore the session we just cleared.
+  const ignoreAuthenticatedSetupRef = useRef(false);
+
+  const confirmLogoutIfUnauthenticated = (error: string | undefined) => {
+    if (error === "Not logged in") {
+      ignoreAuthenticatedSetupRef.current = false;
+    }
+  };
 
   const clearClientSession = useCallback(
     async (error: string | null = null) => {
@@ -93,7 +103,8 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
     const epoch = sessionEpochRef.current;
     const setupResponse = await fetchKindeState();
 
-    if (!setupResponse.success) {
+    if (setupResponse.success === false) {
+      confirmLogoutIfUnauthenticated(setupResponse.error);
       await handleError("User is unauthenticated or refresh failed");
       return {
         success: false,
@@ -104,6 +115,14 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
     // Another tab logged out (or session was otherwise invalidated) while this
     // request was in flight — do not restore stale authenticated state.
     if (epoch !== sessionEpochRef.current) {
+      await clearClientSession(null);
+      return {
+        success: false,
+        error: "Session invalidated",
+      };
+    }
+
+    if (ignoreAuthenticatedSetupRef.current) {
       await clearClientSession(null);
       return {
         success: false,
@@ -155,6 +174,7 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       if (sdkConfig.isDebugMode) {
         console.log("setupResponse unsuccessful", setupResponse);
       }
+      confirmLogoutIfUnauthenticated(setupResponse.error);
       await handleError(setupResponse.error);
       setConfig(setupResponse.env);
       setLoading(false);
@@ -163,6 +183,19 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       return {
         success: false,
         error: setupResponse.error,
+      };
+    }
+
+    if (ignoreAuthenticatedSetupRef.current) {
+      if (setupResponse.env) {
+        setConfig(setupResponse.env);
+      }
+      setLoading(false);
+      hasCompletedInitialLoadRef.current = true;
+
+      return {
+        success: false,
+        error: "Session invalidated",
       };
     }
 
@@ -205,12 +238,15 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
         console.log("useSessionSync: received logged_out from another tab");
       }
       sessionEpochRef.current += 1;
+      ignoreAuthenticatedSetupRef.current = true;
       await clearClientSession(null);
     });
   }, [clearClientSession]);
 
   // Revalidate session when the tab becomes visible again (covers logout via
   // raw /api/auth/logout URL without LogoutLink, and expired cookies).
+  // After a BroadcastChannel logged_out, setupState will not restore a session
+  // from still-valid cookies until /setup reports logged out.
   useEffect(() => {
     const onVisibilityChange = async () => {
       if (document.visibilityState !== "visible") return;
