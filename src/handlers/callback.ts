@@ -1,5 +1,6 @@
 import { config, routes } from "../config/index";
 import RouterClient from "../routerClients/RouterClient";
+import { isRedirectAllowed } from "../utils/isRedirectAllowed";
 
 const redirectToLogin = (routerClient: RouterClient) => {
   const loginUrl = new URL(
@@ -76,34 +77,20 @@ export const callback = async (routerClient: RouterClient) => {
     return routerClient.json({ error: error.message }, { status: 500 });
   }
 
-  // Compile regex once at startup
-  const compiledRegex = (() => {
-    if (!config.postLoginAllowedURLRegex) {
-      return null;
-    }
-    try {
-      return new RegExp(config.postLoginAllowedURLRegex);
-    } catch (error) {
-      console.error("Invalid postLoginAllowedURLRegex pattern:", error);
-      throw new Error(
-        `Invalid postLoginAllowedURLRegex pattern: ${error.message}`,
-      );
-    }
-  })();
-
-  const isRedirectAllowed = (url: string) => {
-    if (!config.postLoginAllowedURLRegex) {
-      return true;
-    }
-    return compiledRegex!.test(url);
-  };
-
   const state = (await routerClient.sessionManager.getSessionItem(
     "state",
   )) as string;
   await routerClient.sessionManager.removeSessionItem("state");
 
-  if (postLoginRedirectURL && isRedirectAllowed(postLoginRedirectURL)) {
+  if (
+    postLoginRedirectURL &&
+    isRedirectAllowed(
+      postLoginRedirectURL,
+      config.postLoginAllowedURLRegex,
+      undefined,
+      "postLoginAllowedURLRegex",
+    )
+  ) {
     const url = postLoginRedirectURL.startsWith("http")
       ? new URL(postLoginRedirectURL)
       : new URL(postLoginRedirectURL, routerClient.clientConfig.siteUrl);

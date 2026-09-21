@@ -9,6 +9,10 @@ import {
   StorageKeys,
 } from "@kinde-oss/kinde-auth-react/utils";
 import { isValidEnumValue } from "../utils/isValidEnumValue";
+import {
+  isRedirectAllowed,
+  MAX_ALLOWED_REDIRECT_URL_LENGTH,
+} from "../utils/isRedirectAllowed";
 import { config, routes } from "../config";
 
 /**
@@ -36,8 +40,18 @@ export const portal = async (routerClient: RouterClient) => {
   }
 
   await storage.setSessionItem(StorageKeys.accessToken, accessToken);
+  const requestedReturnUrl = routerClient.searchParams.get("returnUrl");
   const returnUrl =
-    routerClient.searchParams.get("returnUrl") || config.redirectURL;
+    requestedReturnUrl &&
+    config.portalAllowedURLRegex &&
+    isRedirectAllowed(
+      requestedReturnUrl,
+      config.portalAllowedURLRegex,
+      MAX_ALLOWED_REDIRECT_URL_LENGTH,
+      "portalAllowedURLRegex",
+    )
+      ? requestedReturnUrl
+      : config.redirectURL;
   try {
     const subNavParam = routerClient.searchParams.get("subNav");
     const subNav = isValidEnumValue(PortalPage, subNavParam)
