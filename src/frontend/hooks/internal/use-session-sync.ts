@@ -10,6 +10,7 @@ import { fetchKindeState } from "../../utils";
 import { DefaultKindeNextClientState } from "../../constants";
 import * as store from "../../store";
 import {
+  clearRefreshTimer,
   getDecodedToken,
   RefreshTokenResult,
   setRefreshTimer,
@@ -17,6 +18,7 @@ import {
 } from "@kinde-oss/kinde-auth-react/utils";
 import { JWTDecoded } from "@kinde/jwt-decoder";
 import { config as sdkConfig } from "../../../config/index";
+import { subscribeSessionEvents } from "../../sessionChannel";
 
 export const calculateExpirySeconds = async (): Promise<number | null> => {
   const token = await getDecodedToken<JWTDecoded>("accessToken");
@@ -32,8 +34,24 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
     DefaultKindeNextClientState,
   );
 
-  const handleError = useCallback(
-    async (error: string) => {
+  const isRevalidatingRef = useRef(false);
+  const hasCompletedInitialLoadRef = useRef(false);
+  // Bumped on cross-tab logout so in-flight setupState results are discarded.
+  const sessionEpochRef = useRef(0);
+  // `logged_out` is published before /logout has necessarily cleared cookies.
+  // Ignore authenticated /setup results until we observe a definite logged-out
+  // response — otherwise focus revalidation can restore the session we just cleared.
+  const ignoreAuthenticatedSetupRef = useRef(false);
+
+  const confirmLogoutIfUnauthenticated = (error: string | undefined) => {
+    if (error === "Not logged in") {
+      ignoreAuthenticatedSetupRef.current = false;
+    }
+  };
+
+  const clearClientSession = useCallback(
+    async (error: string | null = null) => {
+      clearRefreshTimer();
       await store.clientStorage.destroySession();
       setFetchedState({
         ...DefaultKindeNextClientState,
@@ -42,6 +60,13 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       });
     },
     [setFetchedState],
+  );
+
+  const handleError = useCallback(
+    async (error: string) => {
+      await clearClientSession(error);
+    },
+    [clearClientSession],
   );
 
   const refreshHandlerRef = useRef<(() => Promise<RefreshTokenResult>) | null>(
@@ -60,7 +85,7 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       if (shouldAutoRefresh) {
         const expiry = await calculateExpirySeconds();
         const handler = refreshHandlerRef.current;
-        if (handler && expiry !== null) {
+        if (handler && expiry !== null && expiry > 0) {
           setRefreshTimer(expiry, handler);
         }
       }
@@ -75,9 +100,11 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
   );
 
   const refreshHandler = useCallback(async (): Promise<RefreshTokenResult> => {
+    const epoch = sessionEpochRef.current;
     const setupResponse = await fetchKindeState();
 
-    if (!setupResponse.success) {
+    if (setupResponse.success === false) {
+      confirmLogoutIfUnauthenticated(setupResponse.error);
       await handleError("User is unauthenticated or refresh failed");
       return {
         success: false,
@@ -85,29 +112,73 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       };
     }
 
+    // Another tab logged out (or session was otherwise invalidated) while this
+    // request was in flight — do not restore stale authenticated state.
+    if (epoch !== sessionEpochRef.current) {
+      await clearClientSession(null);
+      return {
+        success: false,
+        error: "Session invalidated",
+      };
+    }
+
+    if (ignoreAuthenticatedSetupRef.current) {
+      await clearClientSession(null);
+      return {
+        success: false,
+        error: "Session invalidated",
+      };
+    }
+
     await updateTokensAndSetRefresh(setupResponse.kindeState);
+
+    if (epoch !== sessionEpochRef.current) {
+      await clearClientSession(null);
+      return {
+        success: false,
+        error: "Session invalidated",
+      };
+    }
 
     return {
       success: true,
       idToken: setupResponse.kindeState.idTokenRaw,
       accessToken: setupResponse.kindeState.accessTokenEncoded,
     };
-  }, [handleError, updateTokensAndSetRefresh]);
+  }, [clearClientSession, handleError, updateTokensAndSetRefresh]);
 
   useEffect(() => {
     refreshHandlerRef.current = refreshHandler;
   }, [refreshHandler]);
 
   const setupState = useCallback(async () => {
+    const epoch = sessionEpochRef.current;
     const setupResponse = await fetchKindeState();
+
+    // Another tab logged out (or session was otherwise invalidated) while this
+    // request was in flight — do not restore stale authenticated state.
+    if (epoch !== sessionEpochRef.current) {
+      if (setupResponse.env) {
+        setConfig(setupResponse.env);
+      }
+      setLoading(false);
+      hasCompletedInitialLoadRef.current = true;
+
+      return {
+        success: false,
+        error: "Session invalidated",
+      };
+    }
 
     if (setupResponse.success === false) {
       if (sdkConfig.isDebugMode) {
         console.log("setupResponse unsuccessful", setupResponse);
       }
+      confirmLogoutIfUnauthenticated(setupResponse.error);
       await handleError(setupResponse.error);
       setConfig(setupResponse.env);
       setLoading(false);
+      hasCompletedInitialLoadRef.current = true;
 
       return {
         success: false,
@@ -115,21 +186,86 @@ export const useSessionSync = (shouldAutoRefresh = true) => {
       };
     }
 
+    if (ignoreAuthenticatedSetupRef.current) {
+      if (setupResponse.env) {
+        setConfig(setupResponse.env);
+      }
+      setLoading(false);
+      hasCompletedInitialLoadRef.current = true;
+
+      return {
+        success: false,
+        error: "Session invalidated",
+      };
+    }
+
     await updateTokensAndSetRefresh(setupResponse.kindeState);
+
+    // Another tab logged out while tokens were being written — do not keep
+    // the stale authenticated state that updateTokensAndSetRefresh just applied.
+    if (epoch !== sessionEpochRef.current) {
+      await clearClientSession(null);
+      setLoading(false);
+      hasCompletedInitialLoadRef.current = true;
+
+      return {
+        success: false,
+        error: "Session invalidated",
+      };
+    }
+
     setConfig(setupResponse.env);
     setLoading(false);
+    hasCompletedInitialLoadRef.current = true;
 
     return {
       success: true,
       [StorageKeys.accessToken]: setupResponse.kindeState.accessTokenEncoded,
       [StorageKeys.idToken]: setupResponse.kindeState.idTokenRaw,
     };
-  }, [handleError, updateTokensAndSetRefresh]);
+  }, [clearClientSession, handleError, updateTokensAndSetRefresh]);
 
   useEffect(() => {
     setupState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Cross-tab logout: clear in-memory client state when another tab logs out.
+  useEffect(() => {
+    return subscribeSessionEvents(async (event) => {
+      if (event.type !== "logged_out") return;
+      if (sdkConfig.isDebugMode) {
+        console.log("useSessionSync: received logged_out from another tab");
+      }
+      sessionEpochRef.current += 1;
+      ignoreAuthenticatedSetupRef.current = true;
+      await clearClientSession(null);
+    });
+  }, [clearClientSession]);
+
+  // Revalidate session when the tab becomes visible again (covers logout via
+  // raw /api/auth/logout URL without LogoutLink, and expired cookies).
+  // After a BroadcastChannel logged_out, setupState will not restore a session
+  // from still-valid cookies until /setup reports logged out.
+  useEffect(() => {
+    const onVisibilityChange = async () => {
+      if (document.visibilityState !== "visible") return;
+      if (!hasCompletedInitialLoadRef.current) return;
+      if (isRevalidatingRef.current) return;
+
+      isRevalidatingRef.current = true;
+      try {
+        await setupState();
+      } finally {
+        isRevalidatingRef.current = false;
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, [setupState]);
 
   return {
     config,
