@@ -18,7 +18,9 @@ separate from `KINDE_POST_LOGIN_ALLOWED_URL_REGEX`.
 
 When it is unset, requested portal return URLs are passed through unchanged and
 the SDK logs a one-time warning. When it is set, non-matching values fall back
-to `KINDE_SITE_URL`.
+to `KINDE_SITE_URL`. See the
+[portal return URL](https://docs.kinde.com/developer-tools/sdks/backend/nextjs-sdk/#portal-return-url)
+section of the Next.js SDK docs.
 
 ## Publishing
 

@@ -45,6 +45,11 @@ describe("resolvePortalReturnUrl", () => {
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining("KINDE_PORTAL_ALLOWED_RETURN_URL_REGEX"),
     );
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "https://docs.kinde.com/developer-tools/sdks/backend/nextjs-sdk/#portal-return-url",
+      ),
+    );
   });
 
   it("passes returnUrl through when the portal regex matches", () => {
