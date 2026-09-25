@@ -84,12 +84,7 @@ export const callback = async (routerClient: RouterClient) => {
 
   if (
     postLoginRedirectURL &&
-    isRedirectAllowed(
-      postLoginRedirectURL,
-      config.postLoginAllowedURLRegex,
-      undefined,
-      "postLoginAllowedURLRegex",
-    )
+    isRedirectAllowed(postLoginRedirectURL, config.postLoginAllowedURLRegex)
   ) {
     const url = postLoginRedirectURL.startsWith("http")
       ? new URL(postLoginRedirectURL)

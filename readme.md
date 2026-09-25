@@ -12,13 +12,13 @@ Please refer to the Kinde [NextJS SDK document](https://docs.kinde.com/developer
 
 ### Portal return URL allowlist
 
-Portal query-string `returnUrl` values are ignored by default. To allow custom
-portal return URLs, set `KINDE_PORTAL_ALLOWED_URL_REGEX` to an anchored regular
-expression matching the URLs your application accepts. Missing, non-matching,
-or overlong values fall back to `KINDE_SITE_URL`.
+Set `KINDE_PORTAL_ALLOWED_RETURN_URL_REGEX` to restrict query-string
+`returnUrl` values accepted by the portal route. This setting is optional and
+separate from `KINDE_POST_LOGIN_ALLOWED_URL_REGEX`.
 
-This setting is separate from `KINDE_POST_LOGIN_ALLOWED_URL_REGEX`, which
-continues to control post-login redirects only.
+When it is unset, requested portal return URLs are passed through unchanged and
+the SDK logs a one-time warning. When it is set, non-matching values fall back
+to `KINDE_SITE_URL`.
 
 ## Publishing
 
