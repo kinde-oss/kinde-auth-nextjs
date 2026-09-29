@@ -1,3 +1,5 @@
+"use client";
+
 import { config, routes } from "../config/index";
 import { publishSessionEvent } from "../frontend/sessionChannel";
 
