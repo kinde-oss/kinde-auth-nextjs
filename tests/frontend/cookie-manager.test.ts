@@ -192,3 +192,66 @@ describe("CookieStorage", () => {
     expect(cookieNames).not.toContain("idToken");
   });
 });
+
+describe("CookieStorage middleware jar", () => {
+  function createMiddlewareStorage() {
+    const reqStore = new FakeCookieStore();
+    const respStore = new FakeCookieStore();
+    const storage = new CookieStorage<any>(
+      { cookies: reqStore } as any,
+      { cookies: respStore } as any,
+    );
+    return { storage, reqStore, respStore };
+  }
+
+  it("reads values written earlier in the same middleware request", async () => {
+    const { storage, reqStore, respStore } = createMiddlewareStorage();
+    const longValue = "x".repeat(MAX_COOKIE_LENGTH + 10);
+
+    await storage.setSessionItem(StorageKeys.accessToken, longValue);
+    expect(await storage.getSessionItem(StorageKeys.accessToken)).toBe(
+      longValue,
+    );
+
+    await storage.setSessionItem(StorageKeys.accessToken, "short");
+    expect(await storage.getSessionItem(StorageKeys.accessToken)).toBe("short");
+
+    const reqNames = reqStore
+      .getAll()
+      .map((cookie) => cookie.name)
+      .filter((name) => name.startsWith("kinde-"));
+    const respNames = respStore
+      .getAll()
+      .map((cookie) => cookie.name)
+      .filter((name) => name.startsWith("kinde-"));
+    expect(reqNames).toEqual([`kinde-${StorageKeys.accessToken}`]);
+    expect(respNames).toEqual([`kinde-${StorageKeys.accessToken}`]);
+  });
+
+  it("destroySession clears cookies written during the request", async () => {
+    const { storage, reqStore, respStore } = createMiddlewareStorage();
+    reqStore.set("unrelated", "x");
+    respStore.set("unrelated", "x");
+
+    await storage.setSessionItem(StorageKeys.accessToken, "token");
+    await storage.setSessionItem(StorageKeys.idToken, "id");
+    await storage.destroySession();
+
+    expect(await storage.getSessionItem(StorageKeys.accessToken)).toBeNull();
+    expect(await storage.getSessionItem(StorageKeys.idToken)).toBeNull();
+    for (const store of [reqStore, respStore]) {
+      const remaining = store.getAll().map((cookie) => cookie.name);
+      expect(
+        remaining.find((name) => name.startsWith("kinde-")),
+      ).toBeUndefined();
+      expect(remaining).toContain("unrelated");
+    }
+  });
+
+  it("removeSessionItem drops the key from later reads", async () => {
+    const { storage } = createMiddlewareStorage();
+    await storage.setSessionItem(StorageKeys.idToken, "id");
+    await storage.removeSessionItem(StorageKeys.idToken);
+    expect(await storage.getSessionItem(StorageKeys.idToken)).toBeNull();
+  });
+});

@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { isAppRouter } from "../utils/isAppRouter";
 import { config } from "../config/index";
 import {
@@ -10,6 +9,22 @@ import {
 import { splitString } from "@kinde-oss/kinde-auth-react/utils";
 import { destr } from "destr";
 import * as cookie from "cookie";
+
+/**
+ * next/headers does not exist on Next 12. Load it only when cookies() is used
+ * so pages-router evaluation does not resolve the module.
+ * @returns {Promise<(...args: unknown[]) => unknown>}
+ */
+async function loadNextCookies() {
+  try {
+    const { cookies } = await import("next/headers");
+    return cookies;
+  } catch {
+    throw new Error(
+      "Kinde: Failed to read cookies (are you using a Next.js version prior to 13?)",
+    );
+  }
+}
 
 /**
  *
@@ -27,11 +42,13 @@ export const sessionManager = async (
   const { persistent = true } = options;
 
   if (!req) {
+    const cookies = await loadNextCookies();
     const cookieStore = await cookies();
     return appRouterSessionManager(cookieStore, persistent);
   }
 
   if (isAppRouter(req)) {
+    const cookies = await loadNextCookies();
     const cookieStore = await cookies(req, res);
     return appRouterSessionManager(cookieStore, persistent);
   } else {

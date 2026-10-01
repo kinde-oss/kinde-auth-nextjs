@@ -7,11 +7,22 @@ import {
   TWENTY_NINE_DAYS,
 } from "../../utils/constants";
 import { CookieStorageSettings } from "./settings";
-import { cookies } from "next/headers.js";
 import destr from "destr";
 import { isAppRouter } from "../../utils/isAppRouter.js";
 import { config } from "../../config/index";
 import { NextRequest, NextResponse } from "next/server.js";
+
+/**
+ * Subset of the next/headers cookie store used by this class.
+ * Defined locally so Next 12 bundles never import next/headers at load time.
+ */
+interface CookieStore {
+  getAll(): { name: string; value: string }[];
+  get(name: string): { name: string; value: string } | undefined;
+  has(name: string): boolean;
+  set(name: string, value: string, options?: Record<string, unknown>): unknown;
+  delete(name: string): unknown;
+}
 
 export const cookieStorageSettings: CookieStorageSettings = {
   keyPrefix: "kinde-",
@@ -27,7 +38,7 @@ export class CookieStorage<V extends string = StorageKeys>
 
   public req: NextRequest | undefined;
   public resp: NextResponse | undefined;
-  private _cookieStore: Awaited<ReturnType<typeof cookies>> | undefined;
+  private _cookieStore: CookieStore | undefined;
 
   sessionState = { persistent: true };
 
@@ -70,31 +81,69 @@ export class CookieStorage<V extends string = StorageKeys>
   }
 
   /**
+   * next/headers does not exist on Next 12. Import it only when a call site
+   * actually needs cookies(), so module evaluation stays valid on Next 12.
+   */
+  private async loadCookieStoreFromNextHeaders(): Promise<CookieStore> {
+    let cookies: () => CookieStore | Promise<CookieStore>;
+    try {
+      ({ cookies } = (await import("next/headers")) as {
+        cookies: () => CookieStore | Promise<CookieStore>;
+      });
+    } catch {
+      throw new Error(
+        "Kinde: Failed to read cookies (are you using a Next.js version prior to 13?)",
+      );
+    }
+    return await cookies();
+  }
+
+  /**
+   * Middleware writes must update resp.cookies (Set-Cookie) and the request jar
+   * that ensureCookieStore caches. Response mutations do not flow back into
+   * req.cookies, so getSessionItem and destroySession would otherwise miss them.
+   */
+  private syncMiddlewareReadCookie(name: string, value: string | null): void {
+    const requestStore = this.req?.cookies as unknown as
+      CookieStore | undefined;
+    const stores: CookieStore[] = [];
+    if (requestStore) {
+      stores.push(requestStore);
+    }
+    if (this._cookieStore && this._cookieStore !== requestStore) {
+      stores.push(this._cookieStore);
+    }
+    for (const store of stores) {
+      if (value === null) {
+        store.delete(name);
+      } else {
+        store.set(name, value);
+      }
+    }
+  }
+
+  /**
    * Lazy initialization of cookie store - only called when needed during request context
    */
-  private async ensureCookieStore(): Promise<
-    Awaited<ReturnType<typeof cookies>>
-  > {
+  private async ensureCookieStore(): Promise<CookieStore> {
     if (this._cookieStore) {
       return this._cookieStore;
     }
 
-    // In middleware context, use request cookies to pick up mutations made via resp.cookies
-    // This is required for Next.js < 14.2.8 compatibility
+    // Middleware cannot use cookies() on Next.js < 15. Read the request jar;
+    // writes mirror into it via syncMiddlewareReadCookie.
     if (this.isMiddlewareContext() && this.req) {
-      this._cookieStore = this.req.cookies as unknown as Awaited<
-        ReturnType<typeof cookies>
-      >;
+      this._cookieStore = this.req.cookies as unknown as CookieStore;
       return this._cookieStore;
     }
 
     if (!this.req) {
-      this._cookieStore = await cookies();
+      this._cookieStore = await this.loadCookieStoreFromNextHeaders();
       return this._cookieStore;
     }
 
     if (isAppRouter(this.req)) {
-      this._cookieStore = await cookies();
+      this._cookieStore = await this.loadCookieStoreFromNextHeaders();
       return this._cookieStore;
     } else {
       throw new Error(
@@ -122,6 +171,7 @@ export class CookieStorage<V extends string = StorageKeys>
           maxAge: 0,
           ...GLOBAL_COOKIE_OPTIONS,
         });
+        this.syncMiddlewareReadCookie(key, null);
       });
     } else {
       // In Server Actions/Route Handlers, use cookieStore
@@ -162,14 +212,13 @@ export class CookieStorage<V extends string = StorageKeys>
     if (this.isMiddlewareContext() && this.resp) {
       for (const key of keysToDelete) {
         this.resp.cookies.delete(key);
+        this.syncMiddlewareReadCookie(key, null);
       }
 
       for (const [index, value] of this.prepareChunks(itemValue).entries()) {
-        this.resp.cookies.set(
-          prefixedKey + (index === 0 ? "" : String(index)),
-          value,
-          cookieOptions,
-        );
+        const name = prefixedKey + (index === 0 ? "" : String(index));
+        this.resp.cookies.set(name, value, cookieOptions);
+        this.syncMiddlewareReadCookie(name, value);
       }
     } else {
       for (const key of keysToDelete) {
@@ -224,6 +273,7 @@ export class CookieStorage<V extends string = StorageKeys>
       for (const { name } of cookieStore.getAll()) {
         if (name.startsWith(prefixedKey)) {
           this.resp.cookies.delete(name);
+          this.syncMiddlewareReadCookie(name, null);
         }
       }
     } else {
