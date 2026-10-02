@@ -19,7 +19,7 @@ importers:
         version: 0.2.5
       '@kinde/jwt-validator':
         specifier: ^0.4.0
-        version: 0.4.4
+        version: 0.4.5
       cookie:
         specifier: ^1.0.2
         version: 1.1.1
@@ -782,8 +782,11 @@ packages:
   '@kinde/jwt-decoder@0.2.5':
     resolution: {integrity: sha512-du2JjKb560YJCwM1chjkpZBbg6q3v2RX1JfT1Dbhl0QjrmKsWFTZvFja34rdjacps0CjdA4nE3XHPzMDejbg5g==}
 
-  '@kinde/jwt-validator@0.4.4':
-    resolution: {integrity: sha512-g9Cp/JfLRftie/5w8WHz21aI0GtRW2rvPE30fDRfIcdScSQ27Aidkw4oV/cepWvHV2bnifybnx79olgN8U8FRA==}
+  '@kinde/jwt-decoder@0.2.6':
+    resolution: {integrity: sha512-DJIkhTdt6JWKSj+lO2IIHxUmRMJfbhQ8Jyr4rvhgF4GVO9wA+9L1t/aGHpBQjp8NiTAjs/4cavP+iXO/n+o+JQ==}
+
+  '@kinde/jwt-validator@0.4.5':
+    resolution: {integrity: sha512-oXrLhl4bYUv8TPiKthh23IC6XM5j0paIeKnCpSpHyKLOIowFQhkCx1oml8BZcpEdgn0qo4sIIESReKpp/mLJIA==}
 
   '@microsoft/api-extractor-model@7.33.8':
     resolution: {integrity: sha512-aIcoQggPyer3B6Ze3usz0YWC/oBwUHfRH5ETUsr+oT2BRA6SfTJl7IKPcPZkX4UR+PohowzW4uMxsvjrn8vm+w==}
@@ -2706,8 +2709,8 @@ packages:
   jsonfile@6.2.1:
     resolution: {integrity: sha512-zwOTdL3rFQ/lRdBnntKVOX6k5cKJwEc1HdilT71BWEu7J41gXIB2MRp+vxduPSwZJPWBxEzv4yH1wYLJGUHX4Q==}
 
-  jsrsasign@11.1.3:
-    resolution: {integrity: sha512-nPnK5D/4lv0Dwr7TlzrKtAd8JlLZwFTqTUUB3NQCbtdobcRcohGFxjbPySDVh74iWUudcCsapYT6OxoyhJLhhA==}
+  jsrsasign@11.1.5:
+    resolution: {integrity: sha512-i6mAjey0/4UQmlOaNS2vROl8EkWV8Ei436reJAby2OPQ3lF6uXSs1VYpnM8hndmmCMFIzNc04Uw2GF+0JVLFbg==}
     deprecated: This package is no longer maintained.
 
   jsx-ast-utils@3.3.5:
@@ -4424,7 +4427,7 @@ snapshots:
     dependencies:
       '@kinde/js-utils': 0.31.0
       '@kinde/jwt-decoder': 0.2.5
-      '@kinde/jwt-validator': 0.4.4
+      '@kinde/jwt-validator': 0.4.5
       uncrypto: 0.1.3
     transitivePeerDependencies:
       - expo-secure-store
@@ -4439,10 +4442,12 @@ snapshots:
 
   '@kinde/jwt-decoder@0.2.5': {}
 
-  '@kinde/jwt-validator@0.4.4':
+  '@kinde/jwt-decoder@0.2.6': {}
+
+  '@kinde/jwt-validator@0.4.5':
     dependencies:
-      '@kinde/jwt-decoder': 0.2.5
-      jsrsasign: 11.1.3
+      '@kinde/jwt-decoder': 0.2.6
+      jsrsasign: 11.1.5
 
   '@microsoft/api-extractor-model@7.33.8(@types/node@26.6.3)':
     dependencies:
@@ -6403,7 +6408,7 @@ snapshots:
       graceful-fs: 4.2.11
     optional: true
 
-  jsrsasign@11.1.3: {}
+  jsrsasign@11.1.5: {}
 
   jsx-ast-utils@3.3.5:
     dependencies:
