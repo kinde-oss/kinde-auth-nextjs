@@ -5,7 +5,7 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 
-enable-pre-post-scripts: true
+enablePrePostScripts: true
 
 onlyBuiltDependencies:
   - sharp
