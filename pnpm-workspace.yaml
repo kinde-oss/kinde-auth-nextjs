@@ -12,4 +12,4 @@ onlyBuiltDependencies:
   - unrs-resolver
 
 overrides:
-  '@kinde-oss/kinde-auth-nextjs': 'link:'
+  "@kinde-oss/kinde-auth-nextjs": "link:"

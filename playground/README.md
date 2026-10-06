@@ -25,16 +25,16 @@ git clone https://github.com/<your_github_username>/kinde-nextjs-app-router-star
 ```
 
 4. Set up your environment
-   
+
 Rename `.env.local.sample` to `.env.local`
 
-Update the file with your application settings.  These can be found within the backend application details within the Kinde dashboard
+Update the file with your application settings. These can be found within the backend application details within the Kinde dashboard
+
 ```
 KINDE_CLIENT_ID=<your_kinde_client_id>
 KINDE_CLIENT_SECRET=<your_kinde_client_secret>
 KINDE_ISSUER_URL=https://<your_kinde_subdomain>.kinde.com
 ```
-
 
 ## Setup Kinde
 
@@ -54,7 +54,6 @@ http://localhost:3000
 
 **Note: When you deploy your application, these URLs will have to be updated accordingly**
 
-
 ## Start your app
 
 ```
@@ -70,9 +69,11 @@ Click on `Sign up` and register your first user for your business!
 Within the Kinde Dashboard, you will see your new user listed within the user view. 🚀
 
 # Resources
+
 - [Kinde Next.js SDK Docs](https://kinde.com/docs/developer-tools/nextjs-sdk/)
 - [Kinde Management API Docs](https://kinde.com/api/docs/#kinde-management-api)
 
 # Get help
+
 - [Discord](https://discord.gg/wHX6j7wG5d)
 - [Slack](https://join.slack.com/t/thekindecommunity/shared_invite/zt-26hdaavyc-CfOa06vP23guSwK~~OpFMQ)

@@ -33,7 +33,9 @@ export default async function RootLayout({
                     <LoginLink className="btn btn-ghost sign-in-btn">
                       Sign in
                     </LoginLink>
-                    <RegisterLink className="btn btn-dark">Sign up</RegisterLink>
+                    <RegisterLink className="btn btn-dark">
+                      Sign up
+                    </RegisterLink>
                   </>
                 ) : (
                   <div className="profile-blob">
