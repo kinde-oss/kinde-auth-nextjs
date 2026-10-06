@@ -63,7 +63,7 @@
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
     "dev": "cd playground && pnpm run dev",
-    "dev:prepare": "rm -rf playground && git clone --depth 1 https://github.com/kinde-starter-kits/kinde-nextjs-app-router-starter-kit playground && rm -rf playground/.git && mv playground/.env_sample playground/.env && cd playground && pnpm i && pnpm link .."
+    "dev:prepare": "rm -rf playground && git clone --depth 1 https://github.com/kinde-starter-kits/kinde-nextjs-app-router-starter-kit playground && rm -rf playground/.git && mv playground/.env.local.sample playground/.env && cd playground && pnpm i && pnpm link .."
   },
   "author": {
     "name": "Kinde",
@@ -107,6 +107,7 @@
   "dependencies": {
     "@kinde-oss/kinde-auth-react": "5.13.1",
     "@kinde-oss/kinde-typescript-sdk": "2.15.2",
+    "@kinde/js-utils": "^0.32.0",
     "@kinde/jwt-decoder": "^0.2.0",
     "@kinde/jwt-validator": "^0.4.0",
     "cookie": "^1.0.2",
