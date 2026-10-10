@@ -121,5 +121,5 @@
     "readme.md",
     "dist"
   ],
-  "packageManager": "pnpm@12.8.1"
+  "packageManager": "pnpm@12.9.0"
 }
