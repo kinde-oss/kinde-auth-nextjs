@@ -10,3 +10,6 @@ enablePrePostScripts: true
 onlyBuiltDependencies:
   - sharp
   - unrs-resolver
+
+overrides:
+  "@kinde-oss/kinde-auth-nextjs": "link:"
