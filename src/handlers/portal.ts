@@ -9,6 +9,7 @@ import {
   StorageKeys,
 } from "@kinde-oss/kinde-auth-react/utils";
 import { isValidEnumValue } from "../utils/isValidEnumValue";
+import { resolvePortalReturnUrl } from "../utils/resolvePortalReturnUrl";
 import { config, routes } from "../config";
 
 /**
@@ -36,8 +37,11 @@ export const portal = async (routerClient: RouterClient) => {
   }
 
   await storage.setSessionItem(StorageKeys.accessToken, accessToken);
-  const returnUrl =
-    routerClient.searchParams.get("returnUrl") || config.redirectURL;
+  const returnUrl = resolvePortalReturnUrl(
+    routerClient.searchParams.get("returnUrl"),
+    config.redirectURL,
+    config.portalAllowedReturnUrlRegex,
+  );
   try {
     const subNavParam = routerClient.searchParams.get("subNav");
     const subNav = isValidEnumValue(PortalPage, subNavParam)
