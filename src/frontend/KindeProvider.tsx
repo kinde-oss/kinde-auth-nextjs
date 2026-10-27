@@ -9,6 +9,7 @@ import { useSessionSync } from "./hooks/internal/use-session-sync";
 import * as store from "./store";
 import { storageSettings } from "@kinde-oss/kinde-auth-react/utils";
 import { config as sdkConfig } from "../config/index";
+import { publishSessionEvent } from "./sessionChannel";
 
 type KindeProviderProps = {
   children: React.ReactNode;
@@ -45,7 +46,10 @@ export const KindeProvider = ({
         // End session by revoking tokens and clearing local session
         if (type === TimeoutActivityType.timeout) {
           try {
-            await fetch(`${sdkConfig.apiPath}/end_session`);
+            const res = await fetch(`${sdkConfig.apiPath}/end_session`);
+            if (res.ok) {
+              publishSessionEvent({ type: "logged_out" });
+            }
             await refreshHandler();
           } catch (error) {
             if (sdkConfig.isDebugMode) {
@@ -55,7 +59,7 @@ export const KindeProvider = ({
         }
       },
     };
-  }, [activityTimeout]);
+  }, [activityTimeout, refreshHandler]);
 
   storageSettings.onRefreshHandler = refreshHandler;
 
