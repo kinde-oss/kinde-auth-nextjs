@@ -1,5 +1,6 @@
 import { config, routes } from "../config/index";
 import RouterClient from "../routerClients/RouterClient";
+import { filterAuthUrlParams } from "../utils/filterAuthUrlParams";
 
 const redirectToLogin = (routerClient: RouterClient) => {
   const loginUrl = new URL(
@@ -22,7 +23,9 @@ export const callback = async (routerClient: RouterClient) => {
           const decodedAuthState = atob(reauthState);
           const parsedReauthState = JSON.parse(decodedAuthState);
           if (parsedReauthState) {
-            const urlParams = new URLSearchParams(parsedReauthState);
+            const urlParams = new URLSearchParams(
+              filterAuthUrlParams(parsedReauthState),
+            );
             const loginRoute = new URL(
               `${config.redirectURL}${config.apiPath}/${routes.login}`,
             );
