@@ -9,3 +9,4 @@ export {
 export { createKindeManagementAPIClient } from "../api-client";
 export { handleAuth } from "../handlers/auth";
 export { protectPage, protectApi } from "../handlers/protect";
+export { CookieStorage } from "../session/sessionManager/index.ts";

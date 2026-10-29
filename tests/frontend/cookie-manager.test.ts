@@ -45,13 +45,9 @@ describe("CookieStorage", () => {
 
   beforeEach(() => {
     fake = new FakeCookieStore();
-    storage = new CookieStorage<ExtraKeys>(
-      undefined as any,
-      undefined as any,
-      {
-        persistent: true,
-      },
-    );
+    storage = new CookieStorage<ExtraKeys>(undefined as any, undefined as any, {
+      persistent: true,
+    });
     // inject our fake cookie store (bypass lazy initialization for testing)
     // @ts-ignore accessing private field
     storage._cookieStore = fake as any;
