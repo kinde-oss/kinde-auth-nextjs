@@ -69,6 +69,22 @@ export class CookieStorage<V extends string = StorageKeys>
     return COOKIE_LIST.some((substr) => name.startsWith(substr));
   }
 
+  /**
+   * A cookie belongs to itemKey when its name is the exact prefixed key, or
+   * that key plus a positive chunk index (1, 2, 10). Prefix matches such as
+   * kinde-stateBackup are independent keys and must be left alone.
+   */
+  private isSessionItemCookie(name: string, prefixedKey: string): boolean {
+    if (name === prefixedKey) {
+      return true;
+    }
+    if (!name.startsWith(prefixedKey)) {
+      return false;
+    }
+    const suffix = name.slice(prefixedKey.length);
+    return /^[1-9]\d*$/.test(suffix);
+  }
+
   private prepareChunks(itemValue: unknown): string[] {
     if (itemValue === undefined) {
       return [];
@@ -87,7 +103,7 @@ export class CookieStorage<V extends string = StorageKeys>
   private async loadCookieStoreFromNextHeaders(): Promise<CookieStore> {
     let cookies: () => CookieStore | Promise<CookieStore>;
     try {
-      ({ cookies } = (await import("next/headers")) as {
+      ({ cookies } = (await import("next/headers")) as unknown as {
         cookies: () => CookieStore | Promise<CookieStore>;
       });
     } catch {
@@ -197,7 +213,7 @@ export class CookieStorage<V extends string = StorageKeys>
 
     const keysToDelete: string[] = [];
     for (const { name } of cookieStore.getAll()) {
-      if (name.startsWith(prefixedKey)) {
+      if (this.isSessionItemCookie(name, prefixedKey)) {
         keysToDelete.push(name);
       }
     }
@@ -271,14 +287,14 @@ export class CookieStorage<V extends string = StorageKeys>
     // In middleware context, use resp.cookies (Next.js < 15 requirement)
     if (this.isMiddlewareContext() && this.resp) {
       for (const { name } of cookieStore.getAll()) {
-        if (name.startsWith(prefixedKey)) {
+        if (this.isSessionItemCookie(name, prefixedKey)) {
           this.resp.cookies.delete(name);
           this.syncMiddlewareReadCookie(name, null);
         }
       }
     } else {
       for (const { name } of cookieStore.getAll()) {
-        if (name.startsWith(prefixedKey)) {
+        if (this.isSessionItemCookie(name, prefixedKey)) {
           cookieStore.delete(name);
         }
       }

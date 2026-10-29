@@ -3,6 +3,10 @@ import { CookieStorage } from "../../src/session/sessionManager/index.ts";
 import { MAX_COOKIE_LENGTH, COOKIE_LIST } from "../../src/utils/constants";
 import { StorageKeys } from "@kinde/js-utils";
 
+enum ExtraKeys {
+  stateBackup = "stateBackup",
+}
+
 class FakeCookieStore {
   private store = new Map<string, string>();
 
@@ -36,14 +40,18 @@ class FakeCookieStore {
 }
 
 describe("CookieStorage", () => {
-  let storage: CookieStorage;
+  let storage: CookieStorage<ExtraKeys>;
   let fake: FakeCookieStore;
 
   beforeEach(() => {
     fake = new FakeCookieStore();
-    storage = new CookieStorage<any>(undefined as any, undefined as any, {
-      persistent: true,
-    });
+    storage = new CookieStorage<ExtraKeys>(
+      undefined as any,
+      undefined as any,
+      {
+        persistent: true,
+      },
+    );
     // inject our fake cookie store (bypass lazy initialization for testing)
     // @ts-ignore accessing private field
     storage._cookieStore = fake as any;
@@ -103,6 +111,44 @@ describe("CookieStorage", () => {
 
     const result = await storage.getSessionItem(StorageKeys.idToken);
     expect(result).toBeNull();
+  });
+
+  it("updating state preserves an independent stateBackup key", async () => {
+    const longValue = "s".repeat(MAX_COOKIE_LENGTH + 10);
+    const backupValue = "b".repeat(MAX_COOKIE_LENGTH + 10);
+    await storage.setSessionItem(StorageKeys.state, longValue);
+    await storage.setSessionItem(ExtraKeys.stateBackup, backupValue);
+
+    await storage.setSessionItem(StorageKeys.state, "short");
+
+    const names = fake.getAll().map((cookie) => cookie.name);
+    expect(names).toContain("kinde-state");
+    expect(names).not.toContain("kinde-state1");
+    expect(names).toContain("kinde-stateBackup");
+    expect(names).toContain("kinde-stateBackup1");
+    expect(await storage.getSessionItem(StorageKeys.state)).toBe("short");
+    expect(await storage.getSessionItem(ExtraKeys.stateBackup)).toBe(
+      backupValue,
+    );
+  });
+
+  it("removing state preserves an independent stateBackup key", async () => {
+    const longValue = "s".repeat(MAX_COOKIE_LENGTH + 10);
+    const backupValue = "b".repeat(MAX_COOKIE_LENGTH + 10);
+    await storage.setSessionItem(StorageKeys.state, longValue);
+    await storage.setSessionItem(ExtraKeys.stateBackup, backupValue);
+
+    await storage.removeSessionItem(StorageKeys.state);
+
+    const names = fake.getAll().map((cookie) => cookie.name);
+    expect(names).not.toContain("kinde-state");
+    expect(names).not.toContain("kinde-state1");
+    expect(names).toContain("kinde-stateBackup");
+    expect(names).toContain("kinde-stateBackup1");
+    expect(await storage.getSessionItem(StorageKeys.state)).toBeNull();
+    expect(await storage.getSessionItem(ExtraKeys.stateBackup)).toBe(
+      backupValue,
+    );
   });
 
   it("destroySession clears kinde-prefixed session cookies", async () => {
@@ -197,7 +243,7 @@ describe("CookieStorage middleware jar", () => {
   function createMiddlewareStorage() {
     const reqStore = new FakeCookieStore();
     const respStore = new FakeCookieStore();
-    const storage = new CookieStorage<any>(
+    const storage = new CookieStorage<ExtraKeys>(
       { cookies: reqStore } as any,
       { cookies: respStore } as any,
     );
@@ -253,5 +299,49 @@ describe("CookieStorage middleware jar", () => {
     await storage.setSessionItem(StorageKeys.idToken, "id");
     await storage.removeSessionItem(StorageKeys.idToken);
     expect(await storage.getSessionItem(StorageKeys.idToken)).toBeNull();
+  });
+
+  it("updating state preserves an independent stateBackup key", async () => {
+    const { storage, reqStore, respStore } = createMiddlewareStorage();
+    const longValue = "s".repeat(MAX_COOKIE_LENGTH + 10);
+    const backupValue = "b".repeat(MAX_COOKIE_LENGTH + 10);
+    await storage.setSessionItem(StorageKeys.state, longValue);
+    await storage.setSessionItem(ExtraKeys.stateBackup, backupValue);
+
+    await storage.setSessionItem(StorageKeys.state, "short");
+
+    for (const store of [reqStore, respStore]) {
+      const names = store.getAll().map((cookie) => cookie.name);
+      expect(names).toContain("kinde-state");
+      expect(names).not.toContain("kinde-state1");
+      expect(names).toContain("kinde-stateBackup");
+      expect(names).toContain("kinde-stateBackup1");
+    }
+    expect(await storage.getSessionItem(StorageKeys.state)).toBe("short");
+    expect(await storage.getSessionItem(ExtraKeys.stateBackup)).toBe(
+      backupValue,
+    );
+  });
+
+  it("removing state preserves an independent stateBackup key", async () => {
+    const { storage, reqStore, respStore } = createMiddlewareStorage();
+    const longValue = "s".repeat(MAX_COOKIE_LENGTH + 10);
+    const backupValue = "b".repeat(MAX_COOKIE_LENGTH + 10);
+    await storage.setSessionItem(StorageKeys.state, longValue);
+    await storage.setSessionItem(ExtraKeys.stateBackup, backupValue);
+
+    await storage.removeSessionItem(StorageKeys.state);
+
+    for (const store of [reqStore, respStore]) {
+      const names = store.getAll().map((cookie) => cookie.name);
+      expect(names).not.toContain("kinde-state");
+      expect(names).not.toContain("kinde-state1");
+      expect(names).toContain("kinde-stateBackup");
+      expect(names).toContain("kinde-stateBackup1");
+    }
+    expect(await storage.getSessionItem(StorageKeys.state)).toBeNull();
+    expect(await storage.getSessionItem(ExtraKeys.stateBackup)).toBe(
+      backupValue,
+    );
   });
 });
