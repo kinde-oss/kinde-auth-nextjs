@@ -8,11 +8,15 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@kinde-oss/kinde-auth-nextjs": "link:..",
-    "@types/node": "latest",
-    "eslint-config-next": "latest",
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "@kinde-oss/kinde-auth-nextjs": "^2.9.1",
+    "@types/node": "20.11.5",
+    "@types/react": "19.0.2",
+    "@types/react-dom": "19.0.2",
+    "eslint": "8.56.0",
+    "eslint-config-next": "^15.1.9",
+    "next": "^15.1.9",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "typescript": "5.3.3"
   }
 }
