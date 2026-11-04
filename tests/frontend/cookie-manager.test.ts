@@ -1,41 +1,73 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { CookieStorage } from "../../src/session/sessionManager/index.ts";
 import { MAX_COOKIE_LENGTH, COOKIE_LIST } from "../../src/utils/constants";
 import { StorageKeys } from "@kinde/js-utils";
+import { config } from "../../src/config/index";
 
 enum ExtraKeys {
   stateBackup = "stateBackup",
 }
 
+type StoredCookie = {
+  name: string;
+  value: string;
+  domain?: string;
+  path: string;
+};
+
 class FakeCookieStore {
-  private store = new Map<string, string>();
+  private store = new Map<string, StoredCookie>();
+
+  private scopeKey(name: string, domain: string | undefined, path: string) {
+    return `${name}\0${domain ?? ""}\0${path}`;
+  }
+
+  private cookiesNamed(name: string): StoredCookie[] {
+    return Array.from(this.store.values()).filter(
+      (cookie) => cookie.name === name,
+    );
+  }
 
   getAll() {
-    return Array.from(this.store.entries()).map(([name, value]) => ({
+    return Array.from(this.store.values()).map(({ name, value }) => ({
       name,
       value,
     }));
   }
 
   get(name: string) {
-    const value = this.store.get(name);
-    return value ? { name, value } : undefined;
+    const cookie = this.cookiesNamed(name).find((entry) => entry.value);
+    return cookie ? { name: cookie.name, value: cookie.value } : undefined;
   }
 
   has(name: string) {
-    return this.store.has(name);
+    return this.cookiesNamed(name).length > 0;
   }
 
-  set(name: string, value: string, options?: { maxAge?: number }) {
+  cookieScopes(name: string): { domain?: string; path: string }[] {
+    return this.cookiesNamed(name).map(({ domain, path }) => ({
+      domain,
+      path,
+    }));
+  }
+
+  set(
+    name: string,
+    value: string,
+    options?: { maxAge?: number; domain?: string; path?: string },
+  ) {
+    const path = options?.path ?? "/";
+    const domain = options?.domain || undefined;
+    const key = this.scopeKey(name, domain, path);
     if (options && typeof options.maxAge === "number" && options.maxAge <= 0) {
-      this.store.delete(name);
+      this.store.delete(key);
       return;
     }
-    this.store.set(name, value);
+    this.store.set(key, { name, value, domain, path });
   }
 
   delete(name: string) {
-    this.store.delete(name);
+    this.store.delete(this.scopeKey(name, undefined, "/"));
   }
 }
 
@@ -335,6 +367,176 @@ describe("CookieStorage middleware jar", () => {
       expect(names).toContain("kinde-stateBackup");
       expect(names).toContain("kinde-stateBackup1");
     }
+    expect(await storage.getSessionItem(StorageKeys.state)).toBeNull();
+    expect(await storage.getSessionItem(ExtraKeys.stateBackup)).toBe(
+      backupValue,
+    );
+  });
+});
+
+const PARENT_DOMAIN = ".example.com";
+
+function expectParentDomain(store: FakeCookieStore, name: string) {
+  expect(store.cookieScopes(name)).toEqual([
+    { domain: PARENT_DOMAIN, path: "/" },
+  ]);
+}
+
+describe("CookieStorage domain-scoped cookies", () => {
+  let previousDomain: string;
+
+  beforeEach(() => {
+    previousDomain = config.cookieDomain;
+    config.cookieDomain = PARENT_DOMAIN;
+  });
+
+  afterEach(() => {
+    config.cookieDomain = previousDomain;
+  });
+
+  function createStorage() {
+    const store = new FakeCookieStore();
+    const storage = new CookieStorage<ExtraKeys>(
+      undefined as any,
+      undefined as any,
+      { persistent: true },
+    );
+    // @ts-ignore accessing private field
+    storage._cookieStore = store as any;
+    return { storage, store };
+  }
+
+  function createMiddlewareStorage() {
+    const reqStore = new FakeCookieStore();
+    const respStore = new FakeCookieStore();
+    const storage = new CookieStorage<ExtraKeys>(
+      { cookies: reqStore } as any,
+      { cookies: respStore } as any,
+    );
+    return { storage, reqStore, respStore };
+  }
+
+  it("name-only delete leaves a domain-scoped cookie in place", () => {
+    const store = new FakeCookieStore();
+    store.set("kinde-state", "kept", {
+      domain: PARENT_DOMAIN,
+      path: "/",
+    });
+    store.set("kinde-state1", "tail", {
+      domain: PARENT_DOMAIN,
+      path: "/",
+    });
+
+    store.delete("kinde-state");
+    store.delete("kinde-state1");
+
+    expect(store.get("kinde-state")?.value).toBe("kept");
+    expect(store.get("kinde-state1")?.value).toBe("tail");
+
+    store.set("kinde-state1", "", {
+      maxAge: 0,
+      domain: PARENT_DOMAIN,
+      path: "/",
+    });
+    expect(store.has("kinde-state1")).toBe(false);
+    expectParentDomain(store, "kinde-state");
+  });
+
+  it("replacing a long value expires domain-scoped trailing chunks", async () => {
+    const { storage, store } = createStorage();
+    const longValue = "s".repeat(MAX_COOKIE_LENGTH + 10);
+    const backupValue = "b".repeat(MAX_COOKIE_LENGTH + 10);
+    await storage.setSessionItem(StorageKeys.state, longValue);
+    await storage.setSessionItem(ExtraKeys.stateBackup, backupValue);
+
+    await storage.setSessionItem(StorageKeys.state, "short");
+
+    const names = store.getAll().map((cookie) => cookie.name);
+    expect(names).toContain("kinde-state");
+    expect(names).not.toContain("kinde-state1");
+    expect(names).toContain("kinde-stateBackup");
+    expect(names).toContain("kinde-stateBackup1");
+    expectParentDomain(store, "kinde-state");
+    expectParentDomain(store, "kinde-stateBackup");
+    expectParentDomain(store, "kinde-stateBackup1");
+    expect(await storage.getSessionItem(StorageKeys.state)).toBe("short");
+    expect(await storage.getSessionItem(ExtraKeys.stateBackup)).toBe(
+      backupValue,
+    );
+  });
+
+  it("removing an item expires every domain-scoped chunk", async () => {
+    const { storage, store } = createStorage();
+    const longValue = "s".repeat(MAX_COOKIE_LENGTH + 10);
+    const backupValue = "b".repeat(MAX_COOKIE_LENGTH + 10);
+    await storage.setSessionItem(StorageKeys.state, longValue);
+    await storage.setSessionItem(ExtraKeys.stateBackup, backupValue);
+
+    await storage.removeSessionItem(StorageKeys.state);
+
+    const names = store.getAll().map((cookie) => cookie.name);
+    expect(names).not.toContain("kinde-state");
+    expect(names).not.toContain("kinde-state1");
+    expect(names).toContain("kinde-stateBackup");
+    expect(names).toContain("kinde-stateBackup1");
+    expectParentDomain(store, "kinde-stateBackup");
+    expectParentDomain(store, "kinde-stateBackup1");
+    expect(await storage.getSessionItem(StorageKeys.state)).toBeNull();
+    expect(await storage.getSessionItem(ExtraKeys.stateBackup)).toBe(
+      backupValue,
+    );
+  });
+
+  it("middleware replacement expires domain-scoped chunks and the same request reads the new value", async () => {
+    const { storage, reqStore, respStore } = createMiddlewareStorage();
+    const longValue = "s".repeat(MAX_COOKIE_LENGTH + 10);
+    const backupValue = "b".repeat(MAX_COOKIE_LENGTH + 10);
+    await storage.setSessionItem(StorageKeys.state, longValue);
+    await storage.setSessionItem(ExtraKeys.stateBackup, backupValue);
+
+    await storage.setSessionItem(StorageKeys.state, "short");
+
+    const respNames = respStore.getAll().map((cookie) => cookie.name);
+    expect(respNames).toContain("kinde-state");
+    expect(respNames).not.toContain("kinde-state1");
+    expect(respNames).toContain("kinde-stateBackup");
+    expect(respNames).toContain("kinde-stateBackup1");
+    expectParentDomain(respStore, "kinde-state");
+    expectParentDomain(respStore, "kinde-stateBackup");
+    expectParentDomain(respStore, "kinde-stateBackup1");
+
+    expect(reqStore.getAll().map((cookie) => cookie.name)).not.toContain(
+      "kinde-state1",
+    );
+    expect(await storage.getSessionItem(StorageKeys.state)).toBe("short");
+    expect(await storage.getSessionItem(ExtraKeys.stateBackup)).toBe(
+      backupValue,
+    );
+  });
+
+  it("middleware removal expires domain-scoped chunks and the same request reads null", async () => {
+    const { storage, reqStore, respStore } = createMiddlewareStorage();
+    const longValue = "s".repeat(MAX_COOKIE_LENGTH + 10);
+    const backupValue = "b".repeat(MAX_COOKIE_LENGTH + 10);
+    await storage.setSessionItem(StorageKeys.state, longValue);
+    await storage.setSessionItem(ExtraKeys.stateBackup, backupValue);
+
+    await storage.removeSessionItem(StorageKeys.state);
+
+    const respNames = respStore.getAll().map((cookie) => cookie.name);
+    expect(respNames).not.toContain("kinde-state");
+    expect(respNames).not.toContain("kinde-state1");
+    expect(respNames).toContain("kinde-stateBackup");
+    expect(respNames).toContain("kinde-stateBackup1");
+    expectParentDomain(respStore, "kinde-stateBackup");
+    expectParentDomain(respStore, "kinde-stateBackup1");
+
+    expect(reqStore.getAll().map((cookie) => cookie.name)).not.toContain(
+      "kinde-state",
+    );
+    expect(reqStore.getAll().map((cookie) => cookie.name)).not.toContain(
+      "kinde-state1",
+    );
     expect(await storage.getSessionItem(StorageKeys.state)).toBeNull();
     expect(await storage.getSessionItem(ExtraKeys.stateBackup)).toBe(
       backupValue,

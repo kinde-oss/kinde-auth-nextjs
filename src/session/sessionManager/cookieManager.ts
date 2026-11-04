@@ -169,6 +169,18 @@ export class CookieStorage<V extends string = StorageKeys>
   }
 
   /**
+   * Browsers key cookies by name, domain, and path. A name-only delete expires
+   * a host-only cookie and leaves a domain-scoped cookie in place.
+   */
+  private expireSessionCookie(store: CookieStore, name: string): void {
+    store.set(name, "", {
+      domain: config.cookieDomain ? config.cookieDomain : undefined,
+      maxAge: 0,
+      ...GLOBAL_COOKIE_OPTIONS,
+    });
+  }
+
+  /**
    * Clears all tracked items from the cookie store.
    * @returns {void}
    */
@@ -182,21 +194,16 @@ export class CookieStorage<V extends string = StorageKeys>
     // In middleware context, use resp.cookies (Next.js < 15 requirement)
     if (this.isMiddlewareContext() && this.resp) {
       cookiesToDelete.forEach((key) => {
-        this.resp!.cookies.set(key, "", {
-          domain: config.cookieDomain ? config.cookieDomain : undefined,
-          maxAge: 0,
-          ...GLOBAL_COOKIE_OPTIONS,
-        });
+        this.expireSessionCookie(
+          this.resp!.cookies as unknown as CookieStore,
+          key,
+        );
         this.syncMiddlewareReadCookie(key, null);
       });
     } else {
       // In Server Actions/Route Handlers, use cookieStore
       cookiesToDelete.forEach((key) => {
-        cookieStore.set(key, "", {
-          domain: config.cookieDomain ? config.cookieDomain : undefined,
-          maxAge: 0,
-          ...GLOBAL_COOKIE_OPTIONS,
-        });
+        this.expireSessionCookie(cookieStore, key);
       });
     }
   }
@@ -227,7 +234,10 @@ export class CookieStorage<V extends string = StorageKeys>
     // In middleware context, use resp.cookies (Next.js < 15 requirement)
     if (this.isMiddlewareContext() && this.resp) {
       for (const key of keysToDelete) {
-        this.resp.cookies.delete(key);
+        this.expireSessionCookie(
+          this.resp.cookies as unknown as CookieStore,
+          key,
+        );
         this.syncMiddlewareReadCookie(key, null);
       }
 
@@ -238,7 +248,7 @@ export class CookieStorage<V extends string = StorageKeys>
       }
     } else {
       for (const key of keysToDelete) {
-        cookieStore.delete(key);
+        this.expireSessionCookie(cookieStore, key);
       }
 
       for (const [index, value] of this.prepareChunks(itemValue).entries()) {
@@ -288,14 +298,17 @@ export class CookieStorage<V extends string = StorageKeys>
     if (this.isMiddlewareContext() && this.resp) {
       for (const { name } of cookieStore.getAll()) {
         if (this.isSessionItemCookie(name, prefixedKey)) {
-          this.resp.cookies.delete(name);
+          this.expireSessionCookie(
+            this.resp.cookies as unknown as CookieStore,
+            name,
+          );
           this.syncMiddlewareReadCookie(name, null);
         }
       }
     } else {
       for (const { name } of cookieStore.getAll()) {
         if (this.isSessionItemCookie(name, prefixedKey)) {
-          cookieStore.delete(name);
+          this.expireSessionCookie(cookieStore, name);
         }
       }
     }
