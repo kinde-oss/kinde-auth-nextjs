@@ -10,6 +10,8 @@ You can also use the NextJS starter kit [here](https://github.com/kinde-starter
 
 Please refer to the Kinde [NextJS SDK document](https://docs.kinde.com/developer-tools/sdks/backend/nextjs-sdk/).
 
+`post_login_redirect_url` is followed only when it stays on `KINDE_SITE_URL`, or when it matches `KINDE_POST_LOGIN_ALLOWED_URL_REGEX`. Any other address returns the user to `KINDE_SITE_URL`. The `KINDE_POST_LOGIN_REDIRECT_URL` server setting is still used as the default.
+
 ## Publishing
 
 The core team handles publishing.
