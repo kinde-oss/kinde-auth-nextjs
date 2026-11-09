@@ -38,6 +38,9 @@ const KINDE_SITE_URL = removeTrailingSlash(
 const KINDE_POST_LOGIN_ALLOWED_URL_REGEX =
   process.env.KINDE_POST_LOGIN_ALLOWED_URL_REGEX;
 
+const KINDE_PORTAL_ALLOWED_RETURN_URL_REGEX =
+  process.env.KINDE_PORTAL_ALLOWED_RETURN_URL_REGEX;
+
 // We need to use NEXT_PUBLIC for frontend vars
 const KINDE_AUTH_API_PATH =
   removeTrailingSlash(process.env.NEXT_PUBLIC_KINDE_AUTH_API_PATH) ||
@@ -73,6 +76,7 @@ type Config = {
   redirectURL: string;
   postLoginRedirectURL: string;
   postLoginAllowedURLRegex: string;
+  portalAllowedReturnUrlRegex: string;
   issuerURL: string;
   clientID: string;
   clientSecret: string;
@@ -112,6 +116,7 @@ export const config: Config = {
   redirectURL: KINDE_SITE_URL,
   postLoginRedirectURL: KINDE_POST_LOGIN_REDIRECT_URL,
   postLoginAllowedURLRegex: KINDE_POST_LOGIN_ALLOWED_URL_REGEX,
+  portalAllowedReturnUrlRegex: KINDE_PORTAL_ALLOWED_RETURN_URL_REGEX,
   issuerURL: KINDE_ISSUER_URL,
   clientID: KINDE_CLIENT_ID,
   clientSecret: KINDE_CLIENT_SECRET,
