@@ -12,7 +12,6 @@ import { getUserOrganizationsFactory } from "./getUserOrganizations";
 import { isAuthenticatedFactory } from "./isAuthenticated";
 import { getAccessTokenRawFactory } from "./getAccessTokenRaw";
 import { getIdTokenRawFactory } from "./getIdTokenRaw";
-import { kindeClient } from "./kindeServerClient";
 import { sessionManager } from "./sessionManager";
 import { getRolesFactory } from "./getRoles";
 import { getClaimFactory } from "./getClaim";
@@ -80,8 +79,11 @@ const sessionHandler = (
      */
     refreshTokens: async () => {
       try {
-        const response = await kindeClient.refreshTokens(
+        const { refreshTokensSingleFlight } =
+          await import("../utils/refreshTokensSingleFlight.js");
+        const response = await refreshTokensSingleFlight(
           await sessionManager(req, res),
+          true,
         );
         return response;
       } catch (error) {

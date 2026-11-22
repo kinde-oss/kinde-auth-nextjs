@@ -1,13 +1,14 @@
 import { validateToken } from "@kinde/jwt-validator";
 import { config } from "../config";
-import { kindeClient } from "../session/kindeServerClient";
 import { SessionManager } from "@kinde-oss/kinde-typescript-sdk";
+import { refreshTokensSingleFlight } from "./refreshTokensSingleFlight";
+import { isNonTerminalRefreshError } from "./isNonTerminalRefreshError";
 
 export const refreshTokens = async (
   session: SessionManager,
 ): Promise<boolean> => {
   try {
-    const refreshResult = await kindeClient.refreshTokens(session);
+    const refreshResult = await refreshTokensSingleFlight(session, true);
     if (!refreshResult) {
       return false;
     }
@@ -26,6 +27,18 @@ export const refreshTokens = async (
   } catch (error) {
     if (config.isDebugMode) {
       console.error("refreshTokens", error);
+    }
+    // Terminal failures: ensure session is cleared. Non-terminal (stale refresh
+    // race) must leave cookies intact.
+    if (
+      !isNonTerminalRefreshError(error) &&
+      typeof session.destroySession === "function"
+    ) {
+      try {
+        await session.destroySession();
+      } catch {
+        // Best-effort.
+      }
     }
     return false;
   }

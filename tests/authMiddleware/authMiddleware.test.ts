@@ -38,12 +38,20 @@ vi.mock("../../src/utils/getIdToken", () => ({
   getIdToken: vi.fn().mockResolvedValue(null),
 }));
 
-vi.mock("../../src/session/kindeServerClient", () => ({
-  kindeClient: { refreshTokens: vi.fn() },
-}));
-
 vi.mock("../../src/session/sessionManager", () => ({
   sessionManager: vi.fn().mockResolvedValue({}),
+}));
+
+vi.mock("../../src/utils/refreshTokensSingleFlight", () => ({
+  refreshTokensSingleFlight: vi.fn(),
+}));
+
+vi.mock("../../src/utils/isNonTerminalRefreshError", () => ({
+  isNonTerminalRefreshError: vi.fn().mockReturnValue(false),
+}));
+
+vi.mock("../../src/utils/clearSessionCookiesOnResponse", () => ({
+  clearSessionCookiesOnResponse: vi.fn(),
 }));
 
 vi.mock("../../src/utils/jwt/validation", () => ({
@@ -72,6 +80,27 @@ vi.mock("../../src/utils/isPublicPathMatch", () => ({
 
 import { NextResponse } from "next/server";
 import { withAuth } from "../../src/authMiddleware/authMiddleware";
+import { getAccessToken } from "../../src/utils/getAccessToken";
+import { getIdToken } from "../../src/utils/getIdToken";
+import { isTokenExpired } from "../../src/utils/jwt/validation";
+import { refreshTokensSingleFlight } from "../../src/utils/refreshTokensSingleFlight";
+import { isNonTerminalRefreshError } from "../../src/utils/isNonTerminalRefreshError";
+import { clearSessionCookiesOnResponse } from "../../src/utils/clearSessionCookiesOnResponse";
+import { jwtDecoder } from "@kinde/jwt-decoder";
+import { getSplitCookies } from "../../src/utils/cookies/getSplitSerializedCookies";
+import { isPublicPathMatch } from "../../src/utils/isPublicPathMatch";
+
+const mockGetAccessToken = vi.mocked(getAccessToken);
+const mockGetIdToken = vi.mocked(getIdToken);
+const mockIsTokenExpired = vi.mocked(isTokenExpired);
+const mockRefreshTokensSingleFlight = vi.mocked(refreshTokensSingleFlight);
+const mockIsNonTerminalRefreshError = vi.mocked(isNonTerminalRefreshError);
+const mockClearSessionCookiesOnResponse = vi.mocked(
+  clearSessionCookiesOnResponse,
+);
+const mockJwtDecoder = vi.mocked(jwtDecoder);
+const mockGetSplitCookies = vi.mocked(getSplitCookies);
+const mockIsPublicPathMatch = vi.mocked(isPublicPathMatch);
 
 // --------------------------------------------------------------------------
 // Helpers
@@ -106,6 +135,12 @@ const makeRequest = (
   return req;
 };
 
+const redirectResponse = { cookies: { set: vi.fn(), getAll: vi.fn(() => []) } };
+const nextResponse = {
+  cookies: { set: vi.fn(), getAll: vi.fn(() => []) },
+  headers: new Headers(),
+};
+
 // --------------------------------------------------------------------------
 // Tests
 // --------------------------------------------------------------------------
@@ -113,6 +148,13 @@ const makeRequest = (
 describe("authMiddleware — non-GET/HEAD returns HTTP 401", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetAccessToken.mockResolvedValue(null);
+    mockGetIdToken.mockResolvedValue(null);
+    mockIsTokenExpired.mockReturnValue(false);
+    mockIsPublicPathMatch.mockReturnValue(false);
+    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    (NextResponse.redirect as any).mockReturnValue(redirectResponse);
+    (NextResponse.next as any).mockReturnValue(nextResponse);
   });
 
   describe("handleInvitationCodeRedirect", () => {
@@ -251,5 +293,125 @@ describe("authMiddleware — non-GET/HEAD returns HTTP 401", () => {
       expect(NextResponse.json).not.toHaveBeenCalled();
       expect(NextResponse.redirect).toHaveBeenCalled();
     });
+  });
+});
+
+describe("authMiddleware — refresh single-flight + cookie clear policy", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetAccessToken.mockResolvedValue("expired_access");
+    mockGetIdToken.mockResolvedValue("expired_id");
+    mockIsTokenExpired.mockReturnValue(true);
+    mockIsPublicPathMatch.mockReturnValue(false);
+    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    (NextResponse.redirect as any).mockReturnValue(redirectResponse);
+    (NextResponse.next as any).mockReturnValue(nextResponse);
+    mockGetSplitCookies.mockImplementation((name: string, value: string) => [
+      { name, value, options: { maxAge: 1000 } },
+    ]);
+    mockJwtDecoder.mockImplementation((token: string) => {
+      if (token === "new_access" || token === "expired_access") {
+        return { permissions: [], org_code: "org_1", ksp: { persistent: true } };
+      }
+      return {
+        family_name: "Test",
+        given_name: "User",
+        email: "u@test.com",
+        sub: "kp_1",
+        picture: null,
+      };
+    });
+  });
+
+  it("does not clear cookies on non-terminal refresh failure (STALE_REFRESH_TOKEN)", async () => {
+    mockIsNonTerminalRefreshError.mockReturnValue(true);
+    mockRefreshTokensSingleFlight.mockRejectedValue({
+      errorCode: "STALE_REFRESH_TOKEN",
+      message: "Refresh token is invalid or expired",
+    });
+
+    const req = makeRequest("GET", "http://localhost:3000/dashboard");
+    await withAuth(req);
+
+    expect(mockRefreshTokensSingleFlight).toHaveBeenCalledWith(
+      expect.anything(),
+      false,
+    );
+    expect(mockClearSessionCookiesOnResponse).not.toHaveBeenCalled();
+    expect(NextResponse.redirect).toHaveBeenCalled();
+  });
+
+  it("clears cookies on terminal refresh failure", async () => {
+    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    mockRefreshTokensSingleFlight.mockRejectedValue(
+      new Error("invalid_client"),
+    );
+
+    const req = makeRequest("GET", "http://localhost:3000/dashboard");
+    await withAuth(req);
+
+    expect(mockClearSessionCookiesOnResponse).toHaveBeenCalledWith(
+      redirectResponse,
+      req,
+    );
+    expect(NextResponse.redirect).toHaveBeenCalled();
+  });
+
+  it("clears cookies on NextResponse.next for terminal failure on public paths", async () => {
+    mockIsPublicPathMatch.mockReturnValue(true);
+    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    mockRefreshTokensSingleFlight.mockRejectedValue(
+      new Error("invalid_client"),
+    );
+
+    const req = makeRequest("GET", "http://localhost:3000/public");
+    await withAuth(req);
+
+    expect(mockClearSessionCookiesOnResponse).toHaveBeenCalledWith(
+      nextResponse,
+      req,
+    );
+    expect(NextResponse.redirect).not.toHaveBeenCalled();
+  });
+
+  it("does not clear cookies on non-terminal failure for public paths", async () => {
+    mockIsPublicPathMatch.mockReturnValue(true);
+    mockIsNonTerminalRefreshError.mockReturnValue(true);
+    mockRefreshTokensSingleFlight.mockRejectedValue({
+      errorCode: "STALE_REFRESH_TOKEN",
+    });
+
+    const req = makeRequest("GET", "http://localhost:3000/public");
+    await withAuth(req);
+
+    expect(mockClearSessionCookiesOnResponse).not.toHaveBeenCalled();
+  });
+
+  it("sets refreshed token cookies on success without clearing", async () => {
+    mockRefreshTokensSingleFlight.mockResolvedValue({
+      access_token: "new_access",
+      id_token: "new_id",
+      refresh_token: "new_refresh",
+    } as any);
+
+    const req = makeRequest("GET", "http://localhost:3000/dashboard");
+    await withAuth(req);
+
+    expect(mockClearSessionCookiesOnResponse).not.toHaveBeenCalled();
+    expect(nextResponse.cookies.set).toHaveBeenCalledWith(
+      "access_token",
+      "new_access",
+      expect.any(Object),
+    );
+    expect(nextResponse.cookies.set).toHaveBeenCalledWith(
+      "id_token",
+      "new_id",
+      expect.any(Object),
+    );
+    expect(nextResponse.cookies.set).toHaveBeenCalledWith(
+      "refresh_token",
+      "new_refresh",
+      expect.any(Object),
+    );
   });
 });

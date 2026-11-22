@@ -6,8 +6,9 @@ import { getAccessToken } from "../utils/getAccessToken";
 import RouterClient from "../routerClients/RouterClient";
 import { getIdToken } from "../utils/getIdToken";
 import { sessionManager } from "../session/sessionManager";
-import { kindeClient } from "../session/kindeServerClient";
 import { isTokenExpired } from "../utils/jwt/validation";
+import { refreshTokensSingleFlight } from "../utils/refreshTokensSingleFlight";
+import { isNonTerminalRefreshError } from "../utils/isNonTerminalRefreshError";
 /**
  *
  * @param {RouterClient} routerClient
@@ -42,16 +43,31 @@ export const setup = async (routerClient: RouterClient) => {
         console.log("setup: access or id token expired - attempting refresh");
       }
       try {
-        const refreshResponse = await kindeClient.refreshTokens(session);
+        const refreshResponse = await refreshTokensSingleFlight(session, true);
         accessTokenEncoded = refreshResponse.access_token;
         idTokenEncoded = refreshResponse.id_token;
       } catch (error) {
         if (config.isDebugMode) {
-          console.error("setup: refresh tokens failed - returning error");
+          console.error("setup: refresh tokens failed - returning error", error);
+        }
+        // Non-terminal (STALE_REFRESH_TOKEN): do not destroy — cookies may still
+        // be valid from a concurrent winner. Terminal: SDK destroySession + host
+        // session manager already clear where applicable.
+        if (
+          !isNonTerminalRefreshError(error) &&
+          typeof session.destroySession === "function"
+        ) {
+          try {
+            await session.destroySession();
+          } catch {
+            // Best-effort clear on terminal failure.
+          }
         }
         return routerClient.json(
           {
-            message: "REFRESH_FAILED",
+            message: isNonTerminalRefreshError(error)
+              ? "REFRESH_IN_PROGRESS_OR_STALE"
+              : "REFRESH_FAILED",
             error: error instanceof Error ? error.message : error,
             env: {
               clientId: config.clientID,

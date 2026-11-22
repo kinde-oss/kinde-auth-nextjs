@@ -25,8 +25,12 @@ vi.mock("../../src/session/sessionManager", () => ({
   sessionManager: vi.fn().mockResolvedValue({}),
 }));
 
-vi.mock("../../src/session/kindeServerClient", () => ({
-  kindeClient: { refreshTokens: vi.fn() },
+vi.mock("../../src/utils/refreshTokensSingleFlight", () => ({
+  refreshTokensSingleFlight: vi.fn(),
+}));
+
+vi.mock("../../src/utils/isNonTerminalRefreshError", () => ({
+  isNonTerminalRefreshError: vi.fn().mockReturnValue(false),
 }));
 
 vi.mock("../../src/utils/jwt/validation", () => ({
@@ -46,13 +50,17 @@ import { getAccessToken } from "../../src/utils/getAccessToken";
 import { getIdToken } from "../../src/utils/getIdToken";
 import { isTokenExpired } from "../../src/utils/jwt/validation";
 import { jwtDecoder } from "@kinde/jwt-decoder";
-import { kindeClient } from "../../src/session/kindeServerClient";
+import { refreshTokensSingleFlight } from "../../src/utils/refreshTokensSingleFlight";
+import { isNonTerminalRefreshError } from "../../src/utils/isNonTerminalRefreshError";
+import { sessionManager } from "../../src/session/sessionManager";
 
 const mockGetAccessToken = vi.mocked(getAccessToken);
 const mockGetIdToken = vi.mocked(getIdToken);
 const mockIsTokenExpired = vi.mocked(isTokenExpired);
 const mockJwtDecoder = vi.mocked(jwtDecoder);
-const mockKindeClient = vi.mocked(kindeClient);
+const mockRefreshTokensSingleFlight = vi.mocked(refreshTokensSingleFlight);
+const mockIsNonTerminalRefreshError = vi.mocked(isNonTerminalRefreshError);
+const mockSessionManager = vi.mocked(sessionManager);
 
 // --------------------------------------------------------------------------
 // Helpers
@@ -92,18 +100,42 @@ describe("setup handler — auth failure HTTP status codes", () => {
   });
 
   it("returns HTTP 401 for REFRESH_FAILED when token refresh throws", async () => {
+    const destroySession = vi.fn();
+    mockSessionManager.mockResolvedValue({ destroySession } as any);
     mockGetAccessToken.mockResolvedValue("access_token");
     mockGetIdToken.mockResolvedValue("id_token");
     mockIsTokenExpired.mockReturnValue(true);
-    (mockKindeClient.refreshTokens as any).mockRejectedValue(
-      new Error("refresh failed"),
-    );
+    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    mockRefreshTokensSingleFlight.mockRejectedValue(new Error("refresh failed"));
 
     const routerClient = makeRouterClient();
     await setup(routerClient as any);
 
+    expect(destroySession).toHaveBeenCalled();
     expect(routerClient.json).toHaveBeenCalledWith(
       expect.objectContaining({ message: "REFRESH_FAILED" }),
+      { status: 401 },
+    );
+  });
+
+  it("does not destroy session on STALE_REFRESH_TOKEN / non-terminal refresh failure", async () => {
+    const destroySession = vi.fn();
+    mockSessionManager.mockResolvedValue({ destroySession } as any);
+    mockGetAccessToken.mockResolvedValue("access_token");
+    mockGetIdToken.mockResolvedValue("id_token");
+    mockIsTokenExpired.mockReturnValue(true);
+    mockIsNonTerminalRefreshError.mockReturnValue(true);
+    mockRefreshTokensSingleFlight.mockRejectedValue({
+      errorCode: "STALE_REFRESH_TOKEN",
+      message: "stale",
+    });
+
+    const routerClient = makeRouterClient();
+    await setup(routerClient as any);
+
+    expect(destroySession).not.toHaveBeenCalled();
+    expect(routerClient.json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "REFRESH_IN_PROGRESS_OR_STALE" }),
       { status: 401 },
     );
   });
