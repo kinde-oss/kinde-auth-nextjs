@@ -170,8 +170,8 @@ importers:
         specifier: 5.13.1
         version: 5.13.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@kinde-oss/kinde-typescript-sdk':
-        specifier: 2.16.0
-        version: 2.16.0
+        specifier: 2.15.2
+        version: 2.15.2
       '@kinde/jwt-decoder':
         specifier: ^0.2.0
         version: 0.2.6
@@ -779,8 +779,8 @@ packages:
       react: ^17 || ^18 || >=19.2.1
       react-dom: ^17 || ^18 || >=19.2.1
 
-  '@kinde-oss/kinde-typescript-sdk@2.16.0':
-    resolution: {integrity: sha512-5sI+1aDUv1BCBIxKIsMZKRcGYzSBfYS6ld9nYrbNz/Dz3PIyi1Yyj3s0lfXdvkehmC5MiHiyqHnwbyZObZxeFA==}
+  '@kinde-oss/kinde-typescript-sdk@2.15.2':
+    resolution: {integrity: sha512-NVNGWu8OtZg5oppoC7dap/PbMPAe6PVsPv1k1WXpHPAhgYR5CHbiwIOxpzz/po6m+9Adgan9zpGa/umFoBdXcA==}
     engines: {node: '>=20'}
 
   '@kinde/js-utils@0.32.1':
@@ -4185,7 +4185,7 @@ snapshots:
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
 
-  '@kinde-oss/kinde-typescript-sdk@2.16.0':
+  '@kinde-oss/kinde-typescript-sdk@2.15.2':
     dependencies:
       '@kinde/js-utils': 0.32.1
       '@kinde/jwt-decoder': 0.2.6
