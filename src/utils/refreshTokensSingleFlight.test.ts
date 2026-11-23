@@ -5,9 +5,19 @@ vi.mock("../session/kindeServerClient", () => ({
 }));
 
 vi.mock("../config", () => ({
-  config: { isDebugMode: false },
+  config: { isDebugMode: false, issuerURL: "https://example.kinde.com" },
 }));
 
+vi.mock("@kinde/jwt-validator", () => ({
+  validateToken: vi.fn(),
+}));
+
+vi.mock("@kinde/jwt-decoder", () => ({
+  jwtDecoder: vi.fn(),
+}));
+
+import { validateToken } from "@kinde/jwt-validator";
+import { jwtDecoder } from "@kinde/jwt-decoder";
 import { kindeClient } from "../session/kindeServerClient";
 import {
   __resetRefreshTokensSingleFlightForTests,
@@ -15,6 +25,8 @@ import {
 } from "./refreshTokensSingleFlight";
 
 const mockRefreshTokens = vi.mocked(kindeClient.refreshTokens);
+const mockValidateToken = vi.mocked(validateToken);
+const mockJwtDecoder = vi.mocked(jwtDecoder);
 
 describe("refreshTokensSingleFlight", () => {
   const session = {
@@ -22,6 +34,7 @@ describe("refreshTokensSingleFlight", () => {
     setSessionItem: vi.fn(),
     removeSessionItem: vi.fn(),
     destroySession: vi.fn(),
+    persistent: true as boolean | undefined,
   };
 
   beforeEach(() => {
@@ -29,6 +42,13 @@ describe("refreshTokensSingleFlight", () => {
     __resetRefreshTokensSingleFlightForTests();
     session.getSessionItem.mockResolvedValue("refresh_token_abc");
     session.setSessionItem.mockResolvedValue(undefined);
+    session.removeSessionItem.mockResolvedValue(undefined);
+    session.persistent = true;
+    mockValidateToken.mockResolvedValue({ valid: true } as any);
+    mockJwtDecoder.mockReturnValue({
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      ksp: { persistent: true },
+    } as any);
   });
 
   afterEach(() => {
@@ -87,6 +107,57 @@ describe("refreshTokensSingleFlight", () => {
     );
   });
 
+  it("applies ksp.persistent=false before writing tokens", async () => {
+    mockJwtDecoder.mockReturnValue({
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      ksp: { persistent: false },
+    } as any);
+    mockRefreshTokens.mockResolvedValue({
+      access_token: "access",
+      id_token: "id",
+      refresh_token: "refresh_token_new",
+    } as any);
+
+    await refreshTokensSingleFlight(session as any, true);
+
+    expect(session.persistent).toBe(false);
+    expect(session.setSessionItem).toHaveBeenCalled();
+  });
+
+  it("rejects commit when access or id token fails validation", async () => {
+    mockValidateToken.mockResolvedValue({
+      valid: false,
+      message: "bad signature",
+    } as any);
+    mockRefreshTokens.mockResolvedValue({
+      access_token: "access",
+      id_token: "id",
+      refresh_token: "refresh_token_new",
+    } as any);
+
+    await expect(
+      refreshTokensSingleFlight(session as any, true),
+    ).rejects.toThrow(/bad signature|Invalid/);
+    expect(session.setSessionItem).not.toHaveBeenCalled();
+  });
+
+  it("rejects commit when access or id token is expired", async () => {
+    mockJwtDecoder.mockReturnValue({
+      exp: Math.floor(Date.now() / 1000) - 10,
+      ksp: { persistent: true },
+    } as any);
+    mockRefreshTokens.mockResolvedValue({
+      access_token: "access",
+      id_token: "id",
+      refresh_token: "refresh_token_new",
+    } as any);
+
+    await expect(
+      refreshTokensSingleFlight(session as any, true),
+    ).rejects.toThrow(/expired/);
+    expect(session.setSessionItem).not.toHaveBeenCalled();
+  });
+
   it("does not commit when commitToSession is false", async () => {
     mockRefreshTokens.mockResolvedValue({
       access_token: "access",
@@ -96,6 +167,7 @@ describe("refreshTokensSingleFlight", () => {
 
     await refreshTokensSingleFlight(session as any, false);
     expect(session.setSessionItem).not.toHaveBeenCalled();
+    expect(mockValidateToken).not.toHaveBeenCalled();
   });
 
   it("does not share flights across different refresh tokens", async () => {

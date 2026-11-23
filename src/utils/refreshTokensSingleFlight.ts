@@ -2,8 +2,11 @@ import {
   OAuth2CodeExchangeResponse,
   SessionManager,
 } from "@kinde-oss/kinde-typescript-sdk";
+import { jwtDecoder } from "@kinde/jwt-decoder";
+import { validateToken } from "@kinde/jwt-validator";
 import { kindeClient } from "../session/kindeServerClient";
 import { config } from "../config";
+import { isTokenExpired } from "./jwt/validation";
 
 /**
  * In-process single-flight map keyed by the refresh token being exchanged.
@@ -19,13 +22,60 @@ const inFlightByRefreshToken = new Map<
   Promise<OAuth2CodeExchangeResponse>
 >();
 
+/**
+ * Mirrors SDK commitTokensToSession: apply ksp.persistent, validate access/id
+ * tokens, then write. Used when commitToSession=true after a shared
+ * commitToSession=false network refresh.
+ */
 const commitTokensToSessionManager = async (
   session: SessionManager,
   tokens: OAuth2CodeExchangeResponse,
 ): Promise<void> => {
-  await session.setSessionItem("access_token", tokens.access_token);
-  await session.setSessionItem("id_token", tokens.id_token);
-  await session.setSessionItem("refresh_token", tokens.refresh_token);
+  const payload = jwtDecoder<{ ksp?: { persistent?: boolean } }>(
+    tokens.access_token,
+  );
+  if (payload) {
+    session.persistent = payload.ksp?.persistent ?? true;
+  }
+
+  const assertAccessOrIdValid = async (
+    type: "access_token" | "id_token",
+    token: string | undefined,
+  ): Promise<void> => {
+    if (!token) {
+      return;
+    }
+
+    const validation = await validateToken({
+      token,
+      domain: config.issuerURL,
+    });
+    if (!validation.valid) {
+      throw new Error(validation.message || `Invalid ${type}`);
+    }
+    if (isTokenExpired(token)) {
+      throw new Error(`${type} is expired`);
+    }
+  };
+
+  // Validate before any writes so a bad access/id token cannot partially
+  // persist a rotated refresh token.
+  await Promise.all([
+    assertAccessOrIdValid("access_token", tokens.access_token),
+    assertAccessOrIdValid("id_token", tokens.id_token),
+  ]);
+
+  await Promise.all([
+    tokens.access_token
+      ? session.setSessionItem("access_token", tokens.access_token)
+      : session.removeSessionItem("access_token"),
+    tokens.id_token
+      ? session.setSessionItem("id_token", tokens.id_token)
+      : session.removeSessionItem("id_token"),
+    tokens.refresh_token
+      ? session.setSessionItem("refresh_token", tokens.refresh_token)
+      : session.removeSessionItem("refresh_token"),
+  ]);
 };
 
 export const refreshTokensSingleFlight = async (
