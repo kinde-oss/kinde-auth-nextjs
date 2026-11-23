@@ -3,6 +3,7 @@ import { isPreFetch } from "../utils/isPreFetch";
 import { getHeaders } from "../utils/getHeaders";
 import validateState from "../utils/validateState";
 import { config } from "../config/index";
+import { filterAuthUrlParams } from "../utils/filterAuthUrlParams";
 
 /**
  *
@@ -28,7 +29,7 @@ export const login = async (routerClient: RouterClient) => {
     routerClient.sessionManager,
     {
       authUrlParams: {
-        ...Object.fromEntries(routerClient.searchParams),
+        ...filterAuthUrlParams(routerClient.searchParams),
         supports_reauth: "true",
       },
     },
