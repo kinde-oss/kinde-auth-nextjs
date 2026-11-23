@@ -61,7 +61,9 @@ describe("refreshTokens util", () => {
 
   it("destroys session on terminal refresh failure", async () => {
     mockIsNonTerminalRefreshError.mockReturnValue(false);
-    mockRefreshTokensSingleFlight.mockRejectedValue(new Error("invalid_client"));
+    mockRefreshTokensSingleFlight.mockRejectedValue(
+      new Error("invalid_client"),
+    );
 
     await expect(refreshTokens(session as any)).resolves.toBe(false);
     expect(session.destroySession).toHaveBeenCalled();

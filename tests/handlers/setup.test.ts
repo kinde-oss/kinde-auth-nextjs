@@ -106,7 +106,9 @@ describe("setup handler — auth failure HTTP status codes", () => {
     mockGetIdToken.mockResolvedValue("id_token");
     mockIsTokenExpired.mockReturnValue(true);
     mockIsNonTerminalRefreshError.mockReturnValue(false);
-    mockRefreshTokensSingleFlight.mockRejectedValue(new Error("refresh failed"));
+    mockRefreshTokensSingleFlight.mockRejectedValue(
+      new Error("refresh failed"),
+    );
 
     const routerClient = makeRouterClient();
     await setup(routerClient as any);

@@ -311,7 +311,11 @@ describe("authMiddleware — refresh single-flight + cookie clear policy", () =>
     ]);
     mockJwtDecoder.mockImplementation((token: string) => {
       if (token === "new_access" || token === "expired_access") {
-        return { permissions: [], org_code: "org_1", ksp: { persistent: true } };
+        return {
+          permissions: [],
+          org_code: "org_1",
+          ksp: { persistent: true },
+        };
       }
       return {
         family_name: "Test",

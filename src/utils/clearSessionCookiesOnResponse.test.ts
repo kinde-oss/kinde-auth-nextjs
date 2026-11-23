@@ -36,9 +36,7 @@ describe("clearSessionCookiesOnResponse", () => {
       "",
       expect.objectContaining({ maxAge: 0 }),
     );
-    expect(
-      set.mock.calls.some((call) => call[0] === "unrelated"),
-    ).toBe(false);
+    expect(set.mock.calls.some((call) => call[0] === "unrelated")).toBe(false);
   });
 
   it("still clears well-known cookie names when request cookies are unavailable", () => {

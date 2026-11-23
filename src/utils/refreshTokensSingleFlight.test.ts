@@ -76,7 +76,10 @@ describe("refreshTokensSingleFlight", () => {
 
     await refreshTokensSingleFlight(session as any, true);
 
-    expect(session.setSessionItem).toHaveBeenCalledWith("access_token", "access");
+    expect(session.setSessionItem).toHaveBeenCalledWith(
+      "access_token",
+      "access",
+    );
     expect(session.setSessionItem).toHaveBeenCalledWith("id_token", "id");
     expect(session.setSessionItem).toHaveBeenCalledWith(
       "refresh_token",

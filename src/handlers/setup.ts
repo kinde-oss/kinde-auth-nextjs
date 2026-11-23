@@ -48,7 +48,10 @@ export const setup = async (routerClient: RouterClient) => {
         idTokenEncoded = refreshResponse.id_token;
       } catch (error) {
         if (config.isDebugMode) {
-          console.error("setup: refresh tokens failed - returning error", error);
+          console.error(
+            "setup: refresh tokens failed - returning error",
+            error,
+          );
         }
         // Non-terminal (STALE_REFRESH_TOKEN): do not destroy — cookies may still
         // be valid from a concurrent winner. Terminal: SDK destroySession + host
