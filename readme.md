@@ -10,6 +10,18 @@ You can also use the NextJS starter kit [here](https://github.com/kinde-starter
 
 Please refer to the Kinde [NextJS SDK document](https://docs.kinde.com/developer-tools/sdks/backend/nextjs-sdk/).
 
+### Portal return URL allowlist
+
+Set `KINDE_PORTAL_ALLOWED_RETURN_URL_REGEX` to restrict query-string
+`returnUrl` values accepted by the portal route. This setting is optional and
+separate from `KINDE_POST_LOGIN_ALLOWED_URL_REGEX`.
+
+When it is unset, requested portal return URLs are passed through unchanged and
+the SDK logs a one-time warning. When it is set, non-matching values fall back
+to `KINDE_SITE_URL`. See the
+[portal return URL](https://docs.kinde.com/developer-tools/sdks/backend/nextjs-sdk/#portal-return-url)
+section of the Next.js SDK docs.
+
 ## Publishing
 
 The core team handles publishing.
