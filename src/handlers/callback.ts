@@ -1,5 +1,9 @@
 import { config, routes } from "../config/index";
 import RouterClient from "../routerClients/RouterClient";
+import {
+  isSafePostLoginRedirect,
+  toPostLoginRedirectUrl,
+} from "../utils/isSafePostLoginRedirect";
 
 const redirectToLogin = (routerClient: RouterClient) => {
   const loginUrl = new URL(
@@ -76,42 +80,34 @@ export const callback = async (routerClient: RouterClient) => {
     return routerClient.json({ error: error.message }, { status: 500 });
   }
 
-  // Compile regex once at startup
-  const compiledRegex = (() => {
-    if (!config.postLoginAllowedURLRegex) {
-      return null;
-    }
-    try {
-      return new RegExp(config.postLoginAllowedURLRegex);
-    } catch (error) {
-      console.error("Invalid postLoginAllowedURLRegex pattern:", error);
-      throw new Error(
-        `Invalid postLoginAllowedURLRegex pattern: ${error.message}`,
-      );
-    }
-  })();
-
-  const isRedirectAllowed = (url: string) => {
-    if (!config.postLoginAllowedURLRegex) {
-      return true;
-    }
-    return compiledRegex!.test(url);
-  };
-
   const state = (await routerClient.sessionManager.getSessionItem(
     "state",
   )) as string;
   await routerClient.sessionManager.removeSessionItem("state");
 
-  if (postLoginRedirectURL && isRedirectAllowed(postLoginRedirectURL)) {
-    const url = postLoginRedirectURL.startsWith("http")
-      ? new URL(postLoginRedirectURL)
-      : new URL(postLoginRedirectURL, routerClient.clientConfig.siteUrl);
+  const siteUrl = routerClient.clientConfig.siteUrl;
+  const isAllowed =
+    !!postLoginRedirectURL &&
+    isSafePostLoginRedirect({
+      raw: postLoginRedirectURL,
+      siteUrl,
+      allowedURLRegex: config.postLoginAllowedURLRegex,
+      isServerConfiguredDefault:
+        !postLoginRedirectURLFromMemory &&
+        postLoginRedirectURL === config.postLoginRedirectURL,
+    });
+
+  if (isAllowed) {
+    const url = toPostLoginRedirectUrl(postLoginRedirectURL, siteUrl);
     state && url.searchParams.set("state", state);
     return routerClient.redirect(url.toString());
   }
 
-  const url = new URL(routerClient.clientConfig.siteUrl);
+  if (postLoginRedirectURL && config.isDebugMode) {
+    console.warn("Blocked post-login redirect to", postLoginRedirectURL);
+  }
+
+  const url = new URL(siteUrl);
   state && url.searchParams.set("state", state);
   return routerClient.redirect(url.toString());
 };
