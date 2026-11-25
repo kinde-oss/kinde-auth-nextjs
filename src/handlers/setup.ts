@@ -53,9 +53,8 @@ export const setup = async (routerClient: RouterClient) => {
             error,
           );
         }
-        // Non-terminal (STALE_REFRESH_TOKEN): do not destroy — cookies may still
-        // be valid from a concurrent winner. Terminal: SDK destroySession + host
-        // session manager already clear where applicable.
+        // Non-terminal (STALE_REFRESH_TOKEN / transient transport): do not
+        // destroy — cookies may still be valid. Terminal: ensure session clear.
         if (
           !isNonTerminalRefreshError(error) &&
           typeof session.destroySession === "function"

@@ -73,7 +73,6 @@ describe("refreshTokensSingleFlight", () => {
     const first = refreshTokensSingleFlight(session as any, false);
     const second = refreshTokensSingleFlight(session as any, false);
 
-    // Flush microtasks so both callers finish getSessionItem and join the flight.
     await Promise.resolve();
     await Promise.resolve();
 
@@ -82,6 +81,53 @@ describe("refreshTokensSingleFlight", () => {
 
     resolveRefresh(tokens);
 
+    await expect(first).resolves.toEqual(tokens);
+    await expect(second).resolves.toEqual(tokens);
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the flight registered until waiters finish committing", async () => {
+    let resolveRefresh: (value: unknown) => void = () => undefined;
+    let resolveCommitGate: () => void = () => undefined;
+    const commitGate = new Promise<void>((resolve) => {
+      resolveCommitGate = resolve;
+    });
+
+    mockRefreshTokens.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveRefresh = resolve;
+        }) as any,
+    );
+    mockValidateToken.mockImplementation(async () => {
+      await commitGate;
+      return { valid: true } as any;
+    });
+
+    const tokens = {
+      access_token: "access",
+      id_token: "id",
+      refresh_token: "refresh_token_new",
+    };
+
+    const first = refreshTokensSingleFlight(session as any, true);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    resolveRefresh(tokens);
+    // Allow first waiter to reach validation/commit gate.
+    await Promise.resolve();
+    await Promise.resolve();
+
+    // While first waiter is still committing, a new caller with the same key
+    // must join rather than start a second network exchange.
+    const second = refreshTokensSingleFlight(session as any, false);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(1);
+
+    resolveCommitGate();
     await expect(first).resolves.toEqual(tokens);
     await expect(second).resolves.toEqual(tokens);
     expect(mockRefreshTokens).toHaveBeenCalledTimes(1);
@@ -105,6 +151,22 @@ describe("refreshTokensSingleFlight", () => {
       "refresh_token",
       "refresh_token_new",
     );
+  });
+
+  it("skips commit when session refresh token no longer matches the flight key", async () => {
+    mockRefreshTokens.mockResolvedValue({
+      access_token: "access",
+      id_token: "id",
+      refresh_token: "refresh_token_new",
+    } as any);
+    session.getSessionItem
+      .mockResolvedValueOnce("refresh_token_abc") // key for flight
+      .mockResolvedValueOnce("refresh_token_newer"); // changed before commit
+
+    await refreshTokensSingleFlight(session as any, true);
+
+    expect(session.setSessionItem).not.toHaveBeenCalled();
+    expect(mockValidateToken).not.toHaveBeenCalled();
   });
 
   it("applies ksp.persistent=false before writing tokens", async () => {
@@ -228,5 +290,24 @@ describe("refreshTokensSingleFlight", () => {
     });
     expect(mockRefreshTokens).toHaveBeenCalledTimes(1);
     expect(session.setSessionItem).not.toHaveBeenCalled();
+  });
+
+  it("allows a new flight after a failed flight is released", async () => {
+    mockRefreshTokens
+      .mockRejectedValueOnce(new Error("temporary"))
+      .mockResolvedValueOnce({
+        access_token: "access",
+        id_token: "id",
+        refresh_token: "refresh_token_new",
+      } as any);
+
+    await expect(
+      refreshTokensSingleFlight(session as any, false),
+    ).rejects.toThrow("temporary");
+
+    await expect(
+      refreshTokensSingleFlight(session as any, false),
+    ).resolves.toMatchObject({ access_token: "access" });
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(2);
   });
 });

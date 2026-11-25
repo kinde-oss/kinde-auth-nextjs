@@ -389,6 +389,39 @@ describe("authMiddleware — refresh single-flight + cookie clear policy", () =>
     await withAuth(req);
 
     expect(mockClearSessionCookiesOnResponse).not.toHaveBeenCalled();
+    expect(nextResponse.cookies.set).not.toHaveBeenCalled();
+  });
+
+  it("does not clear cookies on transient transport failures", async () => {
+    mockIsNonTerminalRefreshError.mockReturnValue(true);
+    mockRefreshTokensSingleFlight.mockRejectedValue(
+      new TypeError("fetch failed"),
+    );
+
+    const req = makeRequest("GET", "http://localhost:3000/dashboard");
+    await withAuth(req);
+
+    expect(mockClearSessionCookiesOnResponse).not.toHaveBeenCalled();
+    expect(NextResponse.redirect).toHaveBeenCalled();
+  });
+
+  it("returns next response after clearing cookies on public terminal failure", async () => {
+    mockIsPublicPathMatch.mockReturnValue(true);
+    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    mockRefreshTokensSingleFlight.mockRejectedValue(
+      new Error("invalid_client"),
+    );
+
+    const req = makeRequest("GET", "http://localhost:3000/public");
+    const result = await withAuth(req);
+
+    expect(mockClearSessionCookiesOnResponse).toHaveBeenCalledWith(
+      nextResponse,
+      req,
+    );
+    expect(result).toBe(nextResponse);
+    // Must not fall through into the cookie-write path after a failed refresh.
+    expect(nextResponse.cookies.set).not.toHaveBeenCalled();
   });
 
   it("sets refreshed token cookies on success without clearing", async () => {

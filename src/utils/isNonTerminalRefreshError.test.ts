@@ -12,8 +12,25 @@ describe("isNonTerminalRefreshError", () => {
     ).toBe(true);
   });
 
-  it("returns false for other errors", () => {
-    expect(isNonTerminalRefreshError(new Error("refresh failed"))).toBe(false);
+  it("returns true for transient transport / parse errors", () => {
+    expect(isNonTerminalRefreshError(new TypeError("fetch failed"))).toBe(true);
+    expect(isNonTerminalRefreshError(new SyntaxError("Unexpected token"))).toBe(
+      true,
+    );
+    expect(
+      isNonTerminalRefreshError(
+        Object.assign(new Error("aborted"), { name: "DOMException" }),
+      ),
+    ).toBe(true);
+    if (typeof AggregateError !== "undefined") {
+      expect(isNonTerminalRefreshError(new AggregateError([], "network"))).toBe(
+        true,
+      );
+    }
+  });
+
+  it("returns false for other credential / generic errors", () => {
+    expect(isNonTerminalRefreshError(new Error("invalid_client"))).toBe(false);
     expect(
       isNonTerminalRefreshError({
         errorCode: "FAILED_TOKENS_REFRESH_ATTEMPT",

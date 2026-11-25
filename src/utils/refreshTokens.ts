@@ -29,7 +29,7 @@ export const refreshTokens = async (
       console.error("refreshTokens", error);
     }
     // Terminal failures: ensure session is cleared. Non-terminal (stale refresh
-    // race) must leave cookies intact.
+    // race or transient transport) must leave cookies intact.
     if (
       !isNonTerminalRefreshError(error) &&
       typeof session.destroySession === "function"

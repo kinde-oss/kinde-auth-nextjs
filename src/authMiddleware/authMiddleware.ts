@@ -192,8 +192,8 @@ const handleMiddleware = async (req, options, onSuccess) => {
       }
     } catch (error) {
       if (isNonTerminalRefreshError(error)) {
-        // Race loser / stale refresh — do not clear cookies (SDK also skips
-        // destroySession for STALE_REFRESH_TOKEN). Redirect without Max-Age=0.
+        // Race loser / stale refresh / transient transport — do not clear
+        // cookies. Redirect without Max-Age=0 when protected.
         if (config.isDebugMode) {
           console.error(
             "authMiddleware: non-terminal refresh failure, not clearing cookies",
@@ -204,14 +204,22 @@ const handleMiddleware = async (req, options, onSuccess) => {
           "authMiddleware: error refreshing tokens (non-terminal)",
         );
         if (result) return result;
-      } else {
-        const result = sendResult("authMiddleware: error refreshing tokens");
-        if (result) {
-          clearSessionCookiesOnResponse(result, req);
-          return result;
-        }
-        clearSessionCookiesOnResponse(resp, req);
+        return resp;
       }
+
+      const result = sendResult("authMiddleware: error refreshing tokens");
+      if (result) {
+        clearSessionCookiesOnResponse(result, req);
+        return result;
+      }
+      clearSessionCookiesOnResponse(resp, req);
+      return resp;
+    }
+
+    if (!refreshResponse) {
+      return isPublicPath
+        ? resp
+        : authRedirect(req, authRedirectUrl, options?.redirectURLBase);
     }
 
     try {

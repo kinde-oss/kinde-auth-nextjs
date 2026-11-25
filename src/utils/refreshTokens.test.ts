@@ -68,4 +68,14 @@ describe("refreshTokens util", () => {
     await expect(refreshTokens(session as any)).resolves.toBe(false);
     expect(session.destroySession).toHaveBeenCalled();
   });
+
+  it("does not destroy session when helper marks error non-terminal", async () => {
+    mockIsNonTerminalRefreshError.mockReturnValue(true);
+    mockRefreshTokensSingleFlight.mockRejectedValue(
+      new TypeError("fetch failed"),
+    );
+
+    await expect(refreshTokens(session as any)).resolves.toBe(false);
+    expect(session.destroySession).not.toHaveBeenCalled();
+  });
 });

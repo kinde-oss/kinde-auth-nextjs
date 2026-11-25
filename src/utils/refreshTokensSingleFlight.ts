@@ -8,19 +8,25 @@ import { kindeClient } from "../session/kindeServerClient";
 import { config } from "../config";
 import { isTokenExpired } from "./jwt/validation";
 
+type InFlightRefresh = {
+  promise: Promise<OAuth2CodeExchangeResponse>;
+  refs: number;
+};
+
 /**
  * In-process single-flight map keyed by the refresh token being exchanged.
  * Concurrent middleware/setup refreshes with the same token share one network
  * call (best-effort; separate serverless isolates still need the SDK's
  * STALE_REFRESH_TOKEN behaviour).
  *
+ * Entries stay registered until every waiter finishes (including optional
+ * session commit), so a late caller cannot start a second exchange of R while
+ * the first flight's tokens are still being validated/persisted.
+ *
  * The shared call always uses commitToSession=false so waiters are not tied to
  * another request's session manager. Callers that need persistence commit after.
  */
-const inFlightByRefreshToken = new Map<
-  string,
-  Promise<OAuth2CodeExchangeResponse>
->();
+const inFlightByRefreshToken = new Map<string, InFlightRefresh>();
 
 /**
  * Mirrors SDK commitTokensToSession: apply ksp.persistent, validate access/id
@@ -78,6 +84,13 @@ const commitTokensToSessionManager = async (
   ]);
 };
 
+const releaseInFlight = (key: string, flight: InFlightRefresh): void => {
+  flight.refs -= 1;
+  if (flight.refs <= 0 && inFlightByRefreshToken.get(key) === flight) {
+    inFlightByRefreshToken.delete(key);
+  }
+};
+
 export const refreshTokensSingleFlight = async (
   session: SessionManager,
   commitToSession: boolean = true,
@@ -92,39 +105,63 @@ export const refreshTokensSingleFlight = async (
     kindeClient.refreshTokens(session, false);
 
   let tokens: OAuth2CodeExchangeResponse;
+  let flight: InFlightRefresh | null = null;
 
   if (!key) {
     tokens = await runNetworkRefresh();
   } else {
-    const existing = inFlightByRefreshToken.get(key);
-    if (existing) {
-      if (config.isDebugMode) {
-        console.debug(
-          "refreshTokensSingleFlight: joining in-flight refresh for session",
-        );
-      }
-      tokens = await existing;
-    } else {
+    flight = inFlightByRefreshToken.get(key) ?? null;
+    if (!flight) {
       if (config.isDebugMode) {
         console.debug("refreshTokensSingleFlight: starting refresh");
       }
-
-      const flight = runNetworkRefresh().finally(() => {
-        if (inFlightByRefreshToken.get(key) === flight) {
+      const promise = runNetworkRefresh().catch((error) => {
+        // Failed flights must not block retries.
+        if (inFlightByRefreshToken.get(key)?.promise === promise) {
           inFlightByRefreshToken.delete(key);
         }
+        throw error;
       });
-
+      flight = { promise, refs: 0 };
       inFlightByRefreshToken.set(key, flight);
-      tokens = await flight;
+    } else if (config.isDebugMode) {
+      console.debug(
+        "refreshTokensSingleFlight: joining in-flight refresh for session",
+      );
+    }
+
+    flight.refs += 1;
+    try {
+      tokens = await flight.promise;
+    } catch (error) {
+      releaseInFlight(key, flight);
+      throw error;
     }
   }
 
-  if (commitToSession) {
-    await commitTokensToSessionManager(session, tokens);
+  try {
+    if (commitToSession) {
+      // Skip commit if this session already moved past the refresh token that
+      // keyed the shared flight (a newer refresh committed first).
+      if (key) {
+        const current = await session.getSessionItem("refresh_token");
+        if (current !== key) {
+          if (config.isDebugMode) {
+            console.debug(
+              "refreshTokensSingleFlight: skipping commit; session refresh token changed",
+            );
+          }
+          return tokens;
+        }
+      }
+      await commitTokensToSessionManager(session, tokens);
+    }
+    return tokens;
+  } finally {
+    if (key && flight) {
+      releaseInFlight(key, flight);
+    }
   }
-
-  return tokens;
 };
 
 /** Test helper — clears in-flight map between cases. */
