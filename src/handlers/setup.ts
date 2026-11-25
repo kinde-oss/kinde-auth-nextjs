@@ -11,6 +11,12 @@ import { refreshTokensSingleFlight } from "../utils/refreshTokensSingleFlight";
 import { isStaleRefreshError } from "../utils/isTerminalRefreshError";
 import { shouldClearSessionForRefreshError } from "../utils/staleRefreshTokenGuard";
 
+const isTransientRefreshFailure = (error: unknown): boolean =>
+  error instanceof TypeError ||
+  error instanceof SyntaxError ||
+  (typeof AggregateError !== "undefined" && error instanceof AggregateError) ||
+  (typeof DOMException !== "undefined" && error instanceof DOMException);
+
 const refreshWithOptionalRetry = async (
   session: Awaited<ReturnType<typeof sessionManager>>,
   req: RouterClient["req"],
@@ -28,18 +34,12 @@ const refreshWithOptionalRetry = async (
     };
   } catch (error) {
     // Middleware and setup do not share the in-process single-flight map.
-    // On first stale/transient failure, re-read cookies (winner may have
-    // landed) and retry refresh once before returning 401.
+    // Re-read cookies in case a concurrent winner already updated them.
+    // Do NOT call shouldClearSessionForRefreshError here — the outer catch
+    // owns the single stale-bound assessment. A same-request network retry
+    // on STALE would incorrectly promote first-chance stale to terminal.
     if (config.isDebugMode) {
       console.error("setup: refresh tokens failed — assessing retry", error);
-    }
-
-    const failedRefreshToken = await session.getSessionItem("refresh_token");
-    const failedToken =
-      typeof failedRefreshToken === "string" ? failedRefreshToken : null;
-
-    if (await shouldClearSessionForRefreshError(session, error, failedToken)) {
-      throw error;
     }
 
     const accessAfter = await getAccessToken(req);
@@ -51,11 +51,17 @@ const refreshWithOptionalRetry = async (
       };
     }
 
-    const retryResponse = await attemptRefresh();
-    return {
-      accessTokenEncoded: retryResponse.access_token,
-      idTokenEncoded: retryResponse.id_token,
-    };
+    // Transient transport only: one network retry. STALE is left for the
+    // client / next request so the stale-token bound stays cross-request.
+    if (isTransientRefreshFailure(error)) {
+      const retryResponse = await attemptRefresh();
+      return {
+        accessTokenEncoded: retryResponse.access_token,
+        idTokenEncoded: retryResponse.id_token,
+      };
+    }
+
+    throw error;
   }
 };
 

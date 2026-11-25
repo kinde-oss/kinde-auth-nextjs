@@ -75,9 +75,9 @@ export const isTerminalRefreshError = (error: unknown): boolean => {
   }
 
   if (isStaleRefreshError(error)) {
-    // First-chance stale is non-terminal; callers promote repeat stale via
-    // markAndAssessStaleRefreshToken / forceTerminal flag.
-    return (error as { forceTerminal?: unknown }).forceTerminal === true;
+    // First-chance stale is non-terminal. Repeat stale for the same refresh
+    // token is promoted to terminal by shouldClearSessionForRefreshError.
+    return false;
   }
 
   if (isInvalidTokenCommitError(error)) {

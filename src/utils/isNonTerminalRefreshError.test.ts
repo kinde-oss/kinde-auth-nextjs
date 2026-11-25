@@ -10,7 +10,7 @@ import {
 } from "@kinde-oss/kinde-typescript-sdk";
 
 describe("isTerminalRefreshError / isNonTerminalRefreshError", () => {
-  it("treats STALE_REFRESH_TOKEN as non-terminal unless forceTerminal", () => {
+  it("treats STALE_REFRESH_TOKEN as non-terminal (repeat handled by guard)", () => {
     const stale = {
       name: "KindeSDKError",
       errorCode: "STALE_REFRESH_TOKEN",
@@ -19,9 +19,6 @@ describe("isTerminalRefreshError / isNonTerminalRefreshError", () => {
     expect(isStaleRefreshError(stale)).toBe(true);
     expect(isTerminalRefreshError(stale)).toBe(false);
     expect(isNonTerminalRefreshError(stale)).toBe(true);
-    expect(isTerminalRefreshError({ ...stale, forceTerminal: true })).toBe(
-      true,
-    );
   });
 
   it("treats transient transport / parse errors as non-terminal", () => {
