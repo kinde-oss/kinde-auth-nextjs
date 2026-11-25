@@ -281,8 +281,10 @@ const handleMiddleware = async (req, options, onSuccess) => {
     return authRedirect(req, authRedirectUrl, options?.redirectURLBase);
   }
 
+  // Awaited so that an async isAuthorized callback is judged on its resolved
+  // value; an un-awaited Promise is always truthy.
   const customValidationValid = options?.isAuthorized
-    ? options.isAuthorized({ req, token: accessTokenValue })
+    ? await options.isAuthorized({ req, token: accessTokenValue })
     : true;
 
   if (customValidationValid && onSuccess) {

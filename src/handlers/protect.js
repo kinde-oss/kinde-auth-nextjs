@@ -50,6 +50,31 @@ const redirectToAuth = ({ postLoginRedirectURL, orgCode }) => {
 };
 
 /**
+ * Whether the user holds at least one of the required permissions.
+ * `getPermission` resolves to `{ isGranted, orgCode }` (or null) and
+ * `getPermissions` to `{ permissions, orgCode }` (or null), so both results
+ * must be unwrapped rather than tested for truthiness.
+ * @param {string|string[]} required
+ * @param {Function} getPermission
+ * @param {Function} getPermissions
+ * @returns {Promise<boolean>}
+ */
+const hasRequiredPermission = async (
+  required,
+  getPermission,
+  getPermissions,
+) => {
+  if (typeof required === "string") {
+    const permission = await getPermission(required);
+    return permission?.isGranted === true;
+  }
+
+  const result = await getPermissions();
+  const granted = Array.isArray(result?.permissions) ? result.permissions : [];
+  return required.some((permission) => granted.includes(permission));
+};
+
+/**
  * A higher-order function that wraps a page component and adds protection logic.
  * @param {import('react').ReactNode} page - The page component to be protected.
  * @param {Object} config - The configuration options for the protection logic.
@@ -82,20 +107,16 @@ export const protectPage =
       }
     }
 
-    if (typeof config.permissions === "string") {
-      const hasPermission = await getPermission(config.permissions);
+    if (
+      typeof config.permissions === "string" ||
+      Array.isArray(config.permissions)
+    ) {
+      const hasPermission = await hasRequiredPermission(
+        config.permissions,
+        getPermission,
+        getPermissions,
+      );
       if (!hasPermission) {
-        redirectToAuth(config);
-      }
-    }
-
-    if (Array.isArray(config.permissions)) {
-      const permissions = await getPermissions();
-      if (
-        !config.permissions.some((permission) =>
-          permissions.includes(permission),
-        )
-      ) {
         redirectToAuth(config);
       }
     }
@@ -140,23 +161,16 @@ export const protectApi = (handler, config) => async (req) => {
       }
     }
 
-    if (typeof config.permissions === "string") {
-      const hasPermission = await getPermission(config.permissions);
+    if (
+      typeof config.permissions === "string" ||
+      Array.isArray(config.permissions)
+    ) {
+      const hasPermission = await hasRequiredPermission(
+        config.permissions,
+        getPermission,
+        getPermissions,
+      );
       if (!hasPermission) {
-        return NextResponse.json(
-          { statusCode: 403, message: "Forbidden" },
-          { status: 403 },
-        );
-      }
-    }
-
-    if (Array.isArray(config.permissions)) {
-      const permissions = await getPermissions();
-      if (
-        !config.permissions.some((permission) =>
-          permissions.includes(permission),
-        )
-      ) {
         return NextResponse.json(
           { statusCode: 403, message: "Forbidden" },
           { status: 403 },
