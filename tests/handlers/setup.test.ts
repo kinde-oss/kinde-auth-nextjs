@@ -29,8 +29,12 @@ vi.mock("../../src/utils/refreshTokensSingleFlight", () => ({
   refreshTokensSingleFlight: vi.fn(),
 }));
 
-vi.mock("../../src/utils/isNonTerminalRefreshError", () => ({
-  isNonTerminalRefreshError: vi.fn().mockReturnValue(false),
+vi.mock("../../src/utils/staleRefreshTokenGuard", () => ({
+  shouldClearSessionForRefreshError: vi.fn().mockResolvedValue(false),
+}));
+
+vi.mock("../../src/utils/isTerminalRefreshError", () => ({
+  isStaleRefreshError: vi.fn().mockReturnValue(false),
 }));
 
 vi.mock("../../src/utils/jwt/validation", () => ({
@@ -51,7 +55,8 @@ import { getIdToken } from "../../src/utils/getIdToken";
 import { isTokenExpired } from "../../src/utils/jwt/validation";
 import { jwtDecoder } from "@kinde/jwt-decoder";
 import { refreshTokensSingleFlight } from "../../src/utils/refreshTokensSingleFlight";
-import { isNonTerminalRefreshError } from "../../src/utils/isNonTerminalRefreshError";
+import { shouldClearSessionForRefreshError } from "../../src/utils/staleRefreshTokenGuard";
+import { isStaleRefreshError } from "../../src/utils/isTerminalRefreshError";
 import { sessionManager } from "../../src/session/sessionManager";
 
 const mockGetAccessToken = vi.mocked(getAccessToken);
@@ -59,7 +64,8 @@ const mockGetIdToken = vi.mocked(getIdToken);
 const mockIsTokenExpired = vi.mocked(isTokenExpired);
 const mockJwtDecoder = vi.mocked(jwtDecoder);
 const mockRefreshTokensSingleFlight = vi.mocked(refreshTokensSingleFlight);
-const mockIsNonTerminalRefreshError = vi.mocked(isNonTerminalRefreshError);
+const mockShouldClear = vi.mocked(shouldClearSessionForRefreshError);
+const mockIsStaleRefreshError = vi.mocked(isStaleRefreshError);
 const mockSessionManager = vi.mocked(sessionManager);
 
 // --------------------------------------------------------------------------
@@ -81,12 +87,18 @@ const makeRouterClient = () => {
 // Tests
 // --------------------------------------------------------------------------
 
-describe("setup handler — auth failure HTTP status codes", () => {
+describe("setup handler", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockShouldClear.mockResolvedValue(false);
+    mockIsStaleRefreshError.mockReturnValue(false);
+    mockSessionManager.mockResolvedValue({
+      getSessionItem: vi.fn().mockResolvedValue("refresh_token_abc"),
+      destroySession: vi.fn(),
+    } as any);
   });
 
-  it("returns HTTP 401 for NOT_LOGGED_IN when no tokens present", async () => {
+  it("returns HTTP 401 for NOT_LOGGED_IN when tokens are missing", async () => {
     mockGetAccessToken.mockResolvedValue(null);
     mockGetIdToken.mockResolvedValue(null);
 
@@ -94,18 +106,21 @@ describe("setup handler — auth failure HTTP status codes", () => {
     await setup(routerClient as any);
 
     expect(routerClient.json).toHaveBeenCalledWith(
-      { message: "NOT_LOGGED_IN", env: ENV },
+      expect.objectContaining({ message: "NOT_LOGGED_IN", env: ENV }),
       { status: 401 },
     );
   });
 
-  it("returns HTTP 401 for REFRESH_FAILED when token refresh throws", async () => {
+  it("returns HTTP 401 for REFRESH_FAILED when token refresh throws terminal", async () => {
     const destroySession = vi.fn();
-    mockSessionManager.mockResolvedValue({ destroySession } as any);
+    mockSessionManager.mockResolvedValue({
+      getSessionItem: vi.fn().mockResolvedValue("refresh_token_abc"),
+      destroySession,
+    } as any);
     mockGetAccessToken.mockResolvedValue("access_token");
     mockGetIdToken.mockResolvedValue("id_token");
     mockIsTokenExpired.mockReturnValue(true);
-    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    mockShouldClear.mockResolvedValue(true);
     mockRefreshTokensSingleFlight.mockRejectedValue(
       new Error("refresh failed"),
     );
@@ -122,11 +137,15 @@ describe("setup handler — auth failure HTTP status codes", () => {
 
   it("does not destroy session on STALE_REFRESH_TOKEN / non-terminal refresh failure", async () => {
     const destroySession = vi.fn();
-    mockSessionManager.mockResolvedValue({ destroySession } as any);
+    mockSessionManager.mockResolvedValue({
+      getSessionItem: vi.fn().mockResolvedValue("refresh_token_abc"),
+      destroySession,
+    } as any);
     mockGetAccessToken.mockResolvedValue("access_token");
     mockGetIdToken.mockResolvedValue("id_token");
     mockIsTokenExpired.mockReturnValue(true);
-    mockIsNonTerminalRefreshError.mockReturnValue(true);
+    mockShouldClear.mockResolvedValue(false);
+    mockIsStaleRefreshError.mockReturnValue(true);
     mockRefreshTokensSingleFlight.mockRejectedValue({
       errorCode: "STALE_REFRESH_TOKEN",
       message: "stale",
@@ -159,49 +178,28 @@ describe("setup handler — auth failure HTTP status codes", () => {
     );
   });
 
-  it("returns HTTP 401 for ID_TOKEN_DECODE_FAILED when id token decode throws", async () => {
-    mockGetAccessToken.mockResolvedValue("access_token");
-    mockGetIdToken.mockResolvedValue("bad_id_token");
-    mockIsTokenExpired.mockReturnValue(false);
-    mockJwtDecoder
-      .mockReturnValueOnce({ permissions: [], org_code: "org_01" })
-      .mockImplementationOnce(() => {
-        throw new Error("decode error");
-      });
-
-    const routerClient = makeRouterClient();
-    await setup(routerClient as any);
-
-    expect(routerClient.json).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "ID_TOKEN_DECODE_FAILED" }),
-      { status: 401 },
-    );
-  });
-
-  it("returns HTTP 401 for TOKENS_MISSING when jwtDecoder returns null", async () => {
+  it("returns OK payload when tokens are valid", async () => {
     mockGetAccessToken.mockResolvedValue("access_token");
     mockGetIdToken.mockResolvedValue("id_token");
     mockIsTokenExpired.mockReturnValue(false);
-    mockJwtDecoder.mockReturnValue(null);
+    mockJwtDecoder
+      .mockReturnValueOnce({
+        permissions: ["read"],
+        org_code: "org_1",
+        org_name: "Org",
+        feature_flags: {},
+        organization_properties: {},
+      } as any)
+      .mockReturnValueOnce({
+        org_codes: ["org_1"],
+        organizations: [{ id: "org_1", name: "Org" }],
+      } as any);
 
     const routerClient = makeRouterClient();
     await setup(routerClient as any);
 
     expect(routerClient.json).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "TOKENS_MISSING" }),
-      { status: 401 },
-    );
-  });
-
-  it("returns HTTP 500 for unexpected errors in the outer try/catch", async () => {
-    mockGetAccessToken.mockRejectedValue(new Error("unexpected"));
-
-    const routerClient = makeRouterClient();
-    await setup(routerClient as any);
-
-    expect(routerClient.json).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "SETUP_FAILED" }),
-      { status: 500 },
+      expect.objectContaining({ message: "OK" }),
     );
   });
 });

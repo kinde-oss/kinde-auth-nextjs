@@ -1,56 +1,61 @@
 import { describe, it, expect } from "vitest";
-import { isNonTerminalRefreshError } from "./isNonTerminalRefreshError";
+import {
+  isNonTerminalRefreshError,
+  isTerminalRefreshError,
+  isStaleRefreshError,
+} from "./isTerminalRefreshError";
+import {
+  KindeSDKError,
+  KindeSDKErrorCode,
+} from "@kinde-oss/kinde-typescript-sdk";
 
-describe("isNonTerminalRefreshError", () => {
-  it("returns true for STALE_REFRESH_TOKEN", () => {
-    expect(
-      isNonTerminalRefreshError({
-        name: "KindeSDKError",
-        errorCode: "STALE_REFRESH_TOKEN",
-        message: "Refresh token is invalid or expired",
-      }),
-    ).toBe(true);
-  });
-
-  it("returns true for transient transport / parse errors", () => {
-    expect(isNonTerminalRefreshError(new TypeError("fetch failed"))).toBe(true);
-    expect(isNonTerminalRefreshError(new SyntaxError("Unexpected token"))).toBe(
-      true,
-    );
-    expect(
-      isNonTerminalRefreshError(
-        Object.assign(new Error("aborted"), { name: "DOMException" }),
-      ),
-    ).toBe(true);
-    if (typeof AggregateError !== "undefined") {
-      expect(isNonTerminalRefreshError(new AggregateError([], "network"))).toBe(
-        true,
-      );
-    }
-  });
-
-  it("returns false for other credential / generic errors", () => {
-    expect(isNonTerminalRefreshError(new Error("invalid_client"))).toBe(false);
-    expect(
-      isNonTerminalRefreshError({
-        errorCode: "FAILED_TOKENS_REFRESH_ATTEMPT",
-      }),
-    ).toBe(false);
-    expect(isNonTerminalRefreshError(null)).toBe(false);
-    expect(isNonTerminalRefreshError(undefined)).toBe(false);
-    expect(isNonTerminalRefreshError("STALE_REFRESH_TOKEN")).toBe(false);
-    expect(
-      isNonTerminalRefreshError({
-        message: "STALE_REFRESH_TOKEN",
-      }),
-    ).toBe(false);
-  });
-
-  it("matches KindeSDKError instances by errorCode", () => {
-    const error = Object.assign(new Error("stale"), {
+describe("isTerminalRefreshError / isNonTerminalRefreshError", () => {
+  it("treats STALE_REFRESH_TOKEN as non-terminal unless forceTerminal", () => {
+    const stale = {
       name: "KindeSDKError",
       errorCode: "STALE_REFRESH_TOKEN",
-    });
-    expect(isNonTerminalRefreshError(error)).toBe(true);
+      message: "Refresh token is invalid or expired",
+    };
+    expect(isStaleRefreshError(stale)).toBe(true);
+    expect(isTerminalRefreshError(stale)).toBe(false);
+    expect(isNonTerminalRefreshError(stale)).toBe(true);
+    expect(isTerminalRefreshError({ ...stale, forceTerminal: true })).toBe(
+      true,
+    );
+  });
+
+  it("treats transient transport / parse errors as non-terminal", () => {
+    expect(isTerminalRefreshError(new TypeError("fetch failed"))).toBe(false);
+    expect(isNonTerminalRefreshError(new TypeError("fetch failed"))).toBe(true);
+    expect(isTerminalRefreshError(new SyntaxError("Unexpected token"))).toBe(
+      false,
+    );
+  });
+
+  it("treats INVALID_TOKEN_MEMORY_COMMIT as non-terminal", () => {
+    const error = new KindeSDKError(
+      KindeSDKErrorCode.INVALID_TOKEN_MEMORY_COMMIT,
+      "bad",
+    );
+    expect(isTerminalRefreshError(error)).toBe(false);
+  });
+
+  it("treats plain Error OAuth failures as terminal", () => {
+    expect(isTerminalRefreshError(new Error("invalid_client"))).toBe(true);
+    expect(isNonTerminalRefreshError(new Error("invalid_client"))).toBe(false);
+  });
+
+  it("treats FAILED_TOKENS_REFRESH_ATTEMPT as terminal", () => {
+    expect(
+      isTerminalRefreshError({
+        errorCode: "FAILED_TOKENS_REFRESH_ATTEMPT",
+      }),
+    ).toBe(true);
+  });
+
+  it("defaults unknown values to non-terminal (preserve session)", () => {
+    expect(isTerminalRefreshError(null)).toBe(false);
+    expect(isTerminalRefreshError(undefined)).toBe(false);
+    expect(isTerminalRefreshError("STALE_REFRESH_TOKEN")).toBe(false);
   });
 });

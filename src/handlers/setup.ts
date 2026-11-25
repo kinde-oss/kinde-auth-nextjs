@@ -8,7 +8,57 @@ import { getIdToken } from "../utils/getIdToken";
 import { sessionManager } from "../session/sessionManager";
 import { isTokenExpired } from "../utils/jwt/validation";
 import { refreshTokensSingleFlight } from "../utils/refreshTokensSingleFlight";
-import { isNonTerminalRefreshError } from "../utils/isNonTerminalRefreshError";
+import { isStaleRefreshError } from "../utils/isTerminalRefreshError";
+import { shouldClearSessionForRefreshError } from "../utils/staleRefreshTokenGuard";
+
+const refreshWithOptionalRetry = async (
+  session: Awaited<ReturnType<typeof sessionManager>>,
+  req: RouterClient["req"],
+): Promise<{
+  accessTokenEncoded: string;
+  idTokenEncoded: string;
+}> => {
+  const attemptRefresh = () => refreshTokensSingleFlight(session, true);
+
+  try {
+    const refreshResponse = await attemptRefresh();
+    return {
+      accessTokenEncoded: refreshResponse.access_token,
+      idTokenEncoded: refreshResponse.id_token,
+    };
+  } catch (error) {
+    // Middleware and setup do not share the in-process single-flight map.
+    // On first stale/transient failure, re-read cookies (winner may have
+    // landed) and retry refresh once before returning 401.
+    if (config.isDebugMode) {
+      console.error("setup: refresh tokens failed — assessing retry", error);
+    }
+
+    const failedRefreshToken = await session.getSessionItem("refresh_token");
+    const failedToken =
+      typeof failedRefreshToken === "string" ? failedRefreshToken : null;
+
+    if (await shouldClearSessionForRefreshError(session, error, failedToken)) {
+      throw error;
+    }
+
+    const accessAfter = await getAccessToken(req);
+    const idAfter = await getIdToken(req);
+    if (accessAfter && idAfter && !isTokenExpired(accessAfter, 20)) {
+      return {
+        accessTokenEncoded: accessAfter,
+        idTokenEncoded: idAfter,
+      };
+    }
+
+    const retryResponse = await attemptRefresh();
+    return {
+      accessTokenEncoded: retryResponse.access_token,
+      idTokenEncoded: retryResponse.id_token,
+    };
+  }
+};
+
 /**
  *
  * @param {RouterClient} routerClient
@@ -43,9 +93,12 @@ export const setup = async (routerClient: RouterClient) => {
         console.log("setup: access or id token expired - attempting refresh");
       }
       try {
-        const refreshResponse = await refreshTokensSingleFlight(session, true);
-        accessTokenEncoded = refreshResponse.access_token;
-        idTokenEncoded = refreshResponse.id_token;
+        const refreshed = await refreshWithOptionalRetry(
+          session,
+          routerClient.req,
+        );
+        accessTokenEncoded = refreshed.accessTokenEncoded;
+        idTokenEncoded = refreshed.idTokenEncoded;
       } catch (error) {
         if (config.isDebugMode) {
           console.error(
@@ -53,23 +106,32 @@ export const setup = async (routerClient: RouterClient) => {
             error,
           );
         }
-        // Non-terminal (STALE_REFRESH_TOKEN / transient transport): do not
-        // destroy — cookies may still be valid. Terminal: ensure session clear.
-        if (
-          !isNonTerminalRefreshError(error) &&
-          typeof session.destroySession === "function"
-        ) {
+
+        const failedRefreshToken =
+          await session.getSessionItem("refresh_token");
+        const failedToken =
+          typeof failedRefreshToken === "string" ? failedRefreshToken : null;
+        const clearSession = await shouldClearSessionForRefreshError(
+          session,
+          error,
+          failedToken,
+        );
+
+        if (clearSession && typeof session.destroySession === "function") {
           try {
             await session.destroySession();
           } catch {
             // Best-effort clear on terminal failure.
           }
         }
+
         return routerClient.json(
           {
-            message: isNonTerminalRefreshError(error)
-              ? "REFRESH_IN_PROGRESS_OR_STALE"
-              : "REFRESH_FAILED",
+            message: clearSession
+              ? "REFRESH_FAILED"
+              : isStaleRefreshError(error)
+                ? "REFRESH_IN_PROGRESS_OR_STALE"
+                : "REFRESH_FAILED",
             error: error instanceof Error ? error.message : error,
             env: {
               clientId: config.clientID,

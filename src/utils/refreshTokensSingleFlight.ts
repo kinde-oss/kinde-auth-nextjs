@@ -1,4 +1,6 @@
 import {
+  KindeSDKError,
+  KindeSDKErrorCode,
   OAuth2CodeExchangeResponse,
   SessionManager,
 } from "@kinde-oss/kinde-typescript-sdk";
@@ -13,20 +15,31 @@ type InFlightRefresh = {
   refs: number;
 };
 
+type CachedRefreshResult = {
+  tokens: OAuth2CodeExchangeResponse;
+  expiresAt: number;
+};
+
 /**
  * In-process single-flight map keyed by the refresh token being exchanged.
- * Concurrent middleware/setup refreshes with the same token share one network
- * call (best-effort; separate serverless isolates still need the SDK's
- * STALE_REFRESH_TOKEN behaviour).
+ *
+ * Best-effort within a single runtime only: Next.js middleware and route
+ * handlers ship as separate bundles with separate module state, so middleware
+ * + `/api/auth/setup` do not share this map. Cross-runtime races still rely on
+ * SDK `STALE_REFRESH_TOKEN`, the short TTL cache below (per runtime), and
+ * client/setup retry behaviour.
  *
  * Entries stay registered until every waiter finishes (including optional
- * session commit), so a late caller cannot start a second exchange of R while
- * the first flight's tokens are still being validated/persisted.
+ * session commit). Successful results stay cached under the old refresh token
+ * for a few seconds so late arrivals with the pre-rotation cookie reuse the
+ * winner's tokens instead of exchanging an already-rotated token.
  *
  * The shared call always uses commitToSession=false so waiters are not tied to
  * another request's session manager. Callers that need persistence commit after.
  */
 const inFlightByRefreshToken = new Map<string, InFlightRefresh>();
+const recentSuccessByRefreshToken = new Map<string, CachedRefreshResult>();
+const SUCCESS_CACHE_TTL_MS = 5_000;
 
 /**
  * Mirrors SDK commitTokensToSession: apply ksp.persistent, validate access/id
@@ -52,15 +65,26 @@ const commitTokensToSessionManager = async (
       return;
     }
 
-    const validation = await validateToken({
-      token,
-      domain: config.issuerURL,
-    });
-    if (!validation.valid) {
-      throw new Error(validation.message || `Invalid ${type}`);
-    }
-    if (isTokenExpired(token)) {
-      throw new Error(`${type} is expired`);
+    try {
+      const validation = await validateToken({
+        token,
+        domain: config.issuerURL,
+      });
+      if (!validation.valid) {
+        throw new Error(validation.message || `Invalid ${type}`);
+      }
+      if (isTokenExpired(token)) {
+        throw new Error(`${type} is expired`);
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : `Attempting to commit invalid ${type} token`;
+      throw new KindeSDKError(
+        KindeSDKErrorCode.INVALID_TOKEN_MEMORY_COMMIT,
+        `Attempting to commit invalid ${type} token to memory: ${message}`,
+      );
     }
   };
 
@@ -91,6 +115,28 @@ const releaseInFlight = (key: string, flight: InFlightRefresh): void => {
   }
 };
 
+const getCachedSuccess = (key: string): OAuth2CodeExchangeResponse | null => {
+  const cached = recentSuccessByRefreshToken.get(key);
+  if (!cached) {
+    return null;
+  }
+  if (Date.now() > cached.expiresAt) {
+    recentSuccessByRefreshToken.delete(key);
+    return null;
+  }
+  return cached.tokens;
+};
+
+const cacheSuccess = (
+  key: string,
+  tokens: OAuth2CodeExchangeResponse,
+): void => {
+  recentSuccessByRefreshToken.set(key, {
+    tokens,
+    expiresAt: Date.now() + SUCCESS_CACHE_TTL_MS,
+  });
+};
+
 export const refreshTokensSingleFlight = async (
   session: SessionManager,
   commitToSession: boolean = true,
@@ -110,32 +156,47 @@ export const refreshTokensSingleFlight = async (
   if (!key) {
     tokens = await runNetworkRefresh();
   } else {
-    flight = inFlightByRefreshToken.get(key) ?? null;
-    if (!flight) {
+    const cached = getCachedSuccess(key);
+    if (cached) {
       if (config.isDebugMode) {
-        console.debug("refreshTokensSingleFlight: starting refresh");
+        console.debug(
+          "refreshTokensSingleFlight: serving cached refresh result for rotated token",
+        );
       }
-      const promise = runNetworkRefresh().catch((error) => {
-        // Failed flights must not block retries.
-        if (inFlightByRefreshToken.get(key)?.promise === promise) {
-          inFlightByRefreshToken.delete(key);
+      tokens = cached;
+    } else {
+      flight = inFlightByRefreshToken.get(key) ?? null;
+      if (!flight) {
+        if (config.isDebugMode) {
+          console.debug("refreshTokensSingleFlight: starting refresh");
         }
-        throw error;
-      });
-      flight = { promise, refs: 0 };
-      inFlightByRefreshToken.set(key, flight);
-    } else if (config.isDebugMode) {
-      console.debug(
-        "refreshTokensSingleFlight: joining in-flight refresh for session",
-      );
-    }
+        const promise = runNetworkRefresh()
+          .then((result) => {
+            cacheSuccess(key, result);
+            return result;
+          })
+          .catch((error) => {
+            // Failed flights must not block retries.
+            if (inFlightByRefreshToken.get(key)?.promise === promise) {
+              inFlightByRefreshToken.delete(key);
+            }
+            throw error;
+          });
+        flight = { promise, refs: 0 };
+        inFlightByRefreshToken.set(key, flight);
+      } else if (config.isDebugMode) {
+        console.debug(
+          "refreshTokensSingleFlight: joining in-flight refresh for session",
+        );
+      }
 
-    flight.refs += 1;
-    try {
-      tokens = await flight.promise;
-    } catch (error) {
-      releaseInFlight(key, flight);
-      throw error;
+      flight.refs += 1;
+      try {
+        tokens = await flight.promise;
+      } catch (error) {
+        releaseInFlight(key, flight);
+        throw error;
+      }
     }
   }
 
@@ -164,7 +225,8 @@ export const refreshTokensSingleFlight = async (
   }
 };
 
-/** Test helper — clears in-flight map between cases. */
+/** Test helper — clears in-flight map and success cache between cases. */
 export const __resetRefreshTokensSingleFlightForTests = (): void => {
   inFlightByRefreshToken.clear();
+  recentSuccessByRefreshToken.clear();
 };

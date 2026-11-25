@@ -5,8 +5,8 @@ import {
   TWENTY_NINE_DAYS,
   MAX_COOKIE_LENGTH,
   GLOBAL_COOKIE_OPTIONS,
-  COOKIE_LIST,
 } from "../utils/constants";
+import { isKindeSessionCookieName } from "../utils/isKindeSessionCookieName";
 import { splitString } from "@kinde-oss/kinde-auth-react/utils";
 import { destr } from "destr";
 import * as cookie from "cookie";
@@ -131,7 +131,7 @@ export const appRouterSessionManager = (cookieStore, persistent = true) => {
         .getAll()
         .map((c) => c.name)
         .forEach((key) => {
-          if (COOKIE_LIST.some((substr) => key.startsWith(substr))) {
+          if (isKindeSessionCookieName(key)) {
             cookieStore.set(key, "", {
               domain: config.cookieDomain ? config.cookieDomain : undefined,
               maxAge: 0,
@@ -294,17 +294,19 @@ export const pageRouterSessionManager = (req, res, persistent = true) => {
         cookies = [cookies.toString()];
       }
 
-      res?.setHeader("Set-Cookie", [
-        ...Object.keys(req.cookies).map((c) => {
-          if (COOKIE_LIST.some((substr) => c.startsWith(substr))) {
-            return cookie.serialize(c.split("=")[0], "", {
-              domain: config.cookieDomain ? config.cookieDomain : undefined,
-              maxAge: -1,
-              ...GLOBAL_COOKIE_OPTIONS,
-            });
-          }
-        }),
-      ]);
+      // Only emit clearing Set-Cookie lines for Kinde session cookies — never
+      // push `undefined` for unrelated host cookies (throws in setHeader).
+      const clearingCookies = Object.keys(req.cookies)
+        .filter((name) => isKindeSessionCookieName(name))
+        .map((name) =>
+          cookie.serialize(name.split("=")[0], "", {
+            domain: config.cookieDomain ? config.cookieDomain : undefined,
+            maxAge: -1,
+            ...GLOBAL_COOKIE_OPTIONS,
+          }),
+        );
+
+      res?.setHeader("Set-Cookie", [...cookies, ...clearingCookies]);
     },
   };
 };

@@ -14,7 +14,7 @@ import { isPublicPathMatch } from "../utils/isPublicPathMatch";
 import { shouldReturnUnauthorizedJson } from "../utils/shouldReturnUnauthorizedJson";
 import { buildAuthRedirectUrl } from "../utils/buildAuthRedirectUrl";
 import { refreshTokensSingleFlight } from "../utils/refreshTokensSingleFlight";
-import { isNonTerminalRefreshError } from "../utils/isNonTerminalRefreshError";
+import { shouldClearSessionForRefreshError } from "../utils/staleRefreshTokenGuard";
 import { clearSessionCookiesOnResponse } from "../utils/clearSessionCookiesOnResponse";
 
 /**
@@ -191,9 +191,17 @@ const handleMiddleware = async (req, options, onSuccess) => {
         );
       }
     } catch (error) {
-      if (isNonTerminalRefreshError(error)) {
-        // Race loser / stale refresh / transient transport — do not clear
-        // cookies. Redirect without Max-Age=0 when protected.
+      const failedRefreshToken = await session.getSessionItem("refresh_token");
+      const failedToken =
+        typeof failedRefreshToken === "string" ? failedRefreshToken : null;
+      const clearSession = await shouldClearSessionForRefreshError(
+        session,
+        error,
+        failedToken,
+      );
+
+      if (!clearSession) {
+        // Race loser / first stale / transient transport — leave cookies.
         if (config.isDebugMode) {
           console.error(
             "authMiddleware: non-terminal refresh failure, not clearing cookies",

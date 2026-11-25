@@ -186,7 +186,7 @@ describe("refreshTokensSingleFlight", () => {
     expect(session.setSessionItem).toHaveBeenCalled();
   });
 
-  it("rejects commit when access or id token fails validation", async () => {
+  it("rejects commit when access or id token fails validation with SDK error", async () => {
     mockValidateToken.mockResolvedValue({
       valid: false,
       message: "bad signature",
@@ -199,7 +199,10 @@ describe("refreshTokensSingleFlight", () => {
 
     await expect(
       refreshTokensSingleFlight(session as any, true),
-    ).rejects.toThrow(/bad signature|Invalid/);
+    ).rejects.toMatchObject({
+      errorCode: "INVALID_TOKEN_MEMORY_COMMIT",
+      name: "KindeSDKError",
+    });
     expect(session.setSessionItem).not.toHaveBeenCalled();
   });
 
@@ -216,8 +219,24 @@ describe("refreshTokensSingleFlight", () => {
 
     await expect(
       refreshTokensSingleFlight(session as any, true),
-    ).rejects.toThrow(/expired/);
+    ).rejects.toMatchObject({
+      errorCode: "INVALID_TOKEN_MEMORY_COMMIT",
+    });
     expect(session.setSessionItem).not.toHaveBeenCalled();
+  });
+
+  it("serves a cached success to late arrivals with the old refresh token", async () => {
+    mockRefreshTokens.mockResolvedValue({
+      access_token: "access",
+      id_token: "id",
+      refresh_token: "refresh_token_new",
+    } as any);
+
+    await refreshTokensSingleFlight(session as any, false);
+    await refreshTokensSingleFlight(session as any, false);
+
+    // Second call with same key should hit the short TTL cache, not the network.
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(1);
   });
 
   it("does not commit when commitToSession is false", async () => {
@@ -257,7 +276,10 @@ describe("refreshTokensSingleFlight", () => {
     expect(mockRefreshTokens).toHaveBeenCalledTimes(2);
   });
 
-  it("starts a new network call after a prior flight finishes", async () => {
+  it("starts a new network call for a different refresh token after a prior flight", async () => {
+    session.getSessionItem
+      .mockResolvedValueOnce("refresh_token_abc")
+      .mockResolvedValueOnce("refresh_token_xyz");
     mockRefreshTokens.mockResolvedValue({
       access_token: "access",
       id_token: "id",

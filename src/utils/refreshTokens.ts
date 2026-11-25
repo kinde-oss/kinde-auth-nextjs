@@ -2,17 +2,38 @@ import { validateToken } from "@kinde/jwt-validator";
 import { config } from "../config";
 import { SessionManager } from "@kinde-oss/kinde-typescript-sdk";
 import { refreshTokensSingleFlight } from "./refreshTokensSingleFlight";
-import { isNonTerminalRefreshError } from "./isNonTerminalRefreshError";
+import { shouldClearSessionForRefreshError } from "./staleRefreshTokenGuard";
 
 export const refreshTokens = async (
   session: SessionManager,
 ): Promise<boolean> => {
+  let refreshResult;
   try {
-    const refreshResult = await refreshTokensSingleFlight(session, true);
-    if (!refreshResult) {
-      return false;
+    refreshResult = await refreshTokensSingleFlight(session, true);
+  } catch (error) {
+    if (config.isDebugMode) {
+      console.error("refreshTokens", error);
     }
+    // Only destroy on confirmed terminal failures (incl. repeat stale).
+    // JWKS/network/commit-validation must not wipe a just-refreshed session.
+    if (
+      (await shouldClearSessionForRefreshError(session, error)) &&
+      typeof session.destroySession === "function"
+    ) {
+      try {
+        await session.destroySession();
+      } catch {
+        // Best-effort.
+      }
+    }
+    return false;
+  }
 
+  if (!refreshResult) {
+    return false;
+  }
+
+  try {
     const token = await session.getSessionItem("access_token");
 
     if (token && typeof token === "string") {
@@ -26,20 +47,9 @@ export const refreshTokens = async (
     return false;
   } catch (error) {
     if (config.isDebugMode) {
-      console.error("refreshTokens", error);
+      console.error("refreshTokens: post-refresh validateToken failed", error);
     }
-    // Terminal failures: ensure session is cleared. Non-terminal (stale refresh
-    // race or transient transport) must leave cookies intact.
-    if (
-      !isNonTerminalRefreshError(error) &&
-      typeof session.destroySession === "function"
-    ) {
-      try {
-        await session.destroySession();
-      } catch {
-        // Best-effort.
-      }
-    }
+    // Do not destroy — refresh already succeeded / tokens may be usable.
     return false;
   }
 };

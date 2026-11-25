@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { COOKIE_LIST, GLOBAL_COOKIE_OPTIONS } from "./constants";
 import { config } from "../config";
+import { isKindeSessionCookieName } from "./isKindeSessionCookieName";
 
 /**
  * Emit Max-Age=0 clearing cookies on a middleware/App Router response.
- * Use only for confirmed-terminal auth failures — never for STALE_REFRESH_TOKEN.
+ * Use only for confirmed-terminal auth failures — never for first-chance
+ * STALE_REFRESH_TOKEN or transient transport failures.
  */
 export const clearSessionCookiesOnResponse = (
   response: NextResponse,
@@ -15,7 +17,7 @@ export const clearSessionCookiesOnResponse = (
   try {
     const fromRequest = req.cookies?.getAll?.() ?? [];
     fromRequest.forEach((cookie) => {
-      if (COOKIE_LIST.some((prefix) => cookie.name.startsWith(prefix))) {
+      if (isKindeSessionCookieName(cookie.name)) {
         cookieNames.add(cookie.name);
       }
     });

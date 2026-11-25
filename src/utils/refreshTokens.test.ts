@@ -12,18 +12,18 @@ vi.mock("./refreshTokensSingleFlight", () => ({
   refreshTokensSingleFlight: vi.fn(),
 }));
 
-vi.mock("./isNonTerminalRefreshError", () => ({
-  isNonTerminalRefreshError: vi.fn(),
+vi.mock("./staleRefreshTokenGuard", () => ({
+  shouldClearSessionForRefreshError: vi.fn(),
 }));
 
 import { validateToken } from "@kinde/jwt-validator";
 import { refreshTokens } from "./refreshTokens";
 import { refreshTokensSingleFlight } from "./refreshTokensSingleFlight";
-import { isNonTerminalRefreshError } from "./isNonTerminalRefreshError";
+import { shouldClearSessionForRefreshError } from "./staleRefreshTokenGuard";
 
 const mockValidateToken = vi.mocked(validateToken);
 const mockRefreshTokensSingleFlight = vi.mocked(refreshTokensSingleFlight);
-const mockIsNonTerminalRefreshError = vi.mocked(isNonTerminalRefreshError);
+const mockShouldClear = vi.mocked(shouldClearSessionForRefreshError);
 
 describe("refreshTokens util", () => {
   const session = {
@@ -37,6 +37,7 @@ describe("refreshTokens util", () => {
     vi.clearAllMocks();
     session.getSessionItem.mockResolvedValue("access_token");
     session.destroySession.mockResolvedValue(undefined);
+    mockShouldClear.mockResolvedValue(false);
   });
 
   it("returns true when refresh succeeds and access token validates", async () => {
@@ -50,7 +51,7 @@ describe("refreshTokens util", () => {
   });
 
   it("does not destroy session on non-terminal refresh failure", async () => {
-    mockIsNonTerminalRefreshError.mockReturnValue(true);
+    mockShouldClear.mockResolvedValue(false);
     mockRefreshTokensSingleFlight.mockRejectedValue({
       errorCode: "STALE_REFRESH_TOKEN",
     });
@@ -60,7 +61,7 @@ describe("refreshTokens util", () => {
   });
 
   it("destroys session on terminal refresh failure", async () => {
-    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    mockShouldClear.mockResolvedValue(true);
     mockRefreshTokensSingleFlight.mockRejectedValue(
       new Error("invalid_client"),
     );
@@ -69,11 +70,11 @@ describe("refreshTokens util", () => {
     expect(session.destroySession).toHaveBeenCalled();
   });
 
-  it("does not destroy session when helper marks error non-terminal", async () => {
-    mockIsNonTerminalRefreshError.mockReturnValue(true);
-    mockRefreshTokensSingleFlight.mockRejectedValue(
-      new TypeError("fetch failed"),
-    );
+  it("does not destroy session when post-refresh validateToken throws", async () => {
+    mockRefreshTokensSingleFlight.mockResolvedValue({
+      access_token: "access_token",
+    } as any);
+    mockValidateToken.mockRejectedValue(new TypeError("JWKS fetch failed"));
 
     await expect(refreshTokens(session as any)).resolves.toBe(false);
     expect(session.destroySession).not.toHaveBeenCalled();

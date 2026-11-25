@@ -18,8 +18,11 @@ describe("clearSessionCookiesOnResponse", () => {
       cookies: {
         getAll: () => [
           { name: "access_token" },
+          { name: "access_token1" },
           { name: "refresh_token" },
           { name: "unrelated" },
+          { name: "user_prefs" },
+          { name: "username" },
         ],
       },
     };
@@ -32,11 +35,18 @@ describe("clearSessionCookiesOnResponse", () => {
       expect.objectContaining({ maxAge: 0 }),
     );
     expect(set).toHaveBeenCalledWith(
+      "access_token1",
+      "",
+      expect.objectContaining({ maxAge: 0 }),
+    );
+    expect(set).toHaveBeenCalledWith(
       "refresh_token",
       "",
       expect.objectContaining({ maxAge: 0 }),
     );
     expect(set.mock.calls.some((call) => call[0] === "unrelated")).toBe(false);
+    expect(set.mock.calls.some((call) => call[0] === "user_prefs")).toBe(false);
+    expect(set.mock.calls.some((call) => call[0] === "username")).toBe(false);
   });
 
   it("still clears well-known cookie names when request cookies are unavailable", () => {

@@ -46,8 +46,8 @@ vi.mock("../../src/utils/refreshTokensSingleFlight", () => ({
   refreshTokensSingleFlight: vi.fn(),
 }));
 
-vi.mock("../../src/utils/isNonTerminalRefreshError", () => ({
-  isNonTerminalRefreshError: vi.fn().mockReturnValue(false),
+vi.mock("../../src/utils/staleRefreshTokenGuard", () => ({
+  shouldClearSessionForRefreshError: vi.fn().mockResolvedValue(true),
 }));
 
 vi.mock("../../src/utils/clearSessionCookiesOnResponse", () => ({
@@ -84,20 +84,24 @@ import { getAccessToken } from "../../src/utils/getAccessToken";
 import { getIdToken } from "../../src/utils/getIdToken";
 import { isTokenExpired } from "../../src/utils/jwt/validation";
 import { refreshTokensSingleFlight } from "../../src/utils/refreshTokensSingleFlight";
-import { isNonTerminalRefreshError } from "../../src/utils/isNonTerminalRefreshError";
+import { shouldClearSessionForRefreshError } from "../../src/utils/staleRefreshTokenGuard";
 import { clearSessionCookiesOnResponse } from "../../src/utils/clearSessionCookiesOnResponse";
 import { jwtDecoder } from "@kinde/jwt-decoder";
 import { getSplitCookies } from "../../src/utils/cookies/getSplitSerializedCookies";
 import { isPublicPathMatch } from "../../src/utils/isPublicPathMatch";
+import { sessionManager } from "../../src/session/sessionManager";
 
 const mockGetAccessToken = vi.mocked(getAccessToken);
 const mockGetIdToken = vi.mocked(getIdToken);
 const mockIsTokenExpired = vi.mocked(isTokenExpired);
 const mockRefreshTokensSingleFlight = vi.mocked(refreshTokensSingleFlight);
-const mockIsNonTerminalRefreshError = vi.mocked(isNonTerminalRefreshError);
+const mockShouldClearSessionForRefreshError = vi.mocked(
+  shouldClearSessionForRefreshError,
+);
 const mockClearSessionCookiesOnResponse = vi.mocked(
   clearSessionCookiesOnResponse,
 );
+const mockSessionManager = vi.mocked(sessionManager);
 const mockJwtDecoder = vi.mocked(jwtDecoder);
 const mockGetSplitCookies = vi.mocked(getSplitCookies);
 const mockIsPublicPathMatch = vi.mocked(isPublicPathMatch);
@@ -152,7 +156,10 @@ describe("authMiddleware — non-GET/HEAD returns HTTP 401", () => {
     mockGetIdToken.mockResolvedValue(null);
     mockIsTokenExpired.mockReturnValue(false);
     mockIsPublicPathMatch.mockReturnValue(false);
-    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    mockShouldClearSessionForRefreshError.mockResolvedValue(true);
+    mockSessionManager.mockResolvedValue({
+      getSessionItem: vi.fn().mockResolvedValue("refresh_token_abc"),
+    } as any);
     (NextResponse.redirect as any).mockReturnValue(redirectResponse);
     (NextResponse.next as any).mockReturnValue(nextResponse);
   });
@@ -303,7 +310,10 @@ describe("authMiddleware — refresh single-flight + cookie clear policy", () =>
     mockGetIdToken.mockResolvedValue("expired_id");
     mockIsTokenExpired.mockReturnValue(true);
     mockIsPublicPathMatch.mockReturnValue(false);
-    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    mockShouldClearSessionForRefreshError.mockResolvedValue(true);
+    mockSessionManager.mockResolvedValue({
+      getSessionItem: vi.fn().mockResolvedValue("refresh_token_abc"),
+    } as any);
     (NextResponse.redirect as any).mockReturnValue(redirectResponse);
     (NextResponse.next as any).mockReturnValue(nextResponse);
     mockGetSplitCookies.mockImplementation((name: string, value: string) => [
@@ -328,7 +338,7 @@ describe("authMiddleware — refresh single-flight + cookie clear policy", () =>
   });
 
   it("does not clear cookies on non-terminal refresh failure (STALE_REFRESH_TOKEN)", async () => {
-    mockIsNonTerminalRefreshError.mockReturnValue(true);
+    mockShouldClearSessionForRefreshError.mockResolvedValue(false);
     mockRefreshTokensSingleFlight.mockRejectedValue({
       errorCode: "STALE_REFRESH_TOKEN",
       message: "Refresh token is invalid or expired",
@@ -346,7 +356,7 @@ describe("authMiddleware — refresh single-flight + cookie clear policy", () =>
   });
 
   it("clears cookies on terminal refresh failure", async () => {
-    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    mockShouldClearSessionForRefreshError.mockResolvedValue(true);
     mockRefreshTokensSingleFlight.mockRejectedValue(
       new Error("invalid_client"),
     );
@@ -363,7 +373,7 @@ describe("authMiddleware — refresh single-flight + cookie clear policy", () =>
 
   it("clears cookies on NextResponse.next for terminal failure on public paths", async () => {
     mockIsPublicPathMatch.mockReturnValue(true);
-    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    mockShouldClearSessionForRefreshError.mockResolvedValue(true);
     mockRefreshTokensSingleFlight.mockRejectedValue(
       new Error("invalid_client"),
     );
@@ -380,7 +390,7 @@ describe("authMiddleware — refresh single-flight + cookie clear policy", () =>
 
   it("does not clear cookies on non-terminal failure for public paths", async () => {
     mockIsPublicPathMatch.mockReturnValue(true);
-    mockIsNonTerminalRefreshError.mockReturnValue(true);
+    mockShouldClearSessionForRefreshError.mockResolvedValue(false);
     mockRefreshTokensSingleFlight.mockRejectedValue({
       errorCode: "STALE_REFRESH_TOKEN",
     });
@@ -393,7 +403,7 @@ describe("authMiddleware — refresh single-flight + cookie clear policy", () =>
   });
 
   it("does not clear cookies on transient transport failures", async () => {
-    mockIsNonTerminalRefreshError.mockReturnValue(true);
+    mockShouldClearSessionForRefreshError.mockResolvedValue(false);
     mockRefreshTokensSingleFlight.mockRejectedValue(
       new TypeError("fetch failed"),
     );
@@ -407,7 +417,7 @@ describe("authMiddleware — refresh single-flight + cookie clear policy", () =>
 
   it("returns next response after clearing cookies on public terminal failure", async () => {
     mockIsPublicPathMatch.mockReturnValue(true);
-    mockIsNonTerminalRefreshError.mockReturnValue(false);
+    mockShouldClearSessionForRefreshError.mockResolvedValue(true);
     mockRefreshTokensSingleFlight.mockRejectedValue(
       new Error("invalid_client"),
     );
