@@ -168,6 +168,64 @@ describe("refreshTokensSingleFlight", () => {
     expect(mockRefreshTokens).toHaveBeenCalledTimes(3);
   });
 
+  it("does not join a resolved flight after its returned refresh token is exchanged", async () => {
+    const rotated = {
+      access_token: "access_1",
+      id_token: "id_1",
+      refresh_token: "refresh_token_rotated",
+    };
+    const next = {
+      access_token: "access_2",
+      id_token: "id_2",
+      refresh_token: "refresh_token_rotated_2",
+    };
+    const afterSpent = {
+      access_token: "access_3",
+      id_token: "id_3",
+      refresh_token: "refresh_token_new",
+    };
+
+    let resolveValidationGate: () => void = () => undefined;
+    const validationGate = new Promise<void>((resolve) => {
+      resolveValidationGate = resolve;
+    });
+    mockValidateToken.mockImplementation(async () => {
+      await validationGate;
+      return { valid: true } as any;
+    });
+    mockRefreshTokens
+      .mockResolvedValueOnce(rotated as any)
+      .mockResolvedValueOnce(next as any)
+      .mockResolvedValueOnce(afterSpent as any);
+
+    // Keep the R0 flight registered while a waiter is still committing.
+    session.getSessionItem.mockResolvedValue("refresh_token_abc");
+    const slowCommit = refreshTokensSingleFlight(session as any, true);
+    await vi.waitFor(() => {
+      expect(mockValidateToken).toHaveBeenCalled();
+    });
+
+    // Exchange the returned R1 — invalidates cache and the resolved R0 flight.
+    const rotatedSession = {
+      ...session,
+      getSessionItem: vi.fn().mockResolvedValue("refresh_token_rotated"),
+    };
+    await expect(
+      refreshTokensSingleFlight(rotatedSession as any, false),
+    ).resolves.toEqual(next);
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(2);
+
+    // Late R0 caller must start a new network exchange, not reuse spent R1.
+    const late = refreshTokensSingleFlight(session as any, false);
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(3);
+
+    resolveValidationGate();
+    await expect(slowCommit).resolves.toEqual(rotated);
+    await expect(late).resolves.toEqual(afterSpent);
+  });
+
   it("commits tokens to the caller session when commitToSession is true", async () => {
     mockRefreshTokens.mockResolvedValue({
       access_token: "access",

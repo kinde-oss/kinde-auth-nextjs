@@ -15,6 +15,8 @@ type InFlightRefresh = {
   promise: Promise<OAuth2CodeExchangeResponse>;
   refs: number;
   flightId: string;
+  /** Set when the shared network call resolves successfully. */
+  resolvedTokens?: OAuth2CodeExchangeResponse;
 };
 
 type CachedRefreshResult = {
@@ -146,8 +148,11 @@ const pruneExpiredSuccessCache = (now: number = Date.now()): void => {
 };
 
 /**
- * Drop cache entries whose *returned* refresh token is about to be exchanged
- * (or already was), so late arrivals never receive a spent refresh token.
+ * Drop success-cache and resolved in-flight entries whose *returned* refresh
+ * token is about to be exchanged (or already was), so late arrivals never
+ * reuse a spent refresh token. Waiters that already hold a flight reference
+ * keep it; releaseInFlight only deletes when the map still points at that
+ * same flight object (replacement flights are left alone).
  */
 const invalidateCacheEntriesForExchangedToken = (
   exchangedRefreshToken: string,
@@ -155,6 +160,14 @@ const invalidateCacheEntriesForExchangedToken = (
   for (const [cacheKey, entry] of recentSuccessByRefreshToken) {
     if (entry.tokens.refresh_token === exchangedRefreshToken) {
       recentSuccessByRefreshToken.delete(cacheKey);
+    }
+  }
+  for (const [flightKey, flight] of inFlightByRefreshToken) {
+    if (flight.resolvedTokens?.refresh_token !== exchangedRefreshToken) {
+      continue;
+    }
+    if (inFlightByRefreshToken.get(flightKey) === flight) {
+      inFlightByRefreshToken.delete(flightKey);
     }
   }
 };
@@ -235,8 +248,10 @@ export const refreshTokensSingleFlight = async (
         }
         const flightKey = key;
         const flightId = `rf-${++flightIdCounter}-${Date.now()}`;
+        let pending!: InFlightRefresh;
         const promise = runNetworkRefresh()
           .then((result) => {
+            pending.resolvedTokens = result;
             cacheSuccess(flightKey, result);
             return result;
           })
@@ -247,7 +262,8 @@ export const refreshTokensSingleFlight = async (
             }
             throw tagRefreshErrorWithFlightId(error, flightId);
           });
-        flight = { promise, refs: 0, flightId };
+        pending = { promise, refs: 0, flightId };
+        flight = pending;
         inFlightByRefreshToken.set(flightKey, flight);
       } else if (config.isDebugMode) {
         console.debug(
