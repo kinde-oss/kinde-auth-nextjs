@@ -43,17 +43,47 @@ type CachedRefreshResult = {
  */
 const inFlightByRefreshToken = new Map<string, InFlightRefresh>();
 const recentSuccessByRefreshToken = new Map<string, CachedRefreshResult>();
+/** Refresh tokens that have been (or are being) exchanged in this process. */
+const recentlyExchangedRefreshTokens = new Map<string, number>();
 const SUCCESS_CACHE_TTL_MS = 5_000;
+const EXCHANGED_MEMORY_TTL_MS = 5_000;
 let flightIdCounter = 0;
 
 const asRefreshTokenKey = (value: unknown): string | null =>
   typeof value === "string" && value.length > 0 ? value : null;
 
+const pruneExchangedMemory = (now: number = Date.now()): void => {
+  for (const [token, exchangedAt] of recentlyExchangedRefreshTokens) {
+    if (now - exchangedAt > EXCHANGED_MEMORY_TTL_MS) {
+      recentlyExchangedRefreshTokens.delete(token);
+    }
+  }
+};
+
+const markRefreshTokenExchanged = (token: string): void => {
+  const now = Date.now();
+  pruneExchangedMemory(now);
+  recentlyExchangedRefreshTokens.set(token, now);
+};
+
+const wasRefreshTokenExchanged = (token: string): boolean => {
+  pruneExchangedMemory();
+  const exchangedAt = recentlyExchangedRefreshTokens.get(token);
+  if (exchangedAt == null) {
+    return false;
+  }
+  if (Date.now() - exchangedAt > EXCHANGED_MEMORY_TTL_MS) {
+    recentlyExchangedRefreshTokens.delete(token);
+    return false;
+  }
+  return true;
+};
+
 /**
  * Mirrors SDK commitTokensToSession: validate access/id tokens, confirm the
- * session still holds the flight's refresh token, apply ksp.persistent, then
- * write. Used when commitToSession=true after a shared commitToSession=false
- * network refresh.
+ * session still holds the flight's refresh token and the returned token has
+ * not been exchanged, apply ksp.persistent, then write. Used when
+ * commitToSession=true after a shared commitToSession=false network refresh.
  */
 const commitTokensToSessionManager = async (
   session: SessionManager,
@@ -98,7 +128,17 @@ const commitTokensToSessionManager = async (
     assertAccessOrIdValid("id_token", tokens.id_token),
   ]);
 
-  // Re-read after validation so a rotation during validation blocks the writes.
+  // Skip if a successor already exchanged the returned refresh token (R1), or
+  // if this session moved past the flight key (R0) while we validated.
+  if (tokens.refresh_token && wasRefreshTokenExchanged(tokens.refresh_token)) {
+    if (config.isDebugMode) {
+      console.debug(
+        "refreshTokensSingleFlight: skipping commit; returned refresh token already exchanged",
+      );
+    }
+    return;
+  }
+
   if (expectedRefreshToken) {
     const current = await session.getSessionItem("refresh_token");
     if (current !== expectedRefreshToken) {
@@ -117,6 +157,17 @@ const commitTokensToSessionManager = async (
   );
   if (payload) {
     session.persistent = payload.ksp?.persistent ?? true;
+  }
+
+  // Final exchanged check immediately before writes (successor may have started
+  // exchanging R1 after the session-key re-read above).
+  if (tokens.refresh_token && wasRefreshTokenExchanged(tokens.refresh_token)) {
+    if (config.isDebugMode) {
+      console.debug(
+        "refreshTokensSingleFlight: skipping commit; returned refresh token exchanged before write",
+      );
+    }
+    return;
   }
 
   await Promise.all([
@@ -148,15 +199,16 @@ const pruneExpiredSuccessCache = (now: number = Date.now()): void => {
 };
 
 /**
- * Drop success-cache and resolved in-flight entries whose *returned* refresh
- * token is about to be exchanged (or already was), so late arrivals never
- * reuse a spent refresh token. Waiters that already hold a flight reference
- * keep it; releaseInFlight only deletes when the map still points at that
- * same flight object (replacement flights are left alone).
+ * Mark `exchangedRefreshToken` as spent and drop success-cache / resolved
+ * in-flight entries that *returned* it, so late arrivals never reuse it.
+ * Waiters that already hold a flight reference keep it; releaseInFlight only
+ * deletes when the map still points at that same flight object.
  */
 const invalidateCacheEntriesForExchangedToken = (
   exchangedRefreshToken: string,
 ): void => {
+  markRefreshTokenExchanged(exchangedRefreshToken);
+
   for (const [cacheKey, entry] of recentSuccessByRefreshToken) {
     if (entry.tokens.refresh_token === exchangedRefreshToken) {
       recentSuccessByRefreshToken.delete(cacheKey);
@@ -228,8 +280,8 @@ export const refreshTokensSingleFlight = async (
   if (!key) {
     tokens = await runNetworkRefresh();
   } else {
-    // This key is being exchanged — any cached result that *returned* this
-    // token as the new refresh token is now spent.
+    // This key is being exchanged — mark it spent and drop predecessors that
+    // returned it so late waiters cannot commit or reuse it.
     invalidateCacheEntriesForExchangedToken(key);
 
     const cached = getCachedSuccess(key);
@@ -297,5 +349,6 @@ export const refreshTokensSingleFlight = async (
 export const __resetRefreshTokensSingleFlightForTests = (): void => {
   inFlightByRefreshToken.clear();
   recentSuccessByRefreshToken.clear();
+  recentlyExchangedRefreshTokens.clear();
   flightIdCounter = 0;
 };

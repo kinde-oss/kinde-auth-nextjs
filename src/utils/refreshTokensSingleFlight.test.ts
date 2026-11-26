@@ -224,6 +224,54 @@ describe("refreshTokensSingleFlight", () => {
     resolveValidationGate();
     await expect(slowCommit).resolves.toEqual(rotated);
     await expect(late).resolves.toEqual(afterSpent);
+    // Waiter must not write the spent R1 after a successor exchanged it.
+    expect(session.setSessionItem).not.toHaveBeenCalled();
+  });
+
+  it("skips commit when the returned refresh token was exchanged during validation", async () => {
+    const rotated = {
+      access_token: "access_1",
+      id_token: "id_1",
+      refresh_token: "refresh_token_rotated",
+    };
+    const next = {
+      access_token: "access_2",
+      id_token: "id_2",
+      refresh_token: "refresh_token_rotated_2",
+    };
+
+    let resolveValidationGate: () => void = () => undefined;
+    const validationGate = new Promise<void>((resolve) => {
+      resolveValidationGate = resolve;
+    });
+    mockValidateToken.mockImplementation(async () => {
+      await validationGate;
+      return { valid: true } as any;
+    });
+    mockRefreshTokens
+      .mockResolvedValueOnce(rotated as any)
+      .mockResolvedValueOnce(next as any);
+
+    // Waiter's session still holds R0 for the whole commit — the R0 session-key
+    // guard would pass; the returned-token (R1) exchange check must skip.
+    session.getSessionItem.mockResolvedValue("refresh_token_abc");
+    const slowCommit = refreshTokensSingleFlight(session as any, true);
+    await vi.waitFor(() => {
+      expect(mockValidateToken).toHaveBeenCalled();
+    });
+
+    // commitToSession=false still marks R1 exchanged (invalidate on exchange).
+    const successorSession = {
+      ...session,
+      getSessionItem: vi.fn().mockResolvedValue("refresh_token_rotated"),
+    };
+    await expect(
+      refreshTokensSingleFlight(successorSession as any, false),
+    ).resolves.toEqual(next);
+
+    resolveValidationGate();
+    await expect(slowCommit).resolves.toEqual(rotated);
+    expect(session.setSessionItem).not.toHaveBeenCalled();
   });
 
   it("commits tokens to the caller session when commitToSession is true", async () => {
