@@ -166,7 +166,7 @@ const getCachedSuccess = (key: string): OAuth2CodeExchangeResponse | null => {
     return null;
   }
   if (Date.now() > cached.expiresAt) {
-    recentSuccessByRefreshToken.delete(cacheKey);
+    recentSuccessByRefreshToken.delete(key);
     return null;
   }
   return cached.tokens;
