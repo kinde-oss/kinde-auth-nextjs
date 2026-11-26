@@ -188,20 +188,126 @@ describe("refreshTokensSingleFlight", () => {
     );
   });
 
-  it("skips commit when session refresh token no longer matches the flight key", async () => {
+  it("skips commit after validation when session refresh token no longer matches", async () => {
+    mockJwtDecoder.mockReturnValue({
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      ksp: { persistent: false },
+    } as any);
     mockRefreshTokens.mockResolvedValue({
       access_token: "access",
       id_token: "id",
       refresh_token: "refresh_token_new",
     } as any);
     session.getSessionItem
-      .mockResolvedValueOnce("refresh_token_abc") // key for flight
-      .mockResolvedValueOnce("refresh_token_newer"); // changed before commit
+      .mockResolvedValueOnce("refresh_token_abc") // initial key
+      .mockResolvedValueOnce("refresh_token_abc") // confirm before flight
+      .mockResolvedValueOnce("refresh_token_newer"); // post-validation recheck
 
     await refreshTokensSingleFlight(session as any, true);
 
+    expect(mockValidateToken).toHaveBeenCalled();
     expect(session.setSessionItem).not.toHaveBeenCalled();
-    expect(mockValidateToken).not.toHaveBeenCalled();
+    // Skipped commit must not flip cookie persistence policy.
+    expect(session.persistent).toBe(true);
+  });
+
+  it("skips commit when the refresh token rotates during validation", async () => {
+    let resolveValidationGate: () => void = () => undefined;
+    const validationGate = new Promise<void>((resolve) => {
+      resolveValidationGate = resolve;
+    });
+    mockValidateToken.mockImplementation(async () => {
+      await validationGate;
+      return { valid: true } as any;
+    });
+    mockJwtDecoder.mockReturnValue({
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      ksp: { persistent: false },
+    } as any);
+    mockRefreshTokens.mockResolvedValue({
+      access_token: "access",
+      id_token: "id",
+      refresh_token: "refresh_token_new",
+    } as any);
+
+    let refreshReads = 0;
+    session.getSessionItem.mockImplementation(async () => {
+      refreshReads += 1;
+      // Reads 1–2: key + confirm. After validation starts, session has rotated.
+      return refreshReads <= 2 ? "refresh_token_abc" : "refresh_token_newer";
+    });
+
+    const pending = refreshTokensSingleFlight(session as any, true);
+    await vi.waitFor(() => {
+      expect(mockValidateToken).toHaveBeenCalled();
+    });
+
+    resolveValidationGate();
+    await expect(pending).resolves.toMatchObject({ access_token: "access" });
+
+    expect(session.setSessionItem).not.toHaveBeenCalled();
+    expect(session.persistent).toBe(true);
+  });
+
+  it("commits and applies persistent when the flight key still matches after validation", async () => {
+    mockJwtDecoder.mockReturnValue({
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      ksp: { persistent: false },
+    } as any);
+    mockRefreshTokens.mockResolvedValue({
+      access_token: "access",
+      id_token: "id",
+      refresh_token: "refresh_token_new",
+    } as any);
+
+    await refreshTokensSingleFlight(session as any, true);
+
+    expect(session.persistent).toBe(false);
+    expect(session.setSessionItem).toHaveBeenCalledWith(
+      "refresh_token",
+      "refresh_token_new",
+    );
+  });
+
+  it("adopts the current refresh token when it changes before flight start", async () => {
+    const tokens = {
+      access_token: "access",
+      id_token: "id",
+      refresh_token: "refresh_token_from_newer",
+    };
+    let resolveRefresh: (value: unknown) => void = () => undefined;
+    mockRefreshTokens.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveRefresh = resolve;
+        }) as any,
+    );
+
+    // First caller starts a flight under the newer key.
+    const newerSession = {
+      ...session,
+      getSessionItem: vi.fn().mockResolvedValue("refresh_token_newer"),
+    };
+
+    const first = refreshTokensSingleFlight(newerSession as any, false);
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(1);
+
+    // Second caller initially reads the old key, then confirms the newer one
+    // and must join the in-flight exchange instead of starting another.
+    session.getSessionItem
+      .mockResolvedValueOnce("refresh_token_old")
+      .mockResolvedValueOnce("refresh_token_newer");
+
+    const second = refreshTokensSingleFlight(session as any, false);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(1);
+    resolveRefresh(tokens);
+    await expect(first).resolves.toEqual(tokens);
+    await expect(second).resolves.toEqual(tokens);
   });
 
   it("applies ksp.persistent=false before writing tokens", async () => {
@@ -341,9 +447,14 @@ describe("refreshTokensSingleFlight", () => {
   });
 
   it("does not share flights across different refresh tokens", async () => {
-    session.getSessionItem
-      .mockResolvedValueOnce("refresh_token_a")
-      .mockResolvedValueOnce("refresh_token_b");
+    const sessionA = {
+      ...session,
+      getSessionItem: vi.fn().mockResolvedValue("refresh_token_a"),
+    };
+    const sessionB = {
+      ...session,
+      getSessionItem: vi.fn().mockResolvedValue("refresh_token_b"),
+    };
 
     mockRefreshTokens
       .mockResolvedValueOnce({
@@ -358,8 +469,8 @@ describe("refreshTokensSingleFlight", () => {
       } as any);
 
     await Promise.all([
-      refreshTokensSingleFlight(session as any, false),
-      refreshTokensSingleFlight(session as any, false),
+      refreshTokensSingleFlight(sessionA as any, false),
+      refreshTokensSingleFlight(sessionB as any, false),
     ]);
 
     expect(mockRefreshTokens).toHaveBeenCalledTimes(2);
@@ -368,6 +479,8 @@ describe("refreshTokensSingleFlight", () => {
   it("starts a new network call for a different refresh token after a prior flight", async () => {
     session.getSessionItem
       .mockResolvedValueOnce("refresh_token_abc")
+      .mockResolvedValueOnce("refresh_token_abc")
+      .mockResolvedValueOnce("refresh_token_xyz")
       .mockResolvedValueOnce("refresh_token_xyz");
     mockRefreshTokens.mockResolvedValue({
       access_token: "access",

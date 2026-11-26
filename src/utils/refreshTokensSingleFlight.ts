@@ -44,22 +44,20 @@ const recentSuccessByRefreshToken = new Map<string, CachedRefreshResult>();
 const SUCCESS_CACHE_TTL_MS = 5_000;
 let flightIdCounter = 0;
 
+const asRefreshTokenKey = (value: unknown): string | null =>
+  typeof value === "string" && value.length > 0 ? value : null;
+
 /**
- * Mirrors SDK commitTokensToSession: apply ksp.persistent, validate access/id
- * tokens, then write. Used when commitToSession=true after a shared
- * commitToSession=false network refresh.
+ * Mirrors SDK commitTokensToSession: validate access/id tokens, confirm the
+ * session still holds the flight's refresh token, apply ksp.persistent, then
+ * write. Used when commitToSession=true after a shared commitToSession=false
+ * network refresh.
  */
 const commitTokensToSessionManager = async (
   session: SessionManager,
   tokens: OAuth2CodeExchangeResponse,
+  expectedRefreshToken?: string | null,
 ): Promise<void> => {
-  const payload = jwtDecoder<{ ksp?: { persistent?: boolean } }>(
-    tokens.access_token,
-  );
-  if (payload) {
-    session.persistent = payload.ksp?.persistent ?? true;
-  }
-
   const assertAccessOrIdValid = async (
     type: "access_token" | "id_token",
     token: string | undefined,
@@ -97,6 +95,27 @@ const commitTokensToSessionManager = async (
     assertAccessOrIdValid("access_token", tokens.access_token),
     assertAccessOrIdValid("id_token", tokens.id_token),
   ]);
+
+  // Re-read after validation so a rotation during validation blocks the writes.
+  if (expectedRefreshToken) {
+    const current = await session.getSessionItem("refresh_token");
+    if (current !== expectedRefreshToken) {
+      if (config.isDebugMode) {
+        console.debug(
+          "refreshTokensSingleFlight: skipping commit; session refresh token changed",
+        );
+      }
+      return;
+    }
+  }
+
+  // Only mutate persistence after we know we will commit.
+  const payload = jwtDecoder<{ ksp?: { persistent?: boolean } }>(
+    tokens.access_token,
+  );
+  if (payload) {
+    session.persistent = payload.ksp?.persistent ?? true;
+  }
 
   await Promise.all([
     tokens.access_token
@@ -147,7 +166,7 @@ const getCachedSuccess = (key: string): OAuth2CodeExchangeResponse | null => {
     return null;
   }
   if (Date.now() > cached.expiresAt) {
-    recentSuccessByRefreshToken.delete(key);
+    recentSuccessByRefreshToken.delete(cacheKey);
     return null;
   }
   return cached.tokens;
@@ -169,11 +188,23 @@ export const refreshTokensSingleFlight = async (
   session: SessionManager,
   commitToSession: boolean = true,
 ): Promise<OAuth2CodeExchangeResponse> => {
-  const refreshToken = await session.getSessionItem("refresh_token");
-  const key =
-    typeof refreshToken === "string" && refreshToken.length > 0
-      ? refreshToken
-      : null;
+  let key = asRefreshTokenKey(await session.getSessionItem("refresh_token"));
+
+  // Confirm the key immediately before cache/flight/network work so we register
+  // under the token the SDK will re-read and exchange (one re-read only).
+  if (key) {
+    const confirmed = asRefreshTokenKey(
+      await session.getSessionItem("refresh_token"),
+    );
+    if (confirmed !== key) {
+      if (config.isDebugMode) {
+        console.debug(
+          "refreshTokensSingleFlight: refresh token changed before flight; adopting current key",
+        );
+      }
+      key = confirmed;
+    }
+  }
 
   const runNetworkRefresh = (): Promise<OAuth2CodeExchangeResponse> =>
     kindeClient.refreshTokens(session, false);
@@ -202,21 +233,22 @@ export const refreshTokensSingleFlight = async (
         if (config.isDebugMode) {
           console.debug("refreshTokensSingleFlight: starting refresh");
         }
+        const flightKey = key;
         const flightId = `rf-${++flightIdCounter}-${Date.now()}`;
         const promise = runNetworkRefresh()
           .then((result) => {
-            cacheSuccess(key, result);
+            cacheSuccess(flightKey, result);
             return result;
           })
           .catch((error) => {
             // Failed flights must not block retries.
-            if (inFlightByRefreshToken.get(key)?.promise === promise) {
-              inFlightByRefreshToken.delete(key);
+            if (inFlightByRefreshToken.get(flightKey)?.promise === promise) {
+              inFlightByRefreshToken.delete(flightKey);
             }
             throw tagRefreshErrorWithFlightId(error, flightId);
           });
         flight = { promise, refs: 0, flightId };
-        inFlightByRefreshToken.set(key, flight);
+        inFlightByRefreshToken.set(flightKey, flight);
       } else if (config.isDebugMode) {
         console.debug(
           "refreshTokensSingleFlight: joining in-flight refresh for session",
@@ -235,20 +267,7 @@ export const refreshTokensSingleFlight = async (
 
   try {
     if (commitToSession) {
-      // Skip commit if this session already moved past the refresh token that
-      // keyed the shared flight (a newer refresh committed first).
-      if (key) {
-        const current = await session.getSessionItem("refresh_token");
-        if (current !== key) {
-          if (config.isDebugMode) {
-            console.debug(
-              "refreshTokensSingleFlight: skipping commit; session refresh token changed",
-            );
-          }
-          return tokens;
-        }
-      }
-      await commitTokensToSessionManager(session, tokens);
+      await commitTokensToSessionManager(session, tokens, key);
     }
     return tokens;
   } finally {
