@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 vi.mock("../config", () => ({
   config: { isDebugMode: false },
@@ -18,6 +18,28 @@ describe("staleRefreshTokenGuard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     __resetStaleRefreshTokenGuardForTests();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("forgets an earlier stale failure after the retry window expires", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const token = "refresh_token_abc";
+    session.getSessionItem.mockResolvedValue(token);
+    const stale = { errorCode: "STALE_REFRESH_TOKEN" };
+
+    await expect(
+      shouldClearSessionForRefreshError(session as any, stale, token),
+    ).resolves.toBe(false);
+    vi.setSystemTime(Date.now() + 60_001);
+    await expect(
+      shouldClearSessionForRefreshError(session as any, stale, token),
+    ).resolves.toBe(false);
+    await expect(
+      shouldClearSessionForRefreshError(session as any, stale, token),
+    ).resolves.toBe(true);
   });
 
   it("detects winner cookies when refresh token changed", async () => {

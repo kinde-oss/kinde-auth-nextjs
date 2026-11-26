@@ -52,6 +52,7 @@ describe("refreshTokensSingleFlight", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     __resetRefreshTokensSingleFlightForTests();
   });
 
@@ -237,6 +238,60 @@ describe("refreshTokensSingleFlight", () => {
 
     // Second call with same key should hit the short TTL cache, not the network.
     expect(mockRefreshTokens).toHaveBeenCalledTimes(1);
+  });
+
+  it("makes a new exchange after the cached success expires", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const first = {
+      access_token: "first_access",
+      id_token: "first_id",
+      refresh_token: "first_refresh",
+      expires_in: "3600",
+      token_type: "Bearer",
+      scope: "openid",
+    };
+    const next = { ...first, access_token: "next_access" };
+    mockRefreshTokens.mockResolvedValueOnce(first).mockResolvedValueOnce(next);
+
+    await expect(refreshTokensSingleFlight(session, false)).resolves.toEqual(
+      first,
+    );
+    vi.setSystemTime(Date.now() + 4_999);
+    await expect(refreshTokensSingleFlight(session, false)).resolves.toEqual(
+      first,
+    );
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(1);
+
+    vi.setSystemTime(Date.now() + 2);
+    await expect(refreshTokensSingleFlight(session, false)).resolves.toEqual(
+      next,
+    );
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not share refresh results when sessions have no refresh token", async () => {
+    session.getSessionItem.mockResolvedValue(null);
+    const other = { ...session, getSessionItem: vi.fn().mockResolvedValue("") };
+    const first = {
+      access_token: "first_access",
+      id_token: "first_id",
+      refresh_token: "first_refresh",
+      expires_in: "3600",
+      token_type: "Bearer",
+      scope: "openid",
+    };
+    const second = { ...first, access_token: "other_access" };
+    mockRefreshTokens
+      .mockResolvedValueOnce(first)
+      .mockResolvedValueOnce(second);
+
+    await expect(
+      Promise.all([
+        refreshTokensSingleFlight(session, false),
+        refreshTokensSingleFlight(other, false),
+      ]),
+    ).resolves.toEqual([first, second]);
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(2);
   });
 
   it("does not commit when commitToSession is false", async () => {
