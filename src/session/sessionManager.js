@@ -294,19 +294,35 @@ export const pageRouterSessionManager = (req, res, persistent = true) => {
         cookies = [cookies.toString()];
       }
 
-      // Only emit clearing Set-Cookie lines for Kinde session cookies — never
-      // push `undefined` for unrelated host cookies (throws in setHeader).
-      const clearingCookies = Object.keys(req.cookies)
-        .filter((name) => isKindeSessionCookieName(name))
-        .map((name) =>
-          cookie.serialize(name.split("=")[0], "", {
-            domain: config.cookieDomain ? config.cookieDomain : undefined,
-            maxAge: -1,
-            ...GLOBAL_COOKIE_OPTIONS,
-          }),
-        );
+      // Names from the request plus any Kinde cookies already queued on this
+      // response (e.g. setSessionItem earlier in the same handler).
+      const namesToClear = new Set(
+        Object.keys(req.cookies).filter((name) =>
+          isKindeSessionCookieName(name),
+        ),
+      );
+      cookies.forEach((headerValue) => {
+        const cookieName = String(headerValue).split("=")[0];
+        if (isKindeSessionCookieName(cookieName)) {
+          namesToClear.add(cookieName);
+        }
+      });
 
-      res?.setHeader("Set-Cookie", [...cookies, ...clearingCookies]);
+      // Drop live Kinde Set-Cookie values so they cannot outrank Max-Age=-1.
+      const retainedHeaders = cookies.filter((headerValue) => {
+        const cookieName = String(headerValue).split("=")[0];
+        return !isKindeSessionCookieName(cookieName);
+      });
+
+      const clearingCookies = [...namesToClear].map((name) =>
+        cookie.serialize(name.split("=")[0], "", {
+          domain: config.cookieDomain ? config.cookieDomain : undefined,
+          maxAge: -1,
+          ...GLOBAL_COOKIE_OPTIONS,
+        }),
+      );
+
+      res?.setHeader("Set-Cookie", [...retainedHeaders, ...clearingCookies]);
     },
   };
 };

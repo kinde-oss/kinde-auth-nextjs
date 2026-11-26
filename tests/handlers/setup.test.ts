@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // --------------------------------------------------------------------------
 // Mocks
@@ -47,7 +47,10 @@ import { getIdToken } from "../../src/utils/getIdToken";
 import { isTokenExpired } from "../../src/utils/jwt/validation";
 import { jwtDecoder } from "@kinde/jwt-decoder";
 import { refreshTokensSingleFlight } from "../../src/utils/refreshTokensSingleFlight";
-import { __resetStaleRefreshTokenGuardForTests } from "../../src/utils/staleRefreshTokenGuard";
+import {
+  __resetStaleRefreshTokenGuardForTests,
+  STALE_TERMINAL_MIN_INTERVAL_MS,
+} from "../../src/utils/staleRefreshTokenGuard";
 import { sessionManager } from "../../src/session/sessionManager";
 
 const mockGetAccessToken = vi.mocked(getAccessToken);
@@ -80,12 +83,17 @@ describe("setup handler", () => {
   const defaultDestroySession = vi.fn();
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
     __resetStaleRefreshTokenGuardForTests();
     mockRefreshTokensSingleFlight.mockReset();
     mockSessionManager.mockResolvedValue({
       getSessionItem: vi.fn().mockResolvedValue("refresh_token_abc"),
       destroySession: defaultDestroySession,
     } as any);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("returns HTTP 401 for NOT_LOGGED_IN when tokens are missing", async () => {
@@ -101,7 +109,7 @@ describe("setup handler", () => {
     );
   });
 
-  it("returns HTTP 401 for REFRESH_FAILED when token refresh throws terminal", async () => {
+  it("returns HTTP 401 for REFRESH_FAILED without re-destroying on plain OAuth Error", async () => {
     const destroySession = vi.fn();
     mockSessionManager.mockResolvedValue({
       getSessionItem: vi.fn().mockResolvedValue("refresh_token_abc"),
@@ -110,6 +118,7 @@ describe("setup handler", () => {
     mockGetAccessToken.mockResolvedValue("access_token");
     mockGetIdToken.mockResolvedValue("id_token");
     mockIsTokenExpired.mockReturnValue(true);
+    // SDK already called destroySession before throwing plain Error.
     mockRefreshTokensSingleFlight.mockRejectedValue(
       new Error("refresh failed"),
     );
@@ -117,14 +126,14 @@ describe("setup handler", () => {
     const routerClient = makeRouterClient();
     await setup(routerClient as any);
 
-    expect(destroySession).toHaveBeenCalled();
+    expect(destroySession).not.toHaveBeenCalled();
     expect(routerClient.json).toHaveBeenCalledWith(
       expect.objectContaining({ message: "REFRESH_FAILED" }),
       { status: 401 },
     );
   });
 
-  it("clears the session only after a second request gets stale for the same token", async () => {
+  it("clears the session only after a later request gets stale past the grace window", async () => {
     const destroySession = vi.fn();
     mockSessionManager.mockResolvedValue({
       getSessionItem: vi.fn().mockResolvedValue("refresh_token_abc"),
@@ -148,10 +157,21 @@ describe("setup handler", () => {
     );
     expect(mockRefreshTokensSingleFlight).toHaveBeenCalledTimes(1);
 
+    // Immediate client retry must stay non-terminal (cookie race / grace).
+    const immediateRetry = makeRouterClient();
+    await setup(immediateRetry as any);
+    expect(destroySession).not.toHaveBeenCalled();
+    expect(immediateRetry.json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "REFRESH_IN_PROGRESS_OR_STALE" }),
+      { status: 401 },
+    );
+
+    vi.advanceTimersByTime(STALE_TERMINAL_MIN_INTERVAL_MS + 1);
+
     const nextRequest = makeRouterClient();
     await setup(nextRequest as any);
 
-    expect(mockRefreshTokensSingleFlight).toHaveBeenCalledTimes(2);
+    expect(mockRefreshTokensSingleFlight).toHaveBeenCalledTimes(3);
     expect(destroySession).toHaveBeenCalledTimes(1);
     expect(nextRequest.json).toHaveBeenCalledWith(
       expect.objectContaining({ message: "REFRESH_FAILED" }),

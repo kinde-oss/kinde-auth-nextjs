@@ -72,12 +72,15 @@ export const fetchKindeState = async (
 
   if (!res.ok) {
     // Race loser: retry setup once so winner cookies can be picked up.
+    // Brief delay gives middleware Set-Cookie time to land before we re-hit
+    // the token endpoint with the pre-rotation refresh cookie.
     if (message === "REFRESH_IN_PROGRESS_OR_STALE" && !hasRetriedStale) {
       if (config.isDebugMode) {
         console.debug(
           "fetchKindeState: retrying after REFRESH_IN_PROGRESS_OR_STALE",
         );
       }
+      await new Promise((resolve) => setTimeout(resolve, 200));
       return fetchKindeState(true);
     }
 

@@ -8,6 +8,8 @@ import {
   __resetStaleRefreshTokenGuardForTests,
   assessStaleRefreshFailure,
   shouldClearSessionForRefreshError,
+  STALE_TERMINAL_MIN_INTERVAL_MS,
+  tagRefreshErrorWithFlightId,
 } from "./staleRefreshTokenGuard";
 
 describe("staleRefreshTokenGuard", () => {
@@ -17,6 +19,7 @@ describe("staleRefreshTokenGuard", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
     __resetStaleRefreshTokenGuardForTests();
   });
 
@@ -25,7 +28,6 @@ describe("staleRefreshTokenGuard", () => {
   });
 
   it("forgets an earlier stale failure after the retry window expires", async () => {
-    vi.useFakeTimers({ toFake: ["Date"] });
     const token = "refresh_token_abc";
     session.getSessionItem.mockResolvedValue(token);
     const stale = { errorCode: "STALE_REFRESH_TOKEN" };
@@ -33,10 +35,15 @@ describe("staleRefreshTokenGuard", () => {
     await expect(
       shouldClearSessionForRefreshError(session as any, stale, token),
     ).resolves.toBe(false);
-    vi.setSystemTime(Date.now() + 60_001);
+
+    // Memory TTL is 60s — after prune, the next stale is first-chance again.
+    vi.advanceTimersByTime(60_001);
     await expect(
       shouldClearSessionForRefreshError(session as any, stale, token),
     ).resolves.toBe(false);
+
+    // Terminal only after the grace interval on a later distinct failure.
+    vi.advanceTimersByTime(STALE_TERMINAL_MIN_INTERVAL_MS + 1);
     await expect(
       shouldClearSessionForRefreshError(session as any, stale, token),
     ).resolves.toBe(true);
@@ -49,22 +56,63 @@ describe("staleRefreshTokenGuard", () => {
     ).resolves.toBe("winner_cookies_present");
   });
 
-  it("marks first stale then terminal on repeat for same token", async () => {
+  it("keeps repeat stale within grace window non-terminal", async () => {
     session.getSessionItem.mockResolvedValue("refresh_token_abc");
     await expect(
       assessStaleRefreshFailure(session as any, "refresh_token_abc"),
     ).resolves.toBe("first_stale");
+
+    vi.advanceTimersByTime(STALE_TERMINAL_MIN_INTERVAL_MS - 100);
+
+    await expect(
+      assessStaleRefreshFailure(session as any, "refresh_token_abc"),
+    ).resolves.toBe("first_stale");
+  });
+
+  it("marks repeat stale terminal after the grace window", async () => {
+    session.getSessionItem.mockResolvedValue("refresh_token_abc");
+    await expect(
+      assessStaleRefreshFailure(session as any, "refresh_token_abc"),
+    ).resolves.toBe("first_stale");
+
+    vi.advanceTimersByTime(STALE_TERMINAL_MIN_INTERVAL_MS + 1);
+
     await expect(
       assessStaleRefreshFailure(session as any, "refresh_token_abc"),
     ).resolves.toBe("repeat_stale_terminal");
   });
 
-  it("shouldClearSessionForRefreshError is false for first stale", async () => {
+  it("shares one assessment across waiters of the same failed flight", async () => {
     session.getSessionItem.mockResolvedValue("refresh_token_abc");
+    const flightId = "flight-1";
+
     await expect(
-      shouldClearSessionForRefreshError(session as any, {
-        errorCode: "STALE_REFRESH_TOKEN",
-      }),
+      assessStaleRefreshFailure(session as any, "refresh_token_abc", flightId),
+    ).resolves.toBe("first_stale");
+
+    // Even after grace window, same flight id must not promote to terminal.
+    vi.advanceTimersByTime(STALE_TERMINAL_MIN_INTERVAL_MS + 1);
+
+    await expect(
+      assessStaleRefreshFailure(session as any, "refresh_token_abc", flightId),
+    ).resolves.toBe("first_stale");
+  });
+
+  it("shouldClearSessionForRefreshError uses tagged flight id", async () => {
+    session.getSessionItem.mockResolvedValue("refresh_token_abc");
+    const error = tagRefreshErrorWithFlightId(
+      { errorCode: "STALE_REFRESH_TOKEN" },
+      "flight-shared",
+    );
+
+    await expect(
+      shouldClearSessionForRefreshError(session as any, error),
+    ).resolves.toBe(false);
+
+    vi.advanceTimersByTime(STALE_TERMINAL_MIN_INTERVAL_MS + 1);
+
+    await expect(
+      shouldClearSessionForRefreshError(session as any, error),
     ).resolves.toBe(false);
   });
 

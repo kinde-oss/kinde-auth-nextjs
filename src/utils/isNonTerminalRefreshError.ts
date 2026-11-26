@@ -3,4 +3,5 @@ export {
   isStaleRefreshError,
   isTerminalRefreshError,
   isInvalidTokenCommitError,
+  shouldDestroySessionManagerForRefreshError,
 } from "./isTerminalRefreshError";

@@ -60,14 +60,26 @@ describe("refreshTokens util", () => {
     expect(session.destroySession).not.toHaveBeenCalled();
   });
 
-  it("destroys session on terminal refresh failure", async () => {
+  it("destroys session on terminal refresh failure that still needs host destroy", async () => {
+    mockShouldClear.mockResolvedValue(true);
+    // Repeat-stale style error (has errorCode) — SDK did not destroy.
+    mockRefreshTokensSingleFlight.mockRejectedValue({
+      errorCode: "STALE_REFRESH_TOKEN",
+      message: "stale",
+    });
+
+    await expect(refreshTokens(session as any)).resolves.toBe(false);
+    expect(session.destroySession).toHaveBeenCalled();
+  });
+
+  it("does not re-destroy when SDK already cleared on plain OAuth Error", async () => {
     mockShouldClear.mockResolvedValue(true);
     mockRefreshTokensSingleFlight.mockRejectedValue(
       new Error("invalid_client"),
     );
 
     await expect(refreshTokens(session as any)).resolves.toBe(false);
-    expect(session.destroySession).toHaveBeenCalled();
+    expect(session.destroySession).not.toHaveBeenCalled();
   });
 
   it("does not destroy session when post-refresh validateToken throws", async () => {

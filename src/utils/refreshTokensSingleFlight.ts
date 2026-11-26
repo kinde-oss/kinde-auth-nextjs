@@ -9,10 +9,12 @@ import { validateToken } from "@kinde/jwt-validator";
 import { kindeClient } from "../session/kindeServerClient";
 import { config } from "../config";
 import { isTokenExpired } from "./jwt/validation";
+import { tagRefreshErrorWithFlightId } from "./staleRefreshTokenGuard";
 
 type InFlightRefresh = {
   promise: Promise<OAuth2CodeExchangeResponse>;
   refs: number;
+  flightId: string;
 };
 
 type CachedRefreshResult = {
@@ -40,6 +42,7 @@ type CachedRefreshResult = {
 const inFlightByRefreshToken = new Map<string, InFlightRefresh>();
 const recentSuccessByRefreshToken = new Map<string, CachedRefreshResult>();
 const SUCCESS_CACHE_TTL_MS = 5_000;
+let flightIdCounter = 0;
 
 /**
  * Mirrors SDK commitTokensToSession: apply ksp.persistent, validate access/id
@@ -115,7 +118,30 @@ const releaseInFlight = (key: string, flight: InFlightRefresh): void => {
   }
 };
 
+const pruneExpiredSuccessCache = (now: number = Date.now()): void => {
+  for (const [cacheKey, entry] of recentSuccessByRefreshToken) {
+    if (now > entry.expiresAt) {
+      recentSuccessByRefreshToken.delete(cacheKey);
+    }
+  }
+};
+
+/**
+ * Drop cache entries whose *returned* refresh token is about to be exchanged
+ * (or already was), so late arrivals never receive a spent refresh token.
+ */
+const invalidateCacheEntriesForExchangedToken = (
+  exchangedRefreshToken: string,
+): void => {
+  for (const [cacheKey, entry] of recentSuccessByRefreshToken) {
+    if (entry.tokens.refresh_token === exchangedRefreshToken) {
+      recentSuccessByRefreshToken.delete(cacheKey);
+    }
+  }
+};
+
 const getCachedSuccess = (key: string): OAuth2CodeExchangeResponse | null => {
+  pruneExpiredSuccessCache();
   const cached = recentSuccessByRefreshToken.get(key);
   if (!cached) {
     return null;
@@ -131,9 +157,11 @@ const cacheSuccess = (
   key: string,
   tokens: OAuth2CodeExchangeResponse,
 ): void => {
+  const now = Date.now();
+  pruneExpiredSuccessCache(now);
   recentSuccessByRefreshToken.set(key, {
     tokens,
-    expiresAt: Date.now() + SUCCESS_CACHE_TTL_MS,
+    expiresAt: now + SUCCESS_CACHE_TTL_MS,
   });
 };
 
@@ -156,6 +184,10 @@ export const refreshTokensSingleFlight = async (
   if (!key) {
     tokens = await runNetworkRefresh();
   } else {
+    // This key is being exchanged — any cached result that *returned* this
+    // token as the new refresh token is now spent.
+    invalidateCacheEntriesForExchangedToken(key);
+
     const cached = getCachedSuccess(key);
     if (cached) {
       if (config.isDebugMode) {
@@ -170,6 +202,7 @@ export const refreshTokensSingleFlight = async (
         if (config.isDebugMode) {
           console.debug("refreshTokensSingleFlight: starting refresh");
         }
+        const flightId = `rf-${++flightIdCounter}-${Date.now()}`;
         const promise = runNetworkRefresh()
           .then((result) => {
             cacheSuccess(key, result);
@@ -180,9 +213,9 @@ export const refreshTokensSingleFlight = async (
             if (inFlightByRefreshToken.get(key)?.promise === promise) {
               inFlightByRefreshToken.delete(key);
             }
-            throw error;
+            throw tagRefreshErrorWithFlightId(error, flightId);
           });
-        flight = { promise, refs: 0 };
+        flight = { promise, refs: 0, flightId };
         inFlightByRefreshToken.set(key, flight);
       } else if (config.isDebugMode) {
         console.debug(
@@ -229,4 +262,5 @@ export const refreshTokensSingleFlight = async (
 export const __resetRefreshTokensSingleFlightForTests = (): void => {
   inFlightByRefreshToken.clear();
   recentSuccessByRefreshToken.clear();
+  flightIdCounter = 0;
 };

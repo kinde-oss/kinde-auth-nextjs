@@ -3,6 +3,7 @@ import {
   isNonTerminalRefreshError,
   isTerminalRefreshError,
   isStaleRefreshError,
+  shouldDestroySessionManagerForRefreshError,
 } from "./isTerminalRefreshError";
 import {
   KindeSDKError,
@@ -54,5 +55,22 @@ describe("isTerminalRefreshError / isNonTerminalRefreshError", () => {
     expect(isTerminalRefreshError(null)).toBe(false);
     expect(isTerminalRefreshError(undefined)).toBe(false);
     expect(isTerminalRefreshError("STALE_REFRESH_TOKEN")).toBe(false);
+  });
+
+  it("skips re-destroy for plain OAuth Error (SDK already destroyed)", async () => {
+    await expect(
+      shouldDestroySessionManagerForRefreshError(
+        true,
+        new Error("invalid_client"),
+      ),
+    ).resolves.toBe(false);
+  });
+
+  it("still destroys for repeat-stale clear decisions", async () => {
+    await expect(
+      shouldDestroySessionManagerForRefreshError(true, {
+        errorCode: "STALE_REFRESH_TOKEN",
+      }),
+    ).resolves.toBe(true);
   });
 });

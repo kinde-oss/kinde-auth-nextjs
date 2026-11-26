@@ -94,10 +94,37 @@ export const isTerminalRefreshError = (error: unknown): boolean => {
     return true;
   }
 
-  // SDK OAuth error path after destroySession: `throw new Error(message)`.
+  // SDK OAuth error path (non-invalid_grant): fetchTokensFor already called
+  // destroySession(), then `throw new Error(message)`. We still treat this as
+  // terminal for *host cookie* Max-Age=0 sync (middleware). Callers that would
+  // re-invoke session.destroySession should skip plain Error — see
+  // shouldDestroySessionManagerForRefreshError. True "transient" OAuth codes
+  // (e.g. server_error) need an SDK change to avoid destroySession there.
   if (error instanceof Error && error.name === "Error") {
     return true;
   }
 
   return false;
+};
+
+/**
+ * Whether to call session.destroySession() again after a refresh failure.
+ * Plain OAuth `Error` is skipped because the SDK already destroyed; repeat
+ * STALE and other terminal cases still need a host destroy.
+ */
+export const shouldDestroySessionManagerForRefreshError = async (
+  clearSession: boolean,
+  error: unknown,
+): Promise<boolean> => {
+  if (!clearSession) {
+    return false;
+  }
+  if (
+    error instanceof Error &&
+    error.name === "Error" &&
+    !(error as { errorCode?: unknown }).errorCode
+  ) {
+    return false;
+  }
+  return true;
 };

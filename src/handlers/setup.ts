@@ -8,7 +8,10 @@ import { getIdToken } from "../utils/getIdToken";
 import { sessionManager } from "../session/sessionManager";
 import { isTokenExpired } from "../utils/jwt/validation";
 import { refreshTokensSingleFlight } from "../utils/refreshTokensSingleFlight";
-import { isStaleRefreshError } from "../utils/isTerminalRefreshError";
+import {
+  isStaleRefreshError,
+  shouldDestroySessionManagerForRefreshError,
+} from "../utils/isTerminalRefreshError";
 import { shouldClearSessionForRefreshError } from "../utils/staleRefreshTokenGuard";
 
 const isTransientRefreshFailure = (error: unknown): boolean =>
@@ -123,7 +126,13 @@ export const setup = async (routerClient: RouterClient) => {
           failedToken,
         );
 
-        if (clearSession && typeof session.destroySession === "function") {
+        if (
+          (await shouldDestroySessionManagerForRefreshError(
+            clearSession,
+            error,
+          )) &&
+          typeof session.destroySession === "function"
+        ) {
           try {
             await session.destroySession();
           } catch {

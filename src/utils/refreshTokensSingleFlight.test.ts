@@ -116,9 +116,10 @@ describe("refreshTokensSingleFlight", () => {
     await Promise.resolve();
 
     resolveRefresh(tokens);
-    // Allow first waiter to reach validation/commit gate.
-    await Promise.resolve();
-    await Promise.resolve();
+    // Wait until the first waiter has entered commit validation.
+    await vi.waitFor(() => {
+      expect(mockValidateToken).toHaveBeenCalled();
+    });
 
     // While first waiter is still committing, a new caller with the same key
     // must join rather than start a second network exchange.
@@ -132,6 +133,39 @@ describe("refreshTokensSingleFlight", () => {
     await expect(first).resolves.toEqual(tokens);
     await expect(second).resolves.toEqual(tokens);
     expect(mockRefreshTokens).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not serve a cached result once its returned refresh token is exchanged", async () => {
+    mockRefreshTokens
+      .mockResolvedValueOnce({
+        access_token: "access_1",
+        id_token: "id_1",
+        refresh_token: "refresh_token_rotated",
+      } as any)
+      .mockResolvedValueOnce({
+        access_token: "access_2",
+        id_token: "id_2",
+        refresh_token: "refresh_token_rotated_2",
+      } as any);
+
+    session.getSessionItem.mockResolvedValue("refresh_token_abc");
+    await refreshTokensSingleFlight(session as any, false);
+
+    // A later refresh exchanges the rotated token — cache under abc must not
+    // hand back the spent rotated token afterwards.
+    session.getSessionItem.mockResolvedValue("refresh_token_rotated");
+    await refreshTokensSingleFlight(session as any, false);
+
+    session.getSessionItem.mockResolvedValue("refresh_token_abc");
+    mockRefreshTokens.mockResolvedValueOnce({
+      access_token: "access_3",
+      id_token: "id_3",
+      refresh_token: "refresh_token_new",
+    } as any);
+    const result = await refreshTokensSingleFlight(session as any, false);
+
+    expect(result.access_token).toBe("access_3");
+    expect(mockRefreshTokens).toHaveBeenCalledTimes(3);
   });
 
   it("commits tokens to the caller session when commitToSession is true", async () => {

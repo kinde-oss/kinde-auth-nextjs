@@ -3,9 +3,16 @@
 import { sessionManager } from "./sessionManager";
 import { refreshTokens } from "../utils/refreshTokens";
 
-export async function refreshTokensServerAction() {
+/**
+ * Server action used by `refreshData()`.
+ * Resolves on success; rejects when refresh fails so callers can distinguish.
+ */
+export async function refreshTokensServerAction(): Promise<void> {
   const session = await sessionManager();
   // Route through single-flight + terminal-only session clear (do not call
   // kindeClient.refreshTokens directly — that bypasses stale handling).
-  await refreshTokens(session);
+  const ok = await refreshTokens(session);
+  if (!ok) {
+    throw new Error("Failed to refresh tokens");
+  }
 }

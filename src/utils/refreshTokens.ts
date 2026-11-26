@@ -3,6 +3,7 @@ import { config } from "../config";
 import { SessionManager } from "@kinde-oss/kinde-typescript-sdk";
 import { refreshTokensSingleFlight } from "./refreshTokensSingleFlight";
 import { shouldClearSessionForRefreshError } from "./staleRefreshTokenGuard";
+import { shouldDestroySessionManagerForRefreshError } from "./isTerminalRefreshError";
 
 export const refreshTokens = async (
   session: SessionManager,
@@ -16,8 +17,13 @@ export const refreshTokens = async (
     }
     // Only destroy on confirmed terminal failures (incl. repeat stale).
     // JWKS/network/commit-validation must not wipe a just-refreshed session.
+    // Plain OAuth Error: SDK already destroySession'd — skip re-destroy.
+    const clearSession = await shouldClearSessionForRefreshError(
+      session,
+      error,
+    );
     if (
-      (await shouldClearSessionForRefreshError(session, error)) &&
+      (await shouldDestroySessionManagerForRefreshError(clearSession, error)) &&
       typeof session.destroySession === "function"
     ) {
       try {
