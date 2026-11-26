@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // --------------------------------------------------------------------------
 // Mocks
@@ -27,11 +27,17 @@ const ENV = {
 };
 
 const mockFetch = (body: object, status: number) => {
-  global.fetch = vi.fn().mockResolvedValue({
-    ok: status >= 200 && status < 300,
-    status,
-    json: vi.fn().mockResolvedValue(body),
-  } as any);
+  const fetchMock = vi
+    .fn()
+    .mockImplementation(async () => Response.json(body, { status }));
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+};
+
+const STALE_RESPONSE = {
+  message: "REFRESH_IN_PROGRESS_OR_STALE",
+  error: "Stale refresh token",
+  env: ENV,
 };
 
 // --------------------------------------------------------------------------
@@ -41,6 +47,54 @@ const mockFetch = (body: object, status: number) => {
 describe("fetchKindeState — auth failure HTTP status handling", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("recovers authenticated state after a stale response", async () => {
+    const fetchMock = mockFetch(STALE_RESPONSE, 401);
+    fetchMock
+      .mockResolvedValueOnce(Response.json(STALE_RESPONSE, { status: 401 }))
+      .mockResolvedValueOnce(
+        Response.json({ message: "OK", env: ENV, user: { id: "user_01" } }),
+      );
+
+    await expect(fetchKindeState()).resolves.toEqual({
+      success: true,
+      env: ENV,
+      kindeState: { user: { id: "user_01" } },
+    });
+    expect(fetchMock.mock.calls).toEqual([
+      ["/api/auth/setup"],
+      ["/api/auth/setup"],
+    ]);
+  });
+
+  it("stops after a second stale response", async () => {
+    const fetchMock = mockFetch(STALE_RESPONSE, 401);
+
+    await expect(fetchKindeState()).resolves.toEqual({
+      success: false,
+      env: ENV,
+      error: "Stale refresh token",
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("reports malformed JSON from the retry without making another request", async () => {
+    const fetchMock = mockFetch(STALE_RESPONSE, 401);
+    fetchMock
+      .mockResolvedValueOnce(Response.json(STALE_RESPONSE, { status: 401 }))
+      .mockResolvedValueOnce(new Response("not JSON", { status: 502 }));
+
+    await expect(fetchKindeState()).resolves.toEqual({
+      success: false,
+      env: null,
+      error: "Failed to parse Kinde state response",
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("returns { success: false, error: 'Not logged in' } for HTTP 401 NOT_LOGGED_IN", async () => {
@@ -56,12 +110,13 @@ describe("fetchKindeState — auth failure HTTP status handling", () => {
   });
 
   it("returns { success: false } with error message for HTTP 401 REFRESH_FAILED", async () => {
-    mockFetch(
+    const fetchMock = mockFetch(
       { message: "REFRESH_FAILED", error: "Token expired", env: ENV },
       401,
     );
     const result = await fetchKindeState();
     expect(result).toMatchObject({ success: false, error: "Token expired" });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("returns { success: false } with error message for HTTP 401 ACCESS_TOKEN_DECODE_FAILED", async () => {
@@ -124,7 +179,10 @@ describe("fetchKindeState — auth failure HTTP status handling", () => {
   });
 
   it("returns { success: false } when fetch throws a network error", async () => {
-    global.fetch = vi.fn().mockRejectedValue(new Error("network error"));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockRejectedValue(new Error("network error")),
+    );
     const result = await fetchKindeState();
     expect(result).toMatchObject({
       success: false,

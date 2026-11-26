@@ -4,7 +4,6 @@ import { KindeAccessToken, KindeIdToken } from "../types";
 import { jwtDecoder } from "@kinde/jwt-decoder";
 import { isTokenExpired } from "../utils/jwt/validation";
 import { getAccessToken } from "../utils/getAccessToken";
-import { kindeClient } from "../session/kindeServerClient";
 import { sessionManager } from "../session/sessionManager";
 import { getSplitCookies } from "../utils/cookies/getSplitSerializedCookies";
 import { getIdToken } from "../utils/getIdToken";
@@ -14,6 +13,9 @@ import { getStandardCookieOptions } from "../utils/cookies/getStandardCookieOpti
 import { isPublicPathMatch } from "../utils/isPublicPathMatch";
 import { shouldReturnUnauthorizedJson } from "../utils/shouldReturnUnauthorizedJson";
 import { buildAuthRedirectUrl } from "../utils/buildAuthRedirectUrl";
+import { refreshTokensSingleFlight } from "../utils/refreshTokensSingleFlight";
+import { shouldClearSessionForRefreshError } from "../utils/staleRefreshTokenGuard";
+import { clearSessionCookiesOnResponse } from "../utils/clearSessionCookiesOnResponse";
 
 /**
  * Handles invitation code redirect logic.
@@ -178,7 +180,7 @@ const handleMiddleware = async (req, options, onSuccess) => {
     };
 
     try {
-      refreshResponse = await kindeClient.refreshTokens(session, false);
+      refreshResponse = await refreshTokensSingleFlight(session, false);
       kindeAccessToken = refreshResponse.access_token;
       kindeIdToken = refreshResponse.id_token;
       if (config.isDebugMode) {
@@ -189,8 +191,43 @@ const handleMiddleware = async (req, options, onSuccess) => {
         );
       }
     } catch (error) {
+      const failedRefreshToken = await session.getSessionItem("refresh_token");
+      const failedToken =
+        typeof failedRefreshToken === "string" ? failedRefreshToken : null;
+      const clearSession = await shouldClearSessionForRefreshError(
+        session,
+        error,
+        failedToken,
+      );
+
+      if (!clearSession) {
+        // Race loser / first stale / transient transport — leave cookies.
+        if (config.isDebugMode) {
+          console.error(
+            "authMiddleware: non-terminal refresh failure, not clearing cookies",
+            error,
+          );
+        }
+        const result = sendResult(
+          "authMiddleware: error refreshing tokens (non-terminal)",
+        );
+        if (result) return result;
+        return resp;
+      }
+
       const result = sendResult("authMiddleware: error refreshing tokens");
-      if (result) return result;
+      if (result) {
+        clearSessionCookiesOnResponse(result, req);
+        return result;
+      }
+      clearSessionCookiesOnResponse(resp, req);
+      return resp;
+    }
+
+    if (!refreshResponse) {
+      return isPublicPath
+        ? resp
+        : authRedirect(req, authRedirectUrl, options?.redirectURLBase);
     }
 
     try {

@@ -6,8 +6,68 @@ import { getAccessToken } from "../utils/getAccessToken";
 import RouterClient from "../routerClients/RouterClient";
 import { getIdToken } from "../utils/getIdToken";
 import { sessionManager } from "../session/sessionManager";
-import { kindeClient } from "../session/kindeServerClient";
 import { isTokenExpired } from "../utils/jwt/validation";
+import { refreshTokensSingleFlight } from "../utils/refreshTokensSingleFlight";
+import {
+  isStaleRefreshError,
+  shouldDestroySessionManagerForRefreshError,
+} from "../utils/isTerminalRefreshError";
+import { shouldClearSessionForRefreshError } from "../utils/staleRefreshTokenGuard";
+
+const isTransientRefreshFailure = (error: unknown): boolean =>
+  error instanceof TypeError ||
+  error instanceof SyntaxError ||
+  (typeof AggregateError !== "undefined" && error instanceof AggregateError) ||
+  (typeof DOMException !== "undefined" && error instanceof DOMException);
+
+const refreshWithOptionalRetry = async (
+  session: Awaited<ReturnType<typeof sessionManager>>,
+  req: RouterClient["req"],
+): Promise<{
+  accessTokenEncoded: string;
+  idTokenEncoded: string;
+}> => {
+  const attemptRefresh = () => refreshTokensSingleFlight(session, true);
+
+  try {
+    const refreshResponse = await attemptRefresh();
+    return {
+      accessTokenEncoded: refreshResponse.access_token,
+      idTokenEncoded: refreshResponse.id_token,
+    };
+  } catch (error) {
+    // Middleware and setup do not share the in-process single-flight map.
+    // Re-read cookies in case a concurrent winner already updated them.
+    // Do NOT call shouldClearSessionForRefreshError here — the outer catch
+    // owns the single stale-bound assessment. A same-request network retry
+    // on STALE would incorrectly promote first-chance stale to terminal.
+    if (config.isDebugMode) {
+      console.error("setup: refresh tokens failed — assessing retry", error);
+    }
+
+    const accessAfter = await getAccessToken(req);
+    const idAfter = await getIdToken(req);
+    if (accessAfter && idAfter && !isTokenExpired(accessAfter, 20)) {
+      return {
+        accessTokenEncoded: accessAfter,
+        idTokenEncoded: idAfter,
+      };
+    }
+
+    // Transient transport only: one network retry. STALE is left for the
+    // client / next request so the stale-token bound stays cross-request.
+    if (isTransientRefreshFailure(error)) {
+      const retryResponse = await attemptRefresh();
+      return {
+        accessTokenEncoded: retryResponse.access_token,
+        idTokenEncoded: retryResponse.id_token,
+      };
+    }
+
+    throw error;
+  }
+};
+
 /**
  *
  * @param {RouterClient} routerClient
@@ -42,16 +102,51 @@ export const setup = async (routerClient: RouterClient) => {
         console.log("setup: access or id token expired - attempting refresh");
       }
       try {
-        const refreshResponse = await kindeClient.refreshTokens(session);
-        accessTokenEncoded = refreshResponse.access_token;
-        idTokenEncoded = refreshResponse.id_token;
+        const refreshed = await refreshWithOptionalRetry(
+          session,
+          routerClient.req,
+        );
+        accessTokenEncoded = refreshed.accessTokenEncoded;
+        idTokenEncoded = refreshed.idTokenEncoded;
       } catch (error) {
         if (config.isDebugMode) {
-          console.error("setup: refresh tokens failed - returning error");
+          console.error(
+            "setup: refresh tokens failed - returning error",
+            error,
+          );
         }
+
+        const failedRefreshToken =
+          await session.getSessionItem("refresh_token");
+        const failedToken =
+          typeof failedRefreshToken === "string" ? failedRefreshToken : null;
+        const clearSession = await shouldClearSessionForRefreshError(
+          session,
+          error,
+          failedToken,
+        );
+
+        if (
+          (await shouldDestroySessionManagerForRefreshError(
+            clearSession,
+            error,
+          )) &&
+          typeof session.destroySession === "function"
+        ) {
+          try {
+            await session.destroySession();
+          } catch {
+            // Best-effort clear on terminal failure.
+          }
+        }
+
         return routerClient.json(
           {
-            message: "REFRESH_FAILED",
+            message: clearSession
+              ? "REFRESH_FAILED"
+              : isStaleRefreshError(error)
+                ? "REFRESH_IN_PROGRESS_OR_STALE"
+                : "REFRESH_FAILED",
             error: error instanceof Error ? error.message : error,
             env: {
               clientId: config.clientID,
