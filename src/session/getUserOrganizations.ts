@@ -46,7 +46,9 @@ export const getUserOrganizationsFactory =
         orgs: mappedOrgs,
       };
 
-      if (mappedOrgs.length > 0) {
+      // Org codes without org details means the "Organizations (array)" claim
+      // is not enabled for the ID token, so there are no names to return.
+      if (result.orgCodes.length > 0 && mappedOrgs.length === 0) {
         console.warn(
           "Warning: organizations are not in ID token so names are missing.",
         );
